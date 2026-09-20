@@ -13,8 +13,8 @@ BLACK = BlockState.of("minecraft:black_concrete")
 
 @dataclass(frozen=True)
 class LampPanelSpec:
-    width: int = 192
-    height: int = 108
+    width: int = 320
+    height: int = 180
     pixel_pitch_x: int = 4
     pixel_pitch_y: int = 2
 
