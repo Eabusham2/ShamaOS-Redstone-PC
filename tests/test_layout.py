@@ -7,7 +7,7 @@ def test_default_floorplan_has_no_overlaps():
         origin=Vec3(0, 8, 0),
         ram_bytes=1 << 20,
         cache_bytes=16 << 10,
-        flash_bytes=1 << 20,
+        flash_bytes=4 << 20,
         display_width=320,
         display_height=180,
     ))
