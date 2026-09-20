@@ -139,8 +139,8 @@ def bank_ports(origin: Vec3, spec: MemoryBankSpec) -> MemoryBankPorts:
     data_out = []
     for bit in range(spec.word_bits):
         bx = origin.x + bit * spec.bit_pitch
-        data_in.append(Vec3(bx, origin.y + spec.data_y, origin.z - 2))
-        data_out.append(Vec3(bx + 6, origin.y + spec.read_y, origin.z - 2))
+        data_in.append(Vec3(bx, origin.y + spec.data_y, origin.z - 1))
+        data_out.append(Vec3(bx + 6, origin.y + spec.read_y, origin.z + spec.words * spec.word_pitch + 4))
 
     write_select = []
     read_select = []
@@ -282,8 +282,8 @@ class MemoryFabricSpec:
     total_bytes: int
     bank: MemoryBankSpec = MemoryBankSpec()
     banks_per_row: int = 16
-    bank_gap_x: int = 32
-    bank_gap_z: int = 32
+    bank_gap_x: int = 192
+    bank_gap_z: int = 128
 
     @property
     def bank_count(self) -> int:
