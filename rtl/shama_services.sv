@@ -38,7 +38,9 @@ module shama_services(
     input  logic         ext_ready,
     input  logic [63:0]  ext_ret,
     input  logic         ext_jump_valid,
-    input  logic [31:0]  ext_jump_pc
+    input  logic [31:0]  ext_jump_pc,
+
+    output logic         os_loaded
 );
     localparam [11:0]
         SYS_EXIT                = 12'h001,
@@ -155,6 +157,7 @@ module shama_services(
             response_jump <= 0;
             response_pc <= 0;
             event_ack <= 0;
+            os_loaded <= 0;
         end else begin
             event_ack <= 0;
             if(state == ST_RESP && !sys_valid) begin
@@ -264,6 +267,7 @@ module shama_services(
                     if(dma_ready) begin
                         if(copy_offset + 4 >= `SHAMA_BUNDLE_BYTES) begin
                             response <= `SHAMA_BUNDLE_BYTES;
+                            os_loaded <= 1'b1;
                             state <= ST_RESP;
                         end else begin
                             copy_offset <= copy_offset + 4;
