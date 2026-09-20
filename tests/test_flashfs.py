@@ -25,5 +25,5 @@ def test_round_trip_and_mutations():
 
 
 def test_full_image_size():
-    fs = ShamaFS(1 << 20)
-    assert len(fs.serialize()) == 1 << 20
+    fs = ShamaFS(4 << 20)
+    assert len(fs.serialize()) == 4 << 20
