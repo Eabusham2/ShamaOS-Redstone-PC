@@ -44,7 +44,7 @@ def _firmware_source(filename: str) -> str:
     return files("shamaos").joinpath("firmware", filename).read_text(encoding="utf-8")
 
 
-def build_default_os_image(flash_bytes: int = 1 << 20) -> OSImage:
+def build_default_os_image(flash_bytes: int = 4 << 20) -> OSImage:
     fs = ShamaFS(flash_bytes)
 
     # Store both editable source and the actually assembled executable.
