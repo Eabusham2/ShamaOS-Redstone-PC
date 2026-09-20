@@ -71,7 +71,7 @@ The listing shows actual emitted 32-bit machine words and source mapping.
 shamaos flash-image -o build/shamaos-flash.img
 ```
 
-The default image is 1 MiB and contains the ShamaOS boot/kernel/app manifest payloads plus welcome/miner state files.
+The default image is **4 MiB** and contains the ShamaOS boot/kernel/app manifest payloads plus welcome/miner state files.
 
 The physical OS compiler will progressively replace manifest placeholders with assembled machine images while keeping the filesystem ABI stable.
 
