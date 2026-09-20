@@ -6,7 +6,7 @@
 - Recorded transcript-derived/reference-video facts and separated them from ShamaOS extensions.
 - Defined 32-bit CPU architecture and native SHA execution unit.
 - Defined programmable GPU/display model.
-- Defined 1 MiB RAM / 16 KiB cache / 1 MiB flash default architecture.
+- Defined **1 MiB RAM / 16 KiB cache / 4 MiB flash** architecture, with flash fixed at 4× RAM.
 - Defined GUI OS, Editor, File Explorer, Bitcoin Miner, System Monitor and system-call requirements.
 - Added assembler/ISA executable specification.
 - Added SHA-256/double-SHA reference implementation.
