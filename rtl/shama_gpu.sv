@@ -71,7 +71,7 @@ module shama_gpu #(
     integer lx,ly,lx1,ly1,ldx,ldy,lsx,lsy,lerr,e2;
     integer rx,ry,rw,rh;
     logic rect_fill;
-    integer ccx,ccy,cr,cxo,cyo,dist,r2,inner2;
+    integer ccx,ccy,cr,cxo,cyo,circle_dist,r2,inner2;
     integer bsrc,bx,by,bw,bh,bdx,bdy;
     logic blit_transparent;
     logic [7:0] char_code;
@@ -327,8 +327,8 @@ module shama_gpu #(
                 end
 
                 ST_CIRCLE: begin
-                    dist = cxo*cxo + cyo*cyo;
-                    if(dist<=r2 && dist>=inner2 && in_clip(ccx+cxo,ccy+cyo))
+                    circle_dist = cxo*cxo + cyo*cyo;
+                    if(circle_dist<=r2 && circle_dist>=inner2 && in_clip(ccx+cxo,ccy+cyo))
                         back_write(pindex(ccx+cxo,ccy+cyo),draw_color);
                     if(cxo==cr) begin
                         cxo<=-cr;
