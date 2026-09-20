@@ -1,6 +1,6 @@
 module shama_gpu #(
-    parameter integer WIDTH = 192,
-    parameter integer HEIGHT = 108,
+    parameter integer WIDTH = 320,
+    parameter integer HEIGHT = 180,
     parameter integer QUEUE_DEPTH = 8
 )(
     input  logic        clk,
