@@ -85,6 +85,15 @@ jobs:
         run: |
           iverilog -g2012 -Wall -I rtl -s shama_services -o build_services.vvp \
             rtl/shama_services.sv
+      - name: Compile ShamaFS accelerator
+        run: |
+          iverilog -g2012 -Wall -I rtl -s shama_fs_accel -o build_fs.vvp rtl/shama_fs_accel.sv
+      - name: Compile in-world assembler accelerator
+        run: |
+          iverilog -g2012 -Wall -I rtl -s shama_asm_accel -o build_asm.vvp rtl/shama_asm_accel.sv
+      - name: Compile GUI kernel accelerator
+        run: |
+          iverilog -g2012 -Wall -I rtl -s shama_kernel_accel -o build_kernel.vvp rtl/shama_kernel_accel.sv
       - name: Compile integrated ShamaOS SoC
         run: |
           iverilog -g2012 -Wall -I rtl -s shama_soc -o build_soc.vvp \
@@ -92,4 +101,6 @@ jobs:
             rtl/shama_cpu.sv rtl/shama_font5x7.sv rtl/shama_gpu.sv \
             rtl/shama_display_bridge.sv rtl/shama_input.sv \
             rtl/shama_onehot_ring.sv rtl/shama_ring_memctl.sv \
-            rtl/shama_memory_adapter.sv rtl/shama_services.sv rtl/shama_soc.sv
+            rtl/shama_memory_adapter.sv rtl/shama_services.sv \
+            rtl/shama_kernel_accel.sv rtl/shama_fs_accel.sv \
+            rtl/shama_asm_accel.sv rtl/shama_soc.sv
