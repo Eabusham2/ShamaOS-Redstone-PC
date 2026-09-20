@@ -45,3 +45,10 @@ jobs:
         run: |
           iverilog -g2012 -Wall -s shama_cpu -o build_cpu.vvp \
             rtl/sha256_compress.sv rtl/sha256_fixed64.sv rtl/bitcoin_dsha256.sv rtl/shama_cpu.sv
+      - name: Compile GPU RTL
+        run: |
+          iverilog -g2012 -Wall -s tb_gpu -o build_gpu.vvp \
+            rtl/shama_font5x7.sv rtl/shama_gpu.sv rtl/tb_gpu.sv
+      - name: Run GPU command/display test
+        run: vvp build_gpu.vvp
+
