@@ -33,8 +33,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install Icarus Verilog
-        run: sudo apt-get update && sudo apt-get install -y iverilog
+      - name: Install HDL tools and package
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y iverilog yosys
+          python -m pip install --upgrade pip
+          pip install -e .
       - name: Compile SHA RTL
         run: |
           iverilog -g2012 -Wall -s tb_sha -o build_sha.vvp \
@@ -62,3 +66,18 @@ jobs:
             rtl/shama_ring_memctl.sv rtl/tb_ring_memctl.sv
           vvp build_memctl.vvp
 
+      - name: Compile input RTL
+        run: |
+          iverilog -g2012 -Wall -s shama_input -o build_input.vvp rtl/shama_input.sv
+      - name: Yosys redstone synthesis smoke
+        run: |
+          shamaos synth-redstone --top synth_smoke --rtl rtl/synth_smoke.sv \
+            --json build/synth-smoke.json --manifest build/synth-smoke-physical.json
+          python - <<'PY'
+          import json
+          m=json.load(open("build/synth-smoke-physical.json"))
+          assert m["cell_count"] > 0
+          assert m["net_count"] > 0
+          assert m["routing_tracks"] > 0
+          print(m)
+          PY
