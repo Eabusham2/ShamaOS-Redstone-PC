@@ -84,6 +84,7 @@ module shama_cpu (
     logic [3:0] hash_word_index;
 
     logic [31:0] nonce_word;
+    logic [31:0] ra_value, rb_value, rd_value;
 
     logic [31:0] dbg_a,dbg_b,dbg_c,dbg_d,dbg_e,dbg_f,dbg_g,dbg_h;
     logic [31:0] dbg_w, dbg_k;
@@ -167,6 +168,9 @@ module shama_cpu (
         ra = ir[19:16];
         rb = ir[15:12];
         imm12 = ir[11:0];
+        ra_value = rreg(ra);
+        rb_value = rreg(rb);
+        rd_value = rreg(rd);
 
         mem_valid = 1'b0;
         mem_we = 1'b0;
@@ -312,7 +316,7 @@ module shama_cpu (
                                  + ((opcode==OP_ADC && flag_c) ? 1 : 0);
                             result = wide[31:0];
                             regs[rd] <= result; flag_c <= wide[32]; set_zn(result);
-                            flag_v <= (~(rreg(ra)[31]^rreg(rb)[31])) & (rreg(ra)[31]^result[31]);
+                            flag_v <= (~(ra_value[31]^rb_value[31])) & (ra_value[31]^result[31]);
                             state <= S_FETCH;
                         end
                         OP_SUB, OP_SBC: begin
@@ -320,7 +324,7 @@ module shama_cpu (
                             regs[rd] <= result;
                             flag_c <= (rreg(ra) >= (rreg(rb)+((opcode==OP_SBC && !flag_c)?1:0)));
                             set_zn(result);
-                            flag_v <= (rreg(ra)[31]^rreg(rb)[31]) & (rreg(ra)[31]^result[31]);
+                            flag_v <= (ra_value[31]^rb_value[31]) & (ra_value[31]^result[31]);
                             state <= S_FETCH;
                         end
                         OP_MUL: begin result=rreg(ra)*rreg(rb); regs[rd]<=result; set_zn(result); state<=S_FETCH; end
@@ -337,16 +341,16 @@ module shama_cpu (
                         OP_NAND: begin result=~(rreg(ra)&rreg(rb)); regs[rd]<=result; set_zn(result); state<=S_FETCH; end
                         OP_XNOR: begin result=~(rreg(ra)^rreg(rb)); regs[rd]<=result; set_zn(result); state<=S_FETCH; end
                         OP_NOT: begin result=~rreg(ra); regs[rd]<=result; set_zn(result); state<=S_FETCH; end
-                        OP_SHL: begin result=rreg(ra) << rreg(rb)[4:0]; regs[rd]<=result; set_zn(result); state<=S_FETCH; end
-                        OP_SHR: begin result=rreg(ra) >> rreg(rb)[4:0]; regs[rd]<=result; set_zn(result); state<=S_FETCH; end
-                        OP_SAR: begin result=$signed(rreg(ra)) >>> rreg(rb)[4:0]; regs[rd]<=result; set_zn(result); state<=S_FETCH; end
-                        OP_ROL: begin result=(rreg(ra)<<rreg(rb)[4:0]) | (rreg(ra)>>(32-rreg(rb)[4:0])); regs[rd]<=result; set_zn(result); state<=S_FETCH; end
-                        OP_ROR: begin result=(rreg(ra)>>rreg(rb)[4:0]) | (rreg(ra)<<(32-rreg(rb)[4:0])); regs[rd]<=result; set_zn(result); state<=S_FETCH; end
+                        OP_SHL: begin result=rreg(ra) << rb_value[4:0]; regs[rd]<=result; set_zn(result); state<=S_FETCH; end
+                        OP_SHR: begin result=rreg(ra) >> rb_value[4:0]; regs[rd]<=result; set_zn(result); state<=S_FETCH; end
+                        OP_SAR: begin result=$signed(rreg(ra)) >>> rb_value[4:0]; regs[rd]<=result; set_zn(result); state<=S_FETCH; end
+                        OP_ROL: begin result=(rreg(ra)<<rb_value[4:0]) | (rreg(ra)>>(32-rb_value[4:0])); regs[rd]<=result; set_zn(result); state<=S_FETCH; end
+                        OP_ROR: begin result=(rreg(ra)>>rb_value[4:0]) | (rreg(ra)<<(32-rb_value[4:0])); regs[rd]<=result; set_zn(result); state<=S_FETCH; end
 
                         OP_CMP: begin
                             result = rreg(rd)-rreg(ra);
                             flag_c <= (rreg(rd)>=rreg(ra)); set_zn(result);
-                            flag_v <= (rreg(rd)[31]^rreg(ra)[31]) & (rreg(rd)[31]^result[31]);
+                            flag_v <= (rd_value[31]^ra_value[31]) & (rd_value[31]^result[31]);
                             state <= S_FETCH;
                         end
                         OP_TEST: begin result=rreg(rd)&rreg(ra); set_zn(result); state<=S_FETCH; end
