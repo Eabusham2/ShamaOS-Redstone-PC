@@ -183,7 +183,7 @@ TEMPLATES: dict[str, LogicTemplate] = {
 
 
 def normalize_cell_type(cell_type: str) -> str:
-    return cell_type.lstrip("\").upper()
+    return cell_type.lstrip("\\").upper()
 
 
 def template_for(cell_type: str) -> LogicTemplate:
