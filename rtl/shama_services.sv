@@ -102,7 +102,6 @@ module shama_services(
                 SYS_GET_COUNTER,
                 SYS_APP_LAUNCH,
                 SYS_APP_EXIT_FOREGROUND,
-                SYS_BOOT_MOUNT,
                 SYS_BOOT_LOAD_OS,
                 SYS_RAM_USAGE,
                 SYS_CACHE_USAGE,
