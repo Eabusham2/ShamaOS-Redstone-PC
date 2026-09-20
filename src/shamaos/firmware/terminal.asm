@@ -1,0 +1,8 @@
+; ShamaOS Terminal
+.loop
+SYS SYS_UI_TERMINAL_VIEW
+SYS SYS_GET_EVENT
+CMP r1 r0
+BR.EQ .loop
+SYS SYS_APP_EVENT
+JMP .loop
