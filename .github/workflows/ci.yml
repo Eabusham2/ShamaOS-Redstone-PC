@@ -81,3 +81,15 @@ jobs:
           assert m["routing_tracks"] > 0
           print(m)
           PY
+      - name: Compile ShamaOS services
+        run: |
+          iverilog -g2012 -Wall -I rtl -s shama_services -o build_services.vvp \
+            rtl/shama_services.sv
+      - name: Compile integrated ShamaOS SoC
+        run: |
+          iverilog -g2012 -Wall -I rtl -s shama_soc -o build_soc.vvp \
+            rtl/sha256_compress.sv rtl/sha256_fixed64.sv rtl/bitcoin_dsha256.sv \
+            rtl/shama_cpu.sv rtl/shama_font5x7.sv rtl/shama_gpu.sv \
+            rtl/shama_display_bridge.sv rtl/shama_input.sv \
+            rtl/shama_onehot_ring.sv rtl/shama_ring_memctl.sv \
+            rtl/shama_memory_adapter.sv rtl/shama_services.sv rtl/shama_soc.sv
