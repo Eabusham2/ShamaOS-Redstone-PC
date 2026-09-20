@@ -7,6 +7,8 @@ import sys
 from .assembler import assemble_file, write_binary, write_listing
 from .generator import build_plan, load_config, manifest, write_available_placements, write_manifest
 from .os_image import build_default_os_image
+from .synthesis import build_physical_netlist, synthesize_json
+from .model import Vec3
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -25,6 +27,15 @@ def _parser() -> argparse.ArgumentParser:
     fs = sub.add_parser("flash-image", help="build preloaded ShamaOS flash image")
     fs.add_argument("-o", "--output", default="build/shamaos-flash.img")
     fs.add_argument("--bytes", type=int, default=1 << 20)
+
+    synth = sub.add_parser("synth-redstone", help="synthesize SystemVerilog into physical redstone cells/routes")
+    synth.add_argument("--top", required=True)
+    synth.add_argument("--rtl", action="append", required=True, help="RTL file; repeat for multiple files")
+    synth.add_argument("--json", default="build/redstone-netlist.json")
+    synth.add_argument("--manifest", default="build/redstone-physical.json")
+    synth.add_argument("--origin-x", type=int, default=0)
+    synth.add_argument("--origin-y", type=int, default=64)
+    synth.add_argument("--origin-z", type=int, default=0)
 
     gen = sub.add_parser("generate", help="write currently implemented physical generators into a world")
     gen.add_argument("--world", required=True)
@@ -57,6 +68,21 @@ def main(argv: list[str] | None = None) -> int:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(image.image)
         print(f"wrote {len(image.image)} bytes with {len(image.files)} preloaded files")
+        return 0
+
+    if args.command == "synth-redstone":
+        netlist_path = synthesize_json(args.rtl, top=args.top, output_json=args.json)
+        physical = build_physical_netlist(
+            netlist_path,
+            top=args.top,
+            origin=Vec3(args.origin_x, args.origin_y, args.origin_z),
+        )
+        write_manifest(args.manifest, physical.manifest())
+        print(
+            f"synthesized {physical.manifest()['cell_count']} cells, "
+            f"{physical.manifest()['net_count']} routed nets on "
+            f"{physical.manifest()['routing_tracks']} tracks"
+        )
         return 0
 
     if args.command == "generate":
