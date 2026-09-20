@@ -51,4 +51,14 @@ jobs:
             rtl/shama_font5x7.sv rtl/shama_gpu.sv rtl/tb_gpu.sv
       - name: Run GPU command/display test
         run: vvp build_gpu.vvp
+      - name: Compile/display bridge test
+        run: |
+          iverilog -g2012 -Wall -s tb_display_bridge -o build_display_bridge.vvp \
+            rtl/shama_display_bridge.sv rtl/tb_display_bridge.sv
+          vvp build_display_bridge.vvp
+      - name: Compile/ring memory-controller test
+        run: |
+          iverilog -g2012 -Wall -s tb_ring_memctl -o build_memctl.vvp \
+            rtl/shama_ring_memctl.sv rtl/tb_ring_memctl.sv
+          vvp build_memctl.vvp
 
