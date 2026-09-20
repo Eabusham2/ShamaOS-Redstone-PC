@@ -18,7 +18,7 @@ native_sha = true
 [memory]
 logical_ram_bytes = 1048576
 cache_bytes = 16384
-flash_bytes = 1048576
+flash_bytes = 4194304
 vram_bytes = 32768
 cache_line_bytes = 32
 bank_words = 1024
