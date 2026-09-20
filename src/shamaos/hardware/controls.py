@@ -56,8 +56,12 @@ def iter_controller_panel(
     # Power + reset are deliberately separated from app controls.
     yield Placement(origin.offset(16,0,0), PANEL, component)
     yield Placement(origin.offset(16,1,0), LEVER, component)
+    yield Placement(origin.offset(16,0,1), SUPPORT, component)
+    yield Placement(origin.offset(16,1,1), repeater("south"), component)
     yield Placement(origin.offset(18,0,0), PANEL, component)
     yield Placement(origin.offset(18,1,0), BUTTON_FLOOR, component)
+    yield Placement(origin.offset(18,0,1), SUPPORT, component)
+    yield Placement(origin.offset(18,1,1), repeater("south"), component)
 
 
 def iter_keyboard_matrix(
