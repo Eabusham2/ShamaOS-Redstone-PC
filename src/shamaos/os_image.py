@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from importlib.resources import files
 
+from .assembler import assemble
 from .flashfs import FileType, ShamaFS
 
 
@@ -11,7 +13,25 @@ Use the controller to navigate.
 Use the keyboard in Editor.
 Preinstalled apps: Editor, File Explorer, Bitcoin Miner, System Monitor,
 Terminal, Calculator, Paint and Settings.
+
+Assembly source for the preinstalled apps is stored in flash too, so it can be
+opened in Editor. Saving source never overwrites the last good executable
+unless assembly succeeds.
 """
+
+FIRMWARE = {
+    "boot": ("boot.asm", "boot.sys", FileType.SYS),
+    "kernel": ("kernel.asm", "kernel.sys", FileType.SYS),
+    "desktop": ("desktop.asm", "desktop.bin", FileType.BIN),
+    "editor": ("editor.asm", "editor.bin", FileType.BIN),
+    "files": ("files.asm", "files.bin", FileType.BIN),
+    "miner": ("miner.asm", "miner.bin", FileType.BIN),
+    "monitor": ("monitor.asm", "monitor.bin", FileType.BIN),
+    "terminal": ("terminal.asm", "terminal.bin", FileType.BIN),
+    "calculator": ("calculator.asm", "calculator.bin", FileType.BIN),
+    "paint": ("paint.asm", "paint.bin", FileType.BIN),
+    "settings": ("settings.asm", "settings.bin", FileType.BIN),
+}
 
 
 @dataclass(frozen=True)
@@ -20,25 +40,26 @@ class OSImage:
     files: tuple[str, ...]
 
 
+def _firmware_source(filename: str) -> str:
+    return files("shamaos").joinpath("firmware", filename).read_text(encoding="utf-8")
+
+
 def build_default_os_image(flash_bytes: int = 1 << 20) -> OSImage:
     fs = ShamaFS(flash_bytes)
 
-    # These are manifest/boot payload placeholders for the redstone OS build
-    # pipeline. The assembler/OS compiler replaces them with machine images as
-    # app sources mature; filenames and filesystem behavior are stable.
-    fs.create_file("boot.sys", b"SHAMAOS_BOOT_V1\n", FileType.SYS)
-    fs.create_file("kernel.sys", b"SHAMAOS_KERNEL_V1\n", FileType.SYS)
-    fs.create_file("desktop.bin", b"SHAMAOS_DESKTOP_V1\n", FileType.BIN)
-    fs.create_file("editor.bin", b"SHAMAOS_EDITOR_V1\n", FileType.BIN)
-    fs.create_file("files.bin", b"SHAMAOS_FILES_V1\n", FileType.BIN)
-    fs.create_file("miner.bin", b"SHAMAOS_MINER_V1\n", FileType.BIN)
-    fs.create_file("monitor.bin", b"SHAMAOS_MONITOR_V1\n", FileType.BIN)
-    fs.create_file("terminal.bin", b"SHAMAOS_TERMINAL_V1\n", FileType.BIN)
-    fs.create_file("calculator.bin", b"SHAMAOS_CALC_V1\n", FileType.BIN)
-    fs.create_file("paint.bin", b"SHAMAOS_PAINT_V1\n", FileType.BIN)
-    fs.create_file("settings.bin", b"SHAMAOS_SETTINGS_V1\n", FileType.BIN)
+    # Store both editable source and the actually assembled executable.
+    for _name, (source_name, executable_name, executable_type) in FIRMWARE.items():
+        source = _firmware_source(source_name)
+        result = assemble(source)
+        fs.create_file(source_name, source.encode("utf-8"), FileType.ASM)
+        fs.create_file(executable_name, result.to_bytes(), executable_type)
+
     fs.create_file("welcome.txt", DEFAULT_TEXT.encode("utf-8"), FileType.TXT)
-    fs.create_file("miner-state.cfg", b"generation=0\nnonce=0\nrunning=0\n", FileType.CFG)
+    fs.create_file(
+        "miner-state.cfg",
+        b"generation=0\nnonce=0\nattempts=0\nrunning=0\n",
+        FileType.CFG,
+    )
     fs.create_file("miner-history.log", b"", FileType.LOG)
 
     return OSImage(fs.serialize(), tuple(e.name for e in fs.list_files()))
