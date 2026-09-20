@@ -44,7 +44,7 @@ def default_origins(g: MachineGeometry) -> PhysicalOrigins:
         cache=Vec3(ox + 10_000, oy, oz),
         ram=Vec3(ox + 12_000, oy, oz),
         flash=Vec3(ox + 12_000, oy, oz + 110_000),
-        input=Vec3(ox + 900, oy, oz - 2_000),
+        input=Vec3(ox + 900, oy, oz - 3_000),
         display=Vec3(ox, -41, oz - 2_000),
     )
 
