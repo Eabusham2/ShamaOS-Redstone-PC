@@ -1,0 +1,22 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.pytest_cache/
+.coverage
+htmlcov/
+build/
+dist/
+out/
+*.log
+.DS_Store
+
+# Generated Minecraft artifacts
+generated-world/
+*.mca.tmp
+*.schem
+*.litematic
+
+# Local source worlds are disposable and should not be committed
+world/
+world-backup/

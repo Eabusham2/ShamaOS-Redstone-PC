@@ -1,0 +1,7 @@
+; Demonstrates filesystem syscalls symbolically.
+LDI r1 0x3000
+SYS SYS_FILE_CREATE
+SYS SYS_FILE_OPEN
+SYS SYS_FILE_WRITE
+SYS SYS_FILE_CLOSE
+HLT

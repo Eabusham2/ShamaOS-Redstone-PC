@@ -1,0 +1,49 @@
+[world]
+minecraft_version = "1.20.4"
+data_version = 3700
+dimension = "minecraft:overworld"
+origin_x = 0
+origin_y = 8
+origin_z = 0
+safe_margin_blocks = 32
+replace_generated_area = true
+
+[cpu]
+word_bits = 32
+general_registers = 16
+instruction_bits = 32
+call_stack_depth = 256
+native_sha = true
+
+[memory]
+logical_ram_bytes = 1048576
+cache_bytes = 16384
+flash_bytes = 1048576
+vram_bytes = 32768
+cache_line_bytes = 32
+
+[display]
+width = 320
+height = 180
+bits_per_pixel = 1
+double_buffer = true
+tile_width = 32
+tile_height = 18
+font_width = 6
+font_height = 8
+
+[gpu]
+command_queue_entries = 256
+independent_processor = true
+
+[os]
+name = "ShamaOS"
+boot_from_flash = true
+load_to_ram = true
+resident_kernel = true
+confirm_destructive_actions = true
+
+[generator]
+emit_manifest = true
+validate_after_write = true
+deterministic = true
