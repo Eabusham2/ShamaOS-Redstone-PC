@@ -258,7 +258,7 @@ def build_physical_netlist(
     # cell has one-bit pins.
     for cell_name in sorted(module.get("cells", {})):
         cell = module["cells"][cell_name]
-        cell_type = str(cell["type"]).lstrip("\").upper()
+        cell_type = str(cell["type"]).lstrip("\\").upper()
         template = template_for(cell_type)  # validates support
         base = Vec3(x_cursor, origin.y, origin.z)
         cell_origins[cell_name] = base
