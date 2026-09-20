@@ -1,5 +1,5 @@
 from shamaos.flashfs import FileType, ShamaFS
-from shamaos.os_image import FIRMWARE, build_default_os_image
+from shamaos.os_image import APP_SLOT_BYTES, BUNDLE_RAM_BASE, FIRMWARE, build_default_os_image
 
 
 def test_flash_contains_editable_sources_and_real_binaries():
@@ -22,3 +22,22 @@ def test_preinstalled_source_is_visible_to_editor():
     fs = ShamaFS.deserialize(image.image)
     names = {e.name for e in fs.list_files()}
     assert {"editor.asm", "files.asm", "miner.asm", "desktop.asm"} <= names
+
+
+def test_default_boot_bundle_geometry():
+    image = build_default_os_image()
+    fs = ShamaFS.deserialize(image.image)
+
+    assert len(image.image) == 4 << 20
+    assert len(image.boot_binary) <= 16 << 10
+
+    bundle = fs.stat("boot.bundle")
+    assert image.bundle_flash_offset == bundle.start_block * fs.block_size
+    assert bundle.start_block == fs.data_start
+    assert image.bundle_bytes == bundle.block_count * fs.block_size
+    assert image.bundle_bytes == 10 * APP_SLOT_BYTES
+
+    for name, pc_word in image.app_pc_words.items():
+        byte_address = pc_word * 4
+        assert BUNDLE_RAM_BASE <= byte_address < (1 << 20)
+        assert byte_address % APP_SLOT_BYTES == 0
