@@ -28,3 +28,20 @@ jobs:
           shamaos plan --config configs/default.toml --manifest build/plan.json
           shamaos asm examples/bitcoin_miner.asm -o build/miner.bin --listing build/miner.lst
           shamaos flash-image -o build/shamaos-flash.img
+
+  rtl:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Icarus Verilog
+        run: sudo apt-get update && sudo apt-get install -y iverilog
+      - name: Compile SHA RTL
+        run: |
+          iverilog -g2012 -Wall -s tb_sha -o build_sha.vvp \
+            rtl/sha256_compress.sv rtl/sha256_fixed64.sv rtl/bitcoin_dsha256.sv rtl/tb_sha.sv
+      - name: Run SHA known-answer tests
+        run: vvp build_sha.vvp
+      - name: Compile CPU RTL
+        run: |
+          iverilog -g2012 -Wall -s shama_cpu -o build_cpu.vvp \
+            rtl/sha256_compress.sv rtl/sha256_fixed64.sv rtl/bitcoin_dsha256.sv rtl/shama_cpu.sv
