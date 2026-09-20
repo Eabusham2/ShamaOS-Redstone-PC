@@ -1,3 +1,5 @@
+`include "shama_boot_params.svh"
+
 module shama_soc(
     input  logic         clk,
     input  logic         power_switch,
@@ -32,18 +34,6 @@ module shama_soc(
     output logic [7:0]   display_row_index,
     output logic         display_row_commit,
     input  logic         display_row_ready,
-
-    output logic         ext_sys_valid,
-    output logic [11:0]  ext_sys_id,
-    output logic [191:0] ext_sys_args,
-    input  logic         ext_sys_ready,
-    input  logic [63:0]  ext_sys_ret,
-    input  logic         ext_sys_jump_valid,
-    input  logic [31:0]  ext_sys_jump_pc,
-
-    input  logic [31:0]  ram_used_bytes,
-    input  logic [31:0]  cache_used_bytes,
-    input  logic [31:0]  flash_used_bytes,
 
     output logic         halted
 );
@@ -87,7 +77,7 @@ module shama_soc(
         .cache_flush,.time_counter,.halted
     );
 
-    // ---------------- Input ----------------
+    // ---------------- Physical input ----------------
     logic event_valid,event_ack;
     logic [7:0] event_code,key_code;
     logic [9:0] controller_latched;
@@ -97,7 +87,7 @@ module shama_soc(
         .event_valid,.event_code,.key_code,.controller_latched,.event_ack
     );
 
-    // ---------------- GPU ----------------
+    // ---------------- GPU / 320x180 display ----------------
     logic gpu_mmio_valid,gpu_mmio_we,gpu_mmio_ready;
     logic [11:0] gpu_mmio_addr;
     logic [31:0] gpu_mmio_wdata,gpu_mmio_rdata;
@@ -125,20 +115,94 @@ module shama_soc(
         .row_ready(display_row_ready)
     );
 
-    // ---------------- ShamaOS services / boot DMA ----------------
-    logic dma_valid,dma_we,dma_flash,dma_ready;
-    logic [31:0] dma_addr,dma_wdata,dma_rdata;
-    logic [3:0] dma_wstrb;
+    // ---------------- ShamaOS services ----------------
+    logic svc_dma_valid,svc_dma_we,svc_dma_flash,svc_dma_ready;
+    logic [31:0] svc_dma_addr,svc_dma_wdata,svc_dma_rdata;
+    logic [3:0] svc_dma_wstrb;
+    logic ext_valid,ext_ready,ext_jump_valid;
+    logic [11:0] ext_id;
+    logic [191:0] ext_args;
+    logic [63:0] ext_ret;
+    logic [31:0] ext_jump_pc;
+    logic os_loaded;
+
+    logic [31:0] ram_used_bytes,cache_used_bytes,flash_used_bytes;
+    assign ram_used_bytes = os_loaded ? `SHAMA_BUNDLE_BYTES : 32'd0;
+    // The OS reserves the whole 16 KiB fast region as cache/scratch.
+    assign cache_used_bytes = power_switch ? 32'd16384 : 32'd0;
 
     shama_services u_services(
         .clk,.rst,
         .sys_valid,.sys_id,.sys_args,.sys_ready,.sys_ret,.sys_jump_valid,.sys_jump_pc,
         .event_valid,.event_code,.key_code,.controller_latched,.event_ack,
         .ram_used_bytes,.cache_used_bytes,.flash_used_bytes,.time_counter,
-        .dma_valid,.dma_we,.dma_flash,.dma_addr,.dma_wdata,.dma_wstrb,.dma_ready,.dma_rdata,
-        .ext_valid(ext_sys_valid),.ext_id(ext_sys_id),.ext_args(ext_sys_args),
-        .ext_ready(ext_sys_ready),.ext_ret(ext_sys_ret),
-        .ext_jump_valid(ext_sys_jump_valid),.ext_jump_pc(ext_sys_jump_pc)
+        .dma_valid(svc_dma_valid),.dma_we(svc_dma_we),.dma_flash(svc_dma_flash),
+        .dma_addr(svc_dma_addr),.dma_wdata(svc_dma_wdata),.dma_wstrb(svc_dma_wstrb),
+        .dma_ready(svc_dma_ready),.dma_rdata(svc_dma_rdata),
+        .ext_valid(ext_valid),.ext_id(ext_id),.ext_args(ext_args),
+        .ext_ready(ext_ready),.ext_ret(ext_ret),
+        .ext_jump_valid(ext_jump_valid),.ext_jump_pc(ext_jump_pc),
+        .os_loaded
+    );
+
+    // ---------------- Kernel GUI + syscall dispatcher ----------------
+    logic k_gpu_valid,k_gpu_we,k_gpu_ready;
+    logic [11:0] k_gpu_addr;
+    logic [31:0] k_gpu_wdata,k_gpu_rdata;
+
+    logic fs_call_valid,fs_call_ready;
+    logic [11:0] fs_call_id;
+    logic [191:0] fs_call_args;
+    logic [63:0] fs_call_ret;
+
+    logic asm_call_valid,asm_call_ready;
+    logic [191:0] asm_call_args;
+    logic [63:0] asm_call_ret;
+
+    shama_kernel_accel u_kernel(
+        .clk,.rst,
+        .req_valid(ext_valid),.req_id(ext_id),.req_args(ext_args),
+        .req_ready(ext_ready),.req_ret(ext_ret),
+        .req_jump_valid(ext_jump_valid),.req_jump_pc(ext_jump_pc),
+        .ram_used_bytes,.cache_used_bytes,.flash_used_bytes,
+        .gpu_valid(k_gpu_valid),.gpu_we(k_gpu_we),.gpu_addr(k_gpu_addr),
+        .gpu_wdata(k_gpu_wdata),.gpu_ready(k_gpu_ready),.gpu_rdata(k_gpu_rdata),
+        .fs_valid(fs_call_valid),.fs_id(fs_call_id),.fs_args(fs_call_args),
+        .fs_ready(fs_call_ready),.fs_ret(fs_call_ret),
+        .asm_valid(asm_call_valid),.asm_args(asm_call_args),
+        .asm_ready(asm_call_ready),.asm_ret(asm_call_ret)
+    );
+
+    // ---------------- Persistent ShamaFS service ----------------
+    logic fs_dma_valid,fs_dma_we,fs_dma_flash,fs_dma_ready;
+    logic [31:0] fs_dma_addr,fs_dma_wdata,fs_dma_rdata;
+    logic [3:0] fs_dma_wstrb;
+    logic fs_mounted;
+
+    shama_fs_accel u_fs(
+        .clk,.rst,
+        .req_valid(fs_call_valid),.req_id(fs_call_id),.req_args(fs_call_args),
+        .req_ready(fs_call_ready),.req_ret(fs_call_ret),
+        .dma_valid(fs_dma_valid),.dma_we(fs_dma_we),.dma_flash(fs_dma_flash),
+        .dma_addr(fs_dma_addr),.dma_wdata(fs_dma_wdata),.dma_wstrb(fs_dma_wstrb),
+        .dma_ready(fs_dma_ready),.dma_rdata(fs_dma_rdata),
+        .flash_used_bytes,.mounted(fs_mounted)
+    );
+
+    // The assembler accelerator is connected here. Until its request is
+    // active it consumes no resources; its full implementation is synthesized
+    // as a separate block and shares the DMA arbiter.
+    logic asm_dma_valid,asm_dma_we,asm_dma_flash,asm_dma_ready;
+    logic [31:0] asm_dma_addr,asm_dma_wdata,asm_dma_rdata;
+    logic [3:0] asm_dma_wstrb;
+
+    shama_asm_accel u_asm(
+        .clk,.rst,
+        .req_valid(asm_call_valid),.req_args(asm_call_args),
+        .req_ready(asm_call_ready),.req_ret(asm_call_ret),
+        .dma_valid(asm_dma_valid),.dma_we(asm_dma_we),.dma_flash(asm_dma_flash),
+        .dma_addr(asm_dma_addr),.dma_wdata(asm_dma_wdata),.dma_wstrb(asm_dma_wstrb),
+        .dma_ready(asm_dma_ready),.dma_rdata(asm_dma_rdata)
     );
 
     // ---------------- Physical memory adapters ----------------
@@ -184,71 +248,84 @@ module shama_soc(
         .write_data(flash_write_data),.selected_word(flash_selected_word)
     );
 
-    // DMA gets priority on RAM/flash while boot or kernel services are moving
-    // persistent data. CPU automatically stalls because its request is not
-    // forwarded until DMA releases the bus.
+    // ---------------- CPU/GPU and DMA arbitration ----------------
+    logic cpu_gpu_request;
+    assign cpu_gpu_request =
+        cpu_mem_valid && cpu_mem_addr>=GPU_BASE && cpu_mem_addr<=GPU_END;
+
     always_comb begin
         cache_req_valid=0;cache_req_we=0;cache_req_addr=0;cache_req_wdata=0;cache_req_wstrb=0;
         ram_req_valid=0;ram_req_we=0;ram_req_addr=0;ram_req_wdata=0;ram_req_wstrb=0;
         flash_req_valid=0;flash_req_we=0;flash_req_addr=0;flash_req_wdata=0;flash_req_wstrb=0;
 
         gpu_mmio_valid=0;gpu_mmio_we=0;gpu_mmio_addr=0;gpu_mmio_wdata=0;
+        k_gpu_ready=0;k_gpu_rdata=gpu_mmio_rdata;
 
         cpu_mem_ready=0;
         cpu_mem_rdata=0;
-        dma_ready=0;
-        dma_rdata=0;
 
-        if(dma_valid) begin
-            if(dma_flash) begin
-                flash_req_valid=dma_valid;
-                flash_req_we=dma_we;
-                flash_req_addr=dma_addr;
-                flash_req_wdata=dma_wdata;
-                flash_req_wstrb=dma_wstrb;
-                dma_ready=flash_req_ready;
-                dma_rdata=flash_req_rdata;
+        svc_dma_ready=0;svc_dma_rdata=0;
+        fs_dma_ready=0;fs_dma_rdata=0;
+        asm_dma_ready=0;asm_dma_rdata=0;
+
+        // Kernel rendering owns GPU while CPU is stalled in the syscall.
+        if(k_gpu_valid) begin
+            gpu_mmio_valid=k_gpu_valid;gpu_mmio_we=k_gpu_we;
+            gpu_mmio_addr=k_gpu_addr;gpu_mmio_wdata=k_gpu_wdata;
+            k_gpu_ready=gpu_mmio_ready;k_gpu_rdata=gpu_mmio_rdata;
+        end
+
+        // Memory/DMA priority: boot > filesystem > assembler > CPU.
+        if(svc_dma_valid) begin
+            if(svc_dma_flash) begin
+                flash_req_valid=1;flash_req_we=svc_dma_we;flash_req_addr=svc_dma_addr;
+                flash_req_wdata=svc_dma_wdata;flash_req_wstrb=svc_dma_wstrb;
+                svc_dma_ready=flash_req_ready;svc_dma_rdata=flash_req_rdata;
             end else begin
-                ram_req_valid=dma_valid;
-                ram_req_we=dma_we;
-                ram_req_addr=dma_addr;
-                ram_req_wdata=dma_wdata;
-                ram_req_wstrb=dma_wstrb;
-                dma_ready=ram_req_ready;
-                dma_rdata=ram_req_rdata;
+                ram_req_valid=1;ram_req_we=svc_dma_we;ram_req_addr=svc_dma_addr;
+                ram_req_wdata=svc_dma_wdata;ram_req_wstrb=svc_dma_wstrb;
+                svc_dma_ready=ram_req_ready;svc_dma_rdata=ram_req_rdata;
+            end
+        end else if(fs_dma_valid) begin
+            if(fs_dma_flash) begin
+                flash_req_valid=1;flash_req_we=fs_dma_we;flash_req_addr=fs_dma_addr;
+                flash_req_wdata=fs_dma_wdata;flash_req_wstrb=fs_dma_wstrb;
+                fs_dma_ready=flash_req_ready;fs_dma_rdata=flash_req_rdata;
+            end else begin
+                ram_req_valid=1;ram_req_we=fs_dma_we;ram_req_addr=fs_dma_addr;
+                ram_req_wdata=fs_dma_wdata;ram_req_wstrb=fs_dma_wstrb;
+                fs_dma_ready=ram_req_ready;fs_dma_rdata=ram_req_rdata;
+            end
+        end else if(asm_dma_valid) begin
+            if(asm_dma_flash) begin
+                flash_req_valid=1;flash_req_we=asm_dma_we;flash_req_addr=asm_dma_addr;
+                flash_req_wdata=asm_dma_wdata;flash_req_wstrb=asm_dma_wstrb;
+                asm_dma_ready=flash_req_ready;asm_dma_rdata=flash_req_rdata;
+            end else begin
+                ram_req_valid=1;ram_req_we=asm_dma_we;ram_req_addr=asm_dma_addr;
+                ram_req_wdata=asm_dma_wdata;ram_req_wstrb=asm_dma_wstrb;
+                asm_dma_ready=ram_req_ready;asm_dma_rdata=ram_req_rdata;
             end
         end else if(cpu_mem_valid) begin
             if(cpu_mem_addr <= CACHE_END) begin
-                cache_req_valid=1;
-                cache_req_we=cpu_mem_we;
-                cache_req_addr=cpu_mem_addr;
-                cache_req_wdata=cpu_mem_wdata;
-                cache_req_wstrb=cpu_mem_wstrb;
-                cpu_mem_ready=cache_req_ready;
-                cpu_mem_rdata=cache_req_rdata;
+                cache_req_valid=1;cache_req_we=cpu_mem_we;cache_req_addr=cpu_mem_addr;
+                cache_req_wdata=cpu_mem_wdata;cache_req_wstrb=cpu_mem_wstrb;
+                cpu_mem_ready=cache_req_ready;cpu_mem_rdata=cache_req_rdata;
             end else if(cpu_mem_addr <= RAM_END) begin
-                ram_req_valid=1;
-                ram_req_we=cpu_mem_we;
-                ram_req_addr=cpu_mem_addr;
-                ram_req_wdata=cpu_mem_wdata;
-                ram_req_wstrb=cpu_mem_wstrb;
-                cpu_mem_ready=ram_req_ready;
-                cpu_mem_rdata=ram_req_rdata;
+                ram_req_valid=1;ram_req_we=cpu_mem_we;ram_req_addr=cpu_mem_addr;
+                ram_req_wdata=cpu_mem_wdata;ram_req_wstrb=cpu_mem_wstrb;
+                cpu_mem_ready=ram_req_ready;cpu_mem_rdata=ram_req_rdata;
             end else if(cpu_mem_addr >= FLASH_BASE && cpu_mem_addr <= FLASH_END) begin
-                flash_req_valid=1;
-                flash_req_we=cpu_mem_we;
+                flash_req_valid=1;flash_req_we=cpu_mem_we;
                 flash_req_addr=cpu_mem_addr-FLASH_BASE;
-                flash_req_wdata=cpu_mem_wdata;
-                flash_req_wstrb=cpu_mem_wstrb;
-                cpu_mem_ready=flash_req_ready;
-                cpu_mem_rdata=flash_req_rdata;
+                flash_req_wdata=cpu_mem_wdata;flash_req_wstrb=cpu_mem_wstrb;
+                cpu_mem_ready=flash_req_ready;cpu_mem_rdata=flash_req_rdata;
             end else if(cpu_mem_addr >= GPU_BASE && cpu_mem_addr <= GPU_END) begin
-                gpu_mmio_valid=1;
-                gpu_mmio_we=cpu_mem_we;
-                gpu_mmio_addr=cpu_mem_addr-GPU_BASE;
-                gpu_mmio_wdata=cpu_mem_wdata;
-                cpu_mem_ready=gpu_mmio_ready;
-                cpu_mem_rdata=gpu_mmio_rdata;
+                if(!k_gpu_valid) begin
+                    gpu_mmio_valid=1;gpu_mmio_we=cpu_mem_we;
+                    gpu_mmio_addr=cpu_mem_addr-GPU_BASE;gpu_mmio_wdata=cpu_mem_wdata;
+                    cpu_mem_ready=gpu_mmio_ready;cpu_mem_rdata=gpu_mmio_rdata;
+                end
             end else if(cpu_mem_addr >= INPUT_BASE && cpu_mem_addr <= INPUT_END) begin
                 cpu_mem_ready=1;
                 case(cpu_mem_addr[5:2])
@@ -258,7 +335,6 @@ module shama_soc(
                     default: cpu_mem_rdata=0;
                 endcase
             end else begin
-                // Unmapped access completes with zero instead of deadlocking.
                 cpu_mem_ready=1;
                 cpu_mem_rdata=0;
             end
