@@ -120,8 +120,6 @@ module shama_services(
         sys_jump_valid = (state == ST_RESP) && response_jump;
         sys_jump_pc = response_pc;
 
-        event_ack = 1'b0;
-
         dma_valid = 1'b0;
         dma_we = 1'b0;
         dma_flash = 1'b0;
@@ -157,7 +155,9 @@ module shama_services(
             response <= 0;
             response_jump <= 0;
             response_pc <= 0;
+            event_ack <= 0;
         end else begin
+            event_ack <= 0;
             if(state == ST_RESP && !sys_valid) begin
                 state <= ST_IDLE;
                 response_jump <= 0;
