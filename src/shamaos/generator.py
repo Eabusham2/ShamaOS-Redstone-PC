@@ -123,6 +123,11 @@ def physical_sections(config: dict) -> Iterator[PhysicalSection]:
     origins = default_origins(g)
     cache_spec, ram_spec, flash_spec = memory_specs(g)
     flags = config.get("generator", {})
+    os_image = (
+        build_default_os_image(g.flash_bytes)
+        if flags.get("physical_cache", True) or flags.get("physical_flash", True)
+        else None
+    )
 
     if flags.get("physical_display", True):
         panel = LampPanelSpec(
@@ -164,11 +169,15 @@ def physical_sections(config: dict) -> Iterator[PhysicalSection]:
         )
 
     if flags.get("physical_cache", True):
+        assert os_image is not None
+        cache_initial = os_image.boot_binary.ljust(g.cache_bytes, b"\x00")
+        if len(cache_initial) > g.cache_bytes:
+            raise ValueError("boot firmware exceeds 16 KiB cache/scratch capacity")
         yield from _memory_sections(
             name="cache",
             origin=origins.cache,
             fabric=cache_spec,
-            initial=None,
+            initial=cache_initial,
         )
 
     if flags.get("physical_ram", True):
@@ -180,12 +189,12 @@ def physical_sections(config: dict) -> Iterator[PhysicalSection]:
         )
 
     if flags.get("physical_flash", True):
-        flash_image = build_default_os_image(g.flash_bytes).image
+        assert os_image is not None
         yield from _memory_sections(
             name="flash",
             origin=origins.flash,
             fabric=flash_spec,
-            initial=flash_image,
+            initial=os_image.image,
         )
 
 
@@ -222,6 +231,12 @@ def manifest(config: dict, plan: BuildPlan) -> dict:
             "pixel_pitch_y": g.pixel_pitch_y,
         },
         "physical_generation_status": "fabrics+rtl-synthesis",
+        "boot": {
+            "cache_boot_bytes": len(build_default_os_image(g.flash_bytes).boot_binary),
+            "bundle_flash_offset": build_default_os_image(g.flash_bytes).bundle_flash_offset,
+            "bundle_bytes": build_default_os_image(g.flash_bytes).bundle_bytes,
+            "app_pc_words": build_default_os_image(g.flash_bytes).app_pc_words,
+        },
         "physical_sections": [
             section.metadata | {"name": section.name}
             for section in physical_sections(config)
