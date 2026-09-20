@@ -153,8 +153,11 @@ module shama_gpu #(
         disp_index = push_idx[15:0];
         disp_bit = 1'b0;
         if(state==ST_PUSH && push_idx<PIXELS) begin
+            // Emit the complete frame in row-major order.  The physical
+            // display bridge converts this serial stream into 192-bit row
+            // commits, which is far smaller than random-address pixel wiring.
             disp_bit = front_bit(push_idx);
-            disp_valid = (front_bit(push_idx) != shadow[push_idx]);
+            disp_valid = 1'b1;
         end
     end
 
@@ -387,9 +390,7 @@ module shama_gpu #(
 
                 ST_PUSH: begin
                     if(push_idx>=PIXELS) state<=ST_IDLE;
-                    else if(front_bit(push_idx)==shadow[push_idx]) begin
-                        if(push_idx==PIXELS-1) state<=ST_IDLE; else push_idx<=push_idx+1;
-                    end else if(disp_ready) begin
+                    else if(disp_ready) begin
                         shadow[push_idx]<=front_bit(push_idx);
                         if(push_idx==PIXELS-1) state<=ST_IDLE; else push_idx<=push_idx+1;
                     end
