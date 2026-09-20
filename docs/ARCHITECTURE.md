@@ -90,7 +90,7 @@ Default 32 KiB. A 320×180 1-bit framebuffer consumes 7,200 bytes; double buffer
 
 ### Flash
 
-Default 1 MiB persistent storage. Flash contains:
+Default **4 MiB** persistent storage (4× the 1 MiB RAM). Flash contains:
 
 - boot image.
 - kernel/shell.
