@@ -16,7 +16,7 @@ class LampPanelSpec:
     width: int = 192
     height: int = 108
     pixel_pitch_x: int = 4
-    pixel_pitch_y: int = 3
+    pixel_pitch_y: int = 2
 
     @property
     def physical_width(self) -> int:
