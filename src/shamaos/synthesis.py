@@ -269,9 +269,10 @@ def build_physical_netlist(
         for pin_name, bits in cell.get("connections", {}).items():
             direction = directions.get(pin_name)
             if direction not in {"input", "output"}:
-                raise SynthesisError(
-                    f"cell {cell_name} pin {pin_name} lacks a supported direction"
-                )
+                # ABC/liberty-mapped JSON can omit port_directions. Our
+                # physical scalar library has conventional Y/Q outputs and
+                # all other pins are inputs.
+                direction = "output" if pin_name in {"Y", "Q"} else "input"
             if len(bits) != 1:
                 raise SynthesisError(
                     f"mapped cell {cell_name}:{pin_name} is {len(bits)} bits; "
