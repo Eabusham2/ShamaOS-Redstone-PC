@@ -190,10 +190,10 @@ module shama_kernel_accel(
     endfunction
 
     function automatic [7:0] packed_char(
-        input [255:0] packed,
+        input [255:0] text_pack,
         input integer index
     );
-        packed_char = packed >> ((31-index)*8);
+        packed_char = text_pack >> ((31-index)*8);
     endfunction
 
     function automatic [7:0] hex_char(input logic [3:0] nib);
