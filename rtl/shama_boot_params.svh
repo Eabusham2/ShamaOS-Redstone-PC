@@ -1,0 +1,20 @@
+`ifndef SHAMA_BOOT_PARAMS_SVH
+`define SHAMA_BOOT_PARAMS_SVH
+
+// Generated/locked against src/shamaos/os_image.py and ShamaFS 4 MiB geometry.
+`define SHAMA_BUNDLE_FLASH_OFFSET 32'h00001900
+`define SHAMA_BUNDLE_RAM_BASE     32'h00004000
+`define SHAMA_BUNDLE_BYTES        32'h00028000
+
+`define SHAMA_PC_KERNEL      32'h00001000
+`define SHAMA_PC_DESKTOP     32'h00002000
+`define SHAMA_PC_EDITOR      32'h00003000
+`define SHAMA_PC_FILES       32'h00004000
+`define SHAMA_PC_MINER       32'h00005000
+`define SHAMA_PC_MONITOR     32'h00006000
+`define SHAMA_PC_TERMINAL    32'h00007000
+`define SHAMA_PC_CALCULATOR  32'h00008000
+`define SHAMA_PC_PAINT       32'h00009000
+`define SHAMA_PC_SETTINGS    32'h0000a000
+
+`endif
