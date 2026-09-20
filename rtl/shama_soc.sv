@@ -33,6 +33,7 @@ module shama_soc(
     output logic [319:0] display_row_data,
     output logic [7:0]   display_row_index,
     output logic         display_row_commit,
+    output logic [179:0] display_row_select,
     input  logic         display_row_ready,
 
     output logic         halted
@@ -114,6 +115,13 @@ module shama_soc(
         .row_commit(display_row_commit),
         .row_ready(display_row_ready)
     );
+
+
+    always_comb begin
+        display_row_select = '0;
+        if(display_row_commit && display_row_index < 8'd180)
+            display_row_select[display_row_index] = 1'b1;
+    end
 
     // ---------------- ShamaOS services ----------------
     logic svc_dma_valid,svc_dma_we,svc_dma_flash,svc_dma_ready;
