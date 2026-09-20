@@ -179,9 +179,11 @@ The project makes no claim that a Minecraft redstone miner is competitive with r
 
 Agreed target:
 
-- **1 MiB logical main RAM**.
-- **16 KiB cache / fast scratch target**.
-- separate VRAM/framebuffer allocation sufficient for the selected display and double buffering.
+- **1 MiB main RAM** (1,048,576 bytes).
+- **16 KiB cache / fast scratch** (16,384 bytes).
+- **32 KiB VRAM** (32,768 bytes), sufficient for the 320×180 1-bit double-buffered display plus GPU working state.
+- **4 MiB flash** (4,194,304 bytes), exactly 4× main RAM.
+
 
 The final implementation may use a hierarchical/banked physical arrangement to keep the world tractable. It must never label sparse/backed/logical memory as literal one-cell-per-bit physical redstone RAM without documentation.
 
@@ -200,7 +202,7 @@ ShamaOS requires persistent flash-like storage for:
 - settings.
 - filesystem metadata.
 
-Default configuration targets 1 MiB flash and may be scaled.
+**Agreed flash capacity: 4 MiB (4,194,304 bytes), exactly 4× the 1 MiB main RAM capacity.** This is the canonical default/final target and must not be reduced or changed without explicit owner approval.
 
 ### 3.6 GPU
 
@@ -229,9 +231,9 @@ The CPU submits GPU commands through memory-mapped registers and/or a command qu
 
 The original 1280×720 idea was intentionally reduced because legibility matters more than raw pixel count.
 
-Default target:
+Locked target:
 
-- 320×180.
+- **320×180**.
 - one-bit redstone-lamp pixels.
 - tiled physical layout.
 - local tile decoders/controllers.
@@ -239,7 +241,7 @@ Default target:
 - double buffering where practical.
 - dashboard/UI optimized for status and text.
 
-The display resolution is configurable. A smaller screen is acceptable if it is materially easier to run and all required GUI/status information remains legible.
+The implementation may expose alternate experimental display configurations, but the canonical ShamaOS build remains **320×180** unless the project owner explicitly approves a different target. Implementation difficulty alone is not permission to shrink it.
 
 ### 3.8 Input
 
