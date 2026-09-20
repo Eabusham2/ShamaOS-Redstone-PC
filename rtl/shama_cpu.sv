@@ -15,6 +15,8 @@ module shama_cpu (
     output logic [191:0] sys_args,
     input  logic         sys_ready,
     input  logic [63:0]  sys_ret,
+    input  logic         sys_jump_valid,
+    input  logic [31:0]  sys_jump_pc,
 
     output logic         cache_flush,
     input  logic [63:0]  time_counter,
@@ -436,6 +438,8 @@ module shama_cpu (
                 S_SYS: if(sys_ready) begin
                     regs[1] <= sys_ret[31:0];
                     regs[2] <= sys_ret[63:32];
+                    if(sys_jump_valid)
+                        pc <= sys_jump_pc;
                     state <= S_FETCH;
                 end
 
