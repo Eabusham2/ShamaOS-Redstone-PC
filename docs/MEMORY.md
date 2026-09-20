@@ -4,7 +4,7 @@
 
 - main RAM exposed to software: **1 MiB**.
 - cache/fast scratch target: **16 KiB**.
-- flash default: **1 MiB**.
+- flash: **4 MiB** (4× the 1 MiB RAM).
 - VRAM default: **32 KiB**.
 
 ## Why not 2 GiB physical redstone RAM
