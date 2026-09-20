@@ -10,7 +10,7 @@ This repository was initialized with the **full agreed target specification** pl
 - SHA-256 and double-SHA-256 reference implementation.
 - CPU reference simulator foundation.
 - GPU framebuffer/command reference.
-- ShamaFS 1 MiB flash-image reference.
+- ShamaFS **4 MiB** flash-image reference.
 - preloaded OS flash-image builder.
 - coarse full-machine floorplanner.
 - redstone placement primitives.
