@@ -1,6 +1,6 @@
 module shama_display_bridge #(
-    parameter integer WIDTH = 192,
-    parameter integer HEIGHT = 108
+    parameter integer WIDTH = 320,
+    parameter integer HEIGHT = 180
 )(
     input  logic                  clk,
     input  logic                  rst,
