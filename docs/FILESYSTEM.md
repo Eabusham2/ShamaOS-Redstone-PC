@@ -6,9 +6,9 @@ A redstone filesystem must be simple, deterministic and easy to recover. ShamaFS
 
 ## Default geometry
 
-- flash size: 1 MiB.
+- flash size: **4 MiB** (4,194,304 bytes).
 - block size: 256 bytes.
-- total blocks: 4096.
+- total blocks: **16,384** at the default 256-byte block size.
 - superblock: block 0.
 - redundant metadata/superblock copy: block 1.
 - allocation bitmap: following reserved block(s).
