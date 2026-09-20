@@ -232,12 +232,13 @@ def backbone_ports(
         for row in range(fabric.bank.words)
     )
 
-    bank_select = []
-    for bank in range(fabric.bank_count):
-        bo = _bank_origin(origin, fabric, bank)
-        bank_select.append(Vec3(bo.x - 170, origin.y + 112, bo.z - 48))
+    bank_selector_base_x = selector_base_x - fabric.bank_count * 2 - 128
+    bank_select = tuple(
+        Vec3(bank_selector_base_x + bank * 2, origin.y + 106, z_terminal)
+        for bank in range(fabric.bank_count)
+    )
 
-    write_enable = Vec3(selector_base_x - 48, origin.y + 114, z_terminal)
+    write_enable = Vec3(bank_selector_base_x - 48, origin.y + 114, z_terminal)
     read_enable = Vec3(selector_base_x - 56, origin.y + 116, z_terminal)
 
     write_data = tuple(
@@ -250,7 +251,7 @@ def backbone_ports(
     )
 
     return MemoryBackbonePorts(
-        tuple(bank_select),
+        bank_select,
         row_select,
         read_enable,
         write_enable,
@@ -443,12 +444,37 @@ def iter_memory_backbone(
         write_x = bo.x - 165
         read_x = bo.x - 160
 
-        # Bank-select arrives directly from the SoC's one-hot bank output.
+        # Bank-select terminals are centralized left of the fabric. Each
+        # bank gets a unique Z branch inside the 128-block inter-bank corridor,
+        # then a local trunk runs the depth of that bank.
         bank_terminal = ports.bank_select[bank]
+        column = bank % fabric.banks_per_row
+        bank_branch_z = bo.z - 48 - column * 3
+        yield from _wire_z(
+            bank_terminal.x,
+            bank_terminal.y,
+            bank_terminal.z,
+            bank_branch_z - 6,
+            facing="south",
+            component=component,
+        )
+        yield from _stair_z(
+            Vec3(bank_terminal.x, bank_terminal.y, bank_branch_z - 6),
+            Vec3(bank_terminal.x, bank_y, bank_branch_z),
+            component=component,
+        )
+        yield from _wire_x(
+            bank_terminal.x,
+            bank_x,
+            bank_y,
+            bank_branch_z,
+            facing="east",
+            component=component,
+        )
         yield from _wire_z(
             bank_x,
             bank_y,
-            bank_terminal.z,
+            bank_branch_z,
             bo.z + spec.depth,
             facing="south",
             component=component,
