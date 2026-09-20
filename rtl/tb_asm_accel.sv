@@ -59,7 +59,7 @@ module tb_asm_accel;
         repeat(3) @(posedge clk);rst<=0;
         @(negedge clk);
         req_args[31:0]<=32'h00000100;
-        req_args[63:32]<=43;
+        req_args[63:32]<=38;
         req_args[95:64]<=32'h00001000;
         req_args[127:96]<=256;
         req_valid<=1;
