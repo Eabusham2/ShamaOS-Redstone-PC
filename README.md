@@ -11,10 +11,10 @@ The project takes inspiration from the computational-redstone designs discussed 
 | CPU | General-purpose redstone CPU with extended custom ISA |
 | SHA | Native SHA-256 execution unit integrated into the CPU and exposed as CPU instructions |
 | GPU | Separate programmable graphics processor / command engine |
-| RAM | 1 MiB logical main RAM target |
-| Cache | 16 KiB fast cache/scratch target |
-| Flash | Persistent program/document/OS storage with filesystem |
-| Display | Readable tiled redstone-lamp framebuffer; target around 320×180, adjustable if testing shows a better physical size |
+| RAM | **1 MiB** main RAM |
+| Cache | **16 KiB** fast cache/scratch |
+| Flash | **4 MiB** persistent ShamaFS storage (4× RAM) |
+| Display | **320×180** 1-bit redstone-lamp framebuffer, double-buffered |
 | Input | Keyboard plus GUI controller/D-pad with universal navigation buttons |
 | OS | ShamaOS GUI shell loaded from flash into RAM at boot |
 | Apps | Editor, File Explorer, Bitcoin Miner, System Monitor, Terminal/utility apps |
@@ -81,7 +81,7 @@ with nonce iteration and target comparison. It is an educational Minecraft miner
 
 The GPU is a separate programmable graphics processor connected to shared memory/VRAM. It supports commands for pixels, lines, rectangles, text, sprites/blits, clearing, clipping, scrolling and buffer swaps.
 
-The physical display is a tiled redstone-lamp panel. The initial target is around **320×180**, because it is large enough for legible text and status dashboards while avoiding the enormous wiring and memory cost of 1280×720.
+The physical display is a **320×180** tiled redstone-lamp panel. That agreed target is locked unless the project owner explicitly approves a change. At 1 bit/pixel it uses 7,200 bytes per framebuffer (14,400 bytes double-buffered), fitting comfortably inside the 32 KiB VRAM budget.
 
 ## ShamaOS
 
