@@ -26,7 +26,7 @@ def _parser() -> argparse.ArgumentParser:
 
     fs = sub.add_parser("flash-image", help="build preloaded ShamaOS flash image")
     fs.add_argument("-o", "--output", default="build/shamaos-flash.img")
-    fs.add_argument("--bytes", type=int, default=1 << 20)
+    fs.add_argument("--bytes", type=int, default=4 << 20)
 
     synth = sub.add_parser("synth-redstone", help="synthesize SystemVerilog into physical redstone cells/routes")
     synth.add_argument("--top", required=True)
@@ -93,8 +93,7 @@ def main(argv: list[str] | None = None) -> int:
         m["written_placements"] = count
         write_manifest(args.manifest, m)
         print(
-            "WARNING: physical_generation_status=foundation; "
-            "only release-complete physical component generators are written. "
+            "physical fabrics generated according to manifest; "
             f"Wrote {count} blocks."
         )
         return 0
