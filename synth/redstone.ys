@@ -1,0 +1,19 @@
+# ShamaOS redstone technology mapping.
+# The caller prepends read_verilog/hierarchy commands and appends write_json.
+
+proc
+flatten
+opt
+fsm
+opt
+memory_map
+opt
+techmap
+opt
+async2sync
+dffunmap
+opt
+
+dfflibmap -liberty synth/redstone.lib
+abc -liberty synth/redstone.lib
+clean -purge
