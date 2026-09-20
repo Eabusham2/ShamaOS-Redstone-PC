@@ -112,7 +112,14 @@ def _stair_x(
             y += sy
             remaining_y -= 1
         yield Placement(Vec3(x, y - 1, start.z), SUPPORT, component)
-        yield Placement(Vec3(x, y, start.z), DUST, component)
+        if n and n % 10 == 0:
+            yield Placement(
+                Vec3(x, y, start.z),
+                repeater("east" if sx > 0 else "west"),
+                component,
+            )
+        else:
+            yield Placement(Vec3(x, y, start.z), DUST, component)
 
 
 def _stair_z(
@@ -139,7 +146,14 @@ def _stair_z(
             y += sy
             remaining_y -= 1
         yield Placement(Vec3(start.x, y - 1, z), SUPPORT, component)
-        yield Placement(Vec3(start.x, y, z), DUST, component)
+        if n and n % 10 == 0:
+            yield Placement(
+                Vec3(start.x, y, z),
+                repeater("south" if sz > 0 else "north"),
+                component,
+            )
+        else:
+            yield Placement(Vec3(start.x, y, z), DUST, component)
 
 
 def _and3_to_target(
