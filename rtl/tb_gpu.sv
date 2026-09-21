@@ -3,6 +3,7 @@ module tb_gpu;
     logic mmio_valid=0, mmio_we=0;
     logic [11:0] mmio_addr=0;
     logic [31:0] mmio_wdata=0;
+    logic [3:0] mmio_wstrb=4'b1111;
     logic mmio_ready;
     logic [31:0] mmio_rdata;
     logic disp_valid;
@@ -15,14 +16,14 @@ module tb_gpu;
     shama_gpu #(.WIDTH(16),.HEIGHT(8),.QUEUE_DEPTH(4)) dut(
         .clk(clk),.rst(rst),
         .mmio_valid(mmio_valid),.mmio_we(mmio_we),.mmio_addr(mmio_addr),
-        .mmio_wdata(mmio_wdata),.mmio_ready(mmio_ready),.mmio_rdata(mmio_rdata),
+        .mmio_wdata(mmio_wdata),.mmio_wstrb(mmio_wstrb),.mmio_ready(mmio_ready),.mmio_rdata(mmio_rdata),
         .disp_valid(disp_valid),.disp_index(disp_index),.disp_bit(disp_bit),.disp_ready(disp_ready)
     );
 
     task automatic wr(input logic [11:0] a,input logic [31:0] d);
         begin
             @(negedge clk);
-            mmio_addr<=a; mmio_wdata<=d; mmio_we<=1; mmio_valid<=1;
+            mmio_addr<=a; mmio_wdata<=d; mmio_wstrb<=4'b1111; mmio_we<=1; mmio_valid<=1;
             @(negedge clk);
             mmio_valid<=0; mmio_we<=0;
         end
@@ -49,6 +50,20 @@ module tb_gpu;
         saw_pixel=0;
         repeat(3) @(posedge clk);
         rst<=0;
+
+        // Verify CPU-style byte strobes can fill four consecutive text bytes
+        // through one aligned MMIO word.
+        @(negedge clk);
+        mmio_addr<=12'h4a0; mmio_wdata<=32'h44434241;
+        mmio_wstrb<=4'b1111; mmio_we<=1; mmio_valid<=1;
+        @(negedge clk); mmio_valid<=0; mmio_we<=0;
+        @(posedge clk);
+        if(dut.text_ram[8'ha0]!=="A" || dut.text_ram[8'ha1]!=="B" ||
+           dut.text_ram[8'ha2]!=="C" || dut.text_ram[8'ha3]!=="D") begin
+            $display("GPU byte lane text RAM fail"); $fatal(1);
+        end
+
+        mmio_wstrb<=4'b1111;
 
         // Back-buffer pixel at x=3, y=2 => index 35.
         wr(12'h008,32'd3);
