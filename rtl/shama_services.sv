@@ -174,8 +174,6 @@ module shama_services(
         sys_jump_valid = (state == ST_RESP) && response_jump;
         sys_jump_pc = response_pc;
 
-        event_ack = 1'b0;
-
         ext_valid = (state == ST_EXT);
         ext_id = latched_id;
         ext_args = latched_args;
