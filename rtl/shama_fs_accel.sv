@@ -147,6 +147,7 @@ module shama_fs_accel(
     logic [31:0] copy_src;
     logic [31:0] copy_dst;
     logic [7:0] copy_byte;
+    logic direct_write;
 
     logic [7:0] list_name_index;
 
