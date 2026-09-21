@@ -629,7 +629,7 @@ ADD r14 r14 r2
 LDB r1 r14 0
 LDI r13 GPU_TEXT_CONTENT
 ADD r13 r13 r2
-STW r13 r1 0
+STB r13 r1 0
 INC r2
 JMP .draw_copy_loop
 
