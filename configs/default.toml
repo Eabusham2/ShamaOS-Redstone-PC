@@ -30,8 +30,8 @@ width = 320
 height = 180
 bits_per_pixel = 1
 double_buffer = true
-pixel_pitch_x = 4
-pixel_pitch_y = 2
+pixel_pitch_x = 5
+pixel_pitch_y = 5
 font_width = 6
 font_height = 8
 
