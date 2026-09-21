@@ -10,7 +10,7 @@
 | SHA | Native SHA-256 execution unit inside the CPU; SHA256, DSHA256, HASHCMP, INCNONCE |
 | RAM | **1 MiB physical main RAM** = 256 × 4 KiB banks |
 | Cache | **16 KiB physical fast/executable cache** = 4 × 4 KiB banks |
-| Flash | **4 MiB physical ShamaFS storage** = 1,024 × 4 KiB banks |
+| Flash | **4 MiB** physical ShamaFS storage = 1,024 × 4 KiB banks |
 | VRAM | **32 KiB physical VRAM** = 8 × 4 KiB banks |
 | Display | **320×180**, 1-bit, 57,600 redstone lamps |
 | Input | 8×8 keyboard matrix + D-pad/A/B/Home/Exit/Editor/Files + power/reset |
