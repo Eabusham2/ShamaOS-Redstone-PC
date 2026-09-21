@@ -51,6 +51,7 @@ def geometry_from_config(config: dict) -> MachineGeometry:
         flash_bytes=m["flash_bytes"],
         display_width=d["width"],
         display_height=d["height"],
+        vram_bytes=m["vram_bytes"],
         bank_words=m.get("bank_words", 1024),
         bank_word_bits=m.get("bank_word_bits", 32),
         banks_per_row=m.get("banks_per_row", 16),
@@ -129,6 +130,8 @@ def physical_sections(config: dict) -> Iterator[PhysicalSection]:
     g = geometry_from_config(config)
     origins = default_origins(g)
     cache_spec, ram_spec, flash_spec = memory_specs(g)
+    from .layout import vram_spec
+    vram_fabric = vram_spec(g)
     flags = config.get("generator", {})
     os_image = (
         build_default_os_image(g.flash_bytes)
@@ -195,6 +198,14 @@ def physical_sections(config: dict) -> Iterator[PhysicalSection]:
             initial=None,
         )
 
+    # Dedicated 32 KiB GPU VRAM is always a real physical memory fabric.
+    yield from _memory_sections(
+        name="vram",
+        origin=origins.vram,
+        fabric=vram_fabric,
+        initial=None,
+    )
+
     if flags.get("physical_flash", True):
         assert os_image is not None
         yield from _memory_sections(
@@ -209,6 +220,8 @@ def manifest(config: dict, plan: BuildPlan) -> dict:
     normalized = json.dumps(config, sort_keys=True, separators=(",", ":")).encode()
     g = geometry_from_config(config)
     cache_spec, ram_spec, flash_spec = memory_specs(g)
+    from .layout import vram_spec
+    vram_fabric = vram_spec(g)
     result = plan.manifest()
     result.update({
         "config_sha256": hashlib.sha256(normalized).hexdigest(),
@@ -228,6 +241,7 @@ def manifest(config: dict, plan: BuildPlan) -> dict:
             "cache": cache_spec.bank_count,
             "ram": ram_spec.bank_count,
             "flash": flash_spec.bank_count,
+            "vram": vram_fabric.bank_count,
             "bytes_per_bank": ram_spec.bank.bytes,
         },
         "display": {
