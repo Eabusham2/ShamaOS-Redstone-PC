@@ -54,34 +54,34 @@ JMP .redraw
 CMP r9 r0
 BR.EQ .redraw
 DEC r9
-JMP .redraw
+JMP .loop
 .down
 LDI r14 179
 CMP r9 r14
 BR.GE .redraw
 INC r9
-JMP .redraw
+JMP .loop
 .left
 CMP r8 r0
 BR.EQ .redraw
 DEC r8
-JMP .redraw
+JMP .loop
 .right
 LDI r14 319
 CMP r8 r14
 BR.GE .redraw
 INC r8
-JMP .redraw
+JMP .loop
 
 .draw
 LDI r10 0x02
 CALL .pixel_command
-JMP .redraw
+JMP .loop
 
 .erase
 LDI r10 0x03
 CALL .pixel_command
-JMP .redraw
+JMP .loop
 
 .pixel_command
 PUSH r1
