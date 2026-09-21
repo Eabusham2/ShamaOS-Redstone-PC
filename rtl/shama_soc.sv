@@ -74,6 +74,7 @@ module shama_soc(
     logic [63:0] sys_ret;
     logic [31:0] sys_jump_pc;
     logic cache_flush;
+    logic sha_busy;
 
     shama_cpu u_cpu(
         .clk,.rst,
@@ -82,7 +83,7 @@ module shama_soc(
         .mem_ready(cpu_mem_ready),.mem_rdata(cpu_mem_rdata),
         .sys_valid,.sys_id,.sys_args,.sys_ready,.sys_ret,
         .sys_jump_valid,.sys_jump_pc,
-        .cache_flush,.time_counter,.halted
+        .cache_flush,.time_counter,.halted,.sha_busy
     );
 
     // ---------------- Physical input ----------------
@@ -102,6 +103,7 @@ module shama_soc(
     logic [3:0] gpu_mmio_wstrb;
     logic gpu_disp_valid,gpu_disp_bit,gpu_disp_ready;
     logic [15:0] gpu_disp_index;
+    logic gpu_busy;
     logic gpu_vram_valid,gpu_vram_we,gpu_vram_ready;
     logic [14:0] gpu_vram_addr;
     logic [31:0] gpu_vram_wdata,gpu_vram_rdata;
@@ -116,7 +118,7 @@ module shama_soc(
         .vram_wdata(gpu_vram_wdata),.vram_wstrb(gpu_vram_wstrb),
         .vram_ready(gpu_vram_ready),.vram_rdata(gpu_vram_rdata),
         .disp_valid(gpu_disp_valid),.disp_index(gpu_disp_index),
-        .disp_bit(gpu_disp_bit),.disp_ready(gpu_disp_ready)
+        .disp_bit(gpu_disp_bit),.disp_ready(gpu_disp_ready),.busy(gpu_busy)
     );
 
     shama_display_bridge #(.WIDTH(320),.HEIGHT(180)) u_display_bridge(
@@ -202,6 +204,7 @@ module shama_soc(
         .req_ready(ext_ready),.req_ret(ext_ret),
         .req_jump_valid(ext_jump_valid),.req_jump_pc(ext_jump_pc),
         .ram_used_bytes,.cache_used_bytes,.flash_used_bytes,
+        .cpu_halted(halted),.sha_busy,.gpu_busy,
         .gpu_valid(k_gpu_valid),.gpu_we(k_gpu_we),.gpu_addr(k_gpu_addr),
         .gpu_wdata(k_gpu_wdata),.gpu_ready(k_gpu_ready),.gpu_rdata(k_gpu_rdata),
         .fs_valid(fs_call_valid),.fs_id(fs_call_id),.fs_args(fs_call_args),
