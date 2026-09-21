@@ -152,5 +152,6 @@ jobs:
           assert m["memory_backbones"]["cache"]["banks"] == 4
           assert m["memory_backbones"]["ram"]["banks"] == 256
           assert m["memory_backbones"]["flash"]["banks"] == 1024
+          assert m["memory_backbones"]["vram"]["banks"] == 8
           assert m["display"] == {"width": 320, "height": 180}
           PY
