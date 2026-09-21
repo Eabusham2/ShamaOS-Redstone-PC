@@ -223,6 +223,7 @@ module shama_asm_accel(
                 32'hfa43f96a: syscall_value=32'h0000004b; // SYS_UI_TERMINAL_VIEW
                 32'hdf51ec26: syscall_value=32'h0000004c; // SYS_UI_PAINT_VIEW
                 32'hdfb1ad49: syscall_value=32'h0000004d; // SYS_UI_SETTINGS_VIEW
+                32'hf2a12d1a: syscall_value=32'h0000004e; // SYS_UI_CALCULATOR_VIEW
                 32'h7f3612cd: syscall_value=32'h00000050; // SYS_MINER_LOG_RESULT
                 32'h967ebac4: syscall_value=32'h00000051; // SYS_MINER_SAVE_STATE
                 32'h55e4c614: syscall_value=32'h00000052; // SYS_MINER_LOAD_HISTORY
