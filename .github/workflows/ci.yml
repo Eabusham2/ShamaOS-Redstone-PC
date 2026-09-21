@@ -108,3 +108,34 @@ jobs:
             rtl/shama_memory_adapter.sv rtl/shama_services.sv \
             rtl/shama_kernel_accel.sv rtl/shama_fs_accel.sv \
             rtl/shama_asm_accel.sv rtl/shama_soc.sv
+
+  full-physical-synthesis:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Yosys and package
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y yosys
+          python -m pip install --upgrade pip
+          pip install -e .
+      - name: Synthesize full ShamaOS SoC to redstone physical netlist
+        run: |
+          python - <<'PY'
+          import json
+          import tomllib
+          from pathlib import Path
+          from shamaos.system_build import prepare_system
+
+          config = tomllib.loads(Path("configs/default.toml").read_text())
+          prepared = prepare_system(config, build_dir="build/full-soc")
+          m = prepared.metadata
+          print(json.dumps(m, indent=2))
+          assert m["logic"]["cell_count"] > 0
+          assert m["logic"]["net_count"] > 0
+          assert m["external_net_count"] > 0
+          assert m["memory_backbones"]["cache"]["banks"] == 4
+          assert m["memory_backbones"]["ram"]["banks"] == 256
+          assert m["memory_backbones"]["flash"]["banks"] == 1024
+          assert m["display"] == {"width": 320, "height": 180}
+          PY
