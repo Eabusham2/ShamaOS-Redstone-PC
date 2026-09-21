@@ -33,11 +33,12 @@ FIRMWARE = {
     "settings": ("settings.asm", "settings.bin", FileType.BIN),
 }
 
-# Cache/scratch occupies the first 16 KiB of the CPU address space. The tiny
-# boot program is preloaded there by the world generator. The OS bundle is
-# copied from flash into fixed 16 KiB RAM slots beginning immediately after it.
+# Physical/ABI memory contract.
+CACHE_BYTES = 16 << 10
 APP_SLOT_BYTES = 16 << 10
-BUNDLE_RAM_BASE = 16 << 10
+KERNEL_RAM_BASE = 16 << 10
+APP_RAM_BASE = 32 << 10
+
 BUNDLE_ORDER = (
     "kernel",
     "desktop",
@@ -63,11 +64,9 @@ APP_IDS = {
 }
 
 
-def app_pc_word(app: str) -> int:
-    """Word-address PC for an app after SYS_BOOT_LOAD_OS completes."""
-    app_id = APP_IDS[app]
-    slot = 1 + app_id  # slot 0 is kernel
-    return (BUNDLE_RAM_BASE + slot * APP_SLOT_BYTES) // 4
+def app_pc_word(_app: str) -> int:
+    """All foreground apps execute from the same flushed/reloaded RAM slot."""
+    return APP_RAM_BASE // 4
 
 
 @dataclass(frozen=True)
@@ -78,6 +77,7 @@ class OSImage:
     bundle_flash_offset: int
     bundle_bytes: int
     app_pc_words: dict[str, int]
+    slot_flash_offsets: dict[str, int]
 
 
 def _firmware_source(filename: str) -> str:
@@ -96,39 +96,44 @@ def build_default_os_image(flash_bytes: int = 4 << 20) -> OSImage:
         sources[name] = source
         binaries[name] = binary
 
-    # The first data file is deliberately the boot bundle. This makes its
-    # physical flash location deterministic from ShamaFS geometry, while the
-    # returned OSImage still records the exact offset instead of relying on a
-    # duplicated magic constant.
+    # Fixed-size flash slots make hardware loading simple and deterministic.
     bundle = bytearray(APP_SLOT_BYTES * len(BUNDLE_ORDER))
     for slot, name in enumerate(BUNDLE_ORDER):
         binary = binaries[name]
         if len(binary) > APP_SLOT_BYTES:
             raise ValueError(
                 f"{name} firmware is {len(binary)} bytes; exceeds "
-                f"{APP_SLOT_BYTES}-byte boot slot"
+                f"{APP_SLOT_BYTES}-byte flash/app slot"
             )
         start = slot * APP_SLOT_BYTES
         bundle[start : start + len(binary)] = binary
 
+    # First data extent so the hardware can mount/load without a filesystem
+    # pathname lookup during the earliest boot stages.
     fs.create_file("boot.bundle", bytes(bundle), FileType.SYS)
     bundle_entry = fs.stat("boot.bundle")
     bundle_flash_offset = bundle_entry.start_block * fs.block_size
 
-    # Store editable source and individual executable copies too. File Explorer
-    # and Editor therefore see the same preinstalled programs the boot bundle
-    # contains.
+    # Store editable source and individual binaries in the normal filesystem too.
     for name, (source_name, executable_name, executable_type) in FIRMWARE.items():
         fs.create_file(source_name, sources[name].encode("utf-8"), FileType.ASM)
         fs.create_file(executable_name, binaries[name], executable_type)
 
     fs.create_file("welcome.txt", DEFAULT_TEXT.encode("utf-8"), FileType.TXT)
+
+    # Fixed-size persistent miner records simplify the hardware history/state
+    # service while still appearing as normal LOG/CFG files in File Explorer.
     fs.create_file(
         "miner-state.cfg",
-        b"generation=0\nnonce=0\nattempts=0\nrunning=0\n",
+        b"generation=0\nnonce=0\nattempts=0\nrunning=0\n".ljust(256, b"\x00"),
         FileType.CFG,
     )
-    fs.create_file("miner-history.log", b"", FileType.LOG)
+    fs.create_file("miner-history.log", bytes(16 << 10), FileType.LOG)
+
+    slot_flash_offsets = {
+        name: bundle_flash_offset + slot * APP_SLOT_BYTES
+        for slot, name in enumerate(BUNDLE_ORDER)
+    }
 
     return OSImage(
         image=fs.serialize(),
@@ -137,4 +142,5 @@ def build_default_os_image(flash_bytes: int = 4 << 20) -> OSImage:
         bundle_flash_offset=bundle_flash_offset,
         bundle_bytes=len(bundle),
         app_pc_words={name: app_pc_word(name) for name in APP_IDS},
+        slot_flash_offsets=slot_flash_offsets,
     )
