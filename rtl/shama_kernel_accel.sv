@@ -146,6 +146,16 @@ module shama_kernel_accel(
         ST_FS,
         ST_ASM,
 
+        ST_GFX_A0,
+        ST_GFX_A1,
+        ST_GFX_A2,
+        ST_GFX_A3,
+        ST_GFX_A4,
+        ST_GFX_CMD,
+        ST_GFX_SUBMIT,
+        ST_GFX_FENCE_READ,
+        ST_GFX_FENCE_WAIT,
+
         ST_UI_CLEAR_CMD,
         ST_UI_CLEAR_SUBMIT,
 
@@ -190,6 +200,11 @@ module shama_kernel_accel(
 
     logic [3:0] current_view;
     logic [7:0] text_index;
+
+    logic [7:0] gfx_opcode;
+    logic [31:0] gfx_a0,gfx_a1,gfx_a2,gfx_a3,gfx_a4;
+    logic [31:0] gfx_fence_target;
+    logic gfx_wait_fence;
 
     function automatic [255:0] title_for(input logic [3:0] view);
         begin
@@ -321,6 +336,13 @@ module shama_kernel_accel(
             (id==SYS_BOOT_MOUNT);
     endfunction
 
+    function automatic logic is_gpu_sys(input logic [11:0] id);
+        is_gpu_sys =
+            id==SYS_GPU_SUBMIT || id==SYS_DRAW_TEXT ||
+            id==SYS_DRAW_RECT || id==SYS_MESSAGE_BOX ||
+            id==SYS_GPU_FENCE;
+    endfunction
+
     function automatic logic is_ui_sys(input logic [11:0] id);
         is_ui_sys = (id>=SYS_UI_REDRAW && id<=SYS_UI_CALCULATOR_VIEW);
     endfunction
@@ -364,6 +386,17 @@ module shama_kernel_accel(
         gpu_wstrb=4'b1111;
 
         case(state)
+            ST_GFX_A0: begin gpu_valid=1;gpu_addr=12'h008;gpu_wdata=gfx_a0;end
+            ST_GFX_A1: begin gpu_valid=1;gpu_addr=12'h00c;gpu_wdata=gfx_a1;end
+            ST_GFX_A2: begin gpu_valid=1;gpu_addr=12'h010;gpu_wdata=gfx_a2;end
+            ST_GFX_A3: begin gpu_valid=1;gpu_addr=12'h014;gpu_wdata=gfx_a3;end
+            ST_GFX_A4: begin gpu_valid=1;gpu_addr=12'h018;gpu_wdata=gfx_a4;end
+            ST_GFX_CMD: begin gpu_valid=1;gpu_addr=12'h004;gpu_wdata={24'd0,gfx_opcode};end
+            ST_GFX_SUBMIT: begin gpu_valid=1;gpu_addr=12'h028;gpu_wdata=1;end
+            ST_GFX_FENCE_READ,ST_GFX_FENCE_WAIT: begin
+                gpu_valid=1;gpu_we=0;gpu_addr=12'h030;gpu_wdata=0;
+            end
+
             ST_UI_CLEAR_CMD: begin gpu_valid=1;gpu_addr=12'h004;gpu_wdata=32'h01;end
             ST_UI_CLEAR_SUBMIT: begin gpu_valid=1;gpu_addr=12'h028;gpu_wdata=1;end
 
@@ -428,6 +461,8 @@ module shama_kernel_accel(
             response_load_app<=0;response_app_id<=0;
             current_view<=VIEW_DESKTOP;
             text_index<=0;
+            gfx_opcode<=0;gfx_a0<=0;gfx_a1<=0;gfx_a2<=0;gfx_a3<=0;gfx_a4<=0;
+            gfx_fence_target<=0;gfx_wait_fence<=0;
         end else begin
             if(state==ST_RESP && !req_valid) begin
                 state<=ST_IDLE;
@@ -466,7 +501,35 @@ module shama_kernel_accel(
                             default: begin end
                         endcase
                         state<=ST_RESP;
-                    end else if(is_file_sys(req_id)) begin
+                    end else if(is_gpu_sys(req_id)) begin
+                        gfx_wait_fence<=0;
+                        gfx_a0<=0;gfx_a1<=0;gfx_a2<=0;gfx_a3<=0;gfx_a4<=0;
+
+                        if(req_id==SYS_GPU_SUBMIT) begin
+                            gfx_opcode<=req_args[7:0];
+                            gfx_a0<=req_args[63:32];
+                            gfx_a1<=req_args[95:64];
+                            gfx_a2<=req_args[127:96];
+                            gfx_a3<=req_args[159:128];
+                            gfx_a4<=req_args[191:160];
+                            state<=ST_GFX_A0;
+                        end else if(req_id==SYS_DRAW_TEXT || req_id==SYS_MESSAGE_BOX) begin
+                            gfx_opcode<=8'h0c;
+                            gfx_a0<=req_args[31:0];
+                            gfx_a1<=req_args[63:32];
+                            gfx_a2<=req_args[95:64];
+                            gfx_a3<=req_args[127:96];
+                            state<=ST_GFX_A0;
+                        end else if(req_id==SYS_DRAW_RECT) begin
+                            gfx_opcode<=req_args[128] ? 8'h08 : 8'h07;
+                            gfx_a0<=req_args[31:0];
+                            gfx_a1<=req_args[63:32];
+                            gfx_a2<=req_args[95:64];
+                            gfx_a3<=req_args[127:96];
+                            state<=ST_GFX_A0;
+                        end else begin
+                            state<=ST_GFX_FENCE_READ;
+                        end                    end else if(is_file_sys(req_id)) begin
                         state<=ST_FS;
                     end else if(req_id==SYS_ASSEMBLE) begin
                         state<=ST_ASM;
@@ -478,6 +541,40 @@ module shama_kernel_accel(
                         // Low-level GPU convenience calls are intentionally
                         // available, but normal ShamaOS apps use UI views.
                         response<=0;
+                        state<=ST_RESP;
+                    end
+                end
+
+                ST_GFX_A0: advance_gpu(ST_GFX_A1);
+                ST_GFX_A1: advance_gpu(ST_GFX_A2);
+                ST_GFX_A2: advance_gpu(ST_GFX_A3);
+                ST_GFX_A3: advance_gpu(ST_GFX_A4);
+                ST_GFX_A4: advance_gpu(ST_GFX_CMD);
+                ST_GFX_CMD: advance_gpu(ST_GFX_SUBMIT);
+                ST_GFX_SUBMIT: begin
+                    if(gpu_ready) begin
+                        if(gfx_wait_fence)
+                            state<=ST_GFX_FENCE_WAIT;
+                        else begin
+                            response<=0;
+                            state<=ST_RESP;
+                        end
+                    end
+                end
+
+                ST_GFX_FENCE_READ: begin
+                    if(gpu_ready) begin
+                        gfx_fence_target<=gpu_rdata+1'b1;
+                        gfx_opcode<=8'h16;
+                        gfx_wait_fence<=1'b1;
+                        state<=ST_GFX_CMD;
+                    end
+                end
+
+                ST_GFX_FENCE_WAIT: begin
+                    if(gpu_ready && gpu_rdata>=gfx_fence_target) begin
+                        response<=gpu_rdata;
+                        gfx_wait_fence<=0;
                         state<=ST_RESP;
                     end
                 end
