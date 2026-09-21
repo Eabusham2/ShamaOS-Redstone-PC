@@ -30,6 +30,13 @@ module shama_soc(
     output logic         flash_write_commit,
     output logic [31:0]  flash_write_data,
 
+    input  logic [31:0]  vram_selected_word,
+    output logic [7:0]   vram_bank_select,
+    output logic [1023:0] vram_row_select,
+    output logic         vram_read_enable,
+    output logic         vram_write_commit,
+    output logic [31:0]  vram_write_data,
+
     output logic [319:0] display_row_data,
     output logic [7:0]   display_row_index,
     output logic         display_row_commit,
@@ -95,12 +102,19 @@ module shama_soc(
     logic [3:0] gpu_mmio_wstrb;
     logic gpu_disp_valid,gpu_disp_bit,gpu_disp_ready;
     logic [15:0] gpu_disp_index;
+    logic gpu_vram_valid,gpu_vram_we,gpu_vram_ready;
+    logic [14:0] gpu_vram_addr;
+    logic [31:0] gpu_vram_wdata,gpu_vram_rdata;
+    logic [3:0] gpu_vram_wstrb;
 
     shama_gpu #(.WIDTH(320),.HEIGHT(180),.QUEUE_DEPTH(8)) u_gpu(
         .clk,.rst,
         .mmio_valid(gpu_mmio_valid),.mmio_we(gpu_mmio_we),
         .mmio_addr(gpu_mmio_addr),.mmio_wdata(gpu_mmio_wdata),
         .mmio_wstrb(gpu_mmio_wstrb),.mmio_ready(gpu_mmio_ready),.mmio_rdata(gpu_mmio_rdata),
+        .vram_valid(gpu_vram_valid),.vram_we(gpu_vram_we),.vram_addr(gpu_vram_addr),
+        .vram_wdata(gpu_vram_wdata),.vram_wstrb(gpu_vram_wstrb),
+        .vram_ready(gpu_vram_ready),.vram_rdata(gpu_vram_rdata),
         .disp_valid(gpu_disp_valid),.disp_index(gpu_disp_index),
         .disp_bit(gpu_disp_bit),.disp_ready(gpu_disp_ready)
     );
@@ -123,6 +137,18 @@ module shama_soc(
         if(display_row_commit && display_row_index < 8'd180)
             display_row_select[display_row_index] = 1'b1;
     end
+
+    // ---------------- Dedicated physical 32 KiB VRAM ----------------
+    shama_vram_adapter u_vram(
+        .clk,.rst,
+        .req_valid(gpu_vram_valid),.req_we(gpu_vram_we),
+        .req_addr({17'd0,gpu_vram_addr}),.req_wdata(gpu_vram_wdata),
+        .req_wstrb(gpu_vram_wstrb),
+        .req_ready(gpu_vram_ready),.req_rdata(gpu_vram_rdata),
+        .bank_select(vram_bank_select),.row_select(vram_row_select),
+        .read_enable(vram_read_enable),.write_commit(vram_write_commit),
+        .write_data(vram_write_data),.selected_word(vram_selected_word)
+    );
 
     // ---------------- ShamaOS services ----------------
     logic svc_dma_valid,svc_dma_we,svc_dma_flash,svc_dma_ready;
