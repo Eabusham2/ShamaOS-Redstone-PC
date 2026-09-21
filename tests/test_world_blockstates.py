@@ -1,3 +1,7 @@
+import pytest
+
+pytest.importorskip("amulet")
+
 from shamaos.hardware.display import LAMP_OFF
 from shamaos.hardware.memory import comparator, repeater
 from shamaos.model import BlockState
