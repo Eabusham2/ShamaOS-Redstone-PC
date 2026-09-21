@@ -20,8 +20,8 @@ class MachineGeometry:
     bank_words: int = 1024
     bank_word_bits: int = 32
     banks_per_row: int = 16
-    pixel_pitch_x: int = 4
-    pixel_pitch_y: int = 2
+    pixel_pitch_x: int = 5
+    pixel_pitch_y: int = 5
 
 @dataclass(frozen=True)
 class PhysicalOrigins:
@@ -47,7 +47,7 @@ def default_origins(g: MachineGeometry) -> PhysicalOrigins:
         flash=Vec3(ox + 12_000, oy, oz + 110_000),
         vram=Vec3(ox + 10_000, oy, oz - 100_000),
         input=Vec3(ox + 900, oy, oz - 3_000),
-        display=Vec3(ox, -41, oz - 2_000),
+        display=Vec3(ox, oy, oz - 2_000),
     )
 
 
@@ -173,8 +173,8 @@ def plan_machine(g: MachineGeometry) -> BuildPlan:
         _box_from_size(
             origins.display,
             panel.physical_width,
-            panel.physical_height,
             panel.depth,
+            panel.physical_height,
         ),
         "physical-display",
         metadata={
@@ -183,6 +183,7 @@ def plan_machine(g: MachineGeometry) -> BuildPlan:
             "bits_per_pixel": 1,
             "pixel_pitch_x": panel.pixel_pitch_x,
             "pixel_pitch_y": panel.pixel_pitch_y,
+            "orientation": "horizontal-xz-viewed-from-above",
         },
     ))
 
