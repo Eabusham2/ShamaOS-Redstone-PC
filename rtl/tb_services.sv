@@ -41,7 +41,7 @@ module tb_services;
 
     always #5 clk=~clk;
 
-    shama_services dut(
+    shama_services #(.APP_SLOT_BYTES(256)) dut(
         .clk,.rst,
         .sys_valid,.sys_id,.sys_args,.sys_ready,.sys_ret,.sys_jump_valid,.sys_jump_pc,
         .event_valid,.event_code,.key_code,.controller_latched,.event_ack,
