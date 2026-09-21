@@ -373,6 +373,7 @@ module shama_fs_accel(
                                 end else if(req_id==SYS_FILE_WRITE) begin
                                     old_start<=file_start[req_args[31:0]-1];
                                     old_blocks<=file_blocks[req_args[31:0]-1];
+                                    free_index<=0;
                                     copy_count<=req_args[95:64];
                                     copy_src<=req_args[63:32];
                                     direct_write<=0;
@@ -621,8 +622,10 @@ module shama_fs_accel(
                             file_size[target_entry]<=0;file_start[target_entry]<=0;file_blocks[target_entry]<=0;
                         end
                         flush_entry_index<=target_entry;flush_entry_word<=0;
-                        after_entry_state<=ST_DONE;state<=ST_FLUSH_ENTRY;
                         flush_bitmap_word<=0;
+                        after_bitmap_state<=ST_DONE;
+                        after_entry_state<=ST_FLUSH_BITMAP;
+                        state<=ST_FLUSH_ENTRY;
                     end else begin
                         bitmap[(old_start+free_index)>>5][(old_start+free_index)&31]<=0;
                         free_index<=free_index+1;
