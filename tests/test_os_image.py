@@ -50,7 +50,14 @@ def test_default_boot_bundle_geometry():
         )
 
     for _name, pc_word in image.app_pc_words.items():
-        assert pc_word * 4 == APP_RAM_BASE
+        assert pc_word == 0
+
+    bundle_data = fs.read_file("boot.bundle")
+    for slot, name in enumerate(BUNDLE_ORDER):
+        start = slot * APP_SLOT_BYTES
+        encoded_len = int.from_bytes(bundle_data[start:start+4], "little")
+        assert encoded_len == image.slot_binary_lengths[name]
+        assert 0 < encoded_len <= APP_SLOT_BYTES - 4
 
     assert KERNEL_RAM_BASE == 16 << 10
     assert APP_RAM_BASE == 32 << 10
