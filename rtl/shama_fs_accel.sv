@@ -32,7 +32,10 @@ module shama_fs_accel(
         SYS_FILE_DELETE   = 12'h027,
         SYS_FILE_STAT     = 12'h028,
         SYS_FILE_LIST     = 12'h029,
-        SYS_FLASH_USAGE   = 12'h02a;
+        SYS_FLASH_USAGE   = 12'h02a,
+        SYS_MINER_LOG_RESULT   = 12'h050,
+        SYS_MINER_SAVE_STATE   = 12'h051,
+        SYS_MINER_LOAD_HISTORY = 12'h052;
 
     localparam integer BLOCK_SIZE = 256;
     localparam integer BLOCK_COUNT = 16384;
@@ -43,6 +46,9 @@ module shama_fs_accel(
     localparam integer BITMAP_FLASH_OFFSET = 256;
     localparam integer TABLE_FLASH_OFFSET = 2304;
     localparam integer DATA_START_BLOCK = 25;
+    // boot image list_files() sorts these fixed files into entries 13 and 14.
+    localparam integer MINER_HISTORY_ENTRY = 13;
+    localparam integer MINER_STATE_ENTRY = 14;
 
     typedef enum logic [6:0] {
         ST_IDLE,
@@ -323,6 +329,7 @@ module shama_fs_accel(
             alloc_run_start<=0;alloc_run_len<=0;alloc_start<=0;alloc_mark_index<=0;
             old_start<=0;old_blocks<=0;free_index<=0;
             copy_index<=0;copy_count<=0;copy_src<=0;copy_dst<=0;copy_byte<=0;
+            direct_write<=0;
             list_name_index<=0;
             for(i=0;i<MAX_FILES;i=i+1) begin
                 file_used[i]<=0;file_type[i]<=0;file_flags[i]<=0;file_size[i]<=0;
@@ -368,6 +375,7 @@ module shama_fs_accel(
                                     old_blocks<=file_blocks[req_args[31:0]-1];
                                     copy_count<=req_args[95:64];
                                     copy_src<=req_args[63:32];
+                                    direct_write<=0;
                                     alloc_needed<=(req_args[95:64]+BLOCK_SIZE-1)>>8;
                                     alloc_cursor<=DATA_START_BLOCK;
                                     alloc_run_len<=0;
@@ -412,6 +420,40 @@ module shama_fs_accel(
                             scan_entry<=0;
                             state<=ST_NAME_READ;
                         end
+
+                        SYS_MINER_LOG_RESULT: begin
+                            // a1 RAM record ptr, a2 byte length <=64,
+                            // a3 ring slot 0..255.
+                            copy_src<=req_args[31:0];
+                            copy_count<=(req_args[63:32]>64)?64:req_args[63:32];
+                            copy_dst<=file_start[MINER_HISTORY_ENTRY]*BLOCK_SIZE
+                                     + ((req_args[71:64])<<6);
+                            copy_index<=0;
+                            direct_write<=1;
+                            state<=ST_WRITE_RAM_READ;
+                        end
+
+                        SYS_MINER_SAVE_STATE: begin
+                            // a1 RAM state ptr, a2 byte length <=256.
+                            copy_src<=req_args[31:0];
+                            copy_count<=(req_args[63:32]>256)?256:req_args[63:32];
+                            copy_dst<=file_start[MINER_STATE_ENTRY]*BLOCK_SIZE;
+                            copy_index<=0;
+                            direct_write<=1;
+                            state<=ST_WRITE_RAM_READ;
+                        end
+
+                        SYS_MINER_LOAD_HISTORY: begin
+                            // a1 ring slot, a2 RAM destination, a3 length <=64.
+                            copy_src<=file_start[MINER_HISTORY_ENTRY]*BLOCK_SIZE
+                                     + ((req_args[7:0])<<6);
+                            copy_dst<=req_args[63:32];
+                            copy_count<=(req_args[95:64]>64)?64:req_args[95:64];
+                            copy_index<=0;
+                            direct_write<=0;
+                            state<=ST_READ_FLASH_BYTE;
+                        end
+
                         default: begin response<=64'hffffffffffffffff;state<=ST_ERROR;end
                     endcase
                 end
@@ -523,8 +565,13 @@ module shama_fs_accel(
                 end
 
                 ST_WRITE_RAM_READ: begin
-                    if(copy_index>=copy_count) state<=ST_WRITE_UPDATE_ENTRY;
-                    else if(dma_ready) begin
+                    if(copy_index>=copy_count) begin
+                        if(direct_write) begin
+                            response<=copy_count;
+                            direct_write<=0;
+                            state<=ST_DONE;
+                        end else state<=ST_WRITE_UPDATE_ENTRY;
+                    end else if(dma_ready) begin
                         copy_byte<=dma_rdata>>(((copy_src+copy_index)&3)*8);
                         state<=ST_WRITE_FLASH_BYTE;
                     end
