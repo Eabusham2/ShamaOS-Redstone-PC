@@ -4,6 +4,7 @@
 // Locked against src/shamaos/os_image.py and 4 MiB ShamaFS geometry.
 `define SHAMA_BUNDLE_FLASH_OFFSET 32'h00001900
 `define SHAMA_SLOT_BYTES          32'h00004000
+`define SHAMA_SLOT_DATA_OFFSET    32'h00000004
 
 `define SHAMA_KERNEL_FLASH        32'h00001900
 `define SHAMA_DESKTOP_FLASH       32'h00005900
@@ -20,15 +21,15 @@
 `define SHAMA_APP_RAM_BASE        32'h00008000
 
 `define SHAMA_PC_KERNEL           32'h00001000
-`define SHAMA_PC_APP              32'h00002000
-`define SHAMA_PC_DESKTOP          32'h00002000
-`define SHAMA_PC_EDITOR           32'h00002000
-`define SHAMA_PC_FILES            32'h00002000
-`define SHAMA_PC_MINER            32'h00002000
-`define SHAMA_PC_MONITOR          32'h00002000
-`define SHAMA_PC_TERMINAL         32'h00002000
-`define SHAMA_PC_CALCULATOR       32'h00002000
-`define SHAMA_PC_PAINT            32'h00002000
-`define SHAMA_PC_SETTINGS         32'h00002000
+`define SHAMA_PC_APP              32'h00000000
+`define SHAMA_PC_DESKTOP          32'h00000000
+`define SHAMA_PC_EDITOR          32'h00000000
+`define SHAMA_PC_FILES          32'h00000000
+`define SHAMA_PC_MINER          32'h00000000
+`define SHAMA_PC_MONITOR          32'h00000000
+`define SHAMA_PC_TERMINAL          32'h00000000
+`define SHAMA_PC_CALCULATOR          32'h00000000
+`define SHAMA_PC_PAINT          32'h00000000
+`define SHAMA_PC_SETTINGS          32'h00000000
 
 `endif
