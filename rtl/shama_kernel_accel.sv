@@ -23,6 +23,7 @@ module shama_kernel_accel(
     output logic         gpu_we,
     output logic [11:0]  gpu_addr,
     output logic [31:0]  gpu_wdata,
+    output logic [3:0]   gpu_wstrb,
     input  logic         gpu_ready,
     input  logic [31:0]  gpu_rdata,
 
@@ -352,14 +353,17 @@ module shama_kernel_accel(
         gpu_we=1'b1;
         gpu_addr=0;
         gpu_wdata=0;
+        gpu_wstrb=4'b1111;
 
         case(state)
             ST_UI_CLEAR_CMD: begin gpu_valid=1;gpu_addr=12'h004;gpu_wdata=32'h01;end
             ST_UI_CLEAR_SUBMIT: begin gpu_valid=1;gpu_addr=12'h028;gpu_wdata=1;end
 
             ST_UI_TITLE_TEXT: begin
-                gpu_valid=1;gpu_addr=12'h400+text_index;
-                gpu_wdata={24'd0,packed_char(title_for(current_view),text_index)};
+                gpu_valid=1;gpu_addr=(12'h400+text_index)&12'hffc;
+                gpu_wstrb=4'b0001 << text_index[1:0];
+                gpu_wdata={24'd0,packed_char(title_for(current_view),text_index)}
+                          << (text_index[1:0]*8);
             end
             ST_UI_TITLE_A0: begin gpu_valid=1;gpu_addr=12'h008;gpu_wdata=0;end
             ST_UI_TITLE_A1: begin gpu_valid=1;gpu_addr=12'h00c;gpu_wdata=32;end
@@ -369,8 +373,10 @@ module shama_kernel_accel(
             ST_UI_TITLE_SUBMIT: begin gpu_valid=1;gpu_addr=12'h028;gpu_wdata=1;end
 
             ST_UI_STATUS_TEXT: begin
-                gpu_valid=1;gpu_addr=12'h440+text_index;
-                gpu_wdata={24'd0,status_char(text_index)};
+                gpu_valid=1;gpu_addr=(12'h440+text_index)&12'hffc;
+                gpu_wstrb=4'b0001 << text_index[1:0];
+                gpu_wdata={24'd0,status_char(text_index)}
+                          << (text_index[1:0]*8);
             end
             ST_UI_STATUS_A0: begin gpu_valid=1;gpu_addr=12'h008;gpu_wdata=64;end
             ST_UI_STATUS_A1: begin gpu_valid=1;gpu_addr=12'h00c;gpu_wdata=42;end
@@ -380,11 +386,14 @@ module shama_kernel_accel(
             ST_UI_STATUS_SUBMIT: begin gpu_valid=1;gpu_addr=12'h028;gpu_wdata=1;end
 
             ST_UI_HELP_TEXT: begin
-                gpu_valid=1;gpu_addr=12'h480+text_index;
+                gpu_valid=1;gpu_addr=(12'h480+text_index)&12'hffc;
+                gpu_wstrb=4'b0001 << text_index[1:0];
                 if(current_view==VIEW_MONITOR)
-                    gpu_wdata={24'd0,monitor_char(text_index)};
+                    gpu_wdata={24'd0,monitor_char(text_index)}
+                              << (text_index[1:0]*8);
                 else
-                    gpu_wdata={24'd0,packed_char(help_for(current_view),text_index)};
+                    gpu_wdata={24'd0,packed_char(help_for(current_view),text_index)}
+                              << (text_index[1:0]*8);
             end
             ST_UI_HELP_A0: begin gpu_valid=1;gpu_addr=12'h008;gpu_wdata=128;end
             ST_UI_HELP_A1: begin gpu_valid=1;gpu_addr=12'h00c;gpu_wdata=32;end
