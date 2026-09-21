@@ -59,6 +59,8 @@ module shama_services(
         SYS_APP_EXIT_FOREGROUND = 12'h007,
         SYS_BOOT_LOAD_OS        = 12'h009,
 
+        SYS_ALLOC               = 12'h010,
+        SYS_FREE                = 12'h011,
         SYS_RAM_USAGE           = 12'h012,
         SYS_CACHE_USAGE         = 12'h013,
         SYS_FLASH_USAGE         = 12'h02a,
@@ -71,6 +73,11 @@ module shama_services(
         EVT_EXIT   = 8'h17,
         EVT_EDITOR = 8'h18,
         EVT_FILES  = 8'h19;
+
+    localparam integer HEAP_BASE = 32'h00010000;
+    localparam integer HEAP_PAGE_BYTES = 4096;
+    localparam integer HEAP_PAGES = 160;
+    localparam integer MAX_ALLOCS = 16;
 
     typedef enum logic [3:0] {
         ST_IDLE,
@@ -106,6 +113,13 @@ module shama_services(
 
     logic [31:0] kernel_loaded_bytes;
     logic [31:0] app_loaded_bytes;
+    logic [31:0] heap_used_bytes;
+    logic heap_bitmap [0:HEAP_PAGES-1];
+    logic alloc_used [0:MAX_ALLOCS-1];
+    logic [31:0] alloc_ptr [0:MAX_ALLOCS-1];
+    logic [7:0] alloc_pages [0:MAX_ALLOCS-1];
+
+    integer i;
 
     logic [63:0] response;
     logic response_jump;
@@ -150,6 +164,41 @@ module shama_services(
         end
     endfunction
 
+    function automatic integer find_free_alloc_slot;
+        integer k;
+        begin
+            find_free_alloc_slot=-1;
+            for(k=0;k<MAX_ALLOCS;k=k+1)
+                if(!alloc_used[k] && find_free_alloc_slot<0)
+                    find_free_alloc_slot=k;
+        end
+    endfunction
+
+    function automatic integer find_heap_run(input integer needed);
+        integer k,run,start;
+        begin
+            run=0;start=0;find_heap_run=-1;
+            for(k=0;k<HEAP_PAGES;k=k+1) begin
+                if(!heap_bitmap[k]) begin
+                    if(run==0) start=k;
+                    run=run+1;
+                    if(run>=needed && find_heap_run<0)
+                        find_heap_run=start;
+                end else run=0;
+            end
+        end
+    endfunction
+
+    function automatic integer find_alloc_by_ptr(input logic [31:0] ptr);
+        integer k;
+        begin
+            find_alloc_by_ptr=-1;
+            for(k=0;k<MAX_ALLOCS;k=k+1)
+                if(alloc_used[k] && alloc_ptr[k]==ptr && find_alloc_by_ptr<0)
+                    find_alloc_by_ptr=k;
+        end
+    endfunction
+
     function automatic [31:0] workspace_bytes(input logic [3:0] app_id);
         begin
             // These regions are real fixed RAM workspaces used by firmware.
@@ -174,6 +223,8 @@ module shama_services(
                 SYS_APP_LAUNCH,
                 SYS_APP_EXIT_FOREGROUND,
                 SYS_BOOT_LOAD_OS,
+                SYS_ALLOC,
+                SYS_FREE,
                 SYS_RAM_USAGE,
                 SYS_CACHE_USAGE,
                 SYS_FLASH_USAGE,
@@ -191,6 +242,13 @@ module shama_services(
             async_switch <= 1'b0;
             run_staged <= 1'b0;
             app_loaded_bytes <= 0;
+            heap_used_bytes <= 0;
+            for(i=0;i<HEAP_PAGES;i=i+1) heap_bitmap[i] <= 1'b0;
+            for(i=0;i<MAX_ALLOCS;i=i+1) begin
+                alloc_used[i] <= 1'b0;
+                alloc_ptr[i] <= 0;
+                alloc_pages[i] <= 0;
+            end
             copy_offset <= 0;
             state <= ST_APP_CLEAR_RAM;
         end
@@ -212,7 +270,7 @@ module shama_services(
 
         ram_used_bytes =
             kernel_loaded_bytes + app_loaded_bytes +
-            workspace_bytes(foreground_app);
+            workspace_bytes(foreground_app) + heap_used_bytes;
         cache_used_bytes = app_loaded_bytes;
 
         dma_valid = 1'b0;
@@ -294,6 +352,13 @@ module shama_services(
 
             kernel_loaded_bytes <= 0;
             app_loaded_bytes <= 0;
+            heap_used_bytes <= 0;
+            for(i=0;i<HEAP_PAGES;i=i+1) heap_bitmap[i] <= 1'b0;
+            for(i=0;i<MAX_ALLOCS;i=i+1) begin
+                alloc_used[i] <= 1'b0;
+                alloc_ptr[i] <= 0;
+                alloc_pages[i] <= 0;
+            end
 
             response <= 0;
             response_jump <= 0;
@@ -321,6 +386,13 @@ module shama_services(
                         target_app <= universal_app(event_code);
                         run_staged <= 1'b0;
                         app_loaded_bytes <= 0;
+                        heap_used_bytes <= 0;
+                        for(i=0;i<HEAP_PAGES;i=i+1) heap_bitmap[i] <= 1'b0;
+                        for(i=0;i<MAX_ALLOCS;i=i+1) begin
+                            alloc_used[i] <= 1'b0;
+                            alloc_ptr[i] <= 0;
+                            alloc_pages[i] <= 0;
+                        end
                         copy_offset <= 0;
                         state <= ST_APP_CLEAR_RAM;
                     end else if(sys_valid) begin
@@ -408,6 +480,49 @@ module shama_services(
                                 SYS_GET_TIME,
                                 SYS_GET_COUNTER: begin
                                     response <= time_counter;
+                                    state <= ST_RESP;
+                                end
+
+                                SYS_ALLOC: begin
+                                    integer needed_pages;
+                                    integer run_start;
+                                    integer slot;
+                                    needed_pages = (sys_args[31:0] + HEAP_PAGE_BYTES - 1) / HEAP_PAGE_BYTES;
+                                    run_start = find_heap_run(needed_pages);
+                                    slot = find_free_alloc_slot();
+                                    if(needed_pages<=0 || needed_pages>HEAP_PAGES ||
+                                       run_start<0 || slot<0) begin
+                                        response <= 64'hffffffffffffffff;
+                                    end else begin
+                                        for(i=0;i<HEAP_PAGES;i=i+1)
+                                            if(i>=run_start && i<run_start+needed_pages)
+                                                heap_bitmap[i] <= 1'b1;
+                                        alloc_used[slot] <= 1'b1;
+                                        alloc_ptr[slot] <= HEAP_BASE + run_start*HEAP_PAGE_BYTES;
+                                        alloc_pages[slot] <= needed_pages;
+                                        heap_used_bytes <= heap_used_bytes + needed_pages*HEAP_PAGE_BYTES;
+                                        response <= HEAP_BASE + run_start*HEAP_PAGE_BYTES;
+                                    end
+                                    state <= ST_RESP;
+                                end
+
+                                SYS_FREE: begin
+                                    integer slot;
+                                    integer first_page;
+                                    slot = find_alloc_by_ptr(sys_args[31:0]);
+                                    if(slot<0) begin
+                                        response <= 64'hffffffffffffffff;
+                                    end else begin
+                                        first_page = (alloc_ptr[slot]-HEAP_BASE)/HEAP_PAGE_BYTES;
+                                        for(i=0;i<HEAP_PAGES;i=i+1)
+                                            if(i>=first_page && i<first_page+alloc_pages[slot])
+                                                heap_bitmap[i] <= 1'b0;
+                                        heap_used_bytes <= heap_used_bytes - alloc_pages[slot]*HEAP_PAGE_BYTES;
+                                        alloc_used[slot] <= 1'b0;
+                                        alloc_ptr[slot] <= 0;
+                                        alloc_pages[slot] <= 0;
+                                        response <= 0;
+                                    end
                                     state <= ST_RESP;
                                 end
 
