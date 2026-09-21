@@ -293,6 +293,7 @@ def iter_system_infrastructure(
     g = _geometry_from_config(config)
     origins = default_origins(g)
     cache_spec, ram_spec, flash_spec = memory_specs(g)
+    vram_fabric = vram_spec(g)
 
     # Power-gated comparator clock.
     yield from iter_clock(prepared.clock_origin)
