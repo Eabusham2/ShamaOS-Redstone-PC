@@ -92,6 +92,7 @@ module shama_soc(
     logic gpu_mmio_valid,gpu_mmio_we,gpu_mmio_ready;
     logic [11:0] gpu_mmio_addr;
     logic [31:0] gpu_mmio_wdata,gpu_mmio_rdata;
+    logic [3:0] gpu_mmio_wstrb;
     logic gpu_disp_valid,gpu_disp_bit,gpu_disp_ready;
     logic [15:0] gpu_disp_index;
 
@@ -99,7 +100,7 @@ module shama_soc(
         .clk,.rst,
         .mmio_valid(gpu_mmio_valid),.mmio_we(gpu_mmio_we),
         .mmio_addr(gpu_mmio_addr),.mmio_wdata(gpu_mmio_wdata),
-        .mmio_ready(gpu_mmio_ready),.mmio_rdata(gpu_mmio_rdata),
+        .mmio_wstrb(gpu_mmio_wstrb),.mmio_ready(gpu_mmio_ready),.mmio_rdata(gpu_mmio_rdata),
         .disp_valid(gpu_disp_valid),.disp_index(gpu_disp_index),
         .disp_bit(gpu_disp_bit),.disp_ready(gpu_disp_ready)
     );
@@ -268,7 +269,7 @@ module shama_soc(
         ram_req_valid=0;ram_req_we=0;ram_req_addr=0;ram_req_wdata=0;ram_req_wstrb=0;
         flash_req_valid=0;flash_req_we=0;flash_req_addr=0;flash_req_wdata=0;flash_req_wstrb=0;
 
-        gpu_mmio_valid=0;gpu_mmio_we=0;gpu_mmio_addr=0;gpu_mmio_wdata=0;
+        gpu_mmio_valid=0;gpu_mmio_we=0;gpu_mmio_addr=0;gpu_mmio_wdata=0;gpu_mmio_wstrb=4'b0000;
         k_gpu_ready=0;k_gpu_rdata=gpu_mmio_rdata;
 
         cpu_mem_ready=0;
@@ -281,7 +282,7 @@ module shama_soc(
         // Kernel rendering owns GPU while CPU is stalled in the syscall.
         if(k_gpu_valid) begin
             gpu_mmio_valid=k_gpu_valid;gpu_mmio_we=k_gpu_we;
-            gpu_mmio_addr=k_gpu_addr;gpu_mmio_wdata=k_gpu_wdata;
+            gpu_mmio_addr=k_gpu_addr;gpu_mmio_wdata=k_gpu_wdata;gpu_mmio_wstrb=4'b1111;
             k_gpu_ready=gpu_mmio_ready;k_gpu_rdata=gpu_mmio_rdata;
         end
 
@@ -334,6 +335,7 @@ module shama_soc(
                 if(!k_gpu_valid) begin
                     gpu_mmio_valid=1;gpu_mmio_we=cpu_mem_we;
                     gpu_mmio_addr=cpu_mem_addr-GPU_BASE;gpu_mmio_wdata=cpu_mem_wdata;
+                    gpu_mmio_wstrb=cpu_mem_wstrb;
                     cpu_mem_ready=gpu_mmio_ready;cpu_mem_rdata=gpu_mmio_rdata;
                 end
             end else if(cpu_mem_addr >= INPUT_BASE && cpu_mem_addr <= INPUT_END) begin
