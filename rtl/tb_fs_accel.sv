@@ -79,6 +79,15 @@ module tb_fs_accel;
         end
     endtask
 
+    task automatic flash_put32(input integer addr,input logic [31:0] value);
+        begin
+            flash[addr+0]=value[7:0];
+            flash[addr+1]=value[15:8];
+            flash[addr+2]=value[23:16];
+            flash[addr+3]=value[31:24];
+        end
+    endtask
+
     initial begin
         for(i=0;i<4096;i=i+1) ram[i]=0;
         for(i=0;i<65536;i=i+1) flash[i]=0;
@@ -88,6 +97,18 @@ module tb_fs_accel;
         flash[257]=8'hff;
         flash[258]=8'hff;
         flash[259]=8'h01;
+
+        // Fixed miner-history entry 13: 16 KiB at block 30.
+        flash_put32(2304 + 13*64 + 0, 32'h00000501); // used, LOG type 5
+        flash_put32(2304 + 13*64 + 4, 32'd16384);
+        flash_put32(2304 + 13*64 + 8, 32'd30);
+        flash_put32(2304 + 13*64 + 12, 32'd64);
+
+        // Fixed miner-state entry 14: 256 bytes at block 100.
+        flash_put32(2304 + 14*64 + 0, 32'h00000601); // used, CFG type 6
+        flash_put32(2304 + 14*64 + 4, 32'd256);
+        flash_put32(2304 + 14*64 + 8, 32'd100);
+        flash_put32(2304 + 14*64 + 12, 32'd1);
 
         ram[16'h0100]="x";ram[16'h0101]=".";ram[16'h0102]="t";
         ram[16'h0103]="x";ram[16'h0104]="t";ram[16'h0105]=0;
@@ -127,6 +148,26 @@ module tb_fs_accel;
         call3(12'h027,1,0,0);
         call3(12'h029,0,32'h400,0);
         if(req_ret!=0) begin $display("delete/list fail %h",req_ret);$fatal(1);end
+
+        // Dedicated miner state write is in-place.
+        ram[16'h0500]=8'h53;ram[16'h0501]=8'h54;ram[16'h0502]=8'h41;ram[16'h0503]=8'h54;
+        call3(12'h051,32'h500,4,0);
+        if(flash[100*256+0]!==8'h53 || flash[100*256+3]!==8'h54) begin
+            $display("miner state persistence fail");$fatal(1);
+        end
+
+        // History slot 3 is a fixed 64-byte record.
+        ram[16'h0520]=8'h48;ram[16'h0521]=8'h49;ram[16'h0522]=8'h53;ram[16'h0523]=8'h54;
+        call3(12'h050,32'h520,4,3);
+        if(flash[30*256+3*64+0]!==8'h48 || flash[30*256+3*64+3]!==8'h54) begin
+            $display("miner history log fail");$fatal(1);
+        end
+
+        call3(12'h052,3,32'h600,4);
+        if(ram[16'h0600]!==8'h48 || ram[16'h0601]!==8'h49 ||
+           ram[16'h0602]!==8'h53 || ram[16'h0603]!==8'h54) begin
+            $display("miner history load fail");$fatal(1);
+        end
 
         $display("SHAMAFS ACCEL PASS");
         $finish;
