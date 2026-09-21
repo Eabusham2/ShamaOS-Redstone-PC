@@ -13,19 +13,19 @@ def test_world_writer_preserves_functional_redstone_properties():
     lp = props(locked)
     assert locked.namespace == "minecraft"
     assert locked.base_name == "repeater"
-    assert lp["facing"] == '"east"'
-    assert lp["powered"] == '"true"'
-    assert lp["locked"] == '"true"'
-    assert lp["delay"] == '"1"'
+    assert lp["facing"] == "east"
+    assert lp["powered"] == "true"
+    assert lp["locked"] == "true"
+    assert lp["delay"] == "1"
 
     comp = to_amulet_block(comparator("north", powered=True))
     cp = props(comp)
-    assert cp["facing"] == '"north"'
-    assert cp["mode"] == '"subtract"'
-    assert cp["powered"] == '"true"'
+    assert cp["facing"] == "north"
+    assert cp["mode"] == "subtract"
+    assert cp["powered"] == "true"
 
     lamp = to_amulet_block(LAMP_OFF)
-    assert props(lamp)["lit"] == '"false"'
+    assert props(lamp)["lit"] == "false"
 
     wire = to_amulet_block(BlockState.of("minecraft:redstone_wire"))
     assert wire.base_name == "redstone_wire"
