@@ -10,7 +10,7 @@ from .hardware.display import LampPanelSpec, panel_ports
 from .hardware.external_router import ExternalNet, iter_external_router
 from .hardware.logic import REDSTONE_BLOCK
 from .hardware.memory_backbone import backbone_ports, iter_memory_backbone
-from .layout import MachineGeometry, default_origins, memory_specs
+from .layout import MachineGeometry, default_origins, memory_specs, vram_spec
 from .model import BlockState, Placement, Vec3
 from .synthesis import PhysicalNetlist, build_physical_netlist, synthesize_json
 
@@ -56,6 +56,7 @@ def _geometry_from_config(config: dict) -> MachineGeometry:
         flash_bytes=m["flash_bytes"],
         display_width=d["width"],
         display_height=d["height"],
+        vram_bytes=m["vram_bytes"],
         bank_words=m.get("bank_words", 1024),
         bank_word_bits=m.get("bank_word_bits", 32),
         banks_per_row=m.get("banks_per_row", 16),
@@ -107,6 +108,7 @@ def prepare_system(
     g = _geometry_from_config(config)
     origins = default_origins(g)
     cache_spec, ram_spec, flash_spec = memory_specs(g)
+    vram_fabric = vram_spec(g)
 
     build = Path(build_dir)
     build.mkdir(parents=True, exist_ok=True)
@@ -168,6 +170,7 @@ def prepare_system(
         ("cache", origins.cache, cache_spec),
         ("ram", origins.ram, ram_spec),
         ("flash", origins.flash, flash_spec),
+        ("vram", origins.vram, vram_fabric),
     ):
         physical = backbone_ports(origin, fabric)
 
@@ -263,6 +266,10 @@ def prepare_system(
                 "banks": flash_spec.bank_count,
                 "rows": flash_spec.bank.words,
             },
+            "vram": {
+                "banks": vram_fabric.bank_count,
+                "rows": vram_fabric.bank.words,
+            },
         },
         "display": {
             "width": panel.width,
@@ -317,6 +324,11 @@ def iter_system_infrastructure(
         origins.flash,
         fabric=flash_spec,
         component="flash-backbone",
+    )
+    yield from iter_memory_backbone(
+        origins.vram,
+        fabric=vram_fabric,
+        component="vram-backbone",
     )
 
 
