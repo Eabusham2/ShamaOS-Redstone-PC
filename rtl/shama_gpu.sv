@@ -10,6 +10,7 @@ module shama_gpu #(
     input  logic        mmio_we,
     input  logic [11:0] mmio_addr,
     input  logic [31:0] mmio_wdata,
+    input  logic [3:0]  mmio_wstrb,
     output logic        mmio_ready,
     output logic [31:0] mmio_rdata,
 
@@ -196,10 +197,17 @@ module shama_gpu #(
                     12'h020: arg_reg[6]<=mmio_wdata;
                     12'h024: arg_reg[7]<=mmio_wdata;
                     default: begin
-                        if(mmio_addr>=12'h400 && mmio_addr<12'h500)
-                            text_ram[mmio_addr[7:0]]<=mmio_wdata[7:0];
-                        else if(mmio_addr>=12'h800 && mmio_addr<12'hc00)
-                            sprite_ram[mmio_addr[9:0]]<=mmio_wdata[0];
+                        if(mmio_addr>=12'h400 && mmio_addr<12'h500) begin
+                            if(mmio_wstrb[0]) text_ram[(mmio_addr[7:0]+0)&8'hff] <= mmio_wdata[7:0];
+                            if(mmio_wstrb[1]) text_ram[(mmio_addr[7:0]+1)&8'hff] <= mmio_wdata[15:8];
+                            if(mmio_wstrb[2]) text_ram[(mmio_addr[7:0]+2)&8'hff] <= mmio_wdata[23:16];
+                            if(mmio_wstrb[3]) text_ram[(mmio_addr[7:0]+3)&8'hff] <= mmio_wdata[31:24];
+                        end else if(mmio_addr>=12'h800 && mmio_addr<12'hc00) begin
+                            if(mmio_wstrb[0]) sprite_ram[(mmio_addr[9:0]+0)&10'h3ff] <= mmio_wdata[0];
+                            if(mmio_wstrb[1]) sprite_ram[(mmio_addr[9:0]+1)&10'h3ff] <= mmio_wdata[8];
+                            if(mmio_wstrb[2]) sprite_ram[(mmio_addr[9:0]+2)&10'h3ff] <= mmio_wdata[16];
+                            if(mmio_wstrb[3]) sprite_ram[(mmio_addr[9:0]+3)&10'h3ff] <= mmio_wdata[24];
+                        end
                     end
                 endcase
                 if(mmio_addr==12'h028 && q_count>=QUEUE_DEPTH)
