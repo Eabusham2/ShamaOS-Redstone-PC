@@ -29,9 +29,9 @@ module tb_services;
     logic [31:0] cpu_force_pc;
     logic [31:0] ram_used_bytes,cache_used_bytes;
 
-    logic [7:0] cache [0:16383];
-    logic [7:0] ram [0:131071];
-    logic [7:0] flash [0:262143];
+    logic [7:0] cache [0:255];
+    logic [7:0] ram [0:65535];
+    logic [7:0] flash [0:65535];
 
     integer i;
     integer watchdog;
