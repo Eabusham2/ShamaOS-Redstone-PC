@@ -54,7 +54,7 @@ class PhysicalNetlist:
     constant_high: tuple[Vec3, ...]
     cell_stride: int = 24
     route_z0: int = 32
-    track_pitch: int = 16
+    track_pitch: int = 4
     trunk_height: int = 7
 
     @property
@@ -254,24 +254,35 @@ def build_physical_netlist(
 
     x_cursor += 16
 
-    # Logic cells. The technology-mapped library is scalar, so each physical
-    # cell has one-bit pins.
-    for cell_name in sorted(module.get("cells", {})):
+    # Gate cells are placed on a 2-D grid instead of a single multi-million
+    # block line. Rows extend toward negative Z; routing tracks live on the
+    # positive-Z side of the origin, so the two regions cannot collide.
+    cells_per_row = 1024
+    cell_row_pitch = 32
+    cell_grid_x0 = max(x_cursor + 64, origin.x + 32768)
+
+    for cell_index, cell_name in enumerate(sorted(module.get("cells", {}))):
         cell = module["cells"][cell_name]
         cell_type = str(cell["type"]).lstrip("\\").upper()
         template = template_for(cell_type)  # validates support
-        base = Vec3(x_cursor, origin.y, origin.z)
+
+        col = cell_index % cells_per_row
+        row = cell_index // cells_per_row
+        stride = max(cell_stride, template.width + 6)
+        # Use the configured maximum stride grid. Individual cell widths are
+        # still validated, while all rows stay aligned for deterministic routing.
+        base = Vec3(
+            cell_grid_x0 + col * max(cell_stride, 24),
+            origin.y,
+            origin.z - row * cell_row_pitch,
+        )
         cell_origins[cell_name] = base
         cell_types[cell_name] = cell_type
-        x_cursor += max(cell_stride, template.width + 6)
 
         directions = cell.get("port_directions", {})
         for pin_name, bits in cell.get("connections", {}).items():
             direction = directions.get(pin_name)
             if direction not in {"input", "output"}:
-                # ABC/liberty-mapped JSON can omit port_directions. Our
-                # physical scalar library has conventional Y/Q outputs and
-                # all other pins are inputs.
                 direction = "output" if pin_name in {"Y", "Q"} else "input"
             if len(bits) != 1:
                 raise SynthesisError(
@@ -284,9 +295,12 @@ def build_physical_netlist(
                 Endpoint(cell_name, pin_name, pos, direction == "output"),
             )
 
-    x_cursor += 16
-
-    # Top output terminals after the cells.
+    # Top output terminals have their own fixed strip; they no longer move
+    # farther away as cell count grows.
+    x_cursor = max(
+        cell_grid_x0 + cells_per_row * max(cell_stride, 24) + 64,
+        origin.x + 65536,
+    )
     for port_name in sorted(module.get("ports", {})):
         port = module["ports"][port_name]
         if port["direction"] != "output":
