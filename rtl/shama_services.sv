@@ -39,6 +39,8 @@ module shama_services(
     input  logic [63:0]  ext_ret,
     input  logic         ext_jump_valid,
     input  logic [31:0]  ext_jump_pc,
+    input  logic         ext_load_app,
+    input  logic [3:0]   ext_app_id,
 
     output logic         os_loaded,
     output logic [3:0]   foreground_app
@@ -60,10 +62,6 @@ module shama_services(
         SYS_GET_KEY             = 12'h030,
         SYS_GET_CONTROLLER      = 12'h031,
         SYS_RUN_BUFFER          = 12'h061;
-
-    // ext_ret[63] is an internal kernel->service request to replace the
-    // foreground app. ext_ret[3:0] is the requested preinstalled app ID.
-    localparam logic EXT_LOAD_APP = 1'b1;
 
     typedef enum logic [3:0] {
         ST_IDLE,
@@ -402,9 +400,9 @@ module shama_services(
 
                 ST_EXT: begin
                     if(ext_ready) begin
-                        if(ext_ret[63] == EXT_LOAD_APP) begin
-                            if(valid_app(ext_ret[31:0]))
-                                begin_app_replace(ext_ret[3:0]);
+                        if(ext_load_app) begin
+                            if(valid_app(ext_app_id))
+                                begin_app_replace(ext_app_id);
                             else begin
                                 response <= 64'hffffffffffffffff;
                                 state <= ST_RESP;
