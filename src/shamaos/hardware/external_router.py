@@ -6,6 +6,7 @@ from typing import Iterator
 
 from ..model import Placement, Vec3
 from .memory import DUST, SUPPORT, repeater
+from .routing import iter_stair
 
 
 @dataclass(frozen=True)
@@ -64,38 +65,6 @@ def _wire_z(
         )
 
 
-def _stair_x(
-    start: Vec3,
-    end: Vec3,
-    *,
-    signal_forward: bool,
-    component: str,
-) -> Iterator[Placement]:
-    if start.z != end.z:
-        raise ValueError("X stair requires constant Z")
-    dx=end.x-start.x
-    dy=end.y-start.y
-    if abs(dx)<abs(dy):
-        raise ValueError("X stair run shorter than height change")
-    sx=1 if dx>=0 else -1
-    sy=1 if dy>=0 else -1
-    remaining=abs(dy)
-    facing = "east" if (sx > 0) == signal_forward else "west"
-    y=start.y
-    for n in range(abs(dx)+1):
-        x=start.x+sx*n
-        if n and remaining and (abs(dx)-n+1)>=remaining:
-            y+=sy
-            remaining-=1
-        p=Vec3(x,y,start.z)
-        yield Placement(p.offset(dy=-1),SUPPORT,component)
-        yield Placement(
-            p,
-            repeater(facing) if n and n%10==0 else DUST,
-            component,
-        )
-
-
 def _route_endpoint_to_branch(
     endpoint: Vec3,
     escape: _Escape,
@@ -125,11 +94,11 @@ def _endpoint_path(
 
     if source:
         yield from _wire_z(endpoint, local_z, signal_forward=True, component=component)
-        yield from _stair_x(local_z, high, signal_forward=True, component=component)
+        yield from iter_stair(local_z, high, axis="x", signal_forward=True, component=component)
         yield from _wire_z(high, track, signal_forward=True, component=component)
     else:
         yield from _wire_z(track, high, signal_forward=True, component=component)
-        yield from _stair_x(high, local_z, signal_forward=True, component=component)
+        yield from iter_stair(high, local_z, axis="x", signal_forward=True, component=component)
         yield from _wire_z(local_z, endpoint, signal_forward=True, component=component)
 
 
@@ -240,9 +209,10 @@ def iter_external_router(
             trunk_y,
             track_z,
         )
-        yield from _stair_x(
+        yield from iter_stair(
             source_branch,
             source_trunk,
+            axis="x",
             signal_forward=True,
             component=comp,
         )
@@ -258,9 +228,10 @@ def iter_external_router(
             sink_trunks.append(sink_trunk)
 
             # Signal runs source trunk -> sink trunk -> branch -> endpoint.
-            yield from _stair_x(
+            yield from iter_stair(
                 sink_trunk,
                 sink_branch,
+                axis="x",
                 signal_forward=True,
                 component=comp,
             )
