@@ -153,7 +153,7 @@ module shama_soc(
     );
 
     // ---------------- ShamaOS services ----------------
-    logic svc_dma_valid,svc_dma_we,svc_dma_flash,svc_dma_ready;
+    logic svc_dma_valid,svc_dma_we,svc_dma_flash,svc_dma_cache,svc_dma_ready;
     logic [31:0] svc_dma_addr,svc_dma_wdata,svc_dma_rdata;
     logic [3:0] svc_dma_wstrb;
     logic ext_valid,ext_ready,ext_jump_valid,ext_load_app;
@@ -166,18 +166,14 @@ module shama_soc(
 
     logic [31:0] ram_used_bytes,cache_used_bytes,flash_used_bytes;
     logic [3:0] foreground_app;
-    // Resident kernel slot + exactly one flushed/reloaded foreground app slot.
-    assign ram_used_bytes = os_loaded ? 32'd32768 : 32'd0;
-    // The OS reserves the whole 16 KiB fast region as cache/scratch.
-    assign cache_used_bytes = power_switch ? 32'd16384 : 32'd0;
 
     shama_services u_services(
         .clk,.rst,
         .sys_valid,.sys_id,.sys_args,.sys_ready,.sys_ret,.sys_jump_valid,.sys_jump_pc,
         .event_valid,.event_code,.key_code,.controller_latched,.event_ack,
-        .ram_used_bytes,.cache_used_bytes,.flash_used_bytes,.time_counter,
+        .flash_used_bytes,.time_counter,.ram_used_bytes,.cache_used_bytes,
         .dma_valid(svc_dma_valid),.dma_we(svc_dma_we),.dma_flash(svc_dma_flash),
-        .dma_addr(svc_dma_addr),.dma_wdata(svc_dma_wdata),.dma_wstrb(svc_dma_wstrb),
+        .dma_cache(svc_dma_cache),.dma_addr(svc_dma_addr),.dma_wdata(svc_dma_wdata),.dma_wstrb(svc_dma_wstrb),
         .dma_ready(svc_dma_ready),.dma_rdata(svc_dma_rdata),
         .ext_valid(ext_valid),.ext_id(ext_id),.ext_args(ext_args),
         .ext_ready(ext_ready),.ext_ret(ext_ret),
@@ -321,7 +317,11 @@ module shama_soc(
 
         // Memory/DMA priority: boot > filesystem > assembler > CPU.
         if(svc_dma_valid) begin
-            if(svc_dma_flash) begin
+            if(svc_dma_cache) begin
+                cache_req_valid=1;cache_req_we=svc_dma_we;cache_req_addr=svc_dma_addr;
+                cache_req_wdata=svc_dma_wdata;cache_req_wstrb=svc_dma_wstrb;
+                svc_dma_ready=cache_req_ready;svc_dma_rdata=cache_req_rdata;
+            end else if(svc_dma_flash) begin
                 flash_req_valid=1;flash_req_we=svc_dma_we;flash_req_addr=svc_dma_addr;
                 flash_req_wdata=svc_dma_wdata;flash_req_wstrb=svc_dma_wstrb;
                 svc_dma_ready=flash_req_ready;svc_dma_rdata=flash_req_rdata;
