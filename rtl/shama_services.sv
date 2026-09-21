@@ -40,7 +40,8 @@ module shama_services(
     input  logic         ext_jump_valid,
     input  logic [31:0]  ext_jump_pc,
 
-    output logic         os_loaded
+    output logic         os_loaded,
+    output logic [3:0]   foreground_app
 );
     localparam [11:0]
         SYS_EXIT                = 12'h001,
@@ -52,7 +53,6 @@ module shama_services(
         SYS_APP_EXIT_FOREGROUND = 12'h007,
         SYS_BOOT_MOUNT          = 12'h008,
         SYS_BOOT_LOAD_OS        = 12'h009,
-        SYS_APP_EVENT           = 12'h00a,
 
         SYS_RAM_USAGE           = 12'h012,
         SYS_CACHE_USAGE         = 12'h013,
@@ -60,38 +60,57 @@ module shama_services(
         SYS_GET_KEY             = 12'h030,
         SYS_GET_CONTROLLER      = 12'h031;
 
-    typedef enum logic [2:0] {
+    // ext_ret[63] is an internal kernel->service request to replace the
+    // foreground app. ext_ret[3:0] is the requested preinstalled app ID.
+    localparam logic EXT_LOAD_APP = 1'b1;
+
+    typedef enum logic [3:0] {
         ST_IDLE,
-        ST_BOOT_READ,
-        ST_BOOT_WRITE,
+        ST_COPY_READ,
+        ST_COPY_WRITE,
+        ST_APP_CLEAR,
         ST_EXT,
         ST_RESP
     } state_t;
 
     state_t state;
+
     logic [11:0] latched_id;
     logic [191:0] latched_args;
+
     logic [31:0] copy_offset;
     logic [31:0] copy_word;
+    logic [31:0] copy_flash_base;
+    logic [31:0] copy_ram_base;
+    logic [31:0] copy_bytes;
+
+    logic [3:0] target_app;
+    logic copy_is_kernel;
+    logic boot_after_kernel;
+
     logic [63:0] response;
     logic response_jump;
     logic [31:0] response_pc;
 
-    function automatic logic [31:0] app_pc(input logic [31:0] app_id);
+    function automatic [31:0] app_flash(input logic [3:0] app_id);
         begin
             case(app_id)
-                32'd0: app_pc = `SHAMA_PC_DESKTOP;
-                32'd1: app_pc = `SHAMA_PC_EDITOR;
-                32'd2: app_pc = `SHAMA_PC_FILES;
-                32'd3: app_pc = `SHAMA_PC_MINER;
-                32'd4: app_pc = `SHAMA_PC_MONITOR;
-                32'd5: app_pc = `SHAMA_PC_TERMINAL;
-                32'd6: app_pc = `SHAMA_PC_CALCULATOR;
-                32'd7: app_pc = `SHAMA_PC_PAINT;
-                32'd8: app_pc = `SHAMA_PC_SETTINGS;
-                default: app_pc = `SHAMA_PC_DESKTOP;
+                4'd0: app_flash = `SHAMA_DESKTOP_FLASH;
+                4'd1: app_flash = `SHAMA_EDITOR_FLASH;
+                4'd2: app_flash = `SHAMA_FILES_FLASH;
+                4'd3: app_flash = `SHAMA_MINER_FLASH;
+                4'd4: app_flash = `SHAMA_MONITOR_FLASH;
+                4'd5: app_flash = `SHAMA_TERMINAL_FLASH;
+                4'd6: app_flash = `SHAMA_CALCULATOR_FLASH;
+                4'd7: app_flash = `SHAMA_PAINT_FLASH;
+                4'd8: app_flash = `SHAMA_SETTINGS_FLASH;
+                default: app_flash = `SHAMA_DESKTOP_FLASH;
             endcase
         end
+    endfunction
+
+    function automatic logic valid_app(input logic [31:0] app_id);
+        valid_app = app_id <= 8;
     endfunction
 
     function automatic logic is_local(input logic [11:0] id);
@@ -115,6 +134,14 @@ module shama_services(
         end
     endfunction
 
+    task automatic begin_app_replace(input logic [3:0] app_id);
+        begin
+            target_app <= app_id;
+            copy_offset <= 0;
+            state <= ST_APP_CLEAR;
+        end
+    endtask
+
     always_comb begin
         sys_ready = (state == ST_RESP);
         sys_ret = response;
@@ -132,18 +159,32 @@ module shama_services(
         ext_id = latched_id;
         ext_args = latched_args;
 
-        if(state == ST_BOOT_READ) begin
-            dma_valid = 1'b1;
-            dma_we = 1'b0;
-            dma_flash = 1'b1;
-            dma_addr = `SHAMA_BUNDLE_FLASH_OFFSET + copy_offset;
-        end else if(state == ST_BOOT_WRITE) begin
-            dma_valid = 1'b1;
-            dma_we = 1'b1;
-            dma_flash = 1'b0;
-            dma_addr = `SHAMA_BUNDLE_RAM_BASE + copy_offset;
-            dma_wdata = copy_word;
-        end
+        case(state)
+            ST_COPY_READ: begin
+                dma_valid = 1'b1;
+                dma_we = 1'b0;
+                dma_flash = 1'b1;
+                dma_addr = copy_flash_base + copy_offset;
+            end
+
+            ST_COPY_WRITE: begin
+                dma_valid = 1'b1;
+                dma_we = 1'b1;
+                dma_flash = 1'b0;
+                dma_addr = copy_ram_base + copy_offset;
+                dma_wdata = copy_word;
+            end
+
+            ST_APP_CLEAR: begin
+                dma_valid = 1'b1;
+                dma_we = 1'b1;
+                dma_flash = 1'b0;
+                dma_addr = `SHAMA_APP_RAM_BASE + copy_offset;
+                dma_wdata = 32'd0;
+            end
+
+            default: begin end
+        endcase
     end
 
     always_ff @(posedge clk) begin
@@ -151,15 +192,27 @@ module shama_services(
             state <= ST_IDLE;
             latched_id <= 0;
             latched_args <= 0;
+
             copy_offset <= 0;
             copy_word <= 0;
+            copy_flash_base <= 0;
+            copy_ram_base <= 0;
+            copy_bytes <= 0;
+
+            target_app <= 0;
+            copy_is_kernel <= 0;
+            boot_after_kernel <= 0;
+
             response <= 0;
             response_jump <= 0;
             response_pc <= 0;
+
             event_ack <= 0;
             os_loaded <= 0;
+            foreground_app <= 0;
         end else begin
             event_ack <= 0;
+
             if(state == ST_RESP && !sys_valid) begin
                 state <= ST_IDLE;
                 response_jump <= 0;
@@ -180,25 +233,33 @@ module shama_services(
                             case(sys_id)
                                 SYS_EXIT,
                                 SYS_APP_EXIT_FOREGROUND: begin
-                                    response_jump <= 1'b1;
-                                    response_pc <= `SHAMA_PC_DESKTOP;
-                                    state <= ST_RESP;
+                                    begin_app_replace(4'd0);
                                 end
 
-                                SYS_YIELD,
-                                SYS_BOOT_MOUNT: begin
+                                SYS_YIELD: begin
                                     state <= ST_RESP;
                                 end
 
                                 SYS_BOOT_LOAD_OS: begin
+                                    // Kernel is persistent. Desktop is loaded
+                                    // into the single foreground app slot after
+                                    // the kernel copy completes.
+                                    copy_flash_base <= `SHAMA_KERNEL_FLASH;
+                                    copy_ram_base <= `SHAMA_KERNEL_RAM_BASE;
+                                    copy_bytes <= `SHAMA_SLOT_BYTES;
                                     copy_offset <= 0;
-                                    state <= ST_BOOT_READ;
+                                    copy_is_kernel <= 1'b1;
+                                    boot_after_kernel <= 1'b1;
+                                    state <= ST_COPY_READ;
                                 end
 
                                 SYS_APP_LAUNCH: begin
-                                    response_jump <= 1'b1;
-                                    response_pc <= app_pc(sys_args[31:0]);
-                                    state <= ST_RESP;
+                                    if(valid_app(sys_args[31:0]))
+                                        begin_app_replace(sys_args[3:0]);
+                                    else begin
+                                        response <= 64'hffffffffffffffff;
+                                        state <= ST_RESP;
+                                    end
                                 end
 
                                 SYS_GET_EVENT: begin
@@ -256,32 +317,69 @@ module shama_services(
                     end
                 end
 
-                ST_BOOT_READ: begin
+                ST_APP_CLEAR: begin
                     if(dma_ready) begin
-                        copy_word <= dma_rdata;
-                        state <= ST_BOOT_WRITE;
+                        if(copy_offset + 4 >= `SHAMA_SLOT_BYTES) begin
+                            copy_flash_base <= app_flash(target_app);
+                            copy_ram_base <= `SHAMA_APP_RAM_BASE;
+                            copy_bytes <= `SHAMA_SLOT_BYTES;
+                            copy_offset <= 0;
+                            copy_is_kernel <= 1'b0;
+                            boot_after_kernel <= 1'b0;
+                            state <= ST_COPY_READ;
+                        end else begin
+                            copy_offset <= copy_offset + 4;
+                        end
                     end
                 end
 
-                ST_BOOT_WRITE: begin
+                ST_COPY_READ: begin
                     if(dma_ready) begin
-                        if(copy_offset + 4 >= `SHAMA_BUNDLE_BYTES) begin
-                            response <= `SHAMA_BUNDLE_BYTES;
-                            os_loaded <= 1'b1;
-                            state <= ST_RESP;
+                        copy_word <= dma_rdata;
+                        state <= ST_COPY_WRITE;
+                    end
+                end
+
+                ST_COPY_WRITE: begin
+                    if(dma_ready) begin
+                        if(copy_offset + 4 >= copy_bytes) begin
+                            if(copy_is_kernel && boot_after_kernel) begin
+                                // Keep kernel resident; now clean/load Desktop.
+                                target_app <= 0;
+                                copy_offset <= 0;
+                                copy_is_kernel <= 0;
+                                boot_after_kernel <= 0;
+                                state <= ST_APP_CLEAR;
+                            end else begin
+                                foreground_app <= target_app;
+                                response <= copy_bytes;
+                                response_jump <= 1'b1;
+                                response_pc <= `SHAMA_PC_APP;
+                                os_loaded <= 1'b1;
+                                state <= ST_RESP;
+                            end
                         end else begin
                             copy_offset <= copy_offset + 4;
-                            state <= ST_BOOT_READ;
+                            state <= ST_COPY_READ;
                         end
                     end
                 end
 
                 ST_EXT: begin
                     if(ext_ready) begin
-                        response <= ext_ret;
-                        response_jump <= ext_jump_valid;
-                        response_pc <= ext_jump_pc;
-                        state <= ST_RESP;
+                        if(ext_ret[63] == EXT_LOAD_APP) begin
+                            if(valid_app(ext_ret[31:0]))
+                                begin_app_replace(ext_ret[3:0]);
+                            else begin
+                                response <= 64'hffffffffffffffff;
+                                state <= ST_RESP;
+                            end
+                        end else begin
+                            response <= ext_ret;
+                            response_jump <= ext_jump_valid;
+                            response_pc <= ext_jump_pc;
+                            state <= ST_RESP;
+                        end
                     end
                 end
 
