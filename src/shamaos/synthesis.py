@@ -9,6 +9,7 @@ import subprocess
 import tempfile
 from typing import Iterator, Sequence
 
+from .hardware.external_router import ExternalNet, iter_external_router
 from .hardware.logic import REDSTONE_BLOCK, SUPPORT, DUST, template_for
 from .hardware.memory import repeater
 from .model import Placement, Vec3
@@ -105,15 +106,24 @@ class PhysicalNetlist:
         for p in self.constant_high:
             yield Placement(p.offset(dz=1), REDSTONE_BLOCK, comp)
 
-        # Routed nets.
-        for net in self.nets:
-            lane_z = self.origin.z + self.route_z0 + net.track * self.track_pitch
-            yield from _route_net(
-                net,
-                lane_z=lane_z,
-                trunk_y=self.origin.y + self.trunk_height,
-                component=comp,
+        # Routed nets use the same crossing-safe two-plane router as the
+        # system interconnect. Internal logic uses lower planes (Y=300/304)
+        # so global SoC-to-fabric wiring can use Y=314/318 independently.
+        physical_nets = tuple(
+            ExternalNet(
+                f"logic-bit-{net.bit}",
+                net.source.pos,
+                tuple(sink.pos for sink in net.sinks),
             )
+            for net in self.nets
+        )
+        yield from iter_external_router(
+            physical_nets,
+            component=f"{comp}:internal",
+            branch_y=300,
+            trunk_y=304,
+            track_spacing=4,
+        )
 
 
 def _quote_yosys(path: str | Path) -> str:
