@@ -129,6 +129,7 @@ jobs:
             rtl/shama_asm_accel.sv rtl/shama_soc.sv
 
   full-physical-synthesis:
+    if: contains(github.event.head_commit.message, '[full-synth]') || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
