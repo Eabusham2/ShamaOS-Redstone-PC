@@ -188,6 +188,7 @@ module shama_soc(
     logic k_gpu_valid,k_gpu_we,k_gpu_ready;
     logic [11:0] k_gpu_addr;
     logic [31:0] k_gpu_wdata,k_gpu_rdata;
+    logic [3:0] k_gpu_wstrb;
 
     logic fs_call_valid,fs_call_ready;
     logic [11:0] fs_call_id;
@@ -206,7 +207,7 @@ module shama_soc(
         .ram_used_bytes,.cache_used_bytes,.flash_used_bytes,
         .cpu_halted(halted),.sha_busy,.gpu_busy,
         .gpu_valid(k_gpu_valid),.gpu_we(k_gpu_we),.gpu_addr(k_gpu_addr),
-        .gpu_wdata(k_gpu_wdata),.gpu_ready(k_gpu_ready),.gpu_rdata(k_gpu_rdata),
+        .gpu_wdata(k_gpu_wdata),.gpu_wstrb(k_gpu_wstrb),.gpu_ready(k_gpu_ready),.gpu_rdata(k_gpu_rdata),
         .fs_valid(fs_call_valid),.fs_id(fs_call_id),.fs_args(fs_call_args),
         .fs_ready(fs_call_ready),.fs_ret(fs_call_ret),
         .asm_valid(asm_call_valid),.asm_args(asm_call_args),
@@ -311,7 +312,7 @@ module shama_soc(
         // Kernel rendering owns GPU while CPU is stalled in the syscall.
         if(k_gpu_valid) begin
             gpu_mmio_valid=k_gpu_valid;gpu_mmio_we=k_gpu_we;
-            gpu_mmio_addr=k_gpu_addr;gpu_mmio_wdata=k_gpu_wdata;gpu_mmio_wstrb=4'b1111;
+            gpu_mmio_addr=k_gpu_addr;gpu_mmio_wdata=k_gpu_wdata;gpu_mmio_wstrb=k_gpu_wstrb;
             k_gpu_ready=gpu_mmio_ready;k_gpu_rdata=gpu_mmio_rdata;
         end
 
