@@ -227,6 +227,7 @@ module shama_asm_accel(
                 32'h967ebac4: syscall_value=32'h00000051; // SYS_MINER_SAVE_STATE
                 32'h55e4c614: syscall_value=32'h00000052; // SYS_MINER_LOAD_HISTORY
                 32'h17e68ca3: syscall_value=32'h00000060; // SYS_ASSEMBLE
+                32'h8dad8fff: syscall_value=32'h00000061; // SYS_RUN_BUFFER
                 default: syscall_value=32'hffffffff;
             endcase
         end
