@@ -140,6 +140,22 @@ module tb_services;
             $display("desktop usage fail ram=%0d cache=%0d",ram_used_bytes,cache_used_bytes);$fatal(1);
         end
 
+        // Foreground heap allocator: 5000 bytes -> two 4 KiB pages.
+        call_sys(12'h010,5000,0);
+        if(sys_ret[31:0]!==32'h00010000 || ram_used_bytes!==32'd8200) begin
+            $display("alloc fail ptr=%h ram=%0d",sys_ret[31:0],ram_used_bytes);$fatal(1);
+        end
+        call_sys(12'h011,32'h00010000,0);
+        if(sys_ret!=0 || ram_used_bytes!==32'd8) begin
+            $display("free fail ram=%0d",ram_used_bytes);$fatal(1);
+        end
+
+        // Leave one allocation outstanding; app switch must release it.
+        call_sys(12'h010,4096,0);
+        if(ram_used_bytes!==32'd4104) begin
+            $display("pre-switch alloc accounting fail");$fatal(1);
+        end
+
         // Put garbage in the rest of the app slot; switching must clear it.
         ram[`SHAMA_APP_RAM_BASE+100]=8'hfe;
         cache[100]=8'hfe;
