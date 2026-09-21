@@ -7,6 +7,34 @@ from typing import Iterable
 from .model import BlockState, Placement
 
 
+def to_amulet_block(state: BlockState):
+    """Convert a project BlockState to an exact Amulet Java block state.
+
+    Amulet requires NBT tag values for block properties. Never silently drop
+    repeater/comparator/lamp properties: orientation, lock state and power
+    state are functional parts of the computer.
+    """
+    try:
+        from amulet.api.block import Block  # type: ignore
+        from amulet_nbt import StringTag  # type: ignore
+    except Exception as exc:
+        raise WorldWriteError(
+            "world generation requires the optional 'world' dependencies; "
+            "install with: pip install -e '.[world]'"
+        ) from exc
+
+    if ":" not in state.name:
+        namespace, base_name = "minecraft", state.name
+    else:
+        namespace, base_name = state.name.split(":", 1)
+
+    properties = {
+        key: StringTag(value)
+        for key, value in state.properties
+    }
+    return Block(namespace, base_name, properties)
+
+
 class WorldWriteError(RuntimeError):
     pass
 
@@ -52,14 +80,12 @@ class AmuletWorldWriter(WorldWriter):
 
         try:
             import amulet  # type: ignore
-            from amulet.api.block import Block  # type: ignore
         except Exception as exc:
             raise WorldWriteError(
                 "world generation requires the optional 'world' dependencies; "
                 "install with: pip install -e '.[world]'"
             ) from exc
 
-        self._Block = Block
         self._amulet = amulet
         try:
             self._world = amulet.load_level(str(self.world_path))
@@ -71,17 +97,7 @@ class AmuletWorldWriter(WorldWriter):
         self._closed = False
 
     def _block(self, state: BlockState):
-        if ":" not in state.name:
-            namespace, base_name = "minecraft", state.name
-        else:
-            namespace, base_name = state.name.split(":", 1)
-
-        # Most Amulet Core versions accept string-valued properties here.
-        props = dict(state.properties)
-        try:
-            return self._Block(namespace, base_name, props)
-        except TypeError:
-            return self._Block(namespace, base_name)
+        return to_amulet_block(state)
 
     def set_block(self, placement: Placement) -> None:
         p = placement.pos
