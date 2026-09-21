@@ -16,12 +16,12 @@ class MachineGeometry:
     flash_bytes: int
     display_width: int
     display_height: int
+    vram_bytes: int = 32 << 10
     bank_words: int = 1024
     bank_word_bits: int = 32
     banks_per_row: int = 16
     pixel_pitch_x: int = 4
     pixel_pitch_y: int = 2
-
 
 @dataclass(frozen=True)
 class PhysicalOrigins:
@@ -31,6 +31,7 @@ class PhysicalOrigins:
     cache: Vec3
     ram: Vec3
     flash: Vec3
+    vram: Vec3
     input: Vec3
     display: Vec3
 
@@ -44,6 +45,7 @@ def default_origins(g: MachineGeometry) -> PhysicalOrigins:
         cache=Vec3(ox + 10_000, oy, oz),
         ram=Vec3(ox + 12_000, oy, oz),
         flash=Vec3(ox + 12_000, oy, oz + 110_000),
+        vram=Vec3(ox + 10_000, oy, oz - 100_000),
         input=Vec3(ox + 900, oy, oz - 3_000),
         display=Vec3(ox, -41, oz - 2_000),
     )
@@ -85,13 +87,24 @@ def memory_specs(g: MachineGeometry) -> tuple[MemoryFabricSpec, MemoryFabricSpec
     return cache, ram, flash
 
 
+def vram_spec(g: MachineGeometry) -> MemoryFabricSpec:
+    bank = MemoryBankSpec(words=g.bank_words, word_bits=g.bank_word_bits)
+    return MemoryFabricSpec(
+        total_bytes=g.vram_bytes,
+        bank=bank,
+        banks_per_row=min(g.banks_per_row, max(1, g.vram_bytes // bank.bytes)),
+    )
+
+
 def plan_machine(g: MachineGeometry) -> BuildPlan:
     """Coarse floorplan using the real physical memory/display dimensions."""
     origins = default_origins(g)
     cache_spec, ram_spec, flash_spec = memory_specs(g)
+    vram_fabric = vram_spec(g)
     cache_size = _fabric_dimensions(cache_spec)
     ram_size = _fabric_dimensions(ram_spec)
     flash_size = _fabric_dimensions(flash_spec)
+    vram_size = _fabric_dimensions(vram_fabric)
 
     panel = LampPanelSpec(
         width=g.display_width,
@@ -140,6 +153,12 @@ def plan_machine(g: MachineGeometry) -> BuildPlan:
         _box_from_size(origins.flash, *flash_size),
         "physical-memory",
         metadata={"bytes": g.flash_bytes, "banks": flash_spec.bank_count, "persistent": True},
+    ))
+    plan.add(ComponentPlan(
+        "vram",
+        _box_from_size(origins.vram, *vram_size),
+        "physical-memory",
+        metadata={"bytes": g.vram_bytes, "banks": vram_fabric.bank_count, "gpu": True},
     ))
 
     plan.add(ComponentPlan(
