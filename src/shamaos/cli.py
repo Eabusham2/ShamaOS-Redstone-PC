@@ -88,13 +88,16 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "generate":
         config = load_config(args.config)
         plan = build_plan(config)
-        count = write_available_placements(args.world, config, plan)
+        result = write_available_placements(args.world, config, plan)
         m = manifest(config, plan)
-        m["written_placements"] = count
+        m["physical_generation_status"] = "complete-generated-topology"
+        m["written_placements"] = result.written_blocks
+        m["system_build"] = result.system_metadata
+        m["stage_counts"] = result.stage_counts
         write_manifest(args.manifest, m)
         print(
-            "physical fabrics generated according to manifest; "
-            f"Wrote {count} blocks."
+            "generated complete ShamaOS physical topology; "
+            f"wrote {result.written_blocks} blocks"
         )
         return 0
 
