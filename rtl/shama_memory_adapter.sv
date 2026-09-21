@@ -109,3 +109,24 @@ module shama_flash_adapter(
         .write_commit,.write_data,.selected_word
     );
 endmodule
+
+
+module shama_vram_adapter(
+    input  logic clk,rst,
+    input  logic req_valid,req_we,
+    input  logic [31:0] req_addr,req_wdata,
+    input  logic [3:0] req_wstrb,
+    output logic req_ready,
+    output logic [31:0] req_rdata,
+    output logic [7:0] bank_select,
+    output logic [1023:0] row_select,
+    output logic read_enable,write_commit,
+    output logic [31:0] write_data,
+    input  logic [31:0] selected_word
+);
+    shama_memory_adapter #(.BANK_BITS(3),.ROW_BITS(10)) u(
+        .clk,.rst,.req_valid,.req_we,.req_addr,.req_wdata,.req_wstrb,
+        .req_ready,.req_rdata,.bank_select,.row_select,.read_enable,
+        .write_commit,.write_data,.selected_word
+    );
+endmodule
