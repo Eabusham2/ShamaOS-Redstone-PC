@@ -6,6 +6,13 @@ module tb_gpu;
     logic [3:0] mmio_wstrb=4'b1111;
     logic mmio_ready;
     logic [31:0] mmio_rdata;
+
+    logic vram_valid,vram_we,vram_ready;
+    logic [14:0] vram_addr;
+    logic [31:0] vram_wdata,vram_rdata;
+    logic [3:0] vram_wstrb;
+    logic [7:0] vram [0:32767];
+
     logic disp_valid;
     logic [15:0] disp_index;
     logic disp_bit;
@@ -17,8 +24,28 @@ module tb_gpu;
         .clk(clk),.rst(rst),
         .mmio_valid(mmio_valid),.mmio_we(mmio_we),.mmio_addr(mmio_addr),
         .mmio_wdata(mmio_wdata),.mmio_wstrb(mmio_wstrb),.mmio_ready(mmio_ready),.mmio_rdata(mmio_rdata),
+        .vram_valid,.vram_we,.vram_addr,.vram_wdata,.vram_wstrb,.vram_ready,.vram_rdata,
         .disp_valid(disp_valid),.disp_index(disp_index),.disp_bit(disp_bit),.disp_ready(disp_ready)
     );
+
+    always_comb begin
+        vram_ready=vram_valid;
+        vram_rdata={
+            vram[{vram_addr[14:2],2'b00}+3],
+            vram[{vram_addr[14:2],2'b00}+2],
+            vram[{vram_addr[14:2],2'b00}+1],
+            vram[{vram_addr[14:2],2'b00}+0]
+        };
+    end
+
+    always_ff @(posedge clk) begin
+        if(vram_valid && vram_we) begin
+            if(vram_wstrb[0]) vram[{vram_addr[14:2],2'b00}+0] <= vram_wdata[7:0];
+            if(vram_wstrb[1]) vram[{vram_addr[14:2],2'b00}+1] <= vram_wdata[15:8];
+            if(vram_wstrb[2]) vram[{vram_addr[14:2],2'b00}+2] <= vram_wdata[23:16];
+            if(vram_wstrb[3]) vram[{vram_addr[14:2],2'b00}+3] <= vram_wdata[31:24];
+        end
+    end
 
     task automatic wr(input logic [11:0] a,input logic [31:0] d);
         begin
@@ -46,7 +73,9 @@ module tb_gpu;
         end
     end
 
+    integer vi;
     initial begin
+        for(vi=0;vi<32768;vi=vi+1) vram[vi]=0;
         saw_pixel=0;
         repeat(3) @(posedge clk);
         rst<=0;
@@ -58,9 +87,9 @@ module tb_gpu;
         mmio_wstrb<=4'b1111; mmio_we<=1; mmio_valid<=1;
         @(negedge clk); mmio_valid<=0; mmio_we<=0;
         @(posedge clk);
-        if(dut.text_ram[8'ha0]!=="A" || dut.text_ram[8'ha1]!=="B" ||
-           dut.text_ram[8'ha2]!=="C" || dut.text_ram[8'ha3]!=="D") begin
-            $display("GPU byte lane text RAM fail"); $fatal(1);
+        if(vram[15'h40a0]!=="A" || vram[15'h40a1]!=="B" ||
+           vram[15'h40a2]!=="C" || vram[15'h40a3]!=="D") begin
+            $display("GPU external VRAM text lane fail"); $fatal(1);
         end
 
         mmio_wstrb<=4'b1111;
