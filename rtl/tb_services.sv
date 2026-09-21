@@ -31,6 +31,8 @@ module tb_services;
 
     integer i;
     integer watchdog;
+    logic last_jump_valid;
+    logic [31:0] last_jump_pc;
     logic [31:0] aligned;
 
     always #5 clk=~clk;
@@ -78,12 +80,15 @@ module tb_services;
             if(!sys_ready) begin
                 $display("service timeout id=%h",id);$fatal(1);
             end
+            last_jump_valid=sys_jump_valid;
+            last_jump_pc=sys_jump_pc;
             @(negedge clk);sys_valid<=0;
             @(posedge clk);
         end
     endtask
 
     initial begin
+        last_jump_valid=0;last_jump_pc=0;
         for(i=0;i<131072;i=i+1) ram[i]=8'haa;
         for(i=0;i<262144;i=i+1) flash[i]=0;
 
@@ -104,7 +109,7 @@ module tb_services;
         if(!os_loaded || foreground_app!=0) begin
             $display("boot flags fail");$fatal(1);
         end
-        if(!sys_jump_valid || sys_jump_pc!=`SHAMA_PC_APP) begin
+        if(!last_jump_valid || last_jump_pc!=`SHAMA_PC_APP) begin
             $display("boot jump fail");$fatal(1);
         end
         if(ram[`SHAMA_KERNEL_RAM_BASE]!==8'h11) begin
@@ -139,7 +144,7 @@ module tb_services;
         if(ram[`SHAMA_APP_RAM_BASE+200]!==0) begin
             $display("user app flush fail");$fatal(1);
         end
-        if(!sys_jump_valid || sys_jump_pc!=`SHAMA_PC_APP) begin
+        if(!last_jump_valid || last_jump_pc!=`SHAMA_PC_APP) begin
             $display("user jump fail");$fatal(1);
         end
 
