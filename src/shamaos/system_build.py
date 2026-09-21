@@ -4,14 +4,13 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterator
 
-from .generator import geometry_from_config
 from .hardware.clock import clock_ports, iter_clock
 from .hardware.controls import control_ports
 from .hardware.display import LampPanelSpec, panel_ports
 from .hardware.external_router import ExternalNet, iter_external_router
 from .hardware.logic import REDSTONE_BLOCK
 from .hardware.memory_backbone import backbone_ports, iter_memory_backbone
-from .layout import default_origins, memory_specs
+from .layout import MachineGeometry, default_origins, memory_specs
 from .model import BlockState, Placement, Vec3
 from .synthesis import PhysicalNetlist, build_physical_netlist, synthesize_json
 
@@ -44,6 +43,25 @@ SOC_RTL_FILES = (
     "rtl/shama_soc.sv",
 )
 
+
+
+def _geometry_from_config(config: dict) -> MachineGeometry:
+    w = config["world"]
+    m = config["memory"]
+    d = config["display"]
+    return MachineGeometry(
+        origin=Vec3(w["origin_x"], w["origin_y"], w["origin_z"]),
+        ram_bytes=m["logical_ram_bytes"],
+        cache_bytes=m["cache_bytes"],
+        flash_bytes=m["flash_bytes"],
+        display_width=d["width"],
+        display_height=d["height"],
+        bank_words=m.get("bank_words", 1024),
+        bank_word_bits=m.get("bank_word_bits", 32),
+        banks_per_row=m.get("banks_per_row", 16),
+        pixel_pitch_x=d.get("pixel_pitch_x", 4),
+        pixel_pitch_y=d.get("pixel_pitch_y", 2),
+    )
 
 def _repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
@@ -86,7 +104,7 @@ def prepare_system(
     yosys: str = "yosys",
 ) -> PreparedSystem:
     root = _repo_root()
-    g = geometry_from_config(config)
+    g = _geometry_from_config(config)
     origins = default_origins(g)
     cache_spec, ram_spec, flash_spec = memory_specs(g)
 
@@ -265,7 +283,7 @@ def iter_system_infrastructure(
     config: dict,
     prepared: PreparedSystem,
 ) -> Iterator[Placement]:
-    g = geometry_from_config(config)
+    g = _geometry_from_config(config)
     origins = default_origins(g)
     cache_spec, ram_spec, flash_spec = memory_specs(g)
 
