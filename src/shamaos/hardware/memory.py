@@ -7,7 +7,35 @@ from ..model import BlockState, Placement, Vec3
 
 
 SUPPORT = BlockState.of("minecraft:smooth_stone")
-DUST = BlockState.of("minecraft:redstone_wire")
+
+
+def redstone_wire(
+    *,
+    north: str = "side",
+    east: str = "side",
+    south: str = "side",
+    west: str = "side",
+    power: int = 0,
+) -> BlockState:
+    for value in (north, east, south, west):
+        if value not in {"none", "side", "up"}:
+            raise ValueError(f"invalid redstone-wire connection {value!r}")
+    if not 0 <= power <= 15:
+        raise ValueError("redstone-wire power must be 0..15")
+    return BlockState.of(
+        "minecraft:redstone_wire",
+        north=north,
+        east=east,
+        south=south,
+        west=west,
+        power=str(power),
+    )
+
+
+# Horizontal buses/circuit junctions default to a valid four-way wire state.
+# Empty directions do not create electrical power paths without a neighbor,
+# while existing adjacent dust/repeater terminals connect deterministically.
+DUST = redstone_wire()
 TORCH = BlockState.of("minecraft:redstone_torch", lit="true")
 WALL_TORCH_E = BlockState.of("minecraft:redstone_wall_torch", facing="east", lit="true")
 
