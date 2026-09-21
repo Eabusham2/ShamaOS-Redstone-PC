@@ -84,6 +84,7 @@ module tb_services;
 
     task automatic call_sys(input [11:0] id,input [31:0] a1,input [31:0] a2);
         begin
+            $display("CALL START id=%h a1=%h a2=%h t=%0t",id,a1,a2,$time);
             @(negedge clk);
             sys_id<=id;sys_args<=0;
             sys_args[31:0]<=a1;sys_args[63:32]<=a2;sys_valid<=1;
@@ -96,6 +97,7 @@ module tb_services;
             end
             last_jump_valid=sys_jump_valid;
             last_jump_pc=sys_jump_pc;
+            $display("CALL DONE id=%h ret=%h jump=%b pc=%h t=%0t",id,sys_ret,sys_jump_valid,sys_jump_pc,$time);
             @(negedge clk);sys_valid<=0;
             @(posedge clk);
         end
@@ -227,6 +229,7 @@ module tb_services;
         ram[`SHAMA_APP_RAM_BASE+100]=8'hee;
         cache[100]=8'hee;
 
+        $display("ASYNC EDITOR START t=%0t",$time);
         @(negedge clk);
         event_code<=8'h18;
         event_valid<=1;
@@ -240,6 +243,7 @@ module tb_services;
 
         watchdog=0;
         while(!cpu_force_jump && watchdog<100000) begin @(posedge clk);watchdog=watchdog+1;end
+        $display("ASYNC EDITOR FORCE-JUMP t=%0t",$time);
         if(!cpu_force_jump || cpu_force_pc!=`SHAMA_PC_APP) begin
             $display("universal Editor force jump fail");$fatal(1);
         end
