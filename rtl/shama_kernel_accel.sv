@@ -181,6 +181,7 @@ module shama_kernel_accel(
     state_t state;
     logic [11:0] latched_id;
     logic [191:0] latched_args;
+    logic [191:0] view_args;
     logic [63:0] response;
     logic response_jump;
     logic [31:0] response_pc;
@@ -194,7 +195,7 @@ module shama_kernel_accel(
         begin
             case(view)
                 VIEW_DESKTOP: begin
-                    case(latched_args[3:0])
+                    case(view_args[3:0])
                         4'd1:title_for=DESK_EDITOR;
                         4'd2:title_for=DESK_FILES;
                         4'd3:title_for=DESK_MINER;
@@ -207,7 +208,7 @@ module shama_kernel_accel(
                     endcase
                 end
                 VIEW_FILES: begin
-                    case(latched_args[35:32])
+                    case(view_args[35:32])
                         4'd1:title_for=FILES_DELETE;
                         4'd2:title_for=FILES_TEXT;
                         4'd3:title_for=FILES_RENAME;
@@ -215,7 +216,7 @@ module shama_kernel_accel(
                     endcase
                 end
                 VIEW_EDITOR: begin
-                    case(latched_args[3:0])
+                    case(view_args[3:0])
                         4'd0:title_for=EDIT_MENU;
                         4'd1:title_for=EDIT_NEW_TXT;
                         4'd2:title_for=EDIT_NEW_ASM;
@@ -278,10 +279,10 @@ module shama_kernel_accel(
                 default:begin
                     if(index>=4 && index<12) begin
                         digit=11-index;
-                        monitor_char=hex_char(latched_args[digit*4 +: 4]);
+                        monitor_char=hex_char(view_args[digit*4 +: 4]);
                     end else if(index>=18 && index<26) begin
                         digit=25-index;
-                        monitor_char=hex_char(latched_args[32+digit*4 +: 4]);
+                        monitor_char=hex_char(view_args[32+digit*4 +: 4]);
                     end else monitor_char=" ";
                 end
             endcase
@@ -422,7 +423,7 @@ module shama_kernel_accel(
     always_ff @(posedge clk) begin
         if(rst) begin
             state<=ST_IDLE;
-            latched_id<=0;latched_args<=0;
+            latched_id<=0;latched_args<=0;view_args<=0;
             response<=0;response_jump<=0;response_pc<=0;
             response_load_app<=0;response_app_id<=0;
             current_view<=VIEW_DESKTOP;
@@ -438,6 +439,8 @@ module shama_kernel_accel(
                 ST_IDLE: if(req_valid) begin
                     latched_id<=req_id;
                     latched_args<=req_args;
+                    if(is_ui_sys(req_id) && req_id!=SYS_UI_STATUSBAR)
+                        view_args<=req_args;
                     response<=0;response_jump<=0;response_pc<=0;
                     response_load_app<=0;response_app_id<=0;
 
