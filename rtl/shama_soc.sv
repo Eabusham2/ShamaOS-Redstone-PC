@@ -156,7 +156,8 @@ module shama_soc(
     logic svc_dma_valid,svc_dma_we,svc_dma_flash,svc_dma_ready;
     logic [31:0] svc_dma_addr,svc_dma_wdata,svc_dma_rdata;
     logic [3:0] svc_dma_wstrb;
-    logic ext_valid,ext_ready,ext_jump_valid;
+    logic ext_valid,ext_ready,ext_jump_valid,ext_load_app;
+    logic [3:0] ext_app_id;
     logic [11:0] ext_id;
     logic [191:0] ext_args;
     logic [63:0] ext_ret;
@@ -181,6 +182,7 @@ module shama_soc(
         .ext_valid(ext_valid),.ext_id(ext_id),.ext_args(ext_args),
         .ext_ready(ext_ready),.ext_ret(ext_ret),
         .ext_jump_valid(ext_jump_valid),.ext_jump_pc(ext_jump_pc),
+        .ext_load_app,.ext_app_id,
         .os_loaded,.foreground_app
     );
 
@@ -204,6 +206,7 @@ module shama_soc(
         .req_valid(ext_valid),.req_id(ext_id),.req_args(ext_args),
         .req_ready(ext_ready),.req_ret(ext_ret),
         .req_jump_valid(ext_jump_valid),.req_jump_pc(ext_jump_pc),
+        .req_load_app(ext_load_app),.req_app_id(ext_app_id),
         .ram_used_bytes,.cache_used_bytes,.flash_used_bytes,
         .cpu_halted(halted),.sha_busy,.gpu_busy,
         .gpu_valid(k_gpu_valid),.gpu_we(k_gpu_we),.gpu_addr(k_gpu_addr),
