@@ -130,6 +130,7 @@ module shama_kernel_accel(
 
     localparam [255:0] FILES_DELETE  = "DELETE FILE? A YES  B NO        ";
     localparam [255:0] FILES_TEXT    = "TEXT VIEW  UP/DOWN SCROLL       ";
+    localparam [255:0] FILES_RENAME  = "RENAME  TYPE NAME ENTER         ";
 
     localparam [255:0] EDIT_MENU     = "EDITOR > NEW TXT/PROGRAM/OPEN   ";
     localparam [255:0] EDIT_NEW_TXT  = "EDITOR > NEW TEXT NAME          ";
