@@ -199,6 +199,7 @@ SYSCALLS: Final[dict[str, int]] = {
     "SYS_UI_SETTINGS_VIEW": 0x04D,
 
     "SYS_ASSEMBLE": 0x060,
+    "SYS_RUN_BUFFER": 0x061,
 
     "SYS_MINER_LOG_RESULT": 0x050,
     "SYS_MINER_SAVE_STATE": 0x051,
