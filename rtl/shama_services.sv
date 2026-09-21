@@ -1,6 +1,8 @@
 `include "shama_boot_params.svh"
 
-module shama_services(
+module shama_services #(
+    parameter integer APP_SLOT_BYTES = 16 * 1024
+)(
     input  logic         clk,
     input  logic         rst,
 
@@ -435,7 +437,7 @@ module shama_services(
 
                                 SYS_RUN_BUFFER: begin
                                     if(sys_args[63:32] == 0 ||
-                                       sys_args[63:32] > `SHAMA_SLOT_BYTES - 4 ||
+                                       sys_args[63:32] > APP_SLOT_BYTES - 4 ||
                                        sys_args[31:0] < `SHAMA_SLOT_BYTES) begin
                                         response <= 64'hfffffffffffffffa;
                                         state <= ST_RESP;
@@ -549,7 +551,7 @@ module shama_services(
 
                 ST_SLOT_LENGTH: begin
                     if(dma_ready) begin
-                        if(dma_rdata == 0 || dma_rdata > `SHAMA_SLOT_BYTES - 4) begin
+                        if(dma_rdata == 0 || dma_rdata > APP_SLOT_BYTES - 4) begin
                             response <= 64'hfffffffffffffff9;
                             state <= ST_RESP;
                         end else begin
@@ -563,7 +565,7 @@ module shama_services(
 
                 ST_APP_CLEAR_RAM: begin
                     if(dma_ready) begin
-                        if(copy_offset + 4 >= `SHAMA_SLOT_BYTES) begin
+                        if(copy_offset + 4 >= APP_SLOT_BYTES) begin
                             copy_offset <= 0;
                             state <= ST_APP_CLEAR_CACHE;
                         end else copy_offset <= copy_offset + 4;
@@ -572,7 +574,7 @@ module shama_services(
 
                 ST_APP_CLEAR_CACHE: begin
                     if(dma_ready) begin
-                        if(copy_offset + 4 >= `SHAMA_SLOT_BYTES) begin
+                        if(copy_offset + 4 >= APP_SLOT_BYTES) begin
                             copy_offset <= 0;
                             if(run_staged) begin
                                 copy_source_base <= staged_source_ptr;
