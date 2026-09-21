@@ -1,6 +1,6 @@
 ; ShamaOS File Explorer
 ; r8 = selected file-table index
-; r9 = mode: 0 list, 1 delete confirm, 2 text viewer
+; r9 = mode: 0 list, 1 delete confirm, 2 text viewer, 3 rename
 ; r10 = selected metadata low word: [15:8] name length, [7:0] type
 ; r11 = selected file size
 ; r7 = text viewer byte offset
@@ -11,12 +11,16 @@ define EVT_LEFT 0x12
 define EVT_RIGHT 0x13
 define EVT_A 0x14
 define EVT_B 0x15
+define EVT_KEY 0x01
+define KEY_ENTER 0x0d
+define KEY_BACKSPACE 0x08
 
 define TYPE_TXT 1
 define TYPE_ASM 2
 define TYPE_BIN 3
 
 define FILE_NAME_PTR 0x000b0000
+define RENAME_PTR 0x000b0080
 define EDIT_CTX 0x000b1000
 define EDIT_BUF 0x000c0000
 define RUN_BUF 0x000e0000
@@ -50,12 +54,19 @@ LDI r12 2
 CMP r9 r12
 BR.EQ .redraw_text
 
-; Delete confirmation still uses the File Explorer shell; r2 tells the
-; UI/kernel this is the destructive-confirm state.
+; Delete/rename modes still use the File Explorer shell; r2 tells the
+; UI/kernel which state is active.
 MOV r1 r8
 MOV r2 r9
 SYS SYS_UI_FILE_LIST
+LDI r12 3
+CMP r9 r12
+BR.NE .redraw_mode_selected
+CALL .draw_rename_name
+JMP .redraw_mode_status
+.redraw_mode_selected
 CALL .draw_selected_name
+.redraw_mode_status
 SYS SYS_UI_STATUSBAR
 JMP .loop
 
@@ -63,7 +74,47 @@ JMP .loop
 MOV r1 r8
 MOV r2 r9
 SYS SYS_UI_FILE_LIST
-CALL .draw_text_page
+CALL .draw_rename_name
+CMP r7 r0
+BR.EQ .draw_done
+LDI r12 GPU_BASE
+LDI r4 0x13
+STW r12 r4 4
+LDI r4 1
+STW r12 r4 40
+
+LDI r5 0
+.rename_draw_copy
+CMP r5 r7
+BR.GE .rename_draw_submit
+LDI r13 RENAME_PTR
+ADD r13 r13 r5
+LDB r4 r13 0
+LDI r14 GPU_TEXT_CONTENT
+ADD r14 r14 r5
+STB r14 r4 0
+INC r5
+JMP .rename_draw_copy
+
+.rename_draw_submit
+LDI r4 0xa0
+STW r12 r4 8
+STW r12 r7 12
+LDI r4 4
+STW r12 r4 16
+LDI r4 48
+STW r12 r4 20
+LDI r4 0x0c
+STW r12 r4 4
+LDI r4 1
+STW r12 r4 40
+LDI r4 0x14
+STW r12 r4 4
+LDI r4 1
+STW r12 r4 40
+RET
+
+.draw_text_page
 SYS SYS_UI_STATUSBAR
 
 .loop
@@ -78,6 +129,13 @@ SHR r12 r12 r13
 LDI r13 0xff
 AND r12 r12 r13
 
+; key code = (event >> 18) & ff
+MOV r14 r1
+LDI r13 18
+SHR r14 r14 r13
+LDI r13 0xff
+AND r14 r14 r13
+
 ; Mode-specific handling first.
 LDI r13 1
 CMP r9 r13
@@ -85,10 +143,25 @@ BR.EQ .confirm_event
 LDI r13 2
 CMP r9 r13
 BR.EQ .viewer_event
+LDI r13 3
+CMP r9 r13
+BR.EQ .rename_event
 
+LDI r13 EVT_KEY
+CMP r12 r13
+BR.EQ .list_key
 LDI r13 EVT_UP
 CMP r12 r13
-BR.EQ .prev
+BR.EQ .list_key
+; R starts File Explorer rename mode.
+LDI r13 0x52
+CMP r14 r13
+BR.NE .redraw
+LDI r7 0
+LDI r9 3
+JMP .redraw
+
+.prev
 LDI r13 EVT_DOWN
 CMP r12 r13
 BR.EQ .next
@@ -157,7 +230,66 @@ JMP .redraw
 .viewer_event
 LDI r13 EVT_B
 CMP r12 r13
-BR.EQ .viewer_close
+BR.EQ .rename_event
+LDI r13 EVT_B
+CMP r12 r13
+BR.EQ .rename_cancel
+LDI r13 EVT_KEY
+CMP r12 r13
+BR.NE .universal_rename
+
+LDI r13 KEY_ENTER
+CMP r14 r13
+BR.EQ .rename_commit
+LDI r13 KEY_BACKSPACE
+CMP r14 r13
+BR.EQ .rename_backspace
+
+LDI r13 0x20
+CMP r14 r13
+BR.LT .redraw
+LDI r13 0x7e
+CMP r14 r13
+BR.GT .redraw
+LDI r13 42
+CMP r7 r13
+BR.GE .redraw
+LDI r13 RENAME_PTR
+ADD r13 r13 r7
+STB r13 r14 0
+INC r7
+JMP .redraw
+
+.rename_backspace
+CMP r7 r0
+BR.EQ .redraw
+DEC r7
+JMP .redraw
+
+.rename_commit
+CMP r7 r0
+BR.EQ .redraw
+LDI r13 RENAME_PTR
+ADD r13 r13 r7
+STB r13 r0 0
+MOV r1 r8
+INC r1
+LDI r2 RENAME_PTR
+SYS SYS_FILE_RENAME
+LDI r7 0
+LDI r9 0
+JMP .redraw
+
+.rename_cancel
+LDI r7 0
+LDI r9 0
+JMP .redraw
+
+.universal_rename
+SYS SYS_APP_EVENT
+JMP .redraw
+
+.viewer_close
 LDI r13 EVT_UP
 CMP r12 r13
 BR.EQ .viewer_up
