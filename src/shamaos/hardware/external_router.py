@@ -193,31 +193,26 @@ def iter_external_router(
     min_z=min(p.z for p in all_points)
     track_base=min_z-(len(nets)+1)*track_spacing-4096
 
-    # Endpoints that share X get distinct escape-Z offsets before rising to the
-    # branch plane. This handles the 180 vertically stacked display-row ports.
-    x_groups: dict[int,list[Vec3]]=defaultdict(list)
-    for p in all_points:
-        if p not in x_groups[p.x]:
-            x_groups[p.x].append(p)
-
+    # Escape every endpoint a short fixed distance in Z before it rises
+    # onto the branch plane. Logic-cell rows are spaced farther apart than
+    # this, so different 2-D placement rows cannot share an escape wire.
+    # Vertically stacked endpoints (such as display rows) remain isolated by
+    # Y until their individually assigned X branch.
     escape_z_by_point: dict[Vec3,int]={}
     used_branch_x:set[int]=set()
     branch_x_by_point:dict[Vec3,int]={}
 
-    for x,points in x_groups.items():
-        points.sort(key=lambda p:(p.y,p.z))
-        for idx,p in enumerate(points):
-            escape_z=p.z+(idx+1)*3
-            escape_z_by_point[p]=escape_z
+    unique_points=sorted(set(all_points),key=lambda p:(p.x,p.y,p.z))
+    for idx,p in enumerate(unique_points):
+        escape_z=p.z+12
+        escape_z_by_point[p]=escape_z
 
-            # Enough X-run to climb to the routing plane plus margin for
-            # repeater refresh. Resolve accidental lane collisions globally.
-            run=abs(branch_y-p.y)+32
-            candidate=p.x+run+idx*4
-            while candidate in used_branch_x:
-                candidate+=4
-            used_branch_x.add(candidate)
-            branch_x_by_point[p]=candidate
+        run=abs(branch_y-p.y)+32
+        candidate=p.x+run+(idx%8)*4
+        while candidate in used_branch_x:
+            candidate+=4
+        used_branch_x.add(candidate)
+        branch_x_by_point[p]=candidate
 
     for net_index,net in enumerate(nets):
         track_z=track_base+net_index*track_spacing
