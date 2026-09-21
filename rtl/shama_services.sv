@@ -58,7 +58,8 @@ module shama_services(
         SYS_CACHE_USAGE         = 12'h013,
         SYS_FLASH_USAGE         = 12'h02a,
         SYS_GET_KEY             = 12'h030,
-        SYS_GET_CONTROLLER      = 12'h031;
+        SYS_GET_CONTROLLER      = 12'h031,
+        SYS_RUN_BUFFER          = 12'h061;
 
     // ext_ret[63] is an internal kernel->service request to replace the
     // foreground app. ext_ret[3:0] is the requested preinstalled app ID.
@@ -83,6 +84,10 @@ module shama_services(
     logic [31:0] copy_flash_base;
     logic [31:0] copy_ram_base;
     logic [31:0] copy_bytes;
+    logic        copy_source_flash;
+    logic        run_staged;
+    logic [31:0] staged_source_ptr;
+    logic [31:0] staged_bytes;
 
     logic [3:0] target_app;
     logic copy_is_kernel;
@@ -128,7 +133,8 @@ module shama_services(
                 SYS_CACHE_USAGE,
                 SYS_FLASH_USAGE,
                 SYS_GET_KEY,
-                SYS_GET_CONTROLLER: is_local = 1'b1;
+                SYS_GET_CONTROLLER,
+                SYS_RUN_BUFFER: is_local = 1'b1;
                 default: is_local = 1'b0;
             endcase
         end
@@ -137,6 +143,7 @@ module shama_services(
     task automatic begin_app_replace(input logic [3:0] app_id);
         begin
             target_app <= app_id;
+            run_staged <= 1'b0;
             copy_offset <= 0;
             state <= ST_APP_CLEAR;
         end
@@ -163,7 +170,7 @@ module shama_services(
             ST_COPY_READ: begin
                 dma_valid = 1'b1;
                 dma_we = 1'b0;
-                dma_flash = 1'b1;
+                dma_flash = copy_source_flash;
                 dma_addr = copy_flash_base + copy_offset;
             end
 
@@ -198,6 +205,10 @@ module shama_services(
             copy_flash_base <= 0;
             copy_ram_base <= 0;
             copy_bytes <= 0;
+            copy_source_flash <= 1'b1;
+            run_staged <= 1'b0;
+            staged_source_ptr <= 0;
+            staged_bytes <= 0;
 
             target_app <= 0;
             copy_is_kernel <= 0;
@@ -248,6 +259,7 @@ module shama_services(
                                     copy_ram_base <= `SHAMA_KERNEL_RAM_BASE;
                                     copy_bytes <= `SHAMA_SLOT_BYTES;
                                     copy_offset <= 0;
+                                    copy_source_flash <= 1'b1;
                                     copy_is_kernel <= 1'b1;
                                     boot_after_kernel <= 1'b1;
                                     state <= ST_COPY_READ;
@@ -259,6 +271,21 @@ module shama_services(
                                     else begin
                                         response <= 64'hffffffffffffffff;
                                         state <= ST_RESP;
+                                    end
+                                end
+
+                                SYS_RUN_BUFFER: begin
+                                    if(sys_args[63:32] == 0 ||
+                                       sys_args[63:32] > `SHAMA_SLOT_BYTES) begin
+                                        response <= 64'hfffffffffffffffa;
+                                        state <= ST_RESP;
+                                    end else begin
+                                        target_app <= 4'hf;
+                                        run_staged <= 1'b1;
+                                        staged_source_ptr <= sys_args[31:0];
+                                        staged_bytes <= sys_args[63:32];
+                                        copy_offset <= 0;
+                                        state <= ST_APP_CLEAR;
                                     end
                                 end
 
@@ -320,9 +347,17 @@ module shama_services(
                 ST_APP_CLEAR: begin
                     if(dma_ready) begin
                         if(copy_offset + 4 >= `SHAMA_SLOT_BYTES) begin
-                            copy_flash_base <= app_flash(target_app);
-                            copy_ram_base <= `SHAMA_APP_RAM_BASE;
-                            copy_bytes <= `SHAMA_SLOT_BYTES;
+                            if(run_staged) begin
+                                copy_flash_base <= staged_source_ptr;
+                                copy_source_flash <= 1'b0;
+                                copy_ram_base <= `SHAMA_APP_RAM_BASE;
+                                copy_bytes <= staged_bytes;
+                            end else begin
+                                copy_flash_base <= app_flash(target_app);
+                                copy_source_flash <= 1'b1;
+                                copy_ram_base <= `SHAMA_APP_RAM_BASE;
+                                copy_bytes <= `SHAMA_SLOT_BYTES;
+                            end
                             copy_offset <= 0;
                             copy_is_kernel <= 1'b0;
                             boot_after_kernel <= 1'b0;
