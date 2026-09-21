@@ -20,7 +20,8 @@ module shama_cpu (
 
     output logic         cache_flush,
     input  logic [63:0]  time_counter,
-    output logic         halted
+    output logic         halted,
+    output logic         sha_busy
 );
     localparam [7:0]
         OP_NOP=8'h00, OP_HLT=8'h01, OP_MOV=8'h02, OP_LDI=8'h03, OP_LUI=8'h04,
@@ -100,6 +101,8 @@ module shama_cpu (
         .clk(clk), .rst(rst), .start(dsha_start), .header(dsha_header),
         .busy(dsha_busy), .done(dsha_done), .digest(dsha_digest)
     );
+
+    assign sha_busy = sha64_busy | dsha_busy;
 
     function automatic logic [31:0] rreg(input logic [3:0] idx);
         rreg = (idx == 0) ? 32'd0 : regs[idx];
