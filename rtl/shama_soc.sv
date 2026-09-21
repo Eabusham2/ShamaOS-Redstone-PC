@@ -135,7 +135,9 @@ module shama_soc(
     logic os_loaded;
 
     logic [31:0] ram_used_bytes,cache_used_bytes,flash_used_bytes;
-    assign ram_used_bytes = os_loaded ? `SHAMA_BUNDLE_BYTES : 32'd0;
+    logic [3:0] foreground_app;
+    // Resident kernel slot + exactly one flushed/reloaded foreground app slot.
+    assign ram_used_bytes = os_loaded ? 32'd32768 : 32'd0;
     // The OS reserves the whole 16 KiB fast region as cache/scratch.
     assign cache_used_bytes = power_switch ? 32'd16384 : 32'd0;
 
@@ -150,7 +152,7 @@ module shama_soc(
         .ext_valid(ext_valid),.ext_id(ext_id),.ext_args(ext_args),
         .ext_ready(ext_ready),.ext_ret(ext_ret),
         .ext_jump_valid(ext_jump_valid),.ext_jump_pc(ext_jump_pc),
-        .os_loaded
+        .os_loaded,.foreground_app
     );
 
     // ---------------- Kernel GUI + syscall dispatcher ----------------
