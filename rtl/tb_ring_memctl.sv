@@ -67,6 +67,20 @@ module tb_ring_memctl;
         end
         finish_req();
 
+        // Held-valid burst: master advances address after each ready
+        // without dropping req_valid between words.
+        @(negedge clk);
+        req_we<=0;req_addr<=32'h00000000;req_valid<=1;
+        wait(req_ready);
+        @(negedge clk);req_addr<=32'h00000004;
+        wait(!req_ready);
+        wait(req_ready);
+        @(negedge clk);req_addr<=32'h00000008;
+        wait(!req_ready);
+        wait(req_ready);
+        @(negedge clk);req_valid<=0;
+        @(posedge clk);
+
         $display("RING MEMCTL PASS");
         $finish;
     end
