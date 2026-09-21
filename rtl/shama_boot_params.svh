@@ -1,20 +1,34 @@
 `ifndef SHAMA_BOOT_PARAMS_SVH
 `define SHAMA_BOOT_PARAMS_SVH
 
-// Generated/locked against src/shamaos/os_image.py and ShamaFS 4 MiB geometry.
+// Locked against src/shamaos/os_image.py and 4 MiB ShamaFS geometry.
 `define SHAMA_BUNDLE_FLASH_OFFSET 32'h00001900
-`define SHAMA_BUNDLE_RAM_BASE     32'h00004000
-`define SHAMA_BUNDLE_BYTES        32'h00028000
+`define SHAMA_SLOT_BYTES          32'h00004000
 
-`define SHAMA_PC_KERNEL      32'h00001000
-`define SHAMA_PC_DESKTOP     32'h00002000
-`define SHAMA_PC_EDITOR      32'h00003000
-`define SHAMA_PC_FILES       32'h00004000
-`define SHAMA_PC_MINER       32'h00005000
-`define SHAMA_PC_MONITOR     32'h00006000
-`define SHAMA_PC_TERMINAL    32'h00007000
-`define SHAMA_PC_CALCULATOR  32'h00008000
-`define SHAMA_PC_PAINT       32'h00009000
-`define SHAMA_PC_SETTINGS    32'h0000a000
+`define SHAMA_KERNEL_FLASH        32'h00001900
+`define SHAMA_DESKTOP_FLASH       32'h00005900
+`define SHAMA_EDITOR_FLASH        32'h00009900
+`define SHAMA_FILES_FLASH         32'h0000d900
+`define SHAMA_MINER_FLASH         32'h00011900
+`define SHAMA_MONITOR_FLASH       32'h00015900
+`define SHAMA_TERMINAL_FLASH      32'h00019900
+`define SHAMA_CALCULATOR_FLASH    32'h0001d900
+`define SHAMA_PAINT_FLASH         32'h00021900
+`define SHAMA_SETTINGS_FLASH      32'h00025900
+
+`define SHAMA_KERNEL_RAM_BASE     32'h00004000
+`define SHAMA_APP_RAM_BASE        32'h00008000
+
+`define SHAMA_PC_KERNEL           32'h00001000
+`define SHAMA_PC_APP              32'h00002000
+`define SHAMA_PC_DESKTOP          32'h00002000
+`define SHAMA_PC_EDITOR           32'h00002000
+`define SHAMA_PC_FILES            32'h00002000
+`define SHAMA_PC_MINER            32'h00002000
+`define SHAMA_PC_MONITOR          32'h00002000
+`define SHAMA_PC_TERMINAL         32'h00002000
+`define SHAMA_PC_CALCULATOR       32'h00002000
+`define SHAMA_PC_PAINT            32'h00002000
+`define SHAMA_PC_SETTINGS         32'h00002000
 
 `endif
