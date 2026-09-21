@@ -32,10 +32,11 @@ def test_rtl_boot_parameters_match_generated_flash_image():
 
     assert d["SHAMA_BUNDLE_FLASH_OFFSET"] == image.bundle_flash_offset
     assert d["SHAMA_SLOT_BYTES"] == APP_SLOT_BYTES
+    assert d["SHAMA_SLOT_DATA_OFFSET"] == 4
     assert d["SHAMA_KERNEL_RAM_BASE"] == KERNEL_RAM_BASE
     assert d["SHAMA_APP_RAM_BASE"] == APP_RAM_BASE
     assert d["SHAMA_PC_KERNEL"] == KERNEL_RAM_BASE // 4
-    assert d["SHAMA_PC_APP"] == APP_RAM_BASE // 4
+    assert d["SHAMA_PC_APP"] == 0
 
     flash_defines = {
         "kernel": "SHAMA_KERNEL_FLASH",
@@ -53,5 +54,5 @@ def test_rtl_boot_parameters_match_generated_flash_image():
         assert d[flash_defines[name]] == image.slot_flash_offsets[name]
 
     for app, pc_word in image.app_pc_words.items():
-        assert pc_word == APP_RAM_BASE // 4
+        assert pc_word == 0
         assert d[f"SHAMA_PC_{app.upper()}"] == pc_word
