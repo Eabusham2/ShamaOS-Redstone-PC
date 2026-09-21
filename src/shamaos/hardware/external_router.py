@@ -176,7 +176,11 @@ def iter_external_router(
         escape_z=p.z+12
         escape_z_by_point[p]=escape_z
 
-        run=abs(branch_y-p.y)+32
+        # A strength-safe stair needs extra flat two-block plateaus about
+        # every ten vertical rises for repeater regeneration.
+        vertical=abs(branch_y-p.y)
+        plateaus=max(0,(vertical+9)//10-1)
+        run=vertical+plateaus*2+48
         candidate=p.x+run+(idx%8)*4
         while candidate in used_branch_x:
             candidate+=4
