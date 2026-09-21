@@ -16,11 +16,12 @@ module tb_services;
     logic [31:0] dma_addr,dma_wdata,dma_rdata;
     logic [3:0] dma_wstrb;
 
-    logic ext_valid,ext_ready=0,ext_jump_valid=0;
+    logic ext_valid,ext_ready=0,ext_jump_valid=0,ext_load_app=0;
     logic [11:0] ext_id;
     logic [191:0] ext_args;
     logic [63:0] ext_ret=0;
     logic [31:0] ext_jump_pc=0;
+    logic [3:0] ext_app_id=0;
 
     logic os_loaded;
     logic [3:0] foreground_app;
@@ -43,6 +44,7 @@ module tb_services;
         .dma_valid,.dma_we,.dma_flash,.dma_addr,.dma_wdata,.dma_wstrb,
         .dma_ready,.dma_rdata,
         .ext_valid,.ext_id,.ext_args,.ext_ready,.ext_ret,.ext_jump_valid,.ext_jump_pc,
+        .ext_load_app,.ext_app_id,
         .os_loaded,.foreground_app
     );
 
