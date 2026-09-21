@@ -107,7 +107,11 @@ module shama_ring_memctl #(
 
                 COMMIT_WRITE: state <= RESP;
 
-                RESP: if(!req_valid) state <= IDLE;
+                // Ready is a one-cycle completion pulse. Return to IDLE
+                // unconditionally so a DMA master may keep req_valid high,
+                // advance its address on ready, and issue the next word
+                // without an artificial valid-low bubble requirement.
+                RESP: state <= IDLE;
 
                 default: state <= IDLE;
             endcase
