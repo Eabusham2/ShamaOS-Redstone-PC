@@ -339,18 +339,17 @@ module shama_kernel_accel(
                     if(req_id==SYS_APP_EVENT) begin
                         case(req_args[17:10])
                             EVT_HOME,EVT_EXIT: begin
-                                response_jump<=1;
-                                response_pc<=`SHAMA_PC_DESKTOP;
+                                // Bit 63 asks shama_services to flush the
+                                // foreground slot and load app ID 0 (Desktop).
+                                response<=64'h8000000000000000;
                                 current_view<=VIEW_DESKTOP;
                             end
                             EVT_EDITOR: begin
-                                response_jump<=1;
-                                response_pc<=`SHAMA_PC_EDITOR;
+                                response<=64'h8000000000000001;
                                 current_view<=VIEW_EDITOR;
                             end
                             EVT_FILES: begin
-                                response_jump<=1;
-                                response_pc<=`SHAMA_PC_FILES;
+                                response<=64'h8000000000000002;
                                 current_view<=VIEW_FILES;
                             end
                             default: begin end
