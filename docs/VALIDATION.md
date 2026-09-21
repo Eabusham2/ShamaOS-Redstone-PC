@@ -1,102 +1,51 @@
-# Validation Plan
+# Validation
 
-ShamaOS is too large for “looks right” validation.
+## Fast CI
 
-## Test layers
+Python 3.11/3.12 tests validate ISA/assembler/reference models, the 4 MiB ShamaFS image, locked capacities, routing/floorplan and world-writer behavior.
 
-### Unit
+A dedicated Amulet job verifies real block-state conversion for repeaters, comparators, lamps and redstone wire.
 
-- instruction encode/decode.
-- assembler parsing.
-- pseudo-instruction expansion.
-- SHA primitives.
-- SHA-256 vectors.
-- double-SHA-256 vectors.
-- target comparison.
-- framebuffer pixel packing.
-- GPU geometry.
-- flash filesystem operations.
+RTL validation covers:
 
-### Reference integration
+- SHA known-answer vectors;
+- CPU;
+- external-VRAM GPU;
+- display bridge;
+- ring memory controller including held-valid DMA;
+- input encoder;
+- boot/app lifecycle;
+- RAM allocator/free/app-release;
+- hardware-universal app switching;
+- ShamaFS hardware including miner persistence;
+- in-world assembler;
+- GUI kernel;
+- integrated SoC compile.
 
-- CPU executes small programs.
-- calls/returns.
-- stack limits.
-- load/store boundaries.
-- syscalls.
-- GPU command queue.
-- app launch/exit memory accounting.
-- filesystem save/open/rename/delete.
-- miner start/stop/history.
+A small Yosys fixture is also technology-mapped and physically routed as a synthesis smoke test.
 
-### Physical-plan validation
+## Full physical synthesis
 
-- component boxes do not overlap.
-- named ports match widths.
-- bus routes preserve bit numbering.
-- tile mapping covers every pixel exactly once.
-- memory mapping covers intended ranges with no accidental aliases.
-- block orientations are legal.
-- SHA constants/round wiring generated from canonical tables.
+Release-candidate commits trigger `full-physical-synthesis`. It synthesizes the complete current `shama_soc`, builds the physical redstone netlist and verifies physical external contracts, including:
 
-### World validation
+- cache banks 4
+- RAM banks 256
+- flash banks 1,024
+- VRAM banks 8
+- display 320×180
+- required port widths
+- nonzero cell/net/route counts
 
-After writing:
+## Per-world validation
 
-- every touched region header parses.
-- every chunk NBT parses.
-- section palettes/indices are valid.
-- block-state names are valid for target version.
-- generated chunks can be read back.
-- manifest block hash/count matches readback.
-- `level.dat` remains readable.
+After generating a concrete world:
 
-## SHA known-answer tests
+1. verify generation/manifest;
+2. open in Minecraft/MCHPRS;
+3. smoke power/reset/input/display;
+4. boot ShamaOS;
+5. exercise RAM/flash;
+6. run an Editor-assembled program;
+7. run the Bitcoin Miner and observe nonce/hash/target changes.
 
-At minimum:
-
-- SHA-256 of empty byte string.
-- SHA-256 of `abc`.
-- multi-block vector.
-- double-SHA-256 of deterministic test input.
-- Bitcoin-style 80-byte header test fixture.
-
-Reference Python uses `hashlib` only as an oracle in tests. The redstone generator/runtime does not call Python for mining.
-
-## Filesystem tests
-
-- format/mount.
-- create/write/read.
-- append/overwrite/truncate.
-- rename.
-- delete.
-- free-space recovery.
-- duplicate names.
-- full flash.
-- max filename.
-- metadata generation increments.
-- corrupted metadata rejection/recovery behavior.
-
-## OS tests
-
-- boot image contains required apps.
-- Desktop resource indicators equal allocator/filesystem counters.
-- Editor New Text File.
-- Editor New Program.
-- save/rename/delete confirmation.
-- File Explorer opens text.
-- File Explorer Edit launches Editor and closes Explorer.
-- universal Exit frees app allocation.
-- universal Editor/Files close foreground app before switch.
-- miner Start/Stop state machine.
-
-## Acceptance gates
-
-A generated world release is not called complete until:
-
-1. unit/reference tests green.
-2. generation plan validates.
-3. world writes successfully.
-4. written chunks read back.
-5. smoke test in target Minecraft version succeeds.
-6. representative hardware component behavior is verified in-game/accelerated simulator.
+The repository can automate the build/file-format side; launching Minecraft requires the actual destination world.

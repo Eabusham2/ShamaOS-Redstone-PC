@@ -1,177 +1,83 @@
 # Hardware and World Generation
 
-## Goal
-
-Generate the full computer into a Minecraft Java world folder without relying on a gigantic hand-written script or millions of in-game `/setblock` commands.
-
-The world is disposable. The generator can replace the reserved generated region.
-
-## Supported baseline
-
-Initial target world format:
-
-- Minecraft Java Edition 1.20.4.
-- DataVersion 3700.
-- Overworld.
-- superflat/disposable world.
-
-The format target is explicit because raw Anvil/NBT output is version-sensitive.
-
-## Generator layers
-
-### 1. Reference models
-
-Pure Python models define:
-
-- ISA/opcodes.
-- SHA behavior.
-- GPU framebuffer behavior.
-- flash filesystem.
-- memory map.
-- OS image metadata.
-
-### 2. Redstone primitives
-
-Reusable physical templates:
-
-- wire/bus lanes.
-- repeater delay/isolator.
-- torch/comparator gates.
-- latches.
-- registers.
-- decoders.
-- muxes.
-- adders.
-- shift/rotate structures.
-- memory cells/banks.
-- lamp tile.
-- button/lever/controller inputs.
-
-### 3. Components
-
-Generated from primitives:
-
-- ALU.
-- register file.
-- control decoder.
-- PC/fetch.
-- branch unit.
-- stack.
-- cache.
-- RAM banks.
-- SHA execution unit.
-- flash controller.
-- GPU.
-- VRAM/display tile controllers.
-- keyboard/controller.
-- boot/power logic.
-
-### 4. Layout planner
-
-Every component declares a bounding box and named ports. Planner:
-
-- places components.
-- reserves routing channels.
-- detects overlap.
-- computes bus routes.
-- checks maximum configured delays/fanout rules.
-- emits manifest.
-
-### 5. World writer
-
-World writer converts block placements into chunk section palettes and Anvil region chunks.
-
-Rules:
-
-- write to temporary region data first.
-- verify NBT/region structure.
-- atomically replace destination region file when possible.
-- preserve `level.dat` and unrelated chunks unless configured to rebuild.
-- emit generated-area coordinates to manifest.
-
-## Determinism
-
-Block placements are sorted by coordinate and component IDs are stable.
-
-Manifest includes:
-
-- generator version.
-- config hash.
-- world target version.
-- block count by type.
-- component bounding boxes.
-- logical/physical memory capacities.
-- display geometry.
-- source file hashes where practical.
-
-## World safety
-
-Although the world is disposable, the writer still:
-
-- checks `level.dat` exists.
-- checks Java DataVersion when readable.
-- rejects unsupported dimensions/world versions unless `--force-version` is explicitly used.
-- writes temp files first.
-- validates after write.
-
-## Redstone correctness strategy
-
-A physically placed build is not accepted simply because blocks exist.
-
-Each generated component carries logical net/port metadata. The validator checks:
-
-- every required input/output port connected.
-- no accidental overlapping blocks where forbidden.
-- power-source direction/orientation metadata valid.
-- bus bit order consistent.
-- expected repeater/comparator orientations.
-- display tile address mapping.
-- memory bank address mapping.
-
-Functional behavior is first proven in software reference models and component truth-table/net tests.
-
-## Performance modes
-
-### Vanilla-compatible
-
-All logic uses vanilla Java redstone blocks/mechanics and can run at normal tick rate, even if extremely slowly.
-
-### Accelerated server
-
-MCHPRS or compatible acceleration may be used to make enormous builds practically observable. Acceleration must not change architectural results.
-
-## No fake compute
-
-The generator may preinitialize:
-
-- flash OS image.
-- program ROM/boot image.
-- font ROM.
-- constants such as SHA K values.
-
-It may **not** precompute future mining outputs and wire them as if the CPU found them.
-
-## Memory physicalization
-
-The build manifest must state:
+## One-shot pipeline
 
 ```text
-logical_ram_bytes
-physical_ram_bytes
-cache_bytes
-flash_bytes
-vram_bytes
-backing_mode
+configs/default.toml
+        |
+        +--> firmware assembler --> 4 MiB ShamaFS image
+        |
+        +--> custom regular fabrics
+        |      cache / RAM / flash / VRAM / display / input
+        |
+        +--> SystemVerilog RTL --> Yosys --> redstone technology cells
+        |
+        +--> 2-D placement + crossing-safe routing
+        |
+        +--> physical memory backbones + system interconnect + clock
+        |
+        v
+     Amulet Java chunks
 ```
 
-If logical RAM exceeds literal redstone cells, the backing strategy is described explicitly.
+Target format: Minecraft Java 1.20.4, normally a disposable superflat Overworld.
 
-## CLI
+## Regular physical fabrics
+
+- cache: 4 × 4 KiB banks;
+- RAM: 256 × 4 KiB banks;
+- flash: 1,024 × 4 KiB banks;
+- VRAM: 8 × 4 KiB banks;
+- 320×180 lamp display;
+- keyboard/controller.
+
+A default memory bank is 1,024 × 32-bit words = 4 KiB. Flash is initialized directly from the assembled 4 MiB ShamaFS image.
+
+## Synthesized logic
+
+CPU, native SHA unit, GPU control/raster logic, OS services, ShamaFS controller and in-world assembler are synthesized with Yosys into BUF/NOT/NAND/NOR/DFF redstone cells. Cells are placed on a 2-D grid rather than a world-border-sized line.
+
+## Routing
+
+Internal SoC nets and system interconnect use separate routing planes. The router:
+
+- isolates logical nets on distinct tracks;
+- uses branch/trunk planes for crossings;
+- emits explicit redstone-wire states;
+- regenerates long runs with repeaters;
+- uses flat repeater plateaus on rising/falling stair routes.
+
+Memory fabrics use local bank/row backbones.
+
+## Display
+
+The screen remains **320×180**. It is physically horizontal in X/Z and viewed from above so all repeater/dust buses are valid vanilla redstone. Each pixel has a locked-repeater latch and lamp.
+
+## Clocking
+
+The input/event latch receives the raw comparator clock. Core logic uses divider bit 17 by default to allow long literal memory routes to settle. During reset, core clock follows the raw clock so state receives reset edges before power-off.
+
+## World writer
+
+Amulet Core is used to:
+
+- verify an existing Java world folder;
+- create missing far-away chunks;
+- convert exact Java block states;
+- cache palette IDs;
+- write palette IDs directly;
+- periodically save/unload chunks;
+- reject invalid build-height/world-border placements.
+
+No giant `/setblock` command script is generated.
+
+## Command
 
 ```bash
-shamaos generate --world PATH --config configs/default.toml
-shamaos validate --world PATH
-shamaos plan --config configs/default.toml --manifest out/plan.json
+shamaos generate \
+  --world "/path/to/.minecraft/saves/ShamaOS" \
+  --config configs/default.toml \
+  --manifest build/generated-manifest.json
 ```
 
-`plan` allows layout validation before writing a world.
+Minecraft should be closed while writing.

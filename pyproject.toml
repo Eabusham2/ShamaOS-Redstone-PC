@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "shamaos-redstone-pc"
-version = "0.1.0"
-description = "Generator, assembler, simulator and OS tooling for the ShamaOS Minecraft redstone PC."
+version = "1.0.0"
+description = "Generator, assembler, hardware RTL and OS tooling for the ShamaOS Minecraft redstone PC."
 readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "MIT"}

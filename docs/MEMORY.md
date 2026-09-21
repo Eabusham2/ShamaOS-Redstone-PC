@@ -1,81 +1,43 @@
 # Memory Hierarchy
 
-## Agreed capacities
+## Locked capacities
 
-- main RAM exposed to software: **1 MiB**.
-- cache/fast scratch target: **16 KiB**.
-- flash: **4 MiB** (4× the 1 MiB RAM).
-- VRAM default: **32 KiB**.
+| Memory | Capacity | Physical banks |
+|---|---:|---:|
+| executable cache / fast region | **16 KiB** | 4 × 4 KiB |
+| main RAM | **1 MiB** | 256 × 4 KiB |
+| flash | **4 MiB** | 1,024 × 4 KiB |
+| VRAM | **32 KiB** | 8 × 4 KiB |
 
-## Why not 2 GiB physical redstone RAM
+All four are physically instantiated by the default generator.
 
-2 GiB = 2,147,483,648 bytes = 17,179,869,184 bits before any decoders, read/write logic or wiring.
+## Physical bank
 
-The supplied redstone computers demonstrate useful general-purpose computation with hundreds of bytes of RAM. SHA-256 mining needs very little working memory compared with its arithmetic cost. A physically literal 2 GiB cell array would make the build dominated by storage rather than useful compute.
+A default bank contains 1,024 × 32-bit words = 4 KiB. Each stored bit uses a locked repeater. One-hot bank/row selectors avoid a gigantic binary decoder.
 
-## Main RAM strategy
+## Cache / app execution
 
-The software address space is 32-bit. The initially installed main-memory range is 1 MiB.
+When ShamaOS launches a foreground app:
 
-Physical implementation is allowed to use:
+1. its flash slot length is read;
+2. old foreground RAM/cache contents are cleared;
+3. exact executable bytes are copied into app RAM and cache;
+4. the CPU starts the app at cache PC 0.
 
-- banks.
-- pages.
-- multiplexed address/data buses.
-- compact latch/comparator/repeater storage.
-- sparse or backing techniques documented in the manifest.
+The resident kernel remains in main RAM. Cache usage is the actual number of loaded executable bytes.
 
-The final build manifest must distinguish:
+## Main RAM
 
-- `logical_ram_bytes`.
-- `physical_ram_bytes`.
-- bank/page count.
-- access latency.
-- backing mode.
-
-## Cache
-
-Target 16 KiB.
-
-Possible layouts:
-
-- direct mapped for simpler redstone.
-- 2/4-way set associative if cost is acceptable.
-- explicitly managed scratch/cache hybrid.
-
-The software-visible behavior must remain coherent. System Monitor occupancy is based on valid cache lines, not an invented percentage.
+Main RAM is a literal 1 MiB fabric. ShamaOS uses fixed kernel/app workspaces plus a foreground-owned 4 KiB page allocator. Outstanding foreground allocations are released on app replacement.
 
 ## VRAM
 
-320×180 at 1 bit/pixel = 7,200 bytes/frame.
-
-Two frames = 14,400 bytes.
-
-32 KiB VRAM therefore leaves room for:
-
-- front/back buffers.
-- dirty tiles.
-- font/sprite staging.
-- GPU command data.
+The GPU owns a separate 32 KiB physical VRAM fabric. Two 320×180×1-bit frames consume 14,400 bytes total, leaving space for text/sprite/scratch data.
 
 ## Flash
 
-ShamaFS uses persistent block allocation and stores OS/apps/documents/logs.
+ShamaFS occupies the full 4 MiB physical flash fabric and stores boot/kernel/apps/source/text/binaries/miner records plus metadata/allocation bitmap.
 
-Flash usage in the UI is calculated from actual allocated filesystem blocks.
+## Timing
 
-## Resource accounting
-
-### RAM
-
-Used = kernel/shared allocations + app allocations + buffers.
-
-### Cache
-
-Used = valid/allocated lines.
-
-### Flash
-
-Used = reserved filesystem metadata + allocated file data blocks.
-
-All three values are exposed through syscalls and System Monitor.
+Long memory routes are why the computational core uses a divided clock. Vanilla is intentionally very slow; MCHPRS accelerates the same physical paths.
