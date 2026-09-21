@@ -1,6 +1,12 @@
 ; ShamaOS Settings / maintenance
-; UP/DOWN select: 0 Flush Cache, 1 Refresh UI, 2 System Monitor.
+; UP/DOWN select:
+; 0 Refresh UI
+; 1 System Monitor
+; 2 Desktop
 ; A applies, B returns Desktop.
+;
+; Cache is the currently executing app image, so Settings intentionally does
+; not issue CFLUSH.
 
 define EVT_UP 0x10
 define EVT_DOWN 0x11
@@ -46,6 +52,7 @@ CMP r8 r0
 BR.EQ .redraw
 DEC r8
 JMP .redraw
+
 .down
 LDI r14 2
 CMP r8 r14
@@ -55,17 +62,16 @@ JMP .redraw
 
 .apply
 CMP r8 r0
-BR.EQ .flush
+BR.EQ .redraw
 LDI r14 1
 CMP r8 r14
-BR.EQ .redraw
+BR.EQ .monitor
+JMP .desktop
+
+.monitor
 LDI r1 4
 SYS SYS_APP_LAUNCH
 HLT
-
-.flush
-CFLUSH
-JMP .redraw
 
 .desktop
 LDI r1 0
