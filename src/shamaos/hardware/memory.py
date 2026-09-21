@@ -12,10 +12,18 @@ TORCH = BlockState.of("minecraft:redstone_torch", lit="true")
 WALL_TORCH_E = BlockState.of("minecraft:redstone_wall_torch", facing="east", lit="true")
 
 
-def repeater(facing: str, *, powered: bool = False, locked: bool = False) -> BlockState:
+def repeater(
+    facing: str,
+    *,
+    powered: bool = False,
+    locked: bool = False,
+    delay: int = 1,
+) -> BlockState:
+    if not 1 <= delay <= 4:
+        raise ValueError("repeater delay must be 1..4")
     return BlockState.of(
         "minecraft:repeater",
-        delay="1",
+        delay=str(delay),
         facing=facing,
         powered=str(powered).lower(),
         locked=str(locked).lower(),
