@@ -20,7 +20,7 @@ dev = [
   "pytest-cov>=5",
 ]
 world = [
-  "amulet-core>=1.9",
+  "amulet-core>=1.9.47,<2",
 ]
 
 [project.scripts]
