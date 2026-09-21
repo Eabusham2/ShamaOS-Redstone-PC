@@ -103,17 +103,36 @@ module tb_services;
 
     initial begin
         last_jump_valid=0;last_jump_pc=0;
-        for(i=0;i<16384;i=i+1) cache[i]=8'hcc;
-        for(i=0;i<131072;i=i+1) ram[i]=8'haa;
-        for(i=0;i<262144;i=i+1) flash[i]=0;
 
-        // Length-prefixed 4-byte test binaries in each flash slot.
+        // Seed only words this test reads. Avoid clearing hundreds of thousands
+        // of simulated bytes at time zero; the service itself clears the app
+        // RAM/cache slot under test.
         flash[`SHAMA_KERNEL_FLASH+0]=8'h04;
+        flash[`SHAMA_KERNEL_FLASH+1]=8'h00;
+        flash[`SHAMA_KERNEL_FLASH+2]=8'h00;
+        flash[`SHAMA_KERNEL_FLASH+3]=8'h00;
+        flash[`SHAMA_KERNEL_FLASH+`SHAMA_SLOT_DATA_OFFSET+0]=8'h11;
+        flash[`SHAMA_KERNEL_FLASH+`SHAMA_SLOT_DATA_OFFSET+1]=8'h00;
+        flash[`SHAMA_KERNEL_FLASH+`SHAMA_SLOT_DATA_OFFSET+2]=8'h00;
+        flash[`SHAMA_KERNEL_FLASH+`SHAMA_SLOT_DATA_OFFSET+3]=8'h00;
+
         flash[`SHAMA_DESKTOP_FLASH+0]=8'h04;
+        flash[`SHAMA_DESKTOP_FLASH+1]=8'h00;
+        flash[`SHAMA_DESKTOP_FLASH+2]=8'h00;
+        flash[`SHAMA_DESKTOP_FLASH+3]=8'h00;
+        flash[`SHAMA_DESKTOP_FLASH+`SHAMA_SLOT_DATA_OFFSET+0]=8'h22;
+        flash[`SHAMA_DESKTOP_FLASH+`SHAMA_SLOT_DATA_OFFSET+1]=8'h00;
+        flash[`SHAMA_DESKTOP_FLASH+`SHAMA_SLOT_DATA_OFFSET+2]=8'h00;
+        flash[`SHAMA_DESKTOP_FLASH+`SHAMA_SLOT_DATA_OFFSET+3]=8'h00;
+
         flash[`SHAMA_EDITOR_FLASH+0]=8'h04;
-        flash[`SHAMA_KERNEL_FLASH+`SHAMA_SLOT_DATA_OFFSET]=8'h11;
-        flash[`SHAMA_DESKTOP_FLASH+`SHAMA_SLOT_DATA_OFFSET]=8'h22;
-        flash[`SHAMA_EDITOR_FLASH+`SHAMA_SLOT_DATA_OFFSET]=8'h33;
+        flash[`SHAMA_EDITOR_FLASH+1]=8'h00;
+        flash[`SHAMA_EDITOR_FLASH+2]=8'h00;
+        flash[`SHAMA_EDITOR_FLASH+3]=8'h00;
+        flash[`SHAMA_EDITOR_FLASH+`SHAMA_SLOT_DATA_OFFSET+0]=8'h33;
+        flash[`SHAMA_EDITOR_FLASH+`SHAMA_SLOT_DATA_OFFSET+1]=8'h00;
+        flash[`SHAMA_EDITOR_FLASH+`SHAMA_SLOT_DATA_OFFSET+2]=8'h00;
+        flash[`SHAMA_EDITOR_FLASH+`SHAMA_SLOT_DATA_OFFSET+3]=8'h00;
 
         // Staged user executable.
         ram[16'hf000]=8'h44;
@@ -198,7 +217,13 @@ module tb_services;
         // Hardware-universal Editor button must work with no syscall at all.
         // Seed Editor again and simulate a stuck/halted app that never polls.
         flash[`SHAMA_EDITOR_FLASH+0]=8'h04;
-        flash[`SHAMA_EDITOR_FLASH+`SHAMA_SLOT_DATA_OFFSET]=8'h33;
+        flash[`SHAMA_EDITOR_FLASH+1]=8'h00;
+        flash[`SHAMA_EDITOR_FLASH+2]=8'h00;
+        flash[`SHAMA_EDITOR_FLASH+3]=8'h00;
+        flash[`SHAMA_EDITOR_FLASH+`SHAMA_SLOT_DATA_OFFSET+0]=8'h33;
+        flash[`SHAMA_EDITOR_FLASH+`SHAMA_SLOT_DATA_OFFSET+1]=8'h00;
+        flash[`SHAMA_EDITOR_FLASH+`SHAMA_SLOT_DATA_OFFSET+2]=8'h00;
+        flash[`SHAMA_EDITOR_FLASH+`SHAMA_SLOT_DATA_OFFSET+3]=8'h00;
         ram[`SHAMA_APP_RAM_BASE+100]=8'hee;
         cache[100]=8'hee;
 
