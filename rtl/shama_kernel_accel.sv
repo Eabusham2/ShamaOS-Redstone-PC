@@ -67,6 +67,7 @@ module shama_kernel_accel(
         SYS_UI_TERMINAL_VIEW= 12'h04b,
         SYS_UI_PAINT_VIEW   = 12'h04c,
         SYS_UI_SETTINGS_VIEW= 12'h04d,
+        SYS_UI_CALCULATOR_VIEW=12'h04e,
 
         SYS_MINER_LOG_RESULT = 12'h050,
         SYS_MINER_SAVE_STATE = 12'h051,
@@ -90,7 +91,8 @@ module shama_kernel_accel(
         VIEW_TERMINAL=5,
         VIEW_PAINT=6,
         VIEW_SETTINGS=7,
-        VIEW_GENERIC=8;
+        VIEW_CALCULATOR=8,
+        VIEW_GENERIC=9;
 
     localparam [255:0] TITLE_DESKTOP  = "SHAMAOS DESKTOP                 ";
     localparam [255:0] TITLE_FILES    = "FILE EXPLORER                   ";
@@ -100,6 +102,7 @@ module shama_kernel_accel(
     localparam [255:0] TITLE_TERMINAL = "TERMINAL                        ";
     localparam [255:0] TITLE_PAINT    = "PAINT                           ";
     localparam [255:0] TITLE_SETTINGS = "SETTINGS                        ";
+    localparam [255:0] TITLE_CALCULATOR = "CALCULATOR                      ";
     localparam [255:0] TITLE_GENERIC  = "SHAMAOS                         ";
 
     localparam [255:0] HELP_DESKTOP  = "A OPEN  EDITOR  FILES  EXIT     ";
@@ -110,6 +113,7 @@ module shama_kernel_accel(
     localparam [255:0] HELP_TERMINAL = "TYPE COMMAND  ENTER  EXIT       ";
     localparam [255:0] HELP_PAINT    = "DPAD MOVE  A DRAW  B ERASE      ";
     localparam [255:0] HELP_SETTINGS = "A SELECT  B BACK  EXIT          ";
+    localparam [255:0] HELP_CALCULATOR = "TYPE NUMBERS + - * / ENTER      ";
     localparam [255:0] HELP_GENERIC  = "HOME  EDITOR  FILES  EXIT       ";
 
     localparam [255:0] DESK_EDITOR   = "DESKTOP > EDITOR                ";
@@ -222,6 +226,7 @@ module shama_kernel_accel(
                 VIEW_TERMINAL:title_for=TITLE_TERMINAL;
                 VIEW_PAINT:title_for=TITLE_PAINT;
                 VIEW_SETTINGS:title_for=TITLE_SETTINGS;
+                VIEW_CALCULATOR:title_for=TITLE_CALCULATOR;
                 default:title_for=TITLE_GENERIC;
             endcase
         end
@@ -238,6 +243,7 @@ module shama_kernel_accel(
                 VIEW_TERMINAL:help_for=HELP_TERMINAL;
                 VIEW_PAINT:help_for=HELP_PAINT;
                 VIEW_SETTINGS:help_for=HELP_SETTINGS;
+                VIEW_CALCULATOR:help_for=HELP_CALCULATOR;
                 default:help_for=HELP_GENERIC;
             endcase
         end
@@ -309,7 +315,7 @@ module shama_kernel_accel(
     endfunction
 
     function automatic logic is_ui_sys(input logic [11:0] id);
-        is_ui_sys = (id>=SYS_UI_REDRAW && id<=SYS_UI_SETTINGS_VIEW);
+        is_ui_sys = (id>=SYS_UI_REDRAW && id<=SYS_UI_CALCULATOR_VIEW);
     endfunction
 
     function automatic [3:0] view_for_sys(input logic [11:0] id,input logic [3:0] oldview);
@@ -322,6 +328,7 @@ module shama_kernel_accel(
                 SYS_UI_TERMINAL_VIEW:view_for_sys=VIEW_TERMINAL;
                 SYS_UI_PAINT_VIEW:view_for_sys=VIEW_PAINT;
                 SYS_UI_SETTINGS_VIEW:view_for_sys=VIEW_SETTINGS;
+                SYS_UI_CALCULATOR_VIEW:view_for_sys=VIEW_CALCULATOR;
                 SYS_UI_REDRAW:view_for_sys=VIEW_DESKTOP;
                 default:view_for_sys=oldview;
             endcase
