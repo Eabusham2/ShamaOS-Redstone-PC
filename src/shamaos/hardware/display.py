@@ -70,12 +70,14 @@ def _same_polarity_depth_riser(
 
 
 def panel_ports(origin: Vec3, spec: LampPanelSpec) -> LampPanelPorts:
+    # System-router terminals are deliberately outside the latch matrix.
     data = tuple(
-        _map(origin, col * spec.pixel_pitch_x, 0, -2)
+        _map(origin, col * spec.pixel_pitch_x, -64, -2)
         for col in range(spec.width)
     )
+    remote_x = spec.physical_width + 64
     rows = tuple(
-        _map(origin, -6, 3, 1 + row * spec.pixel_pitch_y - 2)
+        _map(origin, remote_x, -2, 1 + row * spec.pixel_pitch_y - 2)
         for row in range(spec.height)
     )
     return LampPanelPorts(data, rows)
@@ -116,9 +118,44 @@ def iter_lamp_panel(
             else:
                 yield _place_virtual(origin, vx, 0, vz, DUST, component)
 
+        # Escape this column 64 blocks behind the panel before global routing.
+        # The signal travels toward increasing world-Z into the panel.
+        for depth in range(-64, 1):
+            yield _place_virtual(origin, vx, depth, -3, SUPPORT, component)
+            if depth > -64 and (depth + 64) % 10 == 0:
+                yield _place_virtual(
+                    origin, vx, depth, -2, repeater("south"), component
+                )
+            else:
+                yield _place_virtual(origin, vx, depth, -2, DUST, component)
+
     for row in range(spec.height):
         center = 1 + row * spec.pixel_pitch_y
         lock_line = center - 2
+
+        # External active-high row-select arrives from a terminal 64 blocks
+        # to the right of the panel on depth -2, then travels west outside the
+        # pixel circuitry and enters the local inverter at x=-6.
+        remote_x = spec.physical_width + 64
+        for n, vx in enumerate(range(remote_x, -7, -1)):
+            yield _place_virtual(origin, vx, -2, lock_line - 1, SUPPORT, component)
+            if n and n % 10 == 0:
+                yield _place_virtual(
+                    origin, vx, -2, lock_line, repeater("west"), component
+                )
+            else:
+                yield _place_virtual(origin, vx, -2, lock_line, DUST, component)
+
+        # Bring the row signal forward to the inverter while still outside the
+        # visible matrix.
+        for depth in range(-2, 4):
+            yield _place_virtual(origin, -6, depth, lock_line - 1, SUPPORT, component)
+            if depth > -2 and (depth + 2) % 4 == 0:
+                yield _place_virtual(
+                    origin, -6, depth, lock_line, repeater("south"), component
+                )
+            else:
+                yield _place_virtual(origin, -6, depth, lock_line, DUST, component)
 
         # External active-high row_select powers the inverter block; the torch
         # goes dark and the horizontal lock line releases only this row.
@@ -180,8 +217,3 @@ def iter_lamp_panel(
                 # Do not overwrite active circuit cells: use depth 4 as frame.
                 yield _place_virtual(origin, vx, 4, center, BLACK, component)
 
-    # Explicit terminal dust for row-select inputs.
-    ports = panel_ports(origin, spec)
-    for p in ports.row_select:
-        yield Placement(Vec3(p.x, p.y, p.z - 1), SUPPORT, component)
-        yield Placement(p, DUST, component)
