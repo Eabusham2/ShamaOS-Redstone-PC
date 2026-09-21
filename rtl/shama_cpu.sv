@@ -20,6 +20,9 @@ module shama_cpu (
 
     output logic         cache_flush,
     input  logic [63:0]  time_counter,
+    input  logic         external_hold,
+    input  logic         external_jump_valid,
+    input  logic [31:0]  external_jump_pc,
     output logic         halted,
     output logic         sha_busy
 );
@@ -284,6 +287,21 @@ module shama_cpu (
             dbg_w<=0; dbg_k<=32'h428a2f98;
             for (i=0;i<16;i=i+1) regs[i] <= 0;
             for (i=0;i<256;i=i+1) begin call_stack[i] <= 0; data_stack[i] <= 0; end
+        end else if(external_jump_valid) begin
+            pc <= external_jump_pc;
+            state <= S_FETCH;
+            halted <= 1'b0;
+            call_sp <= 0;
+            data_sp <= 0;
+            flag_z <= 0;flag_c <= 0;flag_n <= 0;flag_v <= 0;flag_valid <= 0;
+            cache_flush <= 0;
+            sha64_start <= 0;
+            dsha_start <= 0;
+            for (i=0;i<16;i=i+1) regs[i] <= 0;
+        end else if(external_hold) begin
+            cache_flush <= 0;
+            sha64_start <= 0;
+            dsha_start <= 0;
         end else begin
             cycle_counter <= cycle_counter + 1'b1;
             cache_flush <= 0;
