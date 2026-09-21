@@ -11,6 +11,8 @@ module shama_kernel_accel(
     output logic [63:0]  req_ret,
     output logic         req_jump_valid,
     output logic [31:0]  req_jump_pc,
+    output logic         req_load_app,
+    output logic [3:0]   req_app_id,
 
     input  logic [31:0]  ram_used_bytes,
     input  logic [31:0]  cache_used_bytes,
@@ -182,6 +184,8 @@ module shama_kernel_accel(
     logic [63:0] response;
     logic response_jump;
     logic [31:0] response_pc;
+    logic response_load_app;
+    logic [3:0] response_app_id;
 
     logic [3:0] current_view;
     logic [7:0] text_index;
@@ -341,6 +345,8 @@ module shama_kernel_accel(
         req_ret=response;
         req_jump_valid=(state==ST_RESP)&&response_jump;
         req_jump_pc=response_pc;
+        req_load_app=(state==ST_RESP)&&response_load_app;
+        req_app_id=response_app_id;
 
         fs_valid=(state==ST_FS);
         fs_id=latched_id;
@@ -417,12 +423,14 @@ module shama_kernel_accel(
             state<=ST_IDLE;
             latched_id<=0;latched_args<=0;
             response<=0;response_jump<=0;response_pc<=0;
+            response_load_app<=0;response_app_id<=0;
             current_view<=VIEW_DESKTOP;
             text_index<=0;
         end else begin
             if(state==ST_RESP && !req_valid) begin
                 state<=ST_IDLE;
                 response_jump<=0;
+                response_load_app<=0;
             end
 
             case(state)
@@ -430,21 +438,25 @@ module shama_kernel_accel(
                     latched_id<=req_id;
                     latched_args<=req_args;
                     response<=0;response_jump<=0;response_pc<=0;
+                    response_load_app<=0;response_app_id<=0;
 
                     if(req_id==SYS_APP_EVENT) begin
                         case(req_args[17:10])
                             EVT_HOME,EVT_EXIT: begin
                                 // Bit 63 asks shama_services to flush the
                                 // foreground slot and load app ID 0 (Desktop).
-                                response<=64'h8000000000000000;
+                                response_load_app<=1;
+                                response_app_id<=0;
                                 current_view<=VIEW_DESKTOP;
                             end
                             EVT_EDITOR: begin
-                                response<=64'h8000000000000001;
+                                response_load_app<=1;
+                                response_app_id<=1;
                                 current_view<=VIEW_EDITOR;
                             end
                             EVT_FILES: begin
-                                response<=64'h8000000000000002;
+                                response_load_app<=1;
+                                response_app_id<=2;
                                 current_view<=VIEW_FILES;
                             end
                             default: begin end
