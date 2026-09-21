@@ -104,7 +104,7 @@ jobs:
         run: |
           iverilog -g2012 -Wall -I rtl -s tb_services -o build_services.vvp \
             rtl/shama_services.sv rtl/tb_services.sv
-          vvp build_services.vvp
+          timeout 20s vvp build_services.vvp
       - name: Test ShamaFS accelerator
         run: |
           iverilog -g2012 -Wall -I rtl -s tb_fs_accel -o build_fs.vvp \
