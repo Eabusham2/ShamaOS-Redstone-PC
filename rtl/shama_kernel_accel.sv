@@ -109,6 +109,27 @@ module shama_kernel_accel(
     localparam [255:0] HELP_SETTINGS = "A SELECT  B BACK  EXIT          ";
     localparam [255:0] HELP_GENERIC  = "HOME  EDITOR  FILES  EXIT       ";
 
+    localparam [255:0] DESK_EDITOR   = "DESKTOP > EDITOR                ";
+    localparam [255:0] DESK_FILES    = "DESKTOP > FILE EXPLORER         ";
+    localparam [255:0] DESK_MINER    = "DESKTOP > BITCOIN MINER         ";
+    localparam [255:0] DESK_MONITOR  = "DESKTOP > SYSTEM MONITOR        ";
+    localparam [255:0] DESK_TERMINAL = "DESKTOP > TERMINAL              ";
+    localparam [255:0] DESK_CALC     = "DESKTOP > CALCULATOR            ";
+    localparam [255:0] DESK_PAINT    = "DESKTOP > PAINT                 ";
+    localparam [255:0] DESK_SETTINGS = "DESKTOP > SETTINGS              ";
+
+    localparam [255:0] FILES_DELETE  = "DELETE FILE? A YES  B NO        ";
+    localparam [255:0] FILES_TEXT    = "TEXT VIEW  UP/DOWN SCROLL       ";
+
+    localparam [255:0] EDIT_MENU     = "EDITOR > NEW TXT/PROGRAM/OPEN   ";
+    localparam [255:0] EDIT_NEW_TXT  = "EDITOR > NEW TEXT NAME          ";
+    localparam [255:0] EDIT_NEW_ASM  = "EDITOR > NEW PROGRAM NAME       ";
+    localparam [255:0] EDIT_EDIT     = "EDITOR > EDIT  A SAVE B MENU    ";
+    localparam [255:0] EDIT_ACTIONS  = "EDITOR > ACTIONS A SELECT       ";
+    localparam [255:0] EDIT_DELETE   = "DELETE FILE? A YES  B NO        ";
+    localparam [255:0] EDIT_RENAME   = "EDITOR > RENAME                 ";
+    localparam [255:0] EDIT_SAVE_AS  = "EDITOR > SAVE AS                ";
+
     typedef enum logic [5:0] {
         ST_IDLE,
         ST_EVENT_RESP,
@@ -160,9 +181,39 @@ module shama_kernel_accel(
     function automatic [255:0] title_for(input logic [3:0] view);
         begin
             case(view)
-                VIEW_DESKTOP:title_for=TITLE_DESKTOP;
-                VIEW_FILES:title_for=TITLE_FILES;
-                VIEW_EDITOR:title_for=TITLE_EDITOR;
+                VIEW_DESKTOP: begin
+                    case(latched_args[3:0])
+                        4'd1:title_for=DESK_EDITOR;
+                        4'd2:title_for=DESK_FILES;
+                        4'd3:title_for=DESK_MINER;
+                        4'd4:title_for=DESK_MONITOR;
+                        4'd5:title_for=DESK_TERMINAL;
+                        4'd6:title_for=DESK_CALC;
+                        4'd7:title_for=DESK_PAINT;
+                        4'd8:title_for=DESK_SETTINGS;
+                        default:title_for=TITLE_DESKTOP;
+                    endcase
+                end
+                VIEW_FILES: begin
+                    case(latched_args[35:32])
+                        4'd1:title_for=FILES_DELETE;
+                        4'd2:title_for=FILES_TEXT;
+                        default:title_for=TITLE_FILES;
+                    endcase
+                end
+                VIEW_EDITOR: begin
+                    case(latched_args[3:0])
+                        4'd0:title_for=EDIT_MENU;
+                        4'd1:title_for=EDIT_NEW_TXT;
+                        4'd2:title_for=EDIT_NEW_ASM;
+                        4'd3:title_for=EDIT_EDIT;
+                        4'd4:title_for=EDIT_ACTIONS;
+                        4'd5:title_for=EDIT_DELETE;
+                        4'd6:title_for=EDIT_RENAME;
+                        4'd7:title_for=EDIT_SAVE_AS;
+                        default:title_for=TITLE_EDITOR;
+                    endcase
+                end
                 VIEW_MINER:title_for=TITLE_MINER;
                 VIEW_MONITOR:title_for=TITLE_MONITOR;
                 VIEW_TERMINAL:title_for=TITLE_TERMINAL;
