@@ -44,7 +44,10 @@ module shama_services(
     input  logic [3:0]   ext_app_id,
 
     output logic         os_loaded,
-    output logic [3:0]   foreground_app
+    output logic [3:0]   foreground_app,
+    output logic         cpu_hold,
+    output logic         cpu_force_jump,
+    output logic [31:0]  cpu_force_pc
 );
     localparam [11:0]
         SYS_EXIT                = 12'h001,
@@ -62,6 +65,12 @@ module shama_services(
         SYS_GET_KEY             = 12'h030,
         SYS_GET_CONTROLLER      = 12'h031,
         SYS_RUN_BUFFER          = 12'h061;
+
+    localparam [7:0]
+        EVT_HOME   = 8'h16,
+        EVT_EXIT   = 8'h17,
+        EVT_EDITOR = 8'h18,
+        EVT_FILES  = 8'h19;
 
     typedef enum logic [3:0] {
         ST_IDLE,
@@ -101,6 +110,8 @@ module shama_services(
     logic [63:0] response;
     logic response_jump;
     logic [31:0] response_pc;
+    logic async_switch;
+    logic force_jump_pulse;
 
     function automatic [31:0] app_flash(input logic [3:0] app_id);
         begin
@@ -121,6 +132,22 @@ module shama_services(
 
     function automatic logic valid_app(input logic [31:0] app_id);
         valid_app = app_id <= 8;
+    endfunction
+
+    function automatic logic universal_event(input logic [7:0] code);
+        universal_event =
+            code==EVT_HOME || code==EVT_EXIT ||
+            code==EVT_EDITOR || code==EVT_FILES;
+    endfunction
+
+    function automatic [3:0] universal_app(input logic [7:0] code);
+        begin
+            case(code)
+                EVT_EDITOR: universal_app=4'd1;
+                EVT_FILES:  universal_app=4'd2;
+                default:    universal_app=4'd0;
+            endcase
+        end
     endfunction
 
     function automatic [31:0] workspace_bytes(input logic [3:0] app_id);
@@ -161,6 +188,7 @@ module shama_services(
     task automatic begin_app_replace(input logic [3:0] app_id);
         begin
             target_app <= app_id;
+            async_switch <= 1'b0;
             run_staged <= 1'b0;
             app_loaded_bytes <= 0;
             copy_offset <= 0;
@@ -173,6 +201,10 @@ module shama_services(
         sys_ret = response;
         sys_jump_valid = (state == ST_RESP) && response_jump;
         sys_jump_pc = response_pc;
+
+        cpu_hold = async_switch;
+        cpu_force_jump = force_jump_pulse;
+        cpu_force_pc = `SHAMA_PC_APP;
 
         ext_valid = (state == ST_EXT);
         ext_id = latched_id;
@@ -266,12 +298,15 @@ module shama_services(
             response <= 0;
             response_jump <= 0;
             response_pc <= 0;
+            async_switch <= 0;
+            force_jump_pulse <= 0;
 
             event_ack <= 0;
             os_loaded <= 0;
             foreground_app <= 0;
         end else begin
             event_ack <= 0;
+            force_jump_pulse <= 0;
 
             if(state == ST_RESP && !sys_valid) begin
                 state <= ST_IDLE;
@@ -280,7 +315,15 @@ module shama_services(
 
             case(state)
                 ST_IDLE: begin
-                    if(sys_valid) begin
+                    if(event_valid && universal_event(event_code)) begin
+                        event_ack <= 1'b1;
+                        async_switch <= 1'b1;
+                        target_app <= universal_app(event_code);
+                        run_staged <= 1'b0;
+                        app_loaded_bytes <= 0;
+                        copy_offset <= 0;
+                        state <= ST_APP_CLEAR_RAM;
+                    end else if(sys_valid) begin
                         latched_id <= sys_id;
                         latched_args <= sys_args;
                         response <= 0;
@@ -326,6 +369,7 @@ module shama_services(
                                         state <= ST_RESP;
                                     end else begin
                                         target_app <= 4'hf;
+                                        async_switch <= 1'b0;
                                         run_staged <= 1'b1;
                                         staged_source_ptr <= sys_args[31:0];
                                         staged_bytes <= sys_args[63:32];
@@ -470,12 +514,18 @@ module shama_services(
                         if(copy_offset + 4 >= copy_bytes) begin
                             app_loaded_bytes <= copy_bytes;
                             foreground_app <= target_app;
-                            response <= copy_bytes;
-                            response_jump <= 1'b1;
-                            response_pc <= `SHAMA_PC_APP;
                             os_loaded <= 1'b1;
                             run_staged <= 1'b0;
-                            state <= ST_RESP;
+                            if(async_switch) begin
+                                force_jump_pulse <= 1'b1;
+                                async_switch <= 1'b0;
+                                state <= ST_IDLE;
+                            end else begin
+                                response <= copy_bytes;
+                                response_jump <= 1'b1;
+                                response_pc <= `SHAMA_PC_APP;
+                                state <= ST_RESP;
+                            end
                         end else begin
                             copy_offset <= copy_offset + 4;
                             state <= ST_COPY_READ;
