@@ -15,6 +15,9 @@ module shama_kernel_accel(
     input  logic [31:0]  ram_used_bytes,
     input  logic [31:0]  cache_used_bytes,
     input  logic [31:0]  flash_used_bytes,
+    input  logic         cpu_halted,
+    input  logic         sha_busy,
+    input  logic         gpu_busy,
 
     output logic         gpu_valid,
     output logic         gpu_we,
@@ -251,6 +254,28 @@ module shama_kernel_accel(
         hex_char = (nib < 10) ? ("0"+nib) : ("A"+(nib-10));
     endfunction
 
+    function automatic [7:0] monitor_char(input integer index);
+        integer digit;
+        begin
+            case(index)
+                0:monitor_char="C";1:monitor_char="Y";2:monitor_char="C";3:monitor_char=" ";
+                12:monitor_char=" ";13:monitor_char="I";14:monitor_char="N";15:monitor_char="S";
+                16:monitor_char="T";17:monitor_char=" ";
+                26:monitor_char=" ";27:monitor_char="C";28:monitor_char=cpu_halted?"H":"R";
+                29:monitor_char=sha_busy?"B":"I";30:monitor_char="G";31:monitor_char=gpu_busy?"B":"I";
+                default:begin
+                    if(index>=4 && index<12) begin
+                        digit=11-index;
+                        monitor_char=hex_char(latched_args[digit*4 +: 4]);
+                    end else if(index>=18 && index<26) begin
+                        digit=25-index;
+                        monitor_char=hex_char(latched_args[32+digit*4 +: 4]);
+                    end else monitor_char=" ";
+                end
+            endcase
+        end
+    endfunction
+
     function automatic [7:0] status_char(input integer index);
         integer digit;
         begin
@@ -349,7 +374,10 @@ module shama_kernel_accel(
 
             ST_UI_HELP_TEXT: begin
                 gpu_valid=1;gpu_addr=12'h480+text_index;
-                gpu_wdata={24'd0,packed_char(help_for(current_view),text_index)};
+                if(current_view==VIEW_MONITOR)
+                    gpu_wdata={24'd0,monitor_char(text_index)};
+                else
+                    gpu_wdata={24'd0,packed_char(help_for(current_view),text_index)};
             end
             ST_UI_HELP_A0: begin gpu_valid=1;gpu_addr=12'h008;gpu_wdata=128;end
             ST_UI_HELP_A1: begin gpu_valid=1;gpu_addr=12'h00c;gpu_wdata=32;end
