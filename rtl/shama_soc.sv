@@ -75,6 +75,8 @@ module shama_soc(
     logic [31:0] sys_jump_pc;
     logic cache_flush;
     logic sha_busy;
+    logic cpu_hold,cpu_force_jump;
+    logic [31:0] cpu_force_pc;
 
     shama_cpu u_cpu(
         .clk,.rst,
@@ -83,7 +85,10 @@ module shama_soc(
         .mem_ready(cpu_mem_ready),.mem_rdata(cpu_mem_rdata),
         .sys_valid,.sys_id,.sys_args,.sys_ready,.sys_ret,
         .sys_jump_valid,.sys_jump_pc,
-        .cache_flush,.time_counter,.halted,.sha_busy
+        .cache_flush,.time_counter,
+        .external_hold(cpu_hold),.external_jump_valid(cpu_force_jump),
+        .external_jump_pc(cpu_force_pc),
+        .halted,.sha_busy
     );
 
     // ---------------- Physical input ----------------
@@ -179,7 +184,8 @@ module shama_soc(
         .ext_ready(ext_ready),.ext_ret(ext_ret),
         .ext_jump_valid(ext_jump_valid),.ext_jump_pc(ext_jump_pc),
         .ext_load_app,.ext_app_id,
-        .os_loaded,.foreground_app
+        .os_loaded,.foreground_app,
+        .cpu_hold,.cpu_force_jump,.cpu_force_pc
     );
 
     // ---------------- Kernel GUI + syscall dispatcher ----------------
