@@ -324,7 +324,15 @@ ADD r7 r7 r14
 JMP .redraw
 
 .viewer_edit
-CALL .prepare_editor_context
+CALL .cap_edit_length
+LDI r13 4095
+CMP r11 r13
+BR.LE .cap_edit_done
+MOV r11 r13
+.cap_edit_done
+RET
+
+.prepare_editor_context
 LDI r1 1
 SYS SYS_APP_LAUNCH
 HLT
@@ -347,6 +355,7 @@ BR.EQ .run_binary
 JMP .redraw
 
 .open_text
+CALL .cap_edit_length
 MOV r1 r8
 INC r1
 LDI r2 EDIT_BUF
@@ -357,6 +366,7 @@ LDI r9 2
 JMP .redraw
 
 .open_editor
+CALL .cap_edit_length
 MOV r1 r8
 INC r1
 LDI r2 EDIT_BUF
@@ -378,6 +388,7 @@ LDI r13 TYPE_ASM
 CMP r12 r13
 BR.NE .redraw
 .edit_read
+CALL .cap_edit_length
 MOV r1 r8
 INC r1
 LDI r2 EDIT_BUF
