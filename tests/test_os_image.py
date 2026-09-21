@@ -66,3 +66,11 @@ def test_miner_persistent_records_have_fixed_capacity():
     assert history.file_type == FileType.LOG
     assert len(state.data) == 256
     assert len(history.data) == 16 << 10
+
+
+def test_miner_hardware_file_entries_are_stable():
+    image = build_default_os_image()
+    fs = ShamaFS.deserialize(image.image)
+    names = [entry.name for entry in fs.list_files()]
+    assert names.index("miner-history.log") == 13
+    assert names.index("miner-state.cfg") == 14
