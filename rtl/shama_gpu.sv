@@ -25,7 +25,8 @@ module shama_gpu #(
     output logic        disp_valid,
     output logic [15:0] disp_index,
     output logic        disp_bit,
-    input  logic        disp_ready
+    input  logic        disp_ready,
+    output logic        busy
 );
     localparam integer PIXELS = WIDTH*HEIGHT;
     localparam integer FRAME_BYTES = (PIXELS+7)/8;
@@ -192,6 +193,8 @@ module shama_gpu #(
             packed_bit_index=idx & 31;
         end
     endfunction
+
+    assign busy = (state != ST_IDLE) || (q_count != 0);
 
     wire push_event=mmio_valid && mmio_we && mmio_addr==12'h028 && q_count<QUEUE_DEPTH;
     wire pop_event=(state==ST_IDLE) && (q_count!=0) && !(
