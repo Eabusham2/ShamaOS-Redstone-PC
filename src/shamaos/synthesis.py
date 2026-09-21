@@ -143,7 +143,7 @@ def synthesize_json(
 
     script = "\n".join(
         [
-            "read_verilog -sv " + " ".join(_quote_yosys(p) for p in rtl_files),
+            "read_verilog -sv -I " + _quote_yosys(root / "rtl") + " " + " ".join(_quote_yosys(p) for p in rtl_files),
             f"hierarchy -check -top {top}",
             mapping,
             f"write_json {_quote_yosys(output)}",
