@@ -5,6 +5,7 @@ import math
 from typing import Iterator
 
 from ..model import BlockState, Placement, Vec3
+from .routing import iter_stair
 from .memory import (
     DUST,
     SUPPORT,
@@ -88,74 +89,6 @@ def _wire_z(
             yield Placement(Vec3(x, y, z), DUST, component)
 
 
-def _stair_x(
-    start: Vec3,
-    end: Vec3,
-    *,
-    component: str,
-) -> Iterator[Placement]:
-    """Dust staircase along X; |dx| must be >= |dy| and Z is constant."""
-    if start.z != end.z:
-        raise ValueError("X staircase requires a constant Z")
-    dx = end.x - start.x
-    dy = end.y - start.y
-    steps = abs(dx)
-    if steps < abs(dy):
-        raise ValueError("not enough horizontal run for X staircase")
-    sx = 1 if dx >= 0 else -1
-    sy = 1 if dy >= 0 else -1
-    remaining_y = abs(dy)
-    y = start.y
-    for n in range(steps + 1):
-        x = start.x + sx * n
-        if n and remaining_y and (steps - n + 1) >= remaining_y:
-            y += sy
-            remaining_y -= 1
-        yield Placement(Vec3(x, y - 1, start.z), SUPPORT, component)
-        if n and n % 10 == 0:
-            yield Placement(
-                Vec3(x, y, start.z),
-                repeater("east" if sx > 0 else "west"),
-                component,
-            )
-        else:
-            yield Placement(Vec3(x, y, start.z), DUST, component)
-
-
-def _stair_z(
-    start: Vec3,
-    end: Vec3,
-    *,
-    component: str,
-) -> Iterator[Placement]:
-    """Dust staircase along Z; |dz| must be >= |dy| and X is constant."""
-    if start.x != end.x:
-        raise ValueError("Z staircase requires a constant X")
-    dz = end.z - start.z
-    dy = end.y - start.y
-    steps = abs(dz)
-    if steps < abs(dy):
-        raise ValueError("not enough horizontal run for Z staircase")
-    sz = 1 if dz >= 0 else -1
-    sy = 1 if dy >= 0 else -1
-    remaining_y = abs(dy)
-    y = start.y
-    for n in range(steps + 1):
-        z = start.z + sz * n
-        if n and remaining_y and (steps - n + 1) >= remaining_y:
-            y += sy
-            remaining_y -= 1
-        yield Placement(Vec3(start.x, y - 1, z), SUPPORT, component)
-        if n and n % 10 == 0:
-            yield Placement(
-                Vec3(start.x, y, z),
-                repeater("south" if sz > 0 else "north"),
-                component,
-            )
-        else:
-            yield Placement(Vec3(start.x, y, z), DUST, component)
-
-
 def _and3_to_target(
     a: Vec3,
     b: Vec3,
@@ -213,7 +146,7 @@ def _and3_to_target(
     # The 192-block bank corridor leaves plenty of run to descend to the
     # bank's row-select terminal without entering the bit-cell area.
     stair_end = Vec3(target.x - 4, target.y, gate_out.z)
-    yield from _stair_x(gate_out, stair_end, component=component)
+    yield from iter_stair(gate_out, stair_end, axis="x", signal_forward=True, component=component)
     yield from _wire_z(
         stair_end.x,
         target.y,
@@ -334,9 +267,11 @@ def iter_memory_backbone(
 
             # Raise the selector by two blocks before the horizontal branch so
             # branches cross other selector spines without joining them.
-            yield from _stair_z(
+            yield from iter_stair(
                 Vec3(lane_x, row_spine_y, center - 4),
                 Vec3(lane_x, row_branch_y, center),
+                axis="z",
+                signal_forward=True,
                 component=component,
             )
             yield from _wire_x(
@@ -405,9 +340,11 @@ def iter_memory_backbone(
             for bank in range(first_bank, last_bank):
                 bo = _bank_origin(origin, fabric, bank)
                 bp = bank_ports(bo, spec).data_in[bit]
-                yield from _stair_z(
+                yield from iter_stair(
                     Vec3(bp.x, y, branch_z),
                     bp,
+                    axis="z",
+                    signal_forward=True,
                     component=component,
                 )
 
@@ -443,9 +380,11 @@ def iter_memory_backbone(
             for bank in range(first_bank, last_bank):
                 bo = _bank_origin(origin, fabric, bank)
                 bp = bank_ports(bo, spec).data_out[bit]
-                yield from _stair_z(
+                yield from iter_stair(
                     bp,
                     Vec3(bp.x, y, branch_z),
+                    axis="z",
+                    signal_forward=True,
                     component=component,
                 )
 
@@ -472,9 +411,11 @@ def iter_memory_backbone(
             facing="south",
             component=component,
         )
-        yield from _stair_z(
+        yield from iter_stair(
             Vec3(bank_terminal.x, bank_terminal.y, bank_branch_z - 6),
             Vec3(bank_terminal.x, bank_y, bank_branch_z),
+            axis="z",
+            signal_forward=True,
             component=component,
         )
         yield from _wire_x(
@@ -534,19 +475,25 @@ def iter_memory_backbone(
             write_bank = Vec3(bo.x - 148, gate_y, write_z)
             write_en = Vec3(bo.x - 134, gate_y, write_z)
 
-            yield from _stair_x(
+            yield from iter_stair(
                 Vec3(row_tap.x, row_branch_y, write_z),
                 write_row,
+                axis="x",
+                signal_forward=True,
                 component=component,
             )
-            yield from _stair_x(
+            yield from iter_stair(
                 Vec3(bank_x, bank_y, write_z),
                 write_bank,
+                axis="x",
+                signal_forward=True,
                 component=component,
             )
-            yield from _stair_x(
+            yield from iter_stair(
                 Vec3(write_x, write_y, write_z),
                 write_en,
+                axis="x",
+                signal_forward=True,
                 component=component,
             )
             yield from _and3_to_target(
@@ -562,19 +509,25 @@ def iter_memory_backbone(
             read_bank = Vec3(bo.x - 148, gate_y, read_z)
             read_en = Vec3(bo.x - 132, gate_y, read_z)
 
-            yield from _stair_x(
+            yield from iter_stair(
                 Vec3(row_tap.x, row_branch_y, read_z),
                 read_row,
+                axis="x",
+                signal_forward=True,
                 component=component,
             )
-            yield from _stair_x(
+            yield from iter_stair(
                 Vec3(bank_x, bank_y, read_z),
                 read_bank,
+                axis="x",
+                signal_forward=True,
                 component=component,
             )
-            yield from _stair_x(
+            yield from iter_stair(
                 Vec3(read_x, read_y, read_z),
                 read_en,
+                axis="x",
+                signal_forward=True,
                 component=component,
             )
             yield from _and3_to_target(
