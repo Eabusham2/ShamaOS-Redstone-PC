@@ -319,7 +319,7 @@ ADD r13 r13 r5
 LDB r4 r13 0
 LDI r14 GPU_TEXT_CONTENT
 ADD r14 r14 r5
-STW r14 r4 0
+STB r14 r4 0
 INC r5
 JMP .copy_name
 
@@ -372,7 +372,7 @@ ADD r13 r13 r5
 LDB r4 r13 0
 LDI r14 GPU_TEXT_CONTENT
 ADD r14 r14 r5
-STW r14 r4 0
+STB r14 r4 0
 INC r5
 JMP .copy_text
 
