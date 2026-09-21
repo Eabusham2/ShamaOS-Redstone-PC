@@ -68,5 +68,8 @@ SYS SYS_APP_LAUNCH
 HLT
 
 .idle
+; Keep RAM/cache/flash indicators live even without controller input.
+MOV r1 r8
+SYS SYS_UI_STATUSBAR
 SYS SYS_YIELD
 JMP .loop
