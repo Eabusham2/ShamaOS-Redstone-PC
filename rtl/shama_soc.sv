@@ -1,6 +1,8 @@
 `include "shama_boot_params.svh"
 
-module shama_soc(
+module shama_soc #(
+    parameter integer CORE_DIV_BIT = 17
+)(
     input  logic         clk,
     input  logic         power_switch,
     input  logic         reset_button,
@@ -58,6 +60,21 @@ module shama_soc(
     logic rst;
     assign rst = reset_button | ~power_switch;
 
+    // Raw physical clock stays fast enough to latch short keyboard/controller
+    // events. Core logic runs extremely slowly so the longest literal
+    // RAM/flash redstone routes settle before the next architectural edge.
+    // During reset, core_clk follows the raw clock so every state element
+    // receives multiple reset edges before the physical clock stops.
+    logic [CORE_DIV_BIT:0] core_div_counter;
+    logic core_clk;
+
+    always_ff @(posedge clk) begin
+        if(rst) core_div_counter <= '0;
+        else core_div_counter <= core_div_counter + 1'b1;
+    end
+
+    assign core_clk = rst ? clk : core_div_counter[CORE_DIV_BIT];
+
     logic [63:0] time_counter;
     always_ff @(posedge clk) begin
         if(rst) time_counter <= 0;
@@ -79,7 +96,7 @@ module shama_soc(
     logic [31:0] cpu_force_pc;
 
     shama_cpu u_cpu(
-        .clk,.rst,
+        .clk(core_clk),.rst,
         .mem_valid(cpu_mem_valid),.mem_we(cpu_mem_we),.mem_addr(cpu_mem_addr),
         .mem_wdata(cpu_mem_wdata),.mem_wstrb(cpu_mem_wstrb),
         .mem_ready(cpu_mem_ready),.mem_rdata(cpu_mem_rdata),
@@ -115,7 +132,7 @@ module shama_soc(
     logic [3:0] gpu_vram_wstrb;
 
     shama_gpu #(.WIDTH(320),.HEIGHT(180),.QUEUE_DEPTH(8)) u_gpu(
-        .clk,.rst,
+        .clk(core_clk),.rst,
         .mmio_valid(gpu_mmio_valid),.mmio_we(gpu_mmio_we),
         .mmio_addr(gpu_mmio_addr),.mmio_wdata(gpu_mmio_wdata),
         .mmio_wstrb(gpu_mmio_wstrb),.mmio_ready(gpu_mmio_ready),.mmio_rdata(gpu_mmio_rdata),
@@ -127,7 +144,7 @@ module shama_soc(
     );
 
     shama_display_bridge #(.WIDTH(320),.HEIGHT(180)) u_display_bridge(
-        .clk,.rst,
+        .clk(core_clk),.rst,
         .pixel_valid(gpu_disp_valid),
         .pixel_index(gpu_disp_index),
         .pixel_bit(gpu_disp_bit),
@@ -147,7 +164,7 @@ module shama_soc(
 
     // ---------------- Dedicated physical 32 KiB VRAM ----------------
     shama_vram_adapter u_vram(
-        .clk,.rst,
+        .clk(core_clk),.rst,
         .req_valid(gpu_vram_valid),.req_we(gpu_vram_we),
         .req_addr({17'd0,gpu_vram_addr}),.req_wdata(gpu_vram_wdata),
         .req_wstrb(gpu_vram_wstrb),
@@ -173,7 +190,7 @@ module shama_soc(
     logic [3:0] foreground_app;
 
     shama_services u_services(
-        .clk,.rst,
+        .clk(core_clk),.rst,
         .sys_valid,.sys_id,.sys_args,.sys_ready,.sys_ret,.sys_jump_valid,.sys_jump_pc,
         .event_valid,.event_code,.key_code,.controller_latched,.event_ack,
         .flash_used_bytes,.time_counter,.ram_used_bytes,.cache_used_bytes,
@@ -204,7 +221,7 @@ module shama_soc(
     logic [63:0] asm_call_ret;
 
     shama_kernel_accel u_kernel(
-        .clk,.rst,
+        .clk(core_clk),.rst,
         .req_valid(ext_valid),.req_id(ext_id),.req_args(ext_args),
         .req_ready(ext_ready),.req_ret(ext_ret),
         .req_jump_valid(ext_jump_valid),.req_jump_pc(ext_jump_pc),
@@ -226,7 +243,7 @@ module shama_soc(
     logic fs_mounted;
 
     shama_fs_accel u_fs(
-        .clk,.rst,
+        .clk(core_clk),.rst,
         .req_valid(fs_call_valid),.req_id(fs_call_id),.req_args(fs_call_args),
         .req_ready(fs_call_ready),.req_ret(fs_call_ret),
         .dma_valid(fs_dma_valid),.dma_we(fs_dma_we),.dma_flash(fs_dma_flash),
@@ -243,7 +260,7 @@ module shama_soc(
     logic [3:0] asm_dma_wstrb;
 
     shama_asm_accel u_asm(
-        .clk,.rst,
+        .clk(core_clk),.rst,
         .req_valid(asm_call_valid),.req_args(asm_call_args),
         .req_ready(asm_call_ready),.req_ret(asm_call_ret),
         .dma_valid(asm_dma_valid),.dma_we(asm_dma_we),.dma_flash(asm_dma_flash),
@@ -257,7 +274,7 @@ module shama_soc(
     logic [3:0] cache_req_wstrb;
 
     shama_cache_adapter u_cache(
-        .clk,.rst,
+        .clk(core_clk),.rst,
         .req_valid(cache_req_valid),.req_we(cache_req_we),
         .req_addr(cache_req_addr),.req_wdata(cache_req_wdata),.req_wstrb(cache_req_wstrb),
         .req_ready(cache_req_ready),.req_rdata(cache_req_rdata),
@@ -271,7 +288,7 @@ module shama_soc(
     logic [3:0] ram_req_wstrb;
 
     shama_ram_adapter u_ram(
-        .clk,.rst,
+        .clk(core_clk),.rst,
         .req_valid(ram_req_valid),.req_we(ram_req_we),
         .req_addr(ram_req_addr),.req_wdata(ram_req_wdata),.req_wstrb(ram_req_wstrb),
         .req_ready(ram_req_ready),.req_rdata(ram_req_rdata),
@@ -285,7 +302,7 @@ module shama_soc(
     logic [3:0] flash_req_wstrb;
 
     shama_flash_adapter u_flash(
-        .clk,.rst,
+        .clk(core_clk),.rst,
         .req_valid(flash_req_valid),.req_we(flash_req_we),
         .req_addr(flash_req_addr),.req_wdata(flash_req_wdata),.req_wstrb(flash_req_wstrb),
         .req_ready(flash_req_ready),.req_rdata(flash_req_rdata),
