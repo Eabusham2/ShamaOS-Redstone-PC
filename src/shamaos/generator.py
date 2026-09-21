@@ -29,6 +29,13 @@ class PhysicalSection:
     metadata: dict[str, object]
 
 
+@dataclass(frozen=True)
+class GenerationResult:
+    written_blocks: int
+    system_metadata: dict[str, object]
+    stage_counts: dict[str, int]
+
+
 def load_config(path: str | Path) -> dict:
     return tomllib.loads(Path(path).read_text(encoding="utf-8"))
 
@@ -257,13 +264,48 @@ def write_available_placements(
     world_path: str | Path,
     config: dict,
     plan: BuildPlan,
-) -> int:
-    """Stream the full regular physical fabrics into a disposable Java world."""
+) -> GenerationResult:
+    """Generate and write the complete physical ShamaOS topology.
+
+    Large regular storage/display/input fabrics are emitted directly. The
+    stateful CPU/SHA/GPU/kernel/filesystem/assembler/control logic is synthesized
+    from RTL into real redstone cells. A crossing-safe router then joins the
+    named SoC ports to every physical fabric.
+    """
+    from .system_build import (
+        iter_interconnect,
+        iter_logic,
+        iter_system_infrastructure,
+        prepare_system,
+    )
+
     save_every = max(
         1,
         int(config.get("generator", {}).get("save_every_blocks", 250_000)),
     )
+    build_dir = Path(
+        config.get("generator", {}).get("build_dir", "build/physical")
+    )
+    prepared = prepare_system(config, build_dir=build_dir)
+
     count = 0
+    stage_counts: dict[str, int] = {}
+
+    def emit(
+        writer: AmuletWorldWriter,
+        name: str,
+        placements: Iterator[Placement],
+    ) -> None:
+        nonlocal count
+        stage = 0
+        for placement in placements:
+            writer.set_block(placement)
+            count += 1
+            stage += 1
+            if count % save_every == 0:
+                writer.save()
+        stage_counts[name] = stage
+        writer.save()
 
     with AmuletWorldWriter(
         world_path,
@@ -276,12 +318,30 @@ def write_available_placements(
             ),
         ),
     ) as writer:
+        # Huge regular physical fabrics.
         for section in physical_sections(config):
-            for placement in section.factory():
-                writer.set_block(placement)
-                count += 1
-                if count % save_every == 0:
-                    writer.save()
-            writer.save()
+            emit(writer, section.name, section.factory())
 
-    return count
+        # Clock, constants and cache/RAM/4 MiB flash backbones.
+        emit(
+            writer,
+            "system-infrastructure",
+            iter_system_infrastructure(config, prepared),
+        )
+
+        # CPU + native SHA + GPU + kernel + ShamaFS + in-world assembler.
+        emit(writer, "synthesized-soc", iter_logic(prepared))
+
+        # Named long-distance port wiring is last so it lands on every existing
+        # terminal and can safely overlay terminal dust/support blocks.
+        emit(writer, "system-interconnect", iter_interconnect(prepared))
+
+    metadata = dict(prepared.metadata)
+    metadata["stage_counts"] = dict(stage_counts)
+    metadata["written_blocks"] = count
+
+    return GenerationResult(
+        written_blocks=count,
+        system_metadata=metadata,
+        stage_counts=stage_counts,
+    )
