@@ -4,19 +4,23 @@ from dataclasses import dataclass
 from typing import Iterator
 
 from ..model import BlockState, Placement, Vec3
-from .memory import DUST, SUPPORT, TORCH, repeater
+from .memory import DUST, SUPPORT, repeater
+from .routing import iter_stair
 
 
 LAMP_OFF = BlockState.of("minecraft:redstone_lamp", lit="false")
 BLACK = BlockState.of("minecraft:black_concrete")
+WALL_TORCH_E = BlockState.of(
+    "minecraft:redstone_wall_torch", facing="east", lit="true"
+)
 
 
 @dataclass(frozen=True)
 class LampPanelSpec:
     width: int = 320
     height: int = 180
-    pixel_pitch_x: int = 4
-    pixel_pitch_y: int = 2
+    pixel_pitch_x: int = 5
+    pixel_pitch_y: int = 5
 
     @property
     def physical_width(self) -> int:
@@ -24,11 +28,13 @@ class LampPanelSpec:
 
     @property
     def physical_height(self) -> int:
+        # Row extent on world Z.
         return self.height * self.pixel_pitch_y
 
     @property
     def depth(self) -> int:
-        return 5
+        # Vertical circuit/lamp thickness on world Y.
+        return 6
 
 
 @dataclass(frozen=True)
@@ -37,50 +43,70 @@ class LampPanelPorts:
     row_select: tuple[Vec3, ...]
 
 
-def _map(origin: Vec3, vx: int, vy_depth: int, vz_row: int) -> Vec3:
-    """Virtual x/z matrix -> vertical world x/y, with circuit depth on world z."""
-    return Vec3(origin.x + vx, origin.y + vz_row, origin.z + vy_depth)
-
-
-def _place_virtual(
-    origin: Vec3,
-    vx: int,
-    vy: int,
-    vz: int,
-    block: BlockState,
-    component: str,
-) -> Placement:
-    return Placement(_map(origin, vx, vy, vz), block, component)
-
-
-def _same_polarity_depth_riser(
-    origin: Vec3,
-    vx: int,
-    vz: int,
-    *,
-    component: str,
-) -> Iterator[Placement]:
-    # Same two-torch non-inverting riser used by memory, rotated so "height"
-    # becomes panel depth.  Data buses live at virtual depth 0 and the latch
-    # plane at virtual depth 3.
-    yield _place_virtual(origin, vx, 0, vz, SUPPORT, component)
-    yield _place_virtual(origin, vx, 1, vz, TORCH, component)
-    yield _place_virtual(origin, vx, 2, vz, SUPPORT, component)
-    yield _place_virtual(origin, vx, 3, vz, TORCH, component)
-
-
 def panel_ports(origin: Vec3, spec: LampPanelSpec) -> LampPanelPorts:
-    # System-router terminals are deliberately outside the latch matrix.
+    data_y = origin.y + 1
+    row_y = origin.y - 2
+
     data = tuple(
-        _map(origin, col * spec.pixel_pitch_x, -64, -2)
+        Vec3(
+            origin.x + col * spec.pixel_pitch_x,
+            data_y,
+            origin.z - 64,
+        )
         for col in range(spec.width)
     )
-    remote_x = spec.physical_width + 64
     rows = tuple(
-        _map(origin, remote_x, -2, 1 + row * spec.pixel_pitch_y - 2)
+        Vec3(
+            origin.x - 64,
+            row_y,
+            origin.z + row * spec.pixel_pitch_y - 2,
+        )
         for row in range(spec.height)
     )
     return LampPanelPorts(data, rows)
+
+
+def _wire_x(
+    x0: int,
+    x1: int,
+    y: int,
+    z: int,
+    *,
+    component: str,
+    facing: str,
+    tap_mod: int = 5,
+) -> Iterator[Placement]:
+    step = 1 if x1 >= x0 else -1
+    for n, x in enumerate(range(x0, x1 + step, step)):
+        yield Placement(Vec3(x, y - 1, z), SUPPORT, component)
+        # Keep repeaters between pixel tap coordinates.
+        use_repeater = n and n % 10 == 3 and n % tap_mod != 0
+        yield Placement(
+            Vec3(x, y, z),
+            repeater(facing) if use_repeater else DUST,
+            component,
+        )
+
+
+def _wire_z(
+    x: int,
+    y: int,
+    z0: int,
+    z1: int,
+    *,
+    component: str,
+    facing: str,
+    tap_mod: int = 5,
+) -> Iterator[Placement]:
+    step = 1 if z1 >= z0 else -1
+    for n, z in enumerate(range(z0, z1 + step, step)):
+        yield Placement(Vec3(x, y - 1, z), SUPPORT, component)
+        use_repeater = n and n % 10 == 3 and n % tap_mod != 0
+        yield Placement(
+            Vec3(x, y, z),
+            repeater(facing) if use_repeater else DUST,
+            component,
+        )
 
 
 def iter_lamp_panel(
@@ -90,130 +116,169 @@ def iter_lamp_panel(
     component: str = "display",
     backing: bool = True,
 ) -> Iterator[Placement]:
-    """Emit a vertical lamp screen with real per-pixel storage latches.
+    """Emit a real 320x180 latched lamp display on a horizontal X/Z plane.
 
-    192 column data buses are behind the screen.  A row-select pulse turns off
-    that row's normally-on lock line; every pixel's locked repeater samples its
-    column bit and then re-locks.  The repeater output directly powers the lamp.
+    The display is viewed from above. This orientation is intentional: every
+    repeater/dust bus stays horizontal and therefore behaves as real Minecraft
+    redstone.
 
-    The panel therefore only needs WIDTH data wires + HEIGHT row selects, not a
-    unique long wire for every pixel.  shama_display_bridge emits matching
-    parallel row commits from the GPU serial frame stream.
+    Per pixel:
+      * one column data bus carries the row bit;
+      * a data repeater drives a locked storage repeater;
+      * a normally-powered side repeater locks the storage element;
+      * the selected row's inverted lock bus releases all 320 pixels;
+      * the storage repeater strongly powers a block directly below its lamp.
+
+    Data buses are at y+1. Row-lock buses are at y-2, crossing underneath them
+    without joining. Short explicit-state stairs rise only at the selected
+    pixel lock taps.
     """
     if spec.width <= 0 or spec.height <= 0:
         raise ValueError("invalid panel geometry")
+    if spec.pixel_pitch_x < 5 or spec.pixel_pitch_y < 5:
+        raise ValueError("lamp-panel pitch must be at least 5 blocks")
 
-    row_end = 1 + (spec.height - 1) * spec.pixel_pitch_y
+    data_y = origin.y + 1
+    row_y = origin.y - 2
+    last_row_z = origin.z + (spec.height - 1) * spec.pixel_pitch_y
 
-    # Column input buses at back depth 0, flowing upward.  Repeaters refresh
-    # signal strength every 12 virtual blocks.
+    # 320 broadcast data columns, front terminal -> full row depth.
     for col in range(spec.width):
-        vx = col * spec.pixel_pitch_x
-        for vz in range(-2, row_end + 3):
-            yield _place_virtual(origin, vx, -1, vz, SUPPORT, component)
-            if vz >= 0 and vz % 12 == 0:
-                yield _place_virtual(
-                    origin, vx, 0, vz, repeater("south"), component
-                )
-            else:
-                yield _place_virtual(origin, vx, 0, vz, DUST, component)
-
-        # Escape this column 64 blocks behind the panel before global routing.
-        # The signal travels toward increasing world-Z into the panel.
-        for depth in range(-64, 1):
-            yield _place_virtual(origin, vx, depth, -3, SUPPORT, component)
-            if depth > -64 and (depth + 64) % 10 == 0:
-                yield _place_virtual(
-                    origin, vx, depth, -2, repeater("south"), component
-                )
-            else:
-                yield _place_virtual(origin, vx, depth, -2, DUST, component)
+        bx = origin.x + col * spec.pixel_pitch_x
+        yield from _wire_z(
+            bx,
+            data_y,
+            origin.z - 64,
+            last_row_z + 2,
+            component=component,
+            facing="south",
+            tap_mod=spec.pixel_pitch_y,
+        )
 
     for row in range(spec.height):
-        center = 1 + row * spec.pixel_pitch_y
-        lock_line = center - 2
+        center_z = origin.z + row * spec.pixel_pitch_y
+        row_bus_z = center_z - 2
 
-        # External active-high row-select arrives from a terminal 64 blocks
-        # to the right of the panel on depth -2, then travels west outside the
-        # pixel circuitry and enters the local inverter at x=-6.
-        remote_x = spec.physical_width + 64
-        for n, vx in enumerate(range(remote_x, -7, -1)):
-            yield _place_virtual(origin, vx, -2, lock_line - 1, SUPPORT, component)
-            if n and n % 10 == 0:
-                yield _place_virtual(
-                    origin, vx, -2, lock_line, repeater("west"), component
-                )
-            else:
-                yield _place_virtual(origin, vx, -2, lock_line, DUST, component)
-
-        # Bring the row signal forward to the inverter while still outside the
-        # visible matrix.
-        for depth in range(-2, 4):
-            yield _place_virtual(origin, -6, depth, lock_line - 1, SUPPORT, component)
-            if depth > -2 and (depth + 2) % 4 == 0:
-                yield _place_virtual(
-                    origin, -6, depth, lock_line, repeater("south"), component
-                )
-            else:
-                yield _place_virtual(origin, -6, depth, lock_line, DUST, component)
-
-        # External active-high row_select powers the inverter block; the torch
-        # goes dark and the horizontal lock line releases only this row.
-        yield _place_virtual(origin, -5, 3, lock_line, SUPPORT, component)
-        yield _place_virtual(
-            origin,
-            -4,
-            3,
-            lock_line,
-            BlockState.of("minecraft:redstone_wall_torch", facing="east", lit="true"),
+        # External active-high select travels to a local inverter.
+        yield from _wire_x(
+            origin.x - 64,
+            origin.x - 6,
+            row_y,
+            row_bus_z,
+            component=component,
+            facing="east",
+        )
+        yield Placement(
+            Vec3(origin.x - 5, row_y, row_bus_z),
+            SUPPORT,
+            component,
+        )
+        yield Placement(
+            Vec3(origin.x - 4, row_y, row_bus_z),
+            WALL_TORCH_E,
             component,
         )
 
-        x_end = (spec.width - 1) * spec.pixel_pitch_x + 2
-        for vx in range(-3, x_end + 1):
-            yield _place_virtual(origin, vx, 2, lock_line, SUPPORT, component)
-            if vx >= 0 and vx % 12 == 0:
-                yield _place_virtual(
-                    origin, vx, 3, lock_line, repeater("east"), component
-                )
-            else:
-                yield _place_virtual(origin, vx, 3, lock_line, DUST, component)
+        # Torch output is normally high: row is locked until selected.
+        row_end_x = (
+            origin.x
+            + (spec.width - 1) * spec.pixel_pitch_x
+            + 4
+        )
+        yield from _wire_x(
+            origin.x - 3,
+            row_end_x,
+            row_y,
+            row_bus_z,
+            component=component,
+            facing="east",
+            tap_mod=spec.pixel_pitch_x,
+        )
 
         for col in range(spec.width):
-            vx = col * spec.pixel_pitch_x
+            bx = origin.x + col * spec.pixel_pitch_x
 
-            # Column signal rises from depth 0 to the latch plane depth 3.
-            yield from _same_polarity_depth_riser(
-                origin, vx + 1, center, component=component
-            )
-
-            # Storage repeater and side-lock repeater.
-            yield _place_virtual(origin, vx + 2, 2, center, SUPPORT, component)
-            yield _place_virtual(
-                origin,
-                vx + 2,
-                3,
-                center,
-                repeater("east", powered=False, locked=True),
+            # Data tap -> storage repeater.
+            yield Placement(
+                Vec3(bx + 1, data_y - 1, center_z),
+                SUPPORT,
                 component,
             )
-            yield _place_virtual(origin, vx + 2, 2, center - 1, SUPPORT, component)
-            yield _place_virtual(
-                origin,
-                vx + 2,
-                3,
-                center - 1,
+            yield Placement(
+                Vec3(bx + 1, data_y, center_z),
+                DUST,
+                component,
+            )
+            yield Placement(
+                Vec3(bx + 2, data_y - 1, center_z),
+                SUPPORT,
+                component,
+            )
+            yield Placement(
+                Vec3(bx + 2, data_y, center_z),
+                repeater("east"),
+                component,
+            )
+
+            # Actual pixel memory.
+            yield Placement(
+                Vec3(bx + 3, data_y - 1, center_z),
+                SUPPORT,
+                component,
+            )
+            yield Placement(
+                Vec3(
+                    bx + 3,
+                    data_y,
+                    center_z,
+                ),
+                repeater(
+                    "east",
+                    powered=False,
+                    locked=True,
+                ),
+                component,
+            )
+
+            # Normally-powered side-lock repeater, north of storage.
+            yield Placement(
+                Vec3(bx + 3, data_y - 1, center_z - 1),
+                SUPPORT,
+                component,
+            )
+            yield Placement(
+                Vec3(bx + 3, data_y, center_z - 1),
                 repeater("south", powered=True),
                 component,
             )
 
-            # Lamp is on the same visible plane as the latch output; black
-            # backing fills unused pixel pitch so the screen reads as a panel.
-            yield _place_virtual(origin, vx + 3, 3, center, LAMP_OFF, component)
+            # Bring this row's lock level from y-2 to the side repeater input.
+            yield from iter_stair(
+                Vec3(bx, row_y, row_bus_z),
+                Vec3(bx + 3, data_y, center_z - 2),
+                axis="x",
+                signal_forward=True,
+                component=component,
+            )
 
-        if backing:
-            for vx in range(0, spec.physical_width):
-                # One-block backing immediately behind/around the display row.
-                # Do not overwrite active circuit cells: use depth 4 as frame.
-                yield _place_virtual(origin, vx, 4, center, BLACK, component)
+            # Powered block + visible lamp above it.
+            lamp_block = Vec3(bx + 4, data_y, center_z)
+            yield Placement(lamp_block, SUPPORT, component)
+            yield Placement(
+                lamp_block.offset(dy=1),
+                LAMP_OFF,
+                component,
+            )
 
+            if backing:
+                # Black tile around the lit pixel at the visible plane.
+                for dx, dz in (
+                    (0, -1), (0, 1), (1, -1), (1, 1),
+                    (2, -1), (2, 1), (3, -1), (3, 1),
+                    (4, -1), (4, 1),
+                ):
+                    yield Placement(
+                        Vec3(bx + dx, data_y + 1, center_z + dz),
+                        BLACK,
+                        component,
+                    )
