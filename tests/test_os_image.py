@@ -1,5 +1,12 @@
 from shamaos.flashfs import FileType, ShamaFS
-from shamaos.os_image import APP_SLOT_BYTES, BUNDLE_RAM_BASE, FIRMWARE, build_default_os_image
+from shamaos.os_image import (
+    APP_RAM_BASE,
+    APP_SLOT_BYTES,
+    BUNDLE_ORDER,
+    FIRMWARE,
+    KERNEL_RAM_BASE,
+    build_default_os_image,
+)
 
 
 def test_flash_contains_editable_sources_and_real_binaries():
@@ -35,9 +42,27 @@ def test_default_boot_bundle_geometry():
     assert image.bundle_flash_offset == bundle.start_block * fs.block_size
     assert bundle.start_block == fs.data_start
     assert image.bundle_bytes == bundle.block_count * fs.block_size
-    assert image.bundle_bytes == 10 * APP_SLOT_BYTES
+    assert image.bundle_bytes == len(BUNDLE_ORDER) * APP_SLOT_BYTES
 
-    for name, pc_word in image.app_pc_words.items():
-        byte_address = pc_word * 4
-        assert BUNDLE_RAM_BASE <= byte_address < (1 << 20)
-        assert byte_address % APP_SLOT_BYTES == 0
+    for slot, name in enumerate(BUNDLE_ORDER):
+        assert image.slot_flash_offsets[name] == (
+            image.bundle_flash_offset + slot * APP_SLOT_BYTES
+        )
+
+    for _name, pc_word in image.app_pc_words.items():
+        assert pc_word * 4 == APP_RAM_BASE
+
+    assert KERNEL_RAM_BASE == 16 << 10
+    assert APP_RAM_BASE == 32 << 10
+
+
+def test_miner_persistent_records_have_fixed_capacity():
+    image = build_default_os_image()
+    fs = ShamaFS.deserialize(image.image)
+
+    state = fs.stat("miner-state.cfg")
+    history = fs.stat("miner-history.log")
+    assert state.file_type == FileType.CFG
+    assert history.file_type == FileType.LOG
+    assert len(state.data) == 256
+    assert len(history.data) == 16 << 10
