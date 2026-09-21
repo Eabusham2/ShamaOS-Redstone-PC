@@ -25,6 +25,8 @@ module tb_services;
 
     logic os_loaded;
     logic [3:0] foreground_app;
+    logic cpu_hold,cpu_force_jump;
+    logic [31:0] cpu_force_pc;
     logic [31:0] ram_used_bytes,cache_used_bytes;
 
     logic [7:0] cache [0:16383];
@@ -49,7 +51,8 @@ module tb_services;
         .dma_ready,.dma_rdata,
         .ext_valid,.ext_id,.ext_args,.ext_ready,.ext_ret,.ext_jump_valid,.ext_jump_pc,
         .ext_load_app,.ext_app_id,
-        .os_loaded,.foreground_app
+        .os_loaded,.foreground_app,
+        .cpu_hold,.cpu_force_jump,.cpu_force_pc
     );
 
     always_comb begin
@@ -174,6 +177,34 @@ module tb_services;
         end
         if(!last_jump_valid || last_jump_pc!=`SHAMA_PC_APP) begin
             $display("user jump fail");$fatal(1);
+        end
+
+        // Hardware-universal Editor button must work with no syscall at all.
+        // Seed Editor again and simulate a stuck/halted app that never polls.
+        flash[`SHAMA_EDITOR_FLASH+0]=8'h04;
+        flash[`SHAMA_EDITOR_FLASH+`SHAMA_SLOT_DATA_OFFSET]=8'h33;
+        ram[`SHAMA_APP_RAM_BASE+100]=8'hee;
+        cache[100]=8'hee;
+
+        @(negedge clk);
+        event_code<=8'h18;
+        event_valid<=1;
+
+        watchdog=0;
+        while(!event_ack && watchdog<1000) begin @(posedge clk);watchdog=watchdog+1;end
+        if(!event_ack || !cpu_hold) begin
+            $display("universal Editor did not seize CPU");$fatal(1);
+        end
+        @(negedge clk);event_valid<=0;
+
+        watchdog=0;
+        while(!cpu_force_jump && watchdog<100000) begin @(posedge clk);watchdog=watchdog+1;end
+        if(!cpu_force_jump || cpu_force_pc!=`SHAMA_PC_APP) begin
+            $display("universal Editor force jump fail");$fatal(1);
+        end
+        if(foreground_app!=1 || cache[0]!==8'h33 ||
+           ram[`SHAMA_APP_RAM_BASE+100]!==0 || cache[100]!==0) begin
+            $display("universal Editor reload/flush fail");$fatal(1);
         end
 
         $display("SHAMA SERVICES APP LIFECYCLE PASS");
