@@ -65,8 +65,8 @@ APP_IDS = {
 
 
 def app_pc_word(_app: str) -> int:
-    """All foreground apps execute from the same flushed/reloaded RAM slot."""
-    return APP_RAM_BASE // 4
+    """Foreground app executes from the software-managed 16 KiB fast cache."""
+    return 0
 
 
 @dataclass(frozen=True)
@@ -78,6 +78,7 @@ class OSImage:
     bundle_bytes: int
     app_pc_words: dict[str, int]
     slot_flash_offsets: dict[str, int]
+    slot_binary_lengths: dict[str, int]
 
 
 def _firmware_source(filename: str) -> str:
@@ -100,13 +101,14 @@ def build_default_os_image(flash_bytes: int = 4 << 20) -> OSImage:
     bundle = bytearray(APP_SLOT_BYTES * len(BUNDLE_ORDER))
     for slot, name in enumerate(BUNDLE_ORDER):
         binary = binaries[name]
-        if len(binary) > APP_SLOT_BYTES:
+        if len(binary) > APP_SLOT_BYTES - 4:
             raise ValueError(
                 f"{name} firmware is {len(binary)} bytes; exceeds "
-                f"{APP_SLOT_BYTES}-byte flash/app slot"
+                f"{APP_SLOT_BYTES - 4}-byte length-prefixed flash/app slot"
             )
         start = slot * APP_SLOT_BYTES
-        bundle[start : start + len(binary)] = binary
+        bundle[start : start + 4] = len(binary).to_bytes(4, "little")
+        bundle[start + 4 : start + 4 + len(binary)] = binary
 
     # First data extent so the hardware can mount/load without a filesystem
     # pathname lookup during the earliest boot stages.
@@ -143,4 +145,5 @@ def build_default_os_image(flash_bytes: int = 4 << 20) -> OSImage:
         bundle_bytes=len(bundle),
         app_pc_words={name: app_pc_word(name) for name in APP_IDS},
         slot_flash_offsets=slot_flash_offsets,
+        slot_binary_lengths={name: len(binaries[name]) for name in BUNDLE_ORDER},
     )
