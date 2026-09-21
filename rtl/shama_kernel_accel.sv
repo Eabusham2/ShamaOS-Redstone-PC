@@ -210,6 +210,7 @@ module shama_kernel_accel(
                     case(latched_args[35:32])
                         4'd1:title_for=FILES_DELETE;
                         4'd2:title_for=FILES_TEXT;
+                        4'd3:title_for=FILES_RENAME;
                         default:title_for=TITLE_FILES;
                     endcase
                 end
