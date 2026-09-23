@@ -25,7 +25,7 @@ These capacities and the 320×180 resolution are canonical and are not silently 
 
 - locked-repeater cache/RAM/flash/VRAM banks;
 - one-hot bank/row memory controllers and physical backbones;
-- Yosys-synthesized CPU/SHA/GPU/kernel/filesystem/assembler/control logic mapped to redstone technology cells;
+- partitioned Yosys-synthesized CPU/SHA/GPU/kernel/filesystem/assembler/control logic mapped to redstone technology cells and physically reconnected by the synthesized SoC shell;
 - crossing-safe, strength-refreshed interconnect;
 - the horizontal 320×180 latched lamp panel;
 - physical keyboard/controller, ON/OFF control, reset and clock;
