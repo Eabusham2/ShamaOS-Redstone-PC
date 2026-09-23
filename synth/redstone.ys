@@ -15,5 +15,5 @@ dffunmap
 opt
 
 dfflibmap -liberty synth/redstone.lib
-abc -liberty synth/redstone.lib
+abc -fast -liberty synth/redstone.lib
 clean -purge
