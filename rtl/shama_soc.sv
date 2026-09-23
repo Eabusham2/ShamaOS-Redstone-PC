@@ -131,7 +131,7 @@ module shama_soc #(
     logic [31:0] gpu_vram_wdata,gpu_vram_rdata;
     logic [3:0] gpu_vram_wstrb;
 
-    shama_gpu #(.WIDTH(320),.HEIGHT(180),.QUEUE_DEPTH(8)) u_gpu(
+    shama_gpu u_gpu(
         .clk(core_clk),.rst,
         .mmio_valid(gpu_mmio_valid),.mmio_we(gpu_mmio_we),
         .mmio_addr(gpu_mmio_addr),.mmio_wdata(gpu_mmio_wdata),
@@ -143,7 +143,7 @@ module shama_soc #(
         .disp_bit(gpu_disp_bit),.disp_ready(gpu_disp_ready),.busy(gpu_busy)
     );
 
-    shama_display_bridge #(.WIDTH(320),.HEIGHT(180)) u_display_bridge(
+    shama_display_bridge u_display_bridge(
         .clk(core_clk),.rst,
         .pixel_valid(gpu_disp_valid),
         .pixel_index(gpu_disp_index),
