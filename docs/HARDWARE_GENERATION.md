@@ -35,7 +35,7 @@ A default memory bank is 1,024 × 32-bit words = 4 KiB. Flash is initialized dir
 
 ## Synthesized logic
 
-CPU, native SHA unit, GPU control/raster logic, OS services, ShamaFS controller and in-world assembler are synthesized with Yosys into BUF/NOT/NAND/NOR/DFF redstone cells. Cells are placed on a 2-D grid rather than a world-border-sized line.
+CPU/native-SHA, GPU, display bridge, input, OS services, GUI kernel, ShamaFS, in-world assembler and each memory adapter are synthesized as independent physical redstone partitions. A small black-boxed `shama_soc` shell is synthesized separately and routed directly to the real partition port terminals. This preserves the exact integrated RTL hierarchy while avoiding one monolithic Yosys flatten/ABC pass. Each partition still maps into BUF/NOT/NAND/NOR/DFF redstone cells and uses the same 2-D physical placer/router.
 
 ## Routing
 
