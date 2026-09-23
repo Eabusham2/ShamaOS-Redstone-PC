@@ -126,6 +126,17 @@ class PhysicalNetlist:
         )
 
 
+
+@dataclass(frozen=True)
+class MacroInstance:
+    """Physical implementation bound to one black-box cell in a shell netlist."""
+
+    instance_name: str
+    module_type: str
+    physical: PhysicalNetlist
+
+
+
 def _quote_yosys(path: str | Path) -> str:
     return '"' + str(Path(path).resolve()).replace('\\', '\\\\').replace('"', '\\"') + '"'
 
@@ -137,6 +148,7 @@ def synthesize_json(
     output_json: str | Path,
     yosys: str = "yosys",
     repo_root: str | Path | None = None,
+    blackbox_modules: Sequence[str] = (),
 ) -> Path:
     if not rtl_files:
         raise ValueError("at least one RTL file is required")
@@ -151,15 +163,20 @@ def synthesize_json(
     output = Path(output_json).resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
 
-    script = "\n".join(
+    commands = [
+        "read_verilog -sv -I " + _quote_yosys(root / "rtl") + " " + " ".join(_quote_yosys(p) for p in rtl_files),
+        f"hierarchy -check -top {top}",
+    ]
+    if blackbox_modules:
+        commands.append("blackbox " + " ".join(blackbox_modules))
+    commands.extend(
         [
-            "read_verilog -sv -I " + _quote_yosys(root / "rtl") + " " + " ".join(_quote_yosys(p) for p in rtl_files),
-            f"hierarchy -check -top {top}",
             mapping,
             f"write_json {_quote_yosys(output)}",
             "",
         ]
     )
+    script = "\n".join(commands)
 
     with tempfile.NamedTemporaryFile("w", suffix=".ys", delete=False, encoding="utf-8") as tmp:
         tmp.write(script)
@@ -222,6 +239,7 @@ def build_physical_netlist(
     top: str,
     origin: Vec3 = Vec3(0, 64, 0),
     cell_stride: int = 24,
+    macro_instances: dict[str, MacroInstance] | None = None,
 ) -> PhysicalNetlist:
     raw = json.loads(Path(netlist_json).read_text(encoding="utf-8"))
     try:
@@ -231,6 +249,7 @@ def build_physical_netlist(
 
     cell_origins: dict[str, Vec3] = {}
     cell_types: dict[str, str] = {}
+    macro_instances = macro_instances or {}
     endpoints: dict[int, list[Endpoint]] = {}
     const_high: list[Vec3] = []
 
@@ -271,11 +290,68 @@ def build_physical_netlist(
     cell_row_pitch = 32
     cell_grid_x0 = max(x_cursor + 64, origin.x + 32768)
 
-    for cell_index, cell_name in enumerate(sorted(module.get("cells", {}))):
+    primitive_index = 0
+    for _cell_index, cell_name in enumerate(sorted(module.get("cells", {}))):
         cell = module["cells"][cell_name]
-        cell_type = str(cell["type"]).lstrip("\\").upper()
+        raw_cell_type = str(cell["type"]).lstrip("\\")
+        macro_binding = (
+            macro_instances.get(cell_name)
+            or macro_instances.get(cell_name.lstrip("\\"))
+        )
+
+        if macro_binding is not None:
+            if raw_cell_type != macro_binding.module_type:
+                raise SynthesisError(
+                    f"shell macro {cell_name!r} has type {raw_cell_type!r}; "
+                    f"expected {macro_binding.module_type!r}"
+                )
+            directions = cell.get("port_directions", {})
+            for pin_name, bits in cell.get("connections", {}).items():
+                direction = directions.get(pin_name)
+                if direction not in {"input", "output"}:
+                    if pin_name in macro_binding.physical.output_ports:
+                        direction = "output"
+                    elif pin_name in macro_binding.physical.input_ports:
+                        direction = "input"
+                    else:
+                        raise SynthesisError(
+                            f"macro {cell_name}:{pin_name} has no known direction"
+                        )
+
+                physical_ports = (
+                    macro_binding.physical.output_ports
+                    if direction == "output"
+                    else macro_binding.physical.input_ports
+                )
+                try:
+                    positions = physical_ports[pin_name]
+                except KeyError as exc:
+                    raise SynthesisError(
+                        f"macro {cell_name} physical partition has no "
+                        f"{direction} port {pin_name!r}"
+                    ) from exc
+                if len(bits) != len(positions):
+                    raise SynthesisError(
+                        f"macro {cell_name}:{pin_name} width {len(bits)} "
+                        f"does not match physical partition width {len(positions)}"
+                    )
+                for bit_index, (bit, pos) in enumerate(zip(bits, positions)):
+                    add_endpoint(
+                        bit,
+                        Endpoint(
+                            f"macro:{cell_name}[{bit_index}]",
+                            pin_name,
+                            pos,
+                            direction == "output",
+                        ),
+                    )
+            continue
+
+        cell_type = raw_cell_type.upper()
         template = template_for(cell_type)  # validates support
 
+        cell_index = primitive_index
+        primitive_index += 1
         col = cell_index % cells_per_row
         row = cell_index // cells_per_row
         stride = max(cell_stride, template.width + 6)
