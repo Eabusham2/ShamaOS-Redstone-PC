@@ -88,6 +88,57 @@ jobs:
       - name: Compile input RTL
         run: |
           iverilog -g2012 -Wall -s shama_input -o build_input.vvp rtl/shama_input.sv
+      - name: Partitioned black-box shell synthesis smoke
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from shamaos.model import Vec3
+          from shamaos.synthesis import (
+              MacroInstance,
+              build_physical_netlist,
+              synthesize_json,
+          )
+
+          rtl = [Path("rtl/synth_macro_smoke.sv")]
+
+          child_json = synthesize_json(
+              rtl,
+              top="synth_macro_child",
+              output_json="build/macro-child.json",
+          )
+          child = build_physical_netlist(
+              child_json,
+              top="synth_macro_child",
+              origin=Vec3(-10000, 64, -10000),
+          )
+
+          shell_json = synthesize_json(
+              rtl,
+              top="synth_macro_shell",
+              output_json="build/macro-shell.json",
+              blackbox_modules=("synth_macro_child",),
+          )
+          shell = build_physical_netlist(
+              shell_json,
+              top="synth_macro_shell",
+              origin=Vec3(10000, 64, -10000),
+              macro_instances={
+                  "u_child": MacroInstance(
+                      instance_name="u_child",
+                      module_type="synth_macro_child",
+                      physical=child,
+                  )
+              },
+          )
+
+          assert child.manifest()["cell_count"] > 0
+          assert shell.manifest()["cell_count"] > 0
+          assert shell.manifest()["net_count"] >= 4
+          assert len(shell.input_ports["clk"]) == 1
+          assert len(shell.output_ports["q"]) == 1
+          assert len(shell.output_ports["y"]) == 1
+          print("PARTITIONED SYNTHESIS SMOKE PASS")
+          PY
       - name: Yosys redstone synthesis smoke
         run: |
           shamaos synth-redstone --top synth_smoke --rtl rtl/synth_smoke.sv \
