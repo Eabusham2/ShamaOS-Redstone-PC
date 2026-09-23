@@ -196,6 +196,7 @@ def _prepare_partitioned_logic(
     macro_bindings: dict[str, MacroInstance] = {}
 
     for index, (instance_name, module_type) in enumerate(PARTITION_SPECS):
+        print(f"[partition-synth] START {instance_name}: {module_type}", flush=True)
         output = build / f"partition-{instance_name}-{module_type}.json"
         synthesize_json(
             rtl_files,
@@ -209,6 +210,12 @@ def _prepare_partitioned_logic(
             top=module_type,
             origin=_partition_origin(base_origin, index),
         )
+        pm = physical.manifest()
+        print(
+            f"[partition-synth] DONE  {instance_name}: "
+            f"{pm['cell_count']} cells, {pm['net_count']} nets",
+            flush=True,
+        )
         partition_list.append((instance_name, physical))
         macro_bindings[instance_name] = MacroInstance(
             instance_name=instance_name,
@@ -216,6 +223,7 @@ def _prepare_partitioned_logic(
             physical=physical,
         )
 
+    print("[partition-synth] START shell: shama_soc", flush=True)
     shell_output = build / "shama_soc-shell-mapped.json"
     synthesize_json(
         rtl_files,
@@ -235,6 +243,12 @@ def _prepare_partitioned_logic(
             base_origin.z - 1_750_000,
         ),
         macro_instances=macro_bindings,
+    )
+    sm = shell.manifest()
+    print(
+        f"[partition-synth] DONE  shell: "
+        f"{sm['cell_count']} cells, {sm['net_count']} nets",
+        flush=True,
     )
 
     return PartitionedLogic(
