@@ -26,7 +26,7 @@ A small Yosys fixture is also technology-mapped and physically routed as a synth
 
 ## Full physical synthesis
 
-Release-candidate commits trigger `full-physical-synthesis`. It synthesizes the complete current `shama_soc`, builds the physical redstone netlist and verifies physical external contracts, including:
+Release-candidate commits trigger `full-physical-synthesis`. It synthesizes every direct `shama_soc` hardware partition, synthesizes the black-boxed top shell, physically reconnects the partitions, builds the aggregate redstone netlist and verifies physical external contracts, including:
 
 - cache banks 4
 - RAM banks 256
