@@ -182,8 +182,121 @@ jobs:
             rtl/shama_kernel_accel.sv rtl/shama_fs_accel.sv \
             rtl/shama_asm_accel.sv rtl/shama_soc.sv
 
+  full-physical-partitions:
+    if: contains(github.event.head_commit.message, '[full-synth]') || github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - instance: u_cpu
+            module: shama_cpu
+            index: 0
+          - instance: u_input
+            module: shama_input
+            index: 1
+          - instance: u_gpu
+            module: shama_gpu
+            index: 2
+          - instance: u_display_bridge
+            module: shama_display_bridge
+            index: 3
+          - instance: u_vram
+            module: shama_vram_adapter
+            index: 4
+          - instance: u_services
+            module: shama_services
+            index: 5
+          - instance: u_kernel
+            module: shama_kernel_accel
+            index: 6
+          - instance: u_fs
+            module: shama_fs_accel
+            index: 7
+          - instance: u_asm
+            module: shama_asm_accel
+            index: 8
+          - instance: u_cache
+            module: shama_cache_adapter
+            index: 9
+          - instance: u_ram
+            module: shama_ram_adapter
+            index: 10
+          - instance: u_flash
+            module: shama_flash_adapter
+            index: 11
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Yosys and package
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y yosys
+          python -m pip install --upgrade pip
+          pip install -e .
+      - name: Synthesize physical partition
+        env:
+          SHAMA_INSTANCE: ${{ matrix.instance }}
+          SHAMA_MODULE: ${{ matrix.module }}
+          SHAMA_INDEX: ${{ matrix.index }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import tomllib
+          from pathlib import Path
+
+          from shamaos.layout import default_origins
+          from shamaos.synthesis import build_physical_netlist, synthesize_json
+          from shamaos.system_build import (
+              SOC_RTL_FILES,
+              _geometry_from_config,
+              _partition_origin,
+              _repo_root,
+          )
+
+          instance = os.environ["SHAMA_INSTANCE"]
+          module = os.environ["SHAMA_MODULE"]
+          index = int(os.environ["SHAMA_INDEX"])
+
+          root = _repo_root()
+          config = tomllib.loads(Path("configs/default.toml").read_text())
+          origin = _partition_origin(
+              default_origins(_geometry_from_config(config)).control,
+              index,
+          )
+
+          out_dir = Path("artifacts")
+          out_dir.mkdir(parents=True, exist_ok=True)
+          output = out_dir / f"partition-{instance}-{module}.json"
+
+          synthesize_json(
+              [root / p for p in SOC_RTL_FILES],
+              top=module,
+              output_json=output,
+              repo_root=root,
+          )
+          physical = build_physical_netlist(
+              output,
+              top=module,
+              origin=origin,
+          )
+          manifest = physical.manifest()
+          print(json.dumps(manifest, indent=2))
+          assert manifest["cell_count"] > 0
+          assert manifest["net_count"] > 0
+          assert manifest["routing_tracks"] > 0
+          PY
+      - name: Upload mapped partition
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-soc-${{ matrix.instance }}
+          path: artifacts/partition-${{ matrix.instance }}-${{ matrix.module }}.json
+          if-no-files-found: error
+          retention-days: 1
+
   full-physical-synthesis:
     if: contains(github.event.head_commit.message, '[full-synth]') || github.event_name == 'pull_request'
+    needs: full-physical-partitions
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -193,24 +306,121 @@ jobs:
           sudo apt-get install -y yosys
           python -m pip install --upgrade pip
           pip install -e .
-      - name: Synthesize full ShamaOS SoC to redstone physical netlist
+      - name: Download mapped partitions
+        uses: actions/download-artifact@v4
+        with:
+          pattern: full-soc-*
+          path: build/full-soc
+          merge-multiple: true
+      - name: Reconnect physical partitions and validate complete SoC shell
         run: |
           python - <<'PY'
           import json
           import tomllib
           from pathlib import Path
-          from shamaos.system_build import prepare_system
 
+          from shamaos.layout import default_origins, memory_specs, vram_spec
+          from shamaos.model import Vec3
+          from shamaos.synthesis import (
+              MacroInstance,
+              build_physical_netlist,
+              synthesize_json,
+          )
+          from shamaos.system_build import (
+              PARTITION_SPECS,
+              PartitionedLogic,
+              SOC_RTL_FILES,
+              _geometry_from_config,
+              _partition_origin,
+              _repo_root,
+          )
+
+          root = _repo_root()
           config = tomllib.loads(Path("configs/default.toml").read_text())
-          prepared = prepare_system(config, build_dir="build/full-soc")
-          m = prepared.metadata
+          geometry = _geometry_from_config(config)
+          origins = default_origins(geometry)
+          build = Path("build/full-soc")
+
+          partitions = []
+          bindings = {}
+          for index, (instance, module) in enumerate(PARTITION_SPECS):
+              mapped = build / f"partition-{instance}-{module}.json"
+              assert mapped.exists(), mapped
+              physical = build_physical_netlist(
+                  mapped,
+                  top=module,
+                  origin=_partition_origin(origins.control, index),
+              )
+              partitions.append((instance, physical))
+              bindings[instance] = MacroInstance(
+                  instance_name=instance,
+                  module_type=module,
+                  physical=physical,
+              )
+
+          shell_json = build / "shama_soc-shell-mapped.json"
+          synthesize_json(
+              [root / p for p in SOC_RTL_FILES],
+              top="shama_soc",
+              output_json=shell_json,
+              repo_root=root,
+              blackbox_modules=tuple(
+                  module for _instance, module in PARTITION_SPECS
+              ),
+          )
+          shell = build_physical_netlist(
+              shell_json,
+              top="shama_soc",
+              origin=Vec3(
+                  origins.control.x + 250_000,
+                  origins.control.y,
+                  origins.control.z - 1_750_000,
+              ),
+              macro_instances=bindings,
+          )
+
+          logic = PartitionedLogic(
+              shell=shell,
+              partitions=tuple(partitions),
+          )
+          m = logic.manifest()
           print(json.dumps(m, indent=2))
-          assert m["logic"]["cell_count"] > 0
-          assert m["logic"]["net_count"] > 0
-          assert m["external_net_count"] > 0
-          assert m["memory_backbones"]["cache"]["banks"] == 4
-          assert m["memory_backbones"]["ram"]["banks"] == 256
-          assert m["memory_backbones"]["flash"]["banks"] == 1024
-          assert m["memory_backbones"]["vram"]["banks"] == 8
-          assert m["display"] == {"width": 320, "height": 180}
+
+          assert m["strategy"] == "partitioned-blackbox-shell"
+          assert m["cell_count"] > 0
+          assert m["net_count"] > 0
+          assert m["routing_tracks"] > 0
+
+          inputs = shell.input_ports
+          outputs = shell.output_ports
+
+          assert len(inputs["controller"]) == 10
+          assert len(inputs["kb_rows"]) == 8
+          assert len(inputs["kb_cols"]) == 8
+          assert len(inputs["cache_selected_word"]) == 32
+          assert len(inputs["ram_selected_word"]) == 32
+          assert len(inputs["flash_selected_word"]) == 32
+          assert len(inputs["vram_selected_word"]) == 32
+
+          assert len(outputs["cache_bank_select"]) == 4
+          assert len(outputs["ram_bank_select"]) == 256
+          assert len(outputs["flash_bank_select"]) == 1024
+          assert len(outputs["vram_bank_select"]) == 8
+          assert len(outputs["cache_row_select"]) == 1024
+          assert len(outputs["ram_row_select"]) == 1024
+          assert len(outputs["flash_row_select"]) == 1024
+          assert len(outputs["vram_row_select"]) == 1024
+          assert len(outputs["display_row_data"]) == 320
+          assert len(outputs["display_row_select"]) == 180
+
+          cache, ram, flash = memory_specs(geometry)
+          vram = vram_spec(geometry)
+          assert cache.bank_count == 4
+          assert ram.bank_count == 256
+          assert flash.bank_count == 1024
+          assert vram.bank_count == 8
+          assert geometry.display_width == 320
+          assert geometry.display_height == 180
+
+          print("FULL PARTITIONED PHYSICAL SYNTHESIS PASS")
           PY
