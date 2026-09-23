@@ -12,16 +12,12 @@ from .hardware.logic import REDSTONE_BLOCK
 from .hardware.memory_backbone import backbone_ports, iter_memory_backbone
 from .layout import MachineGeometry, default_origins, memory_specs, vram_spec
 from .model import BlockState, Placement, Vec3
-from .synthesis import PhysicalNetlist, build_physical_netlist, synthesize_json
-
-
-@dataclass(frozen=True)
-class PreparedSystem:
-    logic: PhysicalNetlist
-    nets: tuple[ExternalNet, ...]
-    clock_origin: Vec3
-    constant_high: Vec3
-    metadata: dict[str, object]
+from .synthesis import (
+    MacroInstance,
+    PhysicalNetlist,
+    build_physical_netlist,
+    synthesize_json,
+)
 
 
 SOC_RTL_FILES = (
@@ -44,6 +40,82 @@ SOC_RTL_FILES = (
 )
 
 
+# Each direct child of shama_soc is synthesized independently. The top shell is
+# then synthesized with these modules black-boxed and physically connected to
+# the real partition port terminals. This is exactly the same logic hierarchy
+# as the integrated RTL; it simply avoids one gigantic flatten/ABC problem.
+PARTITION_SPECS: tuple[tuple[str, str], ...] = (
+    ("u_cpu", "shama_cpu"),
+    ("u_input", "shama_input"),
+    ("u_gpu", "shama_gpu"),
+    ("u_display_bridge", "shama_display_bridge"),
+    ("u_vram", "shama_vram_adapter"),
+    ("u_services", "shama_services"),
+    ("u_kernel", "shama_kernel_accel"),
+    ("u_fs", "shama_fs_accel"),
+    ("u_asm", "shama_asm_accel"),
+    ("u_cache", "shama_cache_adapter"),
+    ("u_ram", "shama_ram_adapter"),
+    ("u_flash", "shama_flash_adapter"),
+)
+
+
+@dataclass(frozen=True)
+class PartitionedLogic:
+    shell: PhysicalNetlist
+    partitions: tuple[tuple[str, PhysicalNetlist], ...]
+
+    @property
+    def input_ports(self) -> dict[str, tuple[Vec3, ...]]:
+        return self.shell.input_ports
+
+    @property
+    def output_ports(self) -> dict[str, tuple[Vec3, ...]]:
+        return self.shell.output_ports
+
+    def manifest(self) -> dict[str, object]:
+        part_manifests = {
+            name: physical.manifest()
+            for name, physical in self.partitions
+        }
+        shell_manifest = self.shell.manifest()
+        return {
+            "top": "shama_soc",
+            "strategy": "partitioned-blackbox-shell",
+            "cell_count": (
+                shell_manifest["cell_count"]
+                + sum(int(m["cell_count"]) for m in part_manifests.values())
+            ),
+            "net_count": (
+                shell_manifest["net_count"]
+                + sum(int(m["net_count"]) for m in part_manifests.values())
+            ),
+            "routing_tracks": (
+                shell_manifest["routing_tracks"]
+                + sum(int(m["routing_tracks"]) for m in part_manifests.values())
+            ),
+            "shell": shell_manifest,
+            "partitions": part_manifests,
+            "input_ports": shell_manifest["input_ports"],
+            "output_ports": shell_manifest["output_ports"],
+        }
+
+    def iter_placements(self, *, component: str = "shama-soc") -> Iterator[Placement]:
+        for instance_name, physical in self.partitions:
+            yield from physical.iter_placements(
+                component=f"{component}:partition:{instance_name}"
+            )
+        yield from self.shell.iter_placements(component=f"{component}:shell")
+
+
+@dataclass(frozen=True)
+class PreparedSystem:
+    logic: PartitionedLogic
+    nets: tuple[ExternalNet, ...]
+    clock_origin: Vec3
+    constant_high: Vec3
+    metadata: dict[str, object]
+
 
 def _geometry_from_config(config: dict) -> MachineGeometry:
     w = config["world"]
@@ -60,9 +132,10 @@ def _geometry_from_config(config: dict) -> MachineGeometry:
         bank_words=m.get("bank_words", 1024),
         bank_word_bits=m.get("bank_word_bits", 32),
         banks_per_row=m.get("banks_per_row", 16),
-        pixel_pitch_x=d.get("pixel_pitch_x", 4),
-        pixel_pitch_y=d.get("pixel_pitch_y", 2),
+        pixel_pitch_x=d.get("pixel_pitch_x", 5),
+        pixel_pitch_y=d.get("pixel_pitch_y", 5),
     )
+
 
 def _repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
@@ -98,6 +171,78 @@ def _vector_nets(
         yield ExternalNet(f"{prefix}[{bit}]", source, (sink,))
 
 
+def _partition_origin(base: Vec3, index: int) -> Vec3:
+    # Four-column physical grid. Each partition owns a generous independent
+    # redstone-routing region, while remaining far inside the Java world border.
+    col = index % 4
+    row = index // 4
+    return Vec3(
+        base.x - 900_000 + col * 260_000,
+        base.y,
+        base.z - 900_000 - row * 260_000,
+    )
+
+
+def _prepare_partitioned_logic(
+    *,
+    root: Path,
+    build: Path,
+    base_origin: Vec3,
+    yosys: str,
+) -> PartitionedLogic:
+    rtl_files = [root / p for p in SOC_RTL_FILES]
+
+    partition_list: list[tuple[str, PhysicalNetlist]] = []
+    macro_bindings: dict[str, MacroInstance] = {}
+
+    for index, (instance_name, module_type) in enumerate(PARTITION_SPECS):
+        output = build / f"partition-{instance_name}-{module_type}.json"
+        synthesize_json(
+            rtl_files,
+            top=module_type,
+            output_json=output,
+            yosys=yosys,
+            repo_root=root,
+        )
+        physical = build_physical_netlist(
+            output,
+            top=module_type,
+            origin=_partition_origin(base_origin, index),
+        )
+        partition_list.append((instance_name, physical))
+        macro_bindings[instance_name] = MacroInstance(
+            instance_name=instance_name,
+            module_type=module_type,
+            physical=physical,
+        )
+
+    shell_output = build / "shama_soc-shell-mapped.json"
+    synthesize_json(
+        rtl_files,
+        top="shama_soc",
+        output_json=shell_output,
+        yosys=yosys,
+        repo_root=root,
+        blackbox_modules=tuple(module for _instance, module in PARTITION_SPECS),
+    )
+
+    shell = build_physical_netlist(
+        shell_output,
+        top="shama_soc",
+        origin=Vec3(
+            base_origin.x + 250_000,
+            base_origin.y,
+            base_origin.z - 1_750_000,
+        ),
+        macro_instances=macro_bindings,
+    )
+
+    return PartitionedLogic(
+        shell=shell,
+        partitions=tuple(partition_list),
+    )
+
+
 def prepare_system(
     config: dict,
     *,
@@ -112,19 +257,12 @@ def prepare_system(
 
     build = Path(build_dir)
     build.mkdir(parents=True, exist_ok=True)
-    netlist_path = build / "shama_soc-mapped.json"
 
-    synthesize_json(
-        [root / p for p in SOC_RTL_FILES],
-        top="shama_soc",
-        output_json=netlist_path,
+    logic = _prepare_partitioned_logic(
+        root=root,
+        build=build,
+        base_origin=origins.control,
         yosys=yosys,
-        repo_root=root,
-    )
-    logic = build_physical_netlist(
-        netlist_path,
-        top="shama_soc",
-        origin=origins.cpu,
     )
 
     inputs = logic.input_ports
@@ -151,21 +289,29 @@ def prepare_system(
     nets.append(ExternalNet("reset", controls.reset, (reset_button,)))
     nets.append(ExternalNet("clock", clock.clock, (clk,)))
 
-    controller = _require_port(inputs, "controller", 10)
     nets.extend(
         _vector_nets(
             "controller",
             controls.controller,
-            controller,
+            _require_port(inputs, "controller", 10),
+        )
+    )
+    nets.extend(
+        _vector_nets(
+            "kb_rows",
+            controls.keyboard_rows,
+            _require_port(inputs, "kb_rows", 8),
+        )
+    )
+    nets.extend(
+        _vector_nets(
+            "kb_cols",
+            controls.keyboard_cols,
+            _require_port(inputs, "kb_cols", 8),
         )
     )
 
-    kb_rows = _require_port(inputs, "kb_rows", 8)
-    kb_cols = _require_port(inputs, "kb_cols", 8)
-    nets.extend(_vector_nets("kb_rows", controls.keyboard_rows, kb_rows))
-    nets.extend(_vector_nets("kb_cols", controls.keyboard_cols, kb_cols))
-
-    # ---------- Physical cache/RAM/flash ----------
+    # ---------- Physical cache/RAM/flash/VRAM ----------
     for name, origin, fabric in (
         ("cache", origins.cache, cache_spec),
         ("ram", origins.ram, ram_spec),
@@ -177,14 +323,22 @@ def prepare_system(
         nets.extend(
             _vector_nets(
                 f"{name}_bank_select",
-                _require_port(outputs, f"{name}_bank_select", len(physical.bank_select)),
+                _require_port(
+                    outputs,
+                    f"{name}_bank_select",
+                    len(physical.bank_select),
+                ),
                 physical.bank_select,
             )
         )
         nets.extend(
             _vector_nets(
                 f"{name}_row_select",
-                _require_port(outputs, f"{name}_row_select", len(physical.row_select)),
+                _require_port(
+                    outputs,
+                    f"{name}_row_select",
+                    len(physical.row_select),
+                ),
                 physical.row_select,
             )
         )
@@ -241,12 +395,14 @@ def prepare_system(
         )
     )
 
-    # The physical panel is a latch matrix and accepts a row whenever the SoC
-    # asserts a one-hot row pulse. It does not need back-pressure, so tie the
-    # bridge ready input high with a real redstone-block source.
     constant_high = origins.input.offset(160, 1, 0)
-    display_ready = _require_port(inputs, "display_row_ready", 1)[0]
-    nets.append(ExternalNet("display_ready", constant_high, (display_ready,)))
+    nets.append(
+        ExternalNet(
+            "display_ready",
+            constant_high,
+            (_require_port(inputs, "display_row_ready", 1)[0],),
+        )
+    )
 
     metadata = {
         "logic": logic.manifest(),
@@ -295,10 +451,8 @@ def iter_system_infrastructure(
     cache_spec, ram_spec, flash_spec = memory_specs(g)
     vram_fabric = vram_spec(g)
 
-    # Power-gated comparator clock.
     yield from iter_clock(prepared.clock_origin)
 
-    # A physical always-high source for ready/constant inputs.
     yield Placement(
         prepared.constant_high.offset(dy=-1),
         REDSTONE_BLOCK,
@@ -310,7 +464,6 @@ def iter_system_infrastructure(
         "system-constant-high",
     )
 
-    # Full physical selector/data backbones for all storage fabrics.
     yield from iter_memory_backbone(
         origins.cache,
         fabric=cache_spec,
