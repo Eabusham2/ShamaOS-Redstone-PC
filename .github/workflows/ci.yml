@@ -7,8 +7,10 @@ on:
     branches: [main]
 
 concurrency:
-  group: shamaos-ci-${{ github.ref }}
-  cancel-in-progress: true
+  # Per-SHA groups avoid a stale/cancelled runner from blocking the next
+  # validation attempt. Each commit validates independently.
+  group: shamaos-ci-${{ github.sha }}
+  cancel-in-progress: false
 
 jobs:
   test:
