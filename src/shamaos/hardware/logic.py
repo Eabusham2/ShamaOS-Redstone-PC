@@ -183,7 +183,15 @@ TEMPLATES: dict[str, LogicTemplate] = {
 
 
 def normalize_cell_type(cell_type: str) -> str:
-    return cell_type.lstrip("\\").upper()
+    key = cell_type.lstrip("\\").upper()
+    aliases = {
+        "$_BUF_": "BUF",
+        "$_NOT_": "NOT",
+        "$_NAND_": "NAND",
+        "$_NOR_": "NOR",
+        "$_DFF_P_": "DFF",
+    }
+    return aliases.get(key, key)
 
 
 def template_for(cell_type: str) -> LogicTemplate:
