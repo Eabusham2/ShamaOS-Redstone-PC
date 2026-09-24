@@ -1,0 +1,21 @@
+# Fast physical mapping for memory-heavy ShamaOS partitions.
+# Preserve exact sequential behavior, map memories to logic, then convert the
+# combinational network directly to an AND-inverter graph without ABC.
+
+proc
+flatten
+opt
+fsm
+opt
+memory_map
+opt
+techmap
+opt
+async2sync
+dffunmap
+opt
+simplemap
+opt
+aigmap
+opt
+clean -purge
