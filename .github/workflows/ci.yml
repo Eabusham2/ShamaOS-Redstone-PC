@@ -7,10 +7,11 @@ on:
     branches: [main]
 
 concurrency:
-  # Per-SHA groups avoid a stale/cancelled runner from blocking the next
-  # validation attempt. Each commit validates independently.
-  group: shamaos-ci-${{ github.sha }}
-  cancel-in-progress: false
+  # During heavyweight physical synthesis, only the newest validation for the
+  # branch matters. Superseded runs are cancelled so they cannot consume the
+  # runners needed by the current release candidate.
+  group: shamaos-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
