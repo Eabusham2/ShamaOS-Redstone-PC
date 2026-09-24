@@ -180,7 +180,7 @@ module shama_fs_accel(
         end
     endfunction
 
-    function automatic logic names_equal;
+    function automatic logic names_equal(input logic _live);
         integer k;
         logic ok;
         begin
@@ -620,7 +620,7 @@ module shama_fs_accel(
                         first_free_index<=entry_index;
                     end
 
-                    if(names_equal()) begin
+                    if(names_equal(1'b1)) begin
                         if(action==ACT_OPEN || action==ACT_CREATE) begin
                             response<={32'd0,25'd0,entry_index+1'b1};
                             state<=ST_DONE;
