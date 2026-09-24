@@ -187,12 +187,12 @@ jobs:
         run: |
           iverilog -g2012 -Wall -I rtl -s tb_fs_accel -o build_fs.vvp \
             rtl/shama_fs_accel.sv rtl/tb_fs_accel.sv
-          vvp build_fs.vvp
+          timeout 30s vvp build_fs.vvp
       - name: Test in-world assembler accelerator
         run: |
           iverilog -g2012 -Wall -I rtl -s tb_asm_accel -o build_asm.vvp \
             rtl/shama_asm_accel.sv rtl/tb_asm_accel.sv
-          vvp build_asm.vvp
+          timeout 30s vvp build_asm.vvp
       - name: Compile GUI kernel accelerator
         run: |
           iverilog -g2012 -Wall -I rtl -s shama_kernel_accel -o build_kernel.vvp rtl/shama_kernel_accel.sv
