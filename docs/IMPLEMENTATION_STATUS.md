@@ -34,8 +34,10 @@ The agreed ShamaOS Redstone PC implementation is present on `main`. This is no l
 
 - 4 MiB ShamaFS image with boot/kernel/apps/editable assembly sources.
 - hardware ShamaFS mount/create/open/read/write/truncate/rename/delete/stat/list.
+- ShamaFS metadata is streamed from the real physical flash instead of duplicating the complete bitmap/file table in gate-expanded accelerator state.
 - persistent allocation bitmap and file metadata.
 - hardware two-pass Shama Assembly assembler.
+- the assembler streams source line-by-line from RAM while retaining two-pass labels/definitions/syscall resolution, avoiding a second gate-expanded copy of the source/token database.
 - resident kernel + one foreground app loaded from flash into RAM/cache.
 - foreground page allocator with automatic release on app switch.
 - hardware-universal Home/Exit/Editor/File Explorer switching.
