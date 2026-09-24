@@ -15,6 +15,10 @@ async2sync
 dffunmap
 opt
 simplemap
+# simplemap materializes internal $_SDFF_* cells for synchronous-reset state.
+# Unmap them once more so the physical netlist only needs a plain DFF plus
+# combinational reset gating, which aigmap reduces to AND/NOT.
+dffunmap
 opt
 aigmap
 opt
