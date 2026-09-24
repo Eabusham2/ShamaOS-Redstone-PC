@@ -598,7 +598,9 @@ module shama_asm_accel(
                                 mn_idx=1;
                         end
 
-                        if(state!=ST_ERROR) begin
+                        if(!(line_first_char[0]=="." &&
+                             !pass_two &&
+                             label_count>=MAX_SYMBOLS)) begin
                             if(mn_idx>=line_token_count) begin
                                 state<=ST_LINE_DONE;
                             end else if(line_hash[mn_idx]==HASH_DEFINE) begin
