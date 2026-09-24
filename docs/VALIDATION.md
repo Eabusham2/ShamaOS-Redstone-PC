@@ -49,3 +49,12 @@ After generating a concrete world:
 7. run the Bitcoin Miner and observe nonce/hash/target changes.
 
 The repository can automate the build/file-format side; launching Minecraft requires the actual destination world.
+
+
+## Physical technology mapping performance
+
+Release physical synthesis maps combinational logic directly to the redstone
+NAND/NOR gate family after DFF mapping. This is Boolean-equivalent to the prior
+liberty-optimized mapping, but avoids expensive liberty optimization on the
+large ShamaFS and in-world assembler control cones. Yosys primitive names are
+normalized to the same physical BUF/NOT/NAND/NOR/DFF cell templates.
