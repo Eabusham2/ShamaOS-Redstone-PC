@@ -104,7 +104,7 @@ module shama_asm_accel(
         is_digit=(c>="0" && c<="9");
     endfunction
 
-    function automatic logic current_is_reg;
+    function automatic logic current_is_reg(input logic _live);
         integer value;
         begin
             value=0;
@@ -121,7 +121,7 @@ module shama_asm_accel(
         end
     endfunction
 
-    function automatic [3:0] current_reg;
+    function automatic [3:0] current_reg(input logic _live);
         integer value;
         begin
             value=token_chars[1]-"0";
@@ -131,7 +131,7 @@ module shama_asm_accel(
         end
     endfunction
 
-    function automatic logic current_is_number;
+    function automatic logic current_is_number(input logic _live);
         begin
             current_is_number=0;
             if(token_length==3 && token_chars[0]=="'" && token_chars[2]=="'")
@@ -142,7 +142,7 @@ module shama_asm_accel(
         end
     endfunction
 
-    function automatic [31:0] current_number;
+    function automatic [31:0] current_number(input logic _live);
         integer pos,base,digit;
         logic neg;
         logic [31:0] value;
@@ -547,10 +547,10 @@ module shama_asm_accel(
                         state<=ST_ERROR;
                     end else begin
                         line_hash[line_token_count]<=hash_work;
-                        line_number[line_token_count]<=current_number();
-                        line_reg[line_token_count]<=current_reg();
-                        line_is_number[line_token_count]<=current_is_number();
-                        line_is_reg[line_token_count]<=current_is_reg();
+                        line_number[line_token_count]<=current_number(1'b1);
+                        line_reg[line_token_count]<=current_reg(1'b1);
+                        line_is_number[line_token_count]<=current_is_number(1'b1);
+                        line_is_reg[line_token_count]<=current_is_reg(1'b1);
                         line_first_char[line_token_count]<=token_chars[0];
                         line_token_count<=line_token_count+1'b1;
 
