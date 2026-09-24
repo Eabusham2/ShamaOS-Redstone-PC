@@ -106,6 +106,15 @@ def emit_nand(origin: Vec3, component: str) -> Iterator[Placement]:
         yield from _dust(origin, 12, z, component)
 
 
+
+def emit_and(origin: Vec3, component: str) -> Iterator[Placement]:
+    """Two-input AND as the existing NAND cell followed by one inverter."""
+    yield from emit_nand(origin, component)
+    yield from _dust(origin, 13, 0, component)
+    yield from emit_not(origin.offset(14, 0, 0), component)
+
+
+
 def emit_dff(origin: Vec3, component: str) -> Iterator[Placement]:
     """Positive-edge master/slave DFF built from locked repeaters.
 
@@ -172,6 +181,13 @@ TEMPLATES: dict[str, LogicTemplate] = {
         {"A": Vec3(0, 1, 0), "B": Vec3(3, 1, 0), "Y": Vec3(6, 1, 0)},
         emit_nor,
     ),
+    "AND": LogicTemplate(
+        "AND",
+        19,
+        6,
+        {"A": Vec3(0, 1, 0), "B": Vec3(3, 1, 0), "Y": Vec3(18, 1, 0)},
+        emit_and,
+    ),
     "DFF": LogicTemplate(
         "DFF",
         15,
@@ -189,7 +205,9 @@ def normalize_cell_type(cell_type: str) -> str:
         "$_NOT_": "NOT",
         "$_NAND_": "NAND",
         "$_NOR_": "NOR",
+        "$_AND_": "AND",
         "$_DFF_P_": "DFF",
+        "$_DFF_N_": "DFF",
     }
     return aliases.get(key, key)
 
