@@ -141,6 +141,30 @@ jobs:
           assert len(shell.output_ports["y"]) == 1
           print("PARTITIONED SYNTHESIS SMOKE PASS")
           PY
+      - name: AIG redstone synthesis smoke
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from shamaos.model import Vec3
+          from shamaos.synthesis import build_physical_netlist, synthesize_json
+
+          output = synthesize_json(
+              [Path("rtl/synth_smoke.sv")],
+              top="synth_smoke",
+              output_json="build/synth-smoke-aig.json",
+              mapping_mode="aig",
+          )
+          physical = build_physical_netlist(
+              output,
+              top="synth_smoke",
+              origin=Vec3(0, 64, 0),
+          )
+          m = physical.manifest()
+          assert m["cell_count"] > 0
+          assert m["net_count"] > 0
+          assert m["routing_tracks"] > 0
+          print("AIG REDSTONE SYNTHESIS SMOKE PASS", m)
+          PY
       - name: Yosys redstone synthesis smoke
         run: |
           shamaos synth-redstone --top synth_smoke --rtl rtl/synth_smoke.sv \
@@ -252,6 +276,7 @@ jobs:
               _geometry_from_config,
               _partition_origin,
               _repo_root,
+              partition_mapping_mode,
           )
 
           instance = os.environ["SHAMA_INSTANCE"]
@@ -274,6 +299,7 @@ jobs:
               top=module,
               output_json=output,
               repo_root=root,
+              mapping_mode=partition_mapping_mode(module),
           )
           physical = build_physical_netlist(
               output,
