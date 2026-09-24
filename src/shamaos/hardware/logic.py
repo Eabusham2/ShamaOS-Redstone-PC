@@ -160,6 +160,50 @@ def emit_dff(origin: Vec3, component: str) -> Iterator[Placement]:
         yield from _dust(origin, 14, z, component)
 
 
+
+def emit_sdff_pp0(origin: Vec3, component: str) -> Iterator[Placement]:
+    """Positive-edge synchronous-reset-to-zero DFF.
+
+    Implements D_eff = D & !R = NOR(!D, R), then feeds the existing DFF.
+    Reset therefore affects Q only on the active clock edge, matching the
+    Yosys internal $_SDFF_PP0_ primitive exactly.
+    """
+    # D input inverter: D -> !D.
+    yield from emit_not(origin, component)
+
+    # !D -> NOR input A at x=8.
+    for x in range(5, 8):
+        yield from _dust(origin, x, 0, component)
+
+    # Reset input is a separate terminal at z=8. Route it east, refresh once,
+    # then north into NOR input B at x=11,z=0.
+    for x in range(0, 12):
+        yield _place(origin, x, 0, 8, SUPPORT, component)
+        if x == 6:
+            yield _place(origin, x, 1, 8, repeater("east"), component)
+        else:
+            yield _place(origin, x, 1, 8, DUST, component)
+    for z in range(7, 0, -1):
+        yield _place(origin, 11, 0, z, SUPPORT, component)
+        yield _place(origin, 11, 1, z, DUST, component)
+
+    # NOR(!D, R) = D & !R.
+    yield from emit_nor(origin.offset(8, 0, 0), component)
+
+    # Effective D into the master/slave DFF.
+    for x in range(15, 20):
+        yield from _dust(origin, x, 0, component)
+
+    # Clock terminal is kept on z=8 to avoid crossing reset/data routing.
+    for z in range(8, 0, -1):
+        yield _place(origin, 23, 0, z, SUPPORT, component)
+        yield _place(origin, 23, 1, z, DUST, component)
+
+    yield from emit_dff(origin.offset(20, 0, 0), component)
+
+
+
+
 TEMPLATES: dict[str, LogicTemplate] = {
     "BUF": LogicTemplate(
         "BUF", 4, 2, {"A": Vec3(0, 1, 0), "Y": Vec3(3, 1, 0)}, emit_buf
@@ -195,6 +239,18 @@ TEMPLATES: dict[str, LogicTemplate] = {
         {"D": Vec3(0, 1, 0), "C": Vec3(3, 1, 0), "Q": Vec3(14, 1, 0)},
         emit_dff,
     ),
+    "SDFF_PP0": LogicTemplate(
+        "SDFF_PP0",
+        35,
+        12,
+        {
+            "D": Vec3(0, 1, 0),
+            "R": Vec3(0, 1, 8),
+            "C": Vec3(23, 1, 8),
+            "Q": Vec3(34, 1, 0),
+        },
+        emit_sdff_pp0,
+    ),
 }
 
 
@@ -208,6 +264,7 @@ def normalize_cell_type(cell_type: str) -> str:
         "$_AND_": "AND",
         "$_DFF_P_": "DFF",
         "$_DFF_N_": "DFF",
+        "$_SDFF_PP0_": "SDFF_PP0",
     }
     return aliases.get(key, key)
 
