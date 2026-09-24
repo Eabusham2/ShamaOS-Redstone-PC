@@ -669,7 +669,10 @@ module shama_fs_accel(
                 end
 
                 ST_ENTRY_DISPATCH: begin
-                    if(!entry_used && action!=ACT_NONE) begin
+                    if(!entry_used && action==ACT_LIST) begin
+                        response<=0;
+                        state<=ST_DONE;
+                    end else if(!entry_used && action!=ACT_NONE) begin
                         response<=64'hffffffffffffffff;
                         state<=ST_ERROR;
                     end else begin
