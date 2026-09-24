@@ -505,11 +505,13 @@ module shama_asm_accel(
                         end else
                             state<=ST_SCAN;
                     end else begin
+                        scan_pos<=scan_pos+1'b1;
                         if(!token_active) begin
                             token_active<=1;
                             token_length<=1;
                             token_chars[0]<=selected_byte;
                             hash_work<=(FNV_OFFSET ^ up(selected_byte))*FNV_PRIME;
+                            state<=ST_SCAN;
                         end else if(token_length>=MAX_TOKEN_CHARS) begin
                             error_code<=2;
                             error_line<=line_no+1'b1;
@@ -518,10 +520,8 @@ module shama_asm_accel(
                             token_chars[token_length]<=selected_byte;
                             token_length<=token_length+1'b1;
                             hash_work<=(hash_work ^ up(selected_byte))*FNV_PRIME;
-                        end
-                        scan_pos<=scan_pos+1'b1;
-                        if(state!=ST_ERROR)
                             state<=ST_SCAN;
+                        end
                     end
                 end
 
