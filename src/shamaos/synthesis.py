@@ -149,6 +149,7 @@ def synthesize_json(
     yosys: str = "yosys",
     repo_root: str | Path | None = None,
     blackbox_modules: Sequence[str] = (),
+    mapping_mode: str = "abc",
 ) -> Path:
     if not rtl_files:
         raise ValueError("at least one RTL file is required")
@@ -159,7 +160,18 @@ def synthesize_json(
         )
 
     root = Path(repo_root) if repo_root else Path(__file__).resolve().parents[2]
-    mapping = (root / "synth" / "redstone.ys").read_text(encoding="utf-8")
+    mapping_files = {
+        "abc": root / "synth" / "redstone.ys",
+        "aig": root / "synth" / "redstone_aig.ys",
+    }
+    try:
+        mapping_path = mapping_files[mapping_mode]
+    except KeyError as exc:
+        raise ValueError(
+            f"unknown synthesis mapping mode {mapping_mode!r}; "
+            f"expected one of {sorted(mapping_files)}"
+        ) from exc
+    mapping = mapping_path.read_text(encoding="utf-8")
     output = Path(output_json).resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
 
