@@ -144,6 +144,7 @@ module shama_asm_accel(
         parse_pos=0;
         parse_base=10;
         parse_digit=0;
+        parse_k=0;
         parse_neg=0;
         parse_value=0;
         parse_char=0;
