@@ -621,10 +621,12 @@ module shama_fs_accel(
                     end
 
                     if(names_equal(1'b1)) begin
-                        if(action==ACT_OPEN || action==ACT_CREATE) begin
+                        if(action==ACT_OPEN) begin
                             response<={32'd0,25'd0,entry_index+1'b1};
                             state<=ST_DONE;
                         end else begin
+                            // CREATE is intentionally exclusive: Editor "New"
+                            // must never overwrite/open an existing file by accident.
                             response<=64'hffffffffffffffff;
                             state<=ST_ERROR;
                         end
