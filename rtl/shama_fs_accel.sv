@@ -46,113 +46,130 @@ module shama_fs_accel(
     localparam integer BITMAP_FLASH_OFFSET = 256;
     localparam integer TABLE_FLASH_OFFSET = 2304;
     localparam integer DATA_START_BLOCK = 25;
-    // boot image list_files() sorts these fixed files into entries 13 and 14.
     localparam integer MINER_HISTORY_ENTRY = 13;
     localparam integer MINER_STATE_ENTRY = 14;
 
     typedef enum logic [6:0] {
         ST_IDLE,
         ST_MOUNT_BITMAP,
-        ST_MOUNT_TABLE,
         ST_MOUNT_DONE,
 
         ST_NAME_READ,
-        ST_NAME_BYTES,
-        ST_SEARCH,
-        ST_FIND_FREE_ENTRY,
+        ST_SEARCH_LOAD,
+        ST_SEARCH_CHECK,
+
+        ST_ENTRY_LOAD,
+        ST_ENTRY_DISPATCH,
 
         ST_CREATE_PREP,
-        ST_OPEN_DONE,
-        ST_CLOSE_DONE,
-        ST_STAT_DONE,
-
         ST_RENAME_NAME_READ,
-        ST_RENAME_NAME_BYTES,
-        ST_RENAME_PREP,
 
-        ST_DELETE_FREE,
-        ST_TRUNCATE_FREE,
-
+        ST_ALLOC_READ,
         ST_ALLOC_SCAN,
-        ST_ALLOC_MARK,
-        ST_FLUSH_BITMAP,
-        ST_WRITE_RAM_READ,
-        ST_WRITE_FLASH_BYTE,
-        ST_WRITE_UPDATE_ENTRY,
-        ST_WRITE_FREE_OLD,
+        ST_ALLOC_MARK_READ,
+        ST_ALLOC_MARK_WRITE,
 
-        ST_READ_FLASH_BYTE,
-        ST_READ_RAM_WRITE,
+        ST_FREE_READ,
+        ST_FREE_WRITE,
 
-        ST_LIST_NAME_WRITE,
+        ST_COPY_RAM_READ,
+        ST_COPY_FLASH_WRITE,
+        ST_COPY_FLASH_READ,
+        ST_COPY_RAM_WRITE,
 
-        ST_FLUSH_ENTRY,
+        ST_LIST_WRITE,
+
+        ST_ENTRY_FLUSH,
+        ST_ENTRY_FLUSH_DONE,
+
         ST_DONE,
         ST_ERROR
     } state_t;
 
+    typedef enum logic [4:0] {
+        ACT_NONE,
+        ACT_OPEN,
+        ACT_CREATE,
+        ACT_READ,
+        ACT_WRITE,
+        ACT_TRUNCATE,
+        ACT_RENAME,
+        ACT_DELETE,
+        ACT_STAT,
+        ACT_LIST,
+        ACT_MINER_LOG,
+        ACT_MINER_SAVE,
+        ACT_MINER_LOAD
+    } action_t;
+
     state_t state;
-    state_t after_name_state;
-    state_t after_bitmap_state;
-    state_t after_entry_state;
+    action_t action;
+    action_t after_flush_action;
 
-    // Cached ShamaFS metadata.
-    logic file_used [0:MAX_FILES-1];
-    logic [7:0] file_type [0:MAX_FILES-1];
-    logic [15:0] file_flags [0:MAX_FILES-1];
-    logic [31:0] file_size [0:MAX_FILES-1];
-    logic [31:0] file_start [0:MAX_FILES-1];
-    logic [31:0] file_blocks [0:MAX_FILES-1];
-    logic [31:0] file_generation [0:MAX_FILES-1];
-    logic [7:0] file_name_len [0:MAX_FILES-1];
-    logic [7:0] file_name [0:MAX_FILES*NAME_BYTES-1];
-
-    logic [31:0] bitmap [0:BITMAP_WORDS-1];
-    logic [31:0] used_blocks;
-
-    // Request context.
     logic [11:0] op;
     logic [31:0] a1,a2,a3,a4,a5,a6;
     logic [63:0] response;
 
+    logic [31:0] used_blocks;
+    logic [9:0] mount_bitmap_word;
+
+    // Only one file-table entry is cached at a time.  The persistent 4 MiB
+    // flash remains authoritative, avoiding tens of thousands of inferred
+    // metadata flip-flops in the physically synthesized accelerator.
+    logic entry_used;
+    logic [7:0] entry_type;
+    logic [15:0] entry_flags;
+    logic [31:0] entry_size;
+    logic [31:0] entry_start;
+    logic [31:0] entry_blocks;
+    logic [31:0] entry_generation;
+    logic [7:0] entry_name_len;
+    logic [7:0] entry_name [0:NAME_BYTES-1];
+
+    logic [6:0] entry_index;
+    logic [4:0] entry_word;
+    logic [6:0] search_index;
+    logic [6:0] first_free_index;
+    logic first_free_valid;
+
     logic [7:0] query_name [0:NAME_BYTES-1];
     logic [7:0] query_len;
     logic [31:0] query_ptr;
-    logic [31:0] name_word;
-    logic [1:0] name_byte_index;
 
-    logic [6:0] scan_entry;
-    logic [6:0] target_entry;
-    logic [6:0] flush_entry_index;
-    logic [4:0] flush_entry_word;
-
-    logic [9:0] mount_bitmap_word;
-    logic [10:0] mount_table_word;
-
-    logic [9:0] flush_bitmap_word;
-
-    logic [31:0] alloc_needed;
-    logic [31:0] alloc_cursor;
-    logic [31:0] alloc_run_start;
-    logic [31:0] alloc_run_len;
-    logic [31:0] alloc_start;
-    logic [31:0] alloc_mark_index;
+    logic [31:0] copy_src;
+    logic [31:0] copy_dst;
+    logic [31:0] copy_count;
+    logic [31:0] copy_index;
+    logic [7:0] copy_byte;
+    logic copy_src_flash;
+    logic copy_dst_flash;
 
     logic [31:0] old_start;
     logic [31:0] old_blocks;
-    logic [31:0] free_index;
 
-    logic [31:0] copy_index;
-    logic [31:0] copy_count;
-    logic [31:0] copy_src;
-    logic [31:0] copy_dst;
-    logic [7:0] copy_byte;
-    logic direct_write;
+    logic [31:0] alloc_needed;
+    logic [31:0] alloc_word_index;
+    logic [5:0] alloc_bit_index;
+    logic [31:0] alloc_word_cache;
+    logic [31:0] alloc_run_start;
+    logic [31:0] alloc_run_len;
+    logic [31:0] alloc_start;
+    logic [31:0] alloc_mark_offset;
+    logic [31:0] bitmap_modify_word;
+    logic [5:0] bitmap_modify_bit;
+
+    logic [31:0] free_start;
+    logic [31:0] free_count;
+    logic [31:0] free_offset;
 
     logic [7:0] list_name_index;
 
     integer i;
-    integer j;
+    integer n;
+    integer base_byte;
+    logic [7:0] selected_byte;
+    logic [31:0] absolute_block;
+    logic [31:0] bitmap_word_value;
 
     function automatic [5:0] popcount32(input logic [31:0] x);
         integer k;
@@ -163,44 +180,37 @@ module shama_fs_accel(
         end
     endfunction
 
-    function automatic logic bitmap_bit(input integer block);
-        bitmap_bit = bitmap[block>>5][block&31];
-    endfunction
-
-    function automatic logic names_equal(input integer entry);
+    function automatic logic names_equal;
         integer k;
         logic ok;
         begin
-            ok=file_used[entry] && file_name_len[entry]==query_len;
+            ok=entry_used && (entry_name_len==query_len);
             for(k=0;k<NAME_BYTES;k=k+1)
-                if(k<query_len && file_name[entry*NAME_BYTES+k]!=query_name[k])
+                if(k<query_len && entry_name[k]!=query_name[k])
                     ok=1'b0;
             names_equal=ok;
         end
     endfunction
 
-    function automatic [31:0] encode_entry_word(
-        input integer entry,
-        input integer word_index
-    );
-        integer base_byte;
-        integer n;
+    function automatic [31:0] encode_entry_word(input integer word_index);
+        integer b;
+        integer k;
         logic [31:0] value;
         begin
             value=0;
             case(word_index)
-                0: value={file_flags[entry],file_type[entry],7'd0,file_used[entry]};
-                1: value=file_size[entry];
-                2: value=file_start[entry];
-                3: value=file_blocks[entry];
-                4: value=file_generation[entry];
+                0: value={entry_flags,entry_type,7'd0,entry_used};
+                1: value=entry_size;
+                2: value=entry_start;
+                3: value=entry_blocks;
+                4: value=entry_generation;
                 default: begin
-                    base_byte=(word_index*4)-21;
-                    for(n=0;n<4;n=n+1) begin
-                        if(word_index==5 && n==0)
-                            value[n*8 +: 8]=file_name_len[entry];
-                        else if((base_byte+n)>=0 && (base_byte+n)<NAME_BYTES)
-                            value[n*8 +: 8]=file_name[entry*NAME_BYTES+base_byte+n];
+                    b=(word_index*4)-21;
+                    for(k=0;k<4;k=k+1) begin
+                        if(word_index==5 && k==0)
+                            value[k*8 +: 8]=entry_name_len;
+                        else if((b+k)>=0 && (b+k)<NAME_BYTES)
+                            value[k*8 +: 8]=entry_name[b+k];
                     end
                 end
             endcase
@@ -209,40 +219,83 @@ module shama_fs_accel(
     endfunction
 
     task automatic decode_entry_word(
-        input integer entry,
         input integer word_index,
         input logic [31:0] value
     );
-        integer base_byte;
-        integer n;
+        integer b;
+        integer k;
         begin
             case(word_index)
                 0: begin
-                    file_used[entry]<=value[0];
-                    file_type[entry]<=value[15:8];
-                    file_flags[entry]<=value[31:16];
+                    entry_used<=value[0];
+                    entry_type<=value[15:8];
+                    entry_flags<=value[31:16];
                 end
-                1:file_size[entry]<=value;
-                2:file_start[entry]<=value;
-                3:file_blocks[entry]<=value;
-                4:file_generation[entry]<=value;
+                1: entry_size<=value;
+                2: entry_start<=value;
+                3: entry_blocks<=value;
+                4: entry_generation<=value;
                 default: begin
-                    base_byte=(word_index*4)-21;
-                    for(n=0;n<4;n=n+1) begin
-                        if(word_index==5 && n==0)
-                            file_name_len[entry]<=value[7:0];
-                        else if((base_byte+n)>=0 && (base_byte+n)<NAME_BYTES)
-                            file_name[entry*NAME_BYTES+base_byte+n]<=value[n*8 +: 8];
+                    b=(word_index*4)-21;
+                    for(k=0;k<4;k=k+1) begin
+                        if(word_index==5 && k==0)
+                            entry_name_len<=value[7:0];
+                        else if((b+k)>=0 && (b+k)<NAME_BYTES)
+                            entry_name[b+k]<=value[k*8 +: 8];
                     end
                 end
             endcase
         end
     endtask
 
+    task automatic clear_entry;
+        integer k;
+        begin
+            entry_used<=0;
+            entry_type<=0;
+            entry_flags<=0;
+            entry_size<=0;
+            entry_start<=0;
+            entry_blocks<=0;
+            entry_generation<=0;
+            entry_name_len<=0;
+            for(k=0;k<NAME_BYTES;k=k+1)
+                entry_name[k]<=0;
+        end
+    endtask
+
+    task automatic begin_entry_load(
+        input [6:0] idx,
+        input action_t next_action
+    );
+        begin
+            entry_index<=idx;
+            entry_word<=0;
+            action<=next_action;
+            state<=ST_ENTRY_LOAD;
+        end
+    endtask
+
+    task automatic begin_free(
+        input [31:0] start_block,
+        input [31:0] count_blocks,
+        input action_t next_action
+    );
+        begin
+            free_start<=start_block;
+            free_count<=count_blocks;
+            free_offset<=0;
+            action<=next_action;
+            if(count_blocks==0)
+                state<=ST_ENTRY_DISPATCH;
+            else
+                state<=ST_FREE_READ;
+        end
+    endtask
+
     always_comb begin
         req_ready=(state==ST_DONE || state==ST_ERROR);
         req_ret=response;
-
         flash_used_bytes=used_blocks<<8;
 
         dma_valid=1'b0;
@@ -252,93 +305,177 @@ module shama_fs_accel(
         dma_wdata=0;
         dma_wstrb=4'b1111;
 
+        selected_byte = 0;
+        absolute_block = 0;
+        bitmap_word_value = 0;
+
         case(state)
             ST_MOUNT_BITMAP: begin
-                dma_valid=1;dma_flash=1;
+                dma_valid=1;
+                dma_flash=1;
                 dma_addr=BITMAP_FLASH_OFFSET+(mount_bitmap_word<<2);
             end
-            ST_MOUNT_TABLE: begin
-                dma_valid=1;dma_flash=1;
-                dma_addr=TABLE_FLASH_OFFSET+(mount_table_word<<2);
-            end
-            ST_NAME_READ,ST_RENAME_NAME_READ: begin
-                dma_valid=1;dma_flash=0;
+
+            ST_NAME_READ, ST_RENAME_NAME_READ: begin
+                dma_valid=1;
+                dma_flash=0;
                 dma_addr=(query_ptr+query_len)&32'hfffffffc;
-            end
-            ST_FLUSH_BITMAP: begin
-                dma_valid=1;dma_we=1;dma_flash=1;
-                dma_addr=BITMAP_FLASH_OFFSET+(flush_bitmap_word<<2);
-                dma_wdata=bitmap[flush_bitmap_word];
-            end
-            ST_FLUSH_ENTRY: begin
-                dma_valid=1;dma_we=1;dma_flash=1;
-                dma_addr=TABLE_FLASH_OFFSET+(flush_entry_index<<6)+(flush_entry_word<<2);
-                dma_wdata=encode_entry_word(flush_entry_index,flush_entry_word);
-            end
-            ST_WRITE_RAM_READ: begin
-                dma_valid=1;dma_flash=0;
-                dma_addr=(copy_src+copy_index)&32'hfffffffc;
-            end
-            ST_WRITE_FLASH_BYTE: begin
-                dma_valid=1;dma_we=1;dma_flash=1;
-                dma_addr=copy_dst+copy_index;
-                dma_wdata={4{copy_byte}};
-                case((copy_dst+copy_index)&3)
-                    0: begin dma_wstrb=4'b0001;dma_wdata={24'd0,copy_byte};end
-                    1: begin dma_wstrb=4'b0010;dma_wdata={16'd0,copy_byte,8'd0};end
-                    2: begin dma_wstrb=4'b0100;dma_wdata={8'd0,copy_byte,16'd0};end
-                    default: begin dma_wstrb=4'b1000;dma_wdata={copy_byte,24'd0};end
+                case((query_ptr+query_len)&3)
+                    0:selected_byte=dma_rdata[7:0];
+                    1:selected_byte=dma_rdata[15:8];
+                    2:selected_byte=dma_rdata[23:16];
+                    default:selected_byte=dma_rdata[31:24];
                 endcase
             end
-            ST_READ_FLASH_BYTE: begin
-                dma_valid=1;dma_flash=1;
-                dma_addr=(copy_src+copy_index)&32'hfffffffc;
+
+            ST_SEARCH_LOAD, ST_ENTRY_LOAD: begin
+                dma_valid=1;
+                dma_flash=1;
+                dma_addr=TABLE_FLASH_OFFSET+(entry_index<<6)+(entry_word<<2);
             end
-            ST_READ_RAM_WRITE: begin
-                dma_valid=1;dma_we=1;dma_flash=0;
-                dma_addr=copy_dst+copy_index;
-                case((copy_dst+copy_index)&3)
-                    0: begin dma_wstrb=4'b0001;dma_wdata={24'd0,copy_byte};end
-                    1: begin dma_wstrb=4'b0010;dma_wdata={16'd0,copy_byte,8'd0};end
-                    2: begin dma_wstrb=4'b0100;dma_wdata={8'd0,copy_byte,16'd0};end
-                    default: begin dma_wstrb=4'b1000;dma_wdata={copy_byte,24'd0};end
+
+            ST_ALLOC_READ: begin
+                dma_valid=1;
+                dma_flash=1;
+                dma_addr=BITMAP_FLASH_OFFSET+(alloc_word_index<<2);
+            end
+
+            ST_ALLOC_MARK_READ: begin
+                absolute_block=alloc_start+alloc_mark_offset;
+                dma_valid=1;
+                dma_flash=1;
+                dma_addr=BITMAP_FLASH_OFFSET+((absolute_block>>5)<<2);
+            end
+
+            ST_ALLOC_MARK_WRITE: begin
+                absolute_block=alloc_start+alloc_mark_offset;
+                dma_valid=1;
+                dma_we=1;
+                dma_flash=1;
+                dma_addr=BITMAP_FLASH_OFFSET+((absolute_block>>5)<<2);
+                dma_wdata=bitmap_modify_word | (32'h1<<bitmap_modify_bit);
+            end
+
+            ST_FREE_READ: begin
+                absolute_block=free_start+free_offset;
+                dma_valid=1;
+                dma_flash=1;
+                dma_addr=BITMAP_FLASH_OFFSET+((absolute_block>>5)<<2);
+            end
+
+            ST_FREE_WRITE: begin
+                absolute_block=free_start+free_offset;
+                dma_valid=1;
+                dma_we=1;
+                dma_flash=1;
+                dma_addr=BITMAP_FLASH_OFFSET+((absolute_block>>5)<<2);
+                dma_wdata=bitmap_modify_word & ~(32'h1<<bitmap_modify_bit);
+            end
+
+            ST_COPY_RAM_READ: begin
+                dma_valid=1;
+                dma_flash=copy_src_flash;
+                dma_addr=(copy_src+copy_index)&32'hfffffffc;
+                case((copy_src+copy_index)&3)
+                    0:selected_byte=dma_rdata[7:0];
+                    1:selected_byte=dma_rdata[15:8];
+                    2:selected_byte=dma_rdata[23:16];
+                    default:selected_byte=dma_rdata[31:24];
                 endcase
             end
-            ST_LIST_NAME_WRITE: begin
-                dma_valid=1;dma_we=1;dma_flash=0;
+
+            ST_COPY_FLASH_WRITE: begin
+                dma_valid=1;
+                dma_we=1;
+                dma_flash=copy_dst_flash;
+                dma_addr=copy_dst+copy_index;
+                case((copy_dst+copy_index)&3)
+                    0:begin dma_wstrb=4'b0001;dma_wdata={24'd0,copy_byte};end
+                    1:begin dma_wstrb=4'b0010;dma_wdata={16'd0,copy_byte,8'd0};end
+                    2:begin dma_wstrb=4'b0100;dma_wdata={8'd0,copy_byte,16'd0};end
+                    default:begin dma_wstrb=4'b1000;dma_wdata={copy_byte,24'd0};end
+                endcase
+            end
+
+            ST_COPY_FLASH_READ: begin
+                dma_valid=1;
+                dma_flash=copy_src_flash;
+                dma_addr=(copy_src+copy_index)&32'hfffffffc;
+                case((copy_src+copy_index)&3)
+                    0:selected_byte=dma_rdata[7:0];
+                    1:selected_byte=dma_rdata[15:8];
+                    2:selected_byte=dma_rdata[23:16];
+                    default:selected_byte=dma_rdata[31:24];
+                endcase
+            end
+
+            ST_COPY_RAM_WRITE: begin
+                dma_valid=1;
+                dma_we=1;
+                dma_flash=copy_dst_flash;
+                dma_addr=copy_dst+copy_index;
+                case((copy_dst+copy_index)&3)
+                    0:begin dma_wstrb=4'b0001;dma_wdata={24'd0,copy_byte};end
+                    1:begin dma_wstrb=4'b0010;dma_wdata={16'd0,copy_byte,8'd0};end
+                    2:begin dma_wstrb=4'b0100;dma_wdata={8'd0,copy_byte,16'd0};end
+                    default:begin dma_wstrb=4'b1000;dma_wdata={copy_byte,24'd0};end
+                endcase
+            end
+
+            ST_LIST_WRITE: begin
+                dma_valid=1;
+                dma_we=1;
+                dma_flash=0;
                 dma_addr=a2+list_name_index;
                 case((a2+list_name_index)&3)
-                    0: begin dma_wstrb=4'b0001;dma_wdata={24'd0,file_name[target_entry*NAME_BYTES+list_name_index]};end
-                    1: begin dma_wstrb=4'b0010;dma_wdata={16'd0,file_name[target_entry*NAME_BYTES+list_name_index],8'd0};end
-                    2: begin dma_wstrb=4'b0100;dma_wdata={8'd0,file_name[target_entry*NAME_BYTES+list_name_index],16'd0};end
-                    default: begin dma_wstrb=4'b1000;dma_wdata={file_name[target_entry*NAME_BYTES+list_name_index],24'd0};end
+                    0:begin dma_wstrb=4'b0001;dma_wdata={24'd0,entry_name[list_name_index]};end
+                    1:begin dma_wstrb=4'b0010;dma_wdata={16'd0,entry_name[list_name_index],8'd0};end
+                    2:begin dma_wstrb=4'b0100;dma_wdata={8'd0,entry_name[list_name_index],16'd0};end
+                    default:begin dma_wstrb=4'b1000;dma_wdata={entry_name[list_name_index],24'd0};end
                 endcase
             end
+
+            ST_ENTRY_FLUSH: begin
+                dma_valid=1;
+                dma_we=1;
+                dma_flash=1;
+                dma_addr=TABLE_FLASH_OFFSET+(entry_index<<6)+(entry_word<<2);
+                dma_wdata=encode_entry_word(entry_word);
+            end
+
             default: begin end
         endcase
     end
 
     always_ff @(posedge clk) begin
         if(rst) begin
-            state<=ST_IDLE;mounted<=0;response<=0;op<=0;
+            state<=ST_IDLE;
+            action<=ACT_NONE;
+            after_flush_action<=ACT_NONE;
+            mounted<=0;
+            response<=0;
+            op<=0;
             a1<=0;a2<=0;a3<=0;a4<=0;a5<=0;a6<=0;
-            query_len<=0;query_ptr<=0;name_word<=0;name_byte_index<=0;
-            scan_entry<=0;target_entry<=0;flush_entry_index<=0;flush_entry_word<=0;
-            mount_bitmap_word<=0;mount_table_word<=0;flush_bitmap_word<=0;
             used_blocks<=0;
-            alloc_needed<=0;alloc_cursor<=DATA_START_BLOCK;
-            alloc_run_start<=0;alloc_run_len<=0;alloc_start<=0;alloc_mark_index<=0;
-            old_start<=0;old_blocks<=0;free_index<=0;
-            copy_index<=0;copy_count<=0;copy_src<=0;copy_dst<=0;copy_byte<=0;
-            direct_write<=0;
+            mount_bitmap_word<=0;
+            entry_index<=0;
+            entry_word<=0;
+            search_index<=0;
+            first_free_index<=0;
+            first_free_valid<=0;
+            query_len<=0;
+            query_ptr<=0;
+            copy_src<=0;copy_dst<=0;copy_count<=0;copy_index<=0;copy_byte<=0;
+            copy_src_flash<=0;copy_dst_flash<=0;
+            old_start<=0;old_blocks<=0;
+            alloc_needed<=0;alloc_word_index<=0;alloc_bit_index<=0;
+            alloc_word_cache<=0;alloc_run_start<=0;alloc_run_len<=0;
+            alloc_start<=0;alloc_mark_offset<=0;bitmap_modify_word<=0;bitmap_modify_bit<=0;
+            free_start<=0;free_count<=0;free_offset<=0;
             list_name_index<=0;
-            for(i=0;i<MAX_FILES;i=i+1) begin
-                file_used[i]<=0;file_type[i]<=0;file_flags[i]<=0;file_size[i]<=0;
-                file_start[i]<=0;file_blocks[i]<=0;file_generation[i]<=0;file_name_len[i]<=0;
-            end
-            for(i=0;i<MAX_FILES*NAME_BYTES;i=i+1) file_name[i]<=0;
-            for(i=0;i<BITMAP_WORDS;i=i+1) bitmap[i]<=0;
-            for(i=0;i<NAME_BYTES;i=i+1) query_name[i]<=0;
+            clear_entry();
+            for(i=0;i<NAME_BYTES;i=i+1)
+                query_name[i]<=0;
         end else begin
             if((state==ST_DONE || state==ST_ERROR) && !req_valid)
                 state<=ST_IDLE;
@@ -346,310 +483,525 @@ module shama_fs_accel(
             case(state)
                 ST_IDLE: if(req_valid) begin
                     op<=req_id;
-                    a1<=req_args[31:0];a2<=req_args[63:32];a3<=req_args[95:64];
-                    a4<=req_args[127:96];a5<=req_args[159:128];a6<=req_args[191:160];
+                    a1<=req_args[31:0];
+                    a2<=req_args[63:32];
+                    a3<=req_args[95:64];
+                    a4<=req_args[127:96];
+                    a5<=req_args[159:128];
+                    a6<=req_args[191:160];
                     response<=0;
 
                     case(req_id)
                         SYS_BOOT_MOUNT: begin
-                            mount_bitmap_word<=0;used_blocks<=0;state<=ST_MOUNT_BITMAP;
+                            mount_bitmap_word<=0;
+                            used_blocks<=0;
+                            state<=ST_MOUNT_BITMAP;
                         end
+
                         SYS_FLASH_USAGE: begin
-                            response<={32'd4194304,flash_used_bytes};state<=ST_DONE;
+                            response<={32'd4194304,flash_used_bytes};
+                            state<=ST_DONE;
                         end
-                        SYS_FILE_CLOSE: begin response<=0;state<=ST_DONE;end
-                        SYS_FILE_READ,SYS_FILE_WRITE,SYS_FILE_TRUNCATE,SYS_FILE_RENAME,
-                        SYS_FILE_DELETE,SYS_FILE_STAT: begin
-                            if(req_args[31:0]==0 || req_args[31:0]>MAX_FILES) begin
-                                response<=64'hffffffffffffffff;state<=ST_ERROR;
-                            end else begin
-                                target_entry<=req_args[31:0]-1;
-                                if(req_id==SYS_FILE_READ) begin
-                                    copy_index<=0;
-                                    copy_count<=(req_args[95:64]<file_size[req_args[31:0]-1])?
-                                                req_args[95:64]:file_size[req_args[31:0]-1];
-                                    copy_src<=file_start[req_args[31:0]-1]*BLOCK_SIZE;
-                                    copy_dst<=req_args[63:32];
-                                    state<=ST_READ_FLASH_BYTE;
-                                end else if(req_id==SYS_FILE_WRITE) begin
-                                    old_start<=file_start[req_args[31:0]-1];
-                                    old_blocks<=file_blocks[req_args[31:0]-1];
-                                    free_index<=0;
-                                    copy_count<=req_args[95:64];
-                                    copy_src<=req_args[63:32];
-                                    direct_write<=0;
-                                    alloc_needed<=(req_args[95:64]+BLOCK_SIZE-1)>>8;
-                                    alloc_cursor<=DATA_START_BLOCK;
-                                    alloc_run_len<=0;
-                                    state<=ST_ALLOC_SCAN;
-                                end else if(req_id==SYS_FILE_RENAME) begin
-                                    query_ptr<=req_args[63:32];query_len<=0;
-                                    after_name_state<=ST_RENAME_PREP;
-                                    state<=ST_RENAME_NAME_READ;
-                                end else if(req_id==SYS_FILE_DELETE) begin
-                                    old_start<=file_start[req_args[31:0]-1];
-                                    old_blocks<=file_blocks[req_args[31:0]-1];
-                                    free_index<=0;state<=ST_DELETE_FREE;
-                                end else if(req_id==SYS_FILE_TRUNCATE) begin
-                                    if(req_args[63:32]==0) begin
-                                        old_start<=file_start[req_args[31:0]-1];
-                                        old_blocks<=file_blocks[req_args[31:0]-1];
-                                        free_index<=0;state<=ST_TRUNCATE_FREE;
-                                    end else begin
-                                        response<=64'hfffffffffffffffe;state<=ST_ERROR;
-                                    end
-                                end else begin
-                                    response<={file_size[req_args[31:0]-1],
-                                              file_start[req_args[31:0]-1][15:0],
-                                              file_name_len[req_args[31:0]-1],
-                                              file_type[req_args[31:0]-1]};
-                                    state<=ST_DONE;
-                                end
-                            end
+
+                        SYS_FILE_CLOSE: begin
+                            response<=0;
+                            state<=ST_DONE;
                         end
-                        SYS_FILE_LIST: begin
-                            if(req_args[31:0]>=MAX_FILES) begin response<=0;state<=ST_DONE;end
-                            else begin
-                                target_entry<=req_args[6:0];
-                                list_name_index<=0;
-                                if(file_used[req_args[6:0]]) state<=ST_LIST_NAME_WRITE;
-                                else begin response<=0;state<=ST_DONE;end
-                            end
-                        end
-                        SYS_FILE_CREATE,SYS_FILE_OPEN: begin
-                            query_ptr<=req_args[31:0];query_len<=0;name_byte_index<=0;
-                            after_name_state<=ST_SEARCH;
-                            scan_entry<=0;
+
+                        SYS_FILE_CREATE, SYS_FILE_OPEN: begin
+                            query_ptr<=req_args[31:0];
+                            query_len<=0;
+                            for(i=0;i<NAME_BYTES;i=i+1)
+                                query_name[i]<=0;
+                            action<=(req_id==SYS_FILE_CREATE)?ACT_CREATE:ACT_OPEN;
                             state<=ST_NAME_READ;
                         end
 
+                        SYS_FILE_READ,SYS_FILE_WRITE,SYS_FILE_TRUNCATE,
+                        SYS_FILE_RENAME,SYS_FILE_DELETE,SYS_FILE_STAT: begin
+                            if(req_args[31:0]==0 || req_args[31:0]>MAX_FILES) begin
+                                response<=64'hffffffffffffffff;
+                                state<=ST_ERROR;
+                            end else begin
+                                entry_index<=req_args[6:0]-1'b1;
+                                entry_word<=0;
+                                case(req_id)
+                                    SYS_FILE_READ: action<=ACT_READ;
+                                    SYS_FILE_WRITE: action<=ACT_WRITE;
+                                    SYS_FILE_TRUNCATE: action<=ACT_TRUNCATE;
+                                    SYS_FILE_RENAME: action<=ACT_RENAME;
+                                    SYS_FILE_DELETE: action<=ACT_DELETE;
+                                    default: action<=ACT_STAT;
+                                endcase
+                                state<=ST_ENTRY_LOAD;
+                            end
+                        end
+
+                        SYS_FILE_LIST: begin
+                            if(req_args[31:0]>=MAX_FILES) begin
+                                response<=0;
+                                state<=ST_DONE;
+                            end else begin
+                                entry_index<=req_args[6:0];
+                                entry_word<=0;
+                                action<=ACT_LIST;
+                                state<=ST_ENTRY_LOAD;
+                            end
+                        end
+
                         SYS_MINER_LOG_RESULT: begin
-                            // a1 RAM record ptr, a2 byte length <=64,
-                            // a3 ring slot 0..255.
-                            copy_src<=req_args[31:0];
-                            copy_count<=(req_args[63:32]>64)?64:req_args[63:32];
-                            copy_dst<=file_start[MINER_HISTORY_ENTRY]*BLOCK_SIZE
-                                     + ((req_args[71:64])<<6);
-                            copy_index<=0;
-                            direct_write<=1;
-                            state<=ST_WRITE_RAM_READ;
+                            entry_index<=MINER_HISTORY_ENTRY;
+                            entry_word<=0;
+                            action<=ACT_MINER_LOG;
+                            state<=ST_ENTRY_LOAD;
                         end
 
                         SYS_MINER_SAVE_STATE: begin
-                            // a1 RAM state ptr, a2 byte length <=256.
-                            copy_src<=req_args[31:0];
-                            copy_count<=(req_args[63:32]>256)?256:req_args[63:32];
-                            copy_dst<=file_start[MINER_STATE_ENTRY]*BLOCK_SIZE;
-                            copy_index<=0;
-                            direct_write<=1;
-                            state<=ST_WRITE_RAM_READ;
+                            entry_index<=MINER_STATE_ENTRY;
+                            entry_word<=0;
+                            action<=ACT_MINER_SAVE;
+                            state<=ST_ENTRY_LOAD;
                         end
 
                         SYS_MINER_LOAD_HISTORY: begin
-                            // a1 ring slot, a2 RAM destination, a3 length <=64.
-                            copy_src<=file_start[MINER_HISTORY_ENTRY]*BLOCK_SIZE
-                                     + ((req_args[7:0])<<6);
-                            copy_dst<=req_args[63:32];
-                            copy_count<=(req_args[95:64]>64)?64:req_args[95:64];
-                            copy_index<=0;
-                            direct_write<=0;
-                            state<=ST_READ_FLASH_BYTE;
+                            entry_index<=MINER_HISTORY_ENTRY;
+                            entry_word<=0;
+                            action<=ACT_MINER_LOAD;
+                            state<=ST_ENTRY_LOAD;
                         end
 
-                        default: begin response<=64'hffffffffffffffff;state<=ST_ERROR;end
+                        default: begin
+                            response<=64'hffffffffffffffff;
+                            state<=ST_ERROR;
+                        end
                     endcase
                 end
 
                 ST_MOUNT_BITMAP: if(dma_ready) begin
-                    bitmap[mount_bitmap_word]<=dma_rdata;
                     used_blocks<=used_blocks+popcount32(dma_rdata);
-                    if(mount_bitmap_word==BITMAP_WORDS-1) begin
-                        mount_table_word<=0;state<=ST_MOUNT_TABLE;
-                    end else mount_bitmap_word<=mount_bitmap_word+1'b1;
+                    if(mount_bitmap_word==BITMAP_WORDS-1)
+                        state<=ST_MOUNT_DONE;
+                    else
+                        mount_bitmap_word<=mount_bitmap_word+1'b1;
                 end
 
-                ST_MOUNT_TABLE: if(dma_ready) begin
-                    decode_entry_word(mount_table_word>>4,mount_table_word&15,dma_rdata);
-                    if(mount_table_word==1023) state<=ST_MOUNT_DONE;
-                    else mount_table_word<=mount_table_word+1'b1;
+                ST_MOUNT_DONE: begin
+                    mounted<=1;
+                    response<=used_blocks<<8;
+                    state<=ST_DONE;
                 end
 
-                ST_MOUNT_DONE: begin mounted<=1;response<=used_blocks<<8;state<=ST_DONE;end
-
-                ST_NAME_READ,ST_RENAME_NAME_READ: if(dma_ready) begin
-                    name_word<=dma_rdata;
-                    name_byte_index<=(query_ptr+query_len)&3;
-                    state<=(state==ST_NAME_READ)?ST_NAME_BYTES:ST_RENAME_NAME_BYTES;
-                end
-
-                ST_NAME_BYTES,ST_RENAME_NAME_BYTES: begin
-                    copy_byte<=name_word>>(name_byte_index*8);
-                    if((name_word>>(name_byte_index*8))==0 || query_len==NAME_BYTES) begin
-                        scan_entry<=0;
-                        state<=after_name_state;
+                ST_NAME_READ: if(dma_ready) begin
+                    if(selected_byte==0 || query_len==NAME_BYTES) begin
+                        search_index<=0;
+                        first_free_index<=0;
+                        first_free_valid<=0;
+                        entry_index<=0;
+                        entry_word<=0;
+                        state<=ST_SEARCH_LOAD;
                     end else begin
-                        query_name[query_len]<=name_word>>(name_byte_index*8);
+                        query_name[query_len]<=selected_byte;
                         query_len<=query_len+1'b1;
-                        state<=(state==ST_NAME_BYTES)?ST_NAME_READ:ST_RENAME_NAME_READ;
                     end
                 end
 
-                ST_SEARCH: begin
-                    if(scan_entry<MAX_FILES && names_equal(scan_entry)) begin
-                        target_entry<=scan_entry;
-                        if(op==SYS_FILE_OPEN) begin response<=scan_entry+1;state<=ST_DONE;end
-                        else begin response<=64'hfffffffffffffffd;state<=ST_ERROR;end
-                    end else if(scan_entry==MAX_FILES-1) begin
-                        if(op==SYS_FILE_CREATE) begin scan_entry<=0;state<=ST_FIND_FREE_ENTRY;end
-                        else begin response<=0;state<=ST_DONE;end
-                    end else scan_entry<=scan_entry+1'b1;
+                ST_SEARCH_LOAD: if(dma_ready) begin
+                    decode_entry_word(entry_word,dma_rdata);
+                    if(entry_word==TABLE_WORDS_PER_ENTRY-1) begin
+                        entry_word<=0;
+                        state<=ST_SEARCH_CHECK;
+                    end else
+                        entry_word<=entry_word+1'b1;
                 end
 
-                ST_FIND_FREE_ENTRY: begin
-                    if(!file_used[scan_entry]) begin
-                        target_entry<=scan_entry;state<=ST_CREATE_PREP;
-                    end else if(scan_entry==MAX_FILES-1) begin
-                        response<=64'hfffffffffffffffc;state<=ST_ERROR;
-                    end else scan_entry<=scan_entry+1'b1;
+                ST_SEARCH_CHECK: begin
+                    if(!entry_used && !first_free_valid) begin
+                        first_free_valid<=1;
+                        first_free_index<=entry_index;
+                    end
+
+                    if(names_equal()) begin
+                        if(action==ACT_OPEN || action==ACT_CREATE) begin
+                            response<={32'd0,25'd0,entry_index+1'b1};
+                            state<=ST_DONE;
+                        end else begin
+                            response<=64'hffffffffffffffff;
+                            state<=ST_ERROR;
+                        end
+                    end else if(search_index==MAX_FILES-1) begin
+                        if(action==ACT_CREATE && first_free_valid) begin
+                            entry_index<=first_free_index;
+                            state<=ST_CREATE_PREP;
+                        end else begin
+                            response<=64'hffffffffffffffff;
+                            state<=ST_ERROR;
+                        end
+                    end else begin
+                        search_index<=search_index+1'b1;
+                        entry_index<=entry_index+1'b1;
+                        entry_word<=0;
+                        clear_entry();
+                        state<=ST_SEARCH_LOAD;
+                    end
                 end
 
                 ST_CREATE_PREP: begin
-                    file_used[target_entry]<=1;
-                    file_type[target_entry]<=a2[7:0];
-                    file_flags[target_entry]<=0;file_size[target_entry]<=0;
-                    file_start[target_entry]<=0;file_blocks[target_entry]<=0;
-                    file_generation[target_entry]<=file_generation[target_entry]+1'b1;
-                    file_name_len[target_entry]<=query_len;
-                    for(j=0;j<NAME_BYTES;j=j+1)
-                        file_name[target_entry*NAME_BYTES+j]<=query_name[j];
-                    flush_entry_index<=target_entry;flush_entry_word<=0;
-                    after_entry_state<=ST_OPEN_DONE;state<=ST_FLUSH_ENTRY;
+                    clear_entry();
+                    entry_used<=1;
+                    entry_type<=a2[7:0];
+                    entry_generation<=1;
+                    entry_name_len<=query_len;
+                    for(i=0;i<NAME_BYTES;i=i+1)
+                        if(i<query_len)
+                            entry_name[i]<=query_name[i];
+                    entry_word<=0;
+                    after_flush_action<=ACT_CREATE;
+                    state<=ST_ENTRY_FLUSH;
                 end
 
-                ST_OPEN_DONE: begin response<=target_entry+1;state<=ST_DONE;end
+                ST_ENTRY_LOAD: if(dma_ready) begin
+                    decode_entry_word(entry_word,dma_rdata);
+                    if(entry_word==TABLE_WORDS_PER_ENTRY-1) begin
+                        entry_word<=0;
+                        state<=ST_ENTRY_DISPATCH;
+                    end else
+                        entry_word<=entry_word+1'b1;
+                end
 
-                ST_RENAME_PREP: begin
-                    file_name_len[target_entry]<=query_len;
-                    file_generation[target_entry]<=file_generation[target_entry]+1'b1;
-                    for(j=0;j<NAME_BYTES;j=j+1)
-                        file_name[target_entry*NAME_BYTES+j]<=query_name[j];
-                    flush_entry_index<=target_entry;flush_entry_word<=0;
-                    after_entry_state<=ST_DONE;state<=ST_FLUSH_ENTRY;
+                ST_ENTRY_DISPATCH: begin
+                    if(!entry_used && action!=ACT_NONE) begin
+                        response<=64'hffffffffffffffff;
+                        state<=ST_ERROR;
+                    end else begin
+                        case(action)
+                            ACT_READ: begin
+                                copy_src<=entry_start*BLOCK_SIZE;
+                                copy_dst<=a2;
+                                copy_count<=(a3<entry_size)?a3:entry_size;
+                                copy_index<=0;
+                                copy_src_flash<=1;
+                                copy_dst_flash<=0;
+                                if(((a3<entry_size)?a3:entry_size)==0) begin
+                                    response<=0;
+                                    state<=ST_DONE;
+                                end else
+                                    state<=ST_COPY_FLASH_READ;
+                            end
+
+                            ACT_WRITE: begin
+                                old_start<=entry_start;
+                                old_blocks<=entry_blocks;
+                                alloc_needed<=(a3+BLOCK_SIZE-1)>>8;
+                                alloc_word_index<=DATA_START_BLOCK>>5;
+                                alloc_bit_index<=DATA_START_BLOCK&31;
+                                alloc_run_start<=0;
+                                alloc_run_len<=0;
+                                alloc_start<=0;
+                                alloc_mark_offset<=0;
+                                if(a3==0) begin
+                                    entry_size<=0;
+                                    entry_start<=0;
+                                    entry_blocks<=0;
+                                    entry_generation<=entry_generation+1'b1;
+                                    free_start<=entry_start;
+                                    free_count<=entry_blocks;
+                                    free_offset<=0;
+                                    after_flush_action<=ACT_WRITE;
+                                    entry_word<=0;
+                                    state<=ST_ENTRY_FLUSH;
+                                end else
+                                    state<=ST_ALLOC_READ;
+                            end
+
+                            ACT_TRUNCATE: begin
+                                if(a2!=0) begin
+                                    response<=64'hfffffffffffffffe;
+                                    state<=ST_ERROR;
+                                end else begin
+                                    old_start<=entry_start;
+                                    old_blocks<=entry_blocks;
+                                    entry_size<=0;
+                                    entry_start<=0;
+                                    entry_blocks<=0;
+                                    entry_generation<=entry_generation+1'b1;
+                                    entry_word<=0;
+                                    after_flush_action<=ACT_TRUNCATE;
+                                    state<=ST_ENTRY_FLUSH;
+                                end
+                            end
+
+                            ACT_RENAME: begin
+                                query_ptr<=a2;
+                                query_len<=0;
+                                for(i=0;i<NAME_BYTES;i=i+1)
+                                    query_name[i]<=0;
+                                state<=ST_RENAME_NAME_READ;
+                            end
+
+                            ACT_DELETE: begin
+                                old_start<=entry_start;
+                                old_blocks<=entry_blocks;
+                                clear_entry();
+                                entry_word<=0;
+                                after_flush_action<=ACT_DELETE;
+                                state<=ST_ENTRY_FLUSH;
+                            end
+
+                            ACT_STAT: begin
+                                response<={entry_size,entry_start[15:0],entry_name_len,entry_type};
+                                state<=ST_DONE;
+                            end
+
+                            ACT_LIST: begin
+                                list_name_index<=0;
+                                if(entry_name_len==0) begin
+                                    response<={entry_size,entry_start[15:0],entry_name_len,entry_type};
+                                    state<=ST_DONE;
+                                end else
+                                    state<=ST_LIST_WRITE;
+                            end
+
+                            ACT_MINER_LOG: begin
+                                copy_src<=a1;
+                                copy_dst<=entry_start*BLOCK_SIZE+((a3[7:0])<<6);
+                                copy_count<=(a2>64)?64:a2;
+                                copy_index<=0;
+                                copy_src_flash<=0;
+                                copy_dst_flash<=1;
+                                if(((a2>64)?64:a2)==0) begin response<=0;state<=ST_DONE;end
+                                else state<=ST_COPY_RAM_READ;
+                            end
+
+                            ACT_MINER_SAVE: begin
+                                copy_src<=a1;
+                                copy_dst<=entry_start*BLOCK_SIZE;
+                                copy_count<=(a2>256)?256:a2;
+                                copy_index<=0;
+                                copy_src_flash<=0;
+                                copy_dst_flash<=1;
+                                if(((a2>256)?256:a2)==0) begin response<=0;state<=ST_DONE;end
+                                else state<=ST_COPY_RAM_READ;
+                            end
+
+                            ACT_MINER_LOAD: begin
+                                copy_src<=entry_start*BLOCK_SIZE+((a1[7:0])<<6);
+                                copy_dst<=a2;
+                                copy_count<=(a3>64)?64:a3;
+                                copy_index<=0;
+                                copy_src_flash<=1;
+                                copy_dst_flash<=0;
+                                if(((a3>64)?64:a3)==0) begin response<=0;state<=ST_DONE;end
+                                else state<=ST_COPY_FLASH_READ;
+                            end
+
+                            default: begin
+                                response<=64'hffffffffffffffff;
+                                state<=ST_ERROR;
+                            end
+                        endcase
+                    end
+                end
+
+                ST_RENAME_NAME_READ: if(dma_ready) begin
+                    if(selected_byte==0 || query_len==NAME_BYTES) begin
+                        entry_name_len<=query_len;
+                        for(i=0;i<NAME_BYTES;i=i+1)
+                            entry_name[i]<=query_name[i];
+                        entry_generation<=entry_generation+1'b1;
+                        entry_word<=0;
+                        after_flush_action<=ACT_RENAME;
+                        state<=ST_ENTRY_FLUSH;
+                    end else begin
+                        query_name[query_len]<=selected_byte;
+                        query_len<=query_len+1'b1;
+                    end
+                end
+
+                ST_ALLOC_READ: if(dma_ready) begin
+                    alloc_word_cache<=dma_rdata;
+                    state<=ST_ALLOC_SCAN;
                 end
 
                 ST_ALLOC_SCAN: begin
-                    if(alloc_needed==0) begin
-                        alloc_start<=0;state<=ST_WRITE_UPDATE_ENTRY;
-                    end else if(alloc_cursor>=BLOCK_COUNT) begin
-                        response<=64'hfffffffffffffffb;state<=ST_ERROR;
-                    end else if(!bitmap_bit(alloc_cursor)) begin
-                        if(alloc_run_len==0) alloc_run_start<=alloc_cursor;
-                        if(alloc_run_len+1>=alloc_needed) begin
-                            alloc_start<=(alloc_run_len==0)?alloc_cursor:alloc_run_start;
-                            alloc_mark_index<=0;state<=ST_ALLOC_MARK;
+                    absolute_block=(alloc_word_index<<5)+alloc_bit_index;
+                    if(absolute_block>=BLOCK_COUNT) begin
+                        response<=64'hfffffffffffffffd;
+                        state<=ST_ERROR;
+                    end else begin
+                        if(absolute_block<DATA_START_BLOCK || alloc_word_cache[alloc_bit_index]) begin
+                            alloc_run_len<=0;
                         end else begin
-                            alloc_run_len<=alloc_run_len+1;alloc_cursor<=alloc_cursor+1;
+                            if(alloc_run_len==0)
+                                alloc_run_start<=absolute_block;
+                            if(alloc_run_len+1>=alloc_needed) begin
+                                alloc_start<=(alloc_run_len==0)?absolute_block:alloc_run_start;
+                                alloc_mark_offset<=0;
+                                state<=ST_ALLOC_MARK_READ;
+                            end else
+                                alloc_run_len<=alloc_run_len+1'b1;
                         end
-                    end else begin
-                        alloc_run_len<=0;alloc_cursor<=alloc_cursor+1;
-                    end
-                end
 
-                ST_ALLOC_MARK: begin
-                    bitmap[(alloc_start+alloc_mark_index)>>5][(alloc_start+alloc_mark_index)&31]<=1;
-                    if(alloc_mark_index+1>=alloc_needed) begin
-                        used_blocks<=used_blocks+alloc_needed;
-                        flush_bitmap_word<=0;
-                        after_bitmap_state<=ST_WRITE_RAM_READ;
-                        copy_index<=0;copy_dst<=alloc_start*BLOCK_SIZE;
-                        state<=ST_FLUSH_BITMAP;
-                    end else alloc_mark_index<=alloc_mark_index+1;
-                end
-
-                ST_WRITE_RAM_READ: begin
-                    if(copy_index>=copy_count) begin
-                        if(direct_write) begin
-                            response<=copy_count;
-                            direct_write<=0;
-                            state<=ST_DONE;
-                        end else state<=ST_WRITE_UPDATE_ENTRY;
-                    end else if(dma_ready) begin
-                        copy_byte<=dma_rdata>>(((copy_src+copy_index)&3)*8);
-                        state<=ST_WRITE_FLASH_BYTE;
-                    end
-                end
-
-                ST_WRITE_FLASH_BYTE: if(dma_ready) begin
-                    copy_index<=copy_index+1;state<=ST_WRITE_RAM_READ;
-                end
-
-                ST_WRITE_UPDATE_ENTRY: begin
-                    file_size[target_entry]<=copy_count;
-                    file_start[target_entry]<=alloc_start;
-                    file_blocks[target_entry]<=alloc_needed;
-                    file_generation[target_entry]<=file_generation[target_entry]+1'b1;
-                    flush_entry_index<=target_entry;flush_entry_word<=0;
-                    after_entry_state<=ST_WRITE_FREE_OLD;state<=ST_FLUSH_ENTRY;
-                end
-
-                ST_WRITE_FREE_OLD: begin
-                    if(free_index>=old_blocks) begin
-                        flush_bitmap_word<=0;after_bitmap_state<=ST_DONE;state<=ST_FLUSH_BITMAP;
-                    end else begin
-                        bitmap[(old_start+free_index)>>5][(old_start+free_index)&31]<=0;
-                        free_index<=free_index+1;
-                        if(free_index+1>=old_blocks) used_blocks<=used_blocks-old_blocks;
-                    end
-                end
-
-                ST_READ_FLASH_BYTE: begin
-                    if(copy_index>=copy_count) begin response<=copy_count;state<=ST_DONE;end
-                    else if(dma_ready) begin
-                        copy_byte<=dma_rdata>>(((copy_src+copy_index)&3)*8);
-                        state<=ST_READ_RAM_WRITE;
-                    end
-                end
-
-                ST_READ_RAM_WRITE: if(dma_ready) begin
-                    copy_index<=copy_index+1;state<=ST_READ_FLASH_BYTE;
-                end
-
-                ST_DELETE_FREE,ST_TRUNCATE_FREE: begin
-                    if(free_index>=old_blocks) begin
-                        if(state==ST_DELETE_FREE) begin
-                            file_used[target_entry]<=0;file_size[target_entry]<=0;
-                            file_start[target_entry]<=0;file_blocks[target_entry]<=0;
-                        end else begin
-                            file_size[target_entry]<=0;file_start[target_entry]<=0;file_blocks[target_entry]<=0;
+                        if(state==ST_ALLOC_SCAN) begin
+                            if(alloc_bit_index==31) begin
+                                alloc_bit_index<=0;
+                                alloc_word_index<=alloc_word_index+1'b1;
+                                if(!( !alloc_word_cache[31] && alloc_run_len+1>=alloc_needed ))
+                                    state<=ST_ALLOC_READ;
+                            end else
+                                alloc_bit_index<=alloc_bit_index+1'b1;
                         end
-                        flush_entry_index<=target_entry;flush_entry_word<=0;
-                        flush_bitmap_word<=0;
-                        after_bitmap_state<=ST_DONE;
-                        after_entry_state<=ST_FLUSH_BITMAP;
-                        state<=ST_FLUSH_ENTRY;
-                    end else begin
-                        bitmap[(old_start+free_index)>>5][(old_start+free_index)&31]<=0;
-                        free_index<=free_index+1;
-                        if(free_index+1>=old_blocks) used_blocks<=used_blocks-old_blocks;
                     end
                 end
 
-                ST_LIST_NAME_WRITE: begin
-                    if(list_name_index>=file_name_len[target_entry]) begin
-                        response<={file_size[target_entry],16'd0,
-                                  file_name_len[target_entry],file_type[target_entry]};
+                ST_ALLOC_MARK_READ: if(dma_ready) begin
+                    absolute_block=alloc_start+alloc_mark_offset;
+                    bitmap_modify_word<=dma_rdata;
+                    bitmap_modify_bit<=absolute_block&31;
+                    state<=ST_ALLOC_MARK_WRITE;
+                end
+
+                ST_ALLOC_MARK_WRITE: if(dma_ready) begin
+                    used_blocks<=used_blocks+1'b1;
+                    if(alloc_mark_offset+1>=alloc_needed) begin
+                        entry_start<=alloc_start;
+                        entry_blocks<=alloc_needed;
+                        entry_size<=a3;
+                        entry_generation<=entry_generation+1'b1;
+                        copy_src<=a2;
+                        copy_dst<=alloc_start*BLOCK_SIZE;
+                        copy_count<=a3;
+                        copy_index<=0;
+                        copy_src_flash<=0;
+                        copy_dst_flash<=1;
+                        state<=ST_COPY_RAM_READ;
+                    end else begin
+                        alloc_mark_offset<=alloc_mark_offset+1'b1;
+                        state<=ST_ALLOC_MARK_READ;
+                    end
+                end
+
+                ST_FREE_READ: if(dma_ready) begin
+                    absolute_block=free_start+free_offset;
+                    bitmap_modify_word<=dma_rdata;
+                    bitmap_modify_bit<=absolute_block&31;
+                    state<=ST_FREE_WRITE;
+                end
+
+                ST_FREE_WRITE: if(dma_ready) begin
+                    if(bitmap_modify_word[bitmap_modify_bit] && used_blocks!=0)
+                        used_blocks<=used_blocks-1'b1;
+                    if(free_offset+1>=free_count) begin
+                        response<=0;
                         state<=ST_DONE;
-                    end else if(dma_ready) list_name_index<=list_name_index+1'b1;
+                    end else begin
+                        free_offset<=free_offset+1'b1;
+                        state<=ST_FREE_READ;
+                    end
                 end
 
-                ST_FLUSH_BITMAP: if(dma_ready) begin
-                    if(flush_bitmap_word==BITMAP_WORDS-1) state<=after_bitmap_state;
-                    else flush_bitmap_word<=flush_bitmap_word+1'b1;
+                ST_COPY_RAM_READ: if(dma_ready) begin
+                    copy_byte<=selected_byte;
+                    state<=ST_COPY_FLASH_WRITE;
                 end
 
-                ST_FLUSH_ENTRY: if(dma_ready) begin
-                    if(flush_entry_word==TABLE_WORDS_PER_ENTRY-1) state<=after_entry_state;
-                    else flush_entry_word<=flush_entry_word+1'b1;
+                ST_COPY_FLASH_WRITE: if(dma_ready) begin
+                    if(copy_index+1>=copy_count) begin
+                        if(action==ACT_WRITE) begin
+                            entry_word<=0;
+                            after_flush_action<=ACT_WRITE;
+                            state<=ST_ENTRY_FLUSH;
+                        end else begin
+                            response<=copy_count;
+                            state<=ST_DONE;
+                        end
+                    end else begin
+                        copy_index<=copy_index+1'b1;
+                        state<=ST_COPY_RAM_READ;
+                    end
+                end
+
+                ST_COPY_FLASH_READ: if(dma_ready) begin
+                    copy_byte<=selected_byte;
+                    state<=ST_COPY_RAM_WRITE;
+                end
+
+                ST_COPY_RAM_WRITE: if(dma_ready) begin
+                    if(copy_index+1>=copy_count) begin
+                        response<=copy_count;
+                        state<=ST_DONE;
+                    end else begin
+                        copy_index<=copy_index+1'b1;
+                        state<=ST_COPY_FLASH_READ;
+                    end
+                end
+
+                ST_LIST_WRITE: if(dma_ready) begin
+                    if(list_name_index+1>=entry_name_len) begin
+                        response<={entry_size,entry_start[15:0],entry_name_len,entry_type};
+                        state<=ST_DONE;
+                    end else
+                        list_name_index<=list_name_index+1'b1;
+                end
+
+                ST_ENTRY_FLUSH: if(dma_ready) begin
+                    if(entry_word==TABLE_WORDS_PER_ENTRY-1) begin
+                        entry_word<=0;
+                        state<=ST_ENTRY_FLUSH_DONE;
+                    end else
+                        entry_word<=entry_word+1'b1;
+                end
+
+                ST_ENTRY_FLUSH_DONE: begin
+                    case(after_flush_action)
+                        ACT_CREATE: begin
+                            response<={32'd0,25'd0,entry_index+1'b1};
+                            state<=ST_DONE;
+                        end
+                        ACT_RENAME: begin
+                            response<=0;
+                            state<=ST_DONE;
+                        end
+                        ACT_DELETE: begin
+                            if(old_blocks==0) begin
+                                response<=0;
+                                state<=ST_DONE;
+                            end else begin
+                                free_start<=old_start;
+                                free_count<=old_blocks;
+                                free_offset<=0;
+                                action<=ACT_DELETE;
+                                state<=ST_FREE_READ;
+                            end
+                        end
+                        ACT_TRUNCATE: begin
+                            if(old_blocks==0) begin
+                                response<=0;
+                                state<=ST_DONE;
+                            end else begin
+                                free_start<=old_start;
+                                free_count<=old_blocks;
+                                free_offset<=0;
+                                action<=ACT_TRUNCATE;
+                                state<=ST_FREE_READ;
+                            end
+                        end
+                        ACT_WRITE: begin
+                            if(old_blocks==0) begin
+                                response<=entry_size;
+                                state<=ST_DONE;
+                            end else begin
+                                free_start<=old_start;
+                                free_count<=old_blocks;
+                                free_offset<=0;
+                                action<=ACT_WRITE;
+                                state<=ST_FREE_READ;
+                            end
+                        end
+                        default: begin
+                            response<=0;
+                            state<=ST_DONE;
+                        end
+                    endcase
                 end
 
                 ST_DONE: begin end
