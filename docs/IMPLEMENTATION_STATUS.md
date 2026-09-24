@@ -27,6 +27,7 @@ The agreed ShamaOS Redstone PC implementation is present on `main`. This is no l
 - power/reset hardware and safe power-off clock behavior.
 - raw input clock plus divided computational core clock for long-route settling.
 - partitioned Yosys mapping into real redstone BUF/NOT/NAND/NOR/DFF cells, with a black-boxed top-level shell physically reconnecting the same integrated SoC ports.
+- Yosys clock-enable flip-flops are semantically lowered to feedback-mux NAND/NOT logic plus the validated edge DFF; enables are never discarded or clock-gated as a shortcut.
 - crossing-safe two-plane routing with explicit wire states and repeater-regenerated stairs.
 - direct Amulet chunk/palette writer with missing-chunk creation.
 
