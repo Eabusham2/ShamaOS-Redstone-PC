@@ -15,5 +15,8 @@ dffunmap
 opt
 
 dfflibmap -liberty synth/redstone.lib
-abc -fast -liberty synth/redstone.lib
+# Direct gate-family mapping is functionally equivalent for this redstone
+# technology and avoids the expensive liberty optimization pass on the large
+# ShamaFS/assembler control cones.
+abc -fast -g NAND,NOR
 clean -purge
