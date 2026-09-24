@@ -57,7 +57,20 @@ PARTITION_SPECS: tuple[tuple[str, str], ...] = (
     ("u_cache", "shama_cache_adapter"),
     ("u_ram", "shama_ram_adapter"),
     ("u_flash", "shama_flash_adapter"),
-)
+) 
+
+# The two memory-heavy accelerators intentionally bypass ABC. Their inferred
+# workspace/metadata memories are already behavior-validated in RTL; direct
+# AIG mapping preserves the exact Boolean/sequential network while avoiding
+# expensive liberty optimization of enormous mux cones.
+AIG_PARTITION_MODULES = frozenset({
+    "shama_fs_accel",
+    "shama_asm_accel",
+})
+
+
+def partition_mapping_mode(module_type: str) -> str:
+    return "aig" if module_type in AIG_PARTITION_MODULES else "abc"
 
 
 @dataclass(frozen=True)
@@ -204,6 +217,7 @@ def _prepare_partitioned_logic(
             output_json=output,
             yosys=yosys,
             repo_root=root,
+            mapping_mode=partition_mapping_mode(module_type),
         )
         physical = build_physical_netlist(
             output,
