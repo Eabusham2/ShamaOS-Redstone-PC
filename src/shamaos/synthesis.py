@@ -245,6 +245,121 @@ def _assign_tracks(intervals: list[tuple[int, int, int]]) -> dict[int, int]:
     return assigned
 
 
+def _expand_clock_enable_cells(module: dict[str, object]) -> None:
+    """Lower Yosys $_DFFE_<clock><enable>_ cells to supported primitives.
+
+    An enabled edge flip-flop is equivalent to a feedback mux feeding a normal
+    edge DFF.  We implement the mux as NAND logic:
+
+        active-high E: Dn = NAND(D,E), Qn = NAND(Q,!E)
+        active-low  E: Dn = NAND(D,!E), Qn = NAND(Q,E)
+        D_next = NAND(Dn,Qn)
+
+    Negative-edge clocks are inverted before the positive-edge DFF.  This
+    preserves clock-enable semantics instead of incorrectly dropping/gating E.
+    """
+    cells = module.get("cells", {})
+    if not isinstance(cells, dict):
+        return
+
+    max_bit = 1
+    ports = module.get("ports", {})
+    if isinstance(ports, dict):
+        for port in ports.values():
+            if isinstance(port, dict):
+                for bit in port.get("bits", []):
+                    if isinstance(bit, int):
+                        max_bit = max(max_bit, bit)
+
+    for cell in cells.values():
+        if not isinstance(cell, dict):
+            continue
+        for bits in cell.get("connections", {}).values():
+            for bit in bits:
+                if isinstance(bit, int):
+                    max_bit = max(max_bit, bit)
+
+    next_bit = max_bit + 1
+
+    def alloc_bit() -> int:
+        nonlocal next_bit
+        bit = next_bit
+        next_bit += 1
+        return bit
+
+    expanded: dict[str, object] = {}
+    for cell_name, cell_obj in cells.items():
+        if not isinstance(cell_obj, dict):
+            expanded[cell_name] = cell_obj
+            continue
+
+        raw_type = str(cell_obj.get("type", "")).lstrip("\\").upper()
+        if not (raw_type.startswith("$_DFFE_") and raw_type.endswith("_")):
+            expanded[cell_name] = cell_obj
+            continue
+
+        suffix = raw_type[len("$_DFFE_"):-1]
+        if len(suffix) != 2 or suffix[0] not in "PN" or suffix[1] not in "PN":
+            raise SynthesisError(f"unsupported DFFE polarity encoding {raw_type!r}")
+
+        conns = cell_obj.get("connections", {})
+        try:
+            c_bit = conns["C"][0]
+            d_bit = conns["D"][0]
+            e_bit = conns["E"][0]
+            q_bit = conns["Q"][0]
+        except (KeyError, IndexError, TypeError) as exc:
+            raise SynthesisError(f"malformed DFFE cell {cell_name!r}") from exc
+
+        en_not = alloc_bit()
+        d_nand = alloc_bit()
+        q_nand = alloc_bit()
+        d_next = alloc_bit()
+
+        expanded[f"{cell_name}$en_not"] = {
+            "type": "$_NOT_",
+            "port_directions": {"A": "input", "Y": "output"},
+            "connections": {"A": [e_bit], "Y": [en_not]},
+        }
+
+        enable_active = e_bit if suffix[1] == "P" else en_not
+        enable_hold = en_not if suffix[1] == "P" else e_bit
+
+        expanded[f"{cell_name}$d_gate"] = {
+            "type": "$_NAND_",
+            "port_directions": {"A": "input", "B": "input", "Y": "output"},
+            "connections": {"A": [d_bit], "B": [enable_active], "Y": [d_nand]},
+        }
+        expanded[f"{cell_name}$q_gate"] = {
+            "type": "$_NAND_",
+            "port_directions": {"A": "input", "B": "input", "Y": "output"},
+            "connections": {"A": [q_bit], "B": [enable_hold], "Y": [q_nand]},
+        }
+        expanded[f"{cell_name}$mux"] = {
+            "type": "$_NAND_",
+            "port_directions": {"A": "input", "B": "input", "Y": "output"},
+            "connections": {"A": [d_nand], "B": [q_nand], "Y": [d_next]},
+        }
+
+        dff_clock = c_bit
+        if suffix[0] == "N":
+            clock_not = alloc_bit()
+            expanded[f"{cell_name}$clock_not"] = {
+                "type": "$_NOT_",
+                "port_directions": {"A": "input", "Y": "output"},
+                "connections": {"A": [c_bit], "Y": [clock_not]},
+            }
+            dff_clock = clock_not
+
+        expanded[f"{cell_name}$dff"] = {
+            "type": "$_DFF_P_",
+            "port_directions": {"C": "input", "D": "input", "Q": "output"},
+            "connections": {"C": [dff_clock], "D": [d_next], "Q": [q_bit]},
+        }
+
+    module["cells"] = expanded
+
+
 def build_physical_netlist(
     netlist_json: str | Path,
     *,
@@ -258,6 +373,8 @@ def build_physical_netlist(
         module = raw["modules"][top]
     except KeyError as exc:
         raise SynthesisError(f"top module {top!r} not found in Yosys JSON") from exc
+
+    _expand_clock_enable_cells(module)
 
     cell_origins: dict[str, Vec3] = {}
     cell_types: dict[str, str] = {}
