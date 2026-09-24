@@ -629,8 +629,8 @@ module shama_fs_accel(
                             state<=ST_ERROR;
                         end
                     end else if(search_index==MAX_FILES-1) begin
-                        if(action==ACT_CREATE && first_free_valid) begin
-                            entry_index<=first_free_index;
+                        if(action==ACT_CREATE && (first_free_valid || !entry_used)) begin
+                            entry_index<=first_free_valid ? first_free_index : entry_index;
                             state<=ST_CREATE_PREP;
                         end else begin
                             response<=64'hffffffffffffffff;
@@ -827,28 +827,30 @@ module shama_fs_accel(
                     if(absolute_block>=BLOCK_COUNT) begin
                         response<=64'hfffffffffffffffd;
                         state<=ST_ERROR;
+                    end else if(
+                        absolute_block>=DATA_START_BLOCK &&
+                        !alloc_word_cache[alloc_bit_index] &&
+                        alloc_run_len+1>=alloc_needed
+                    ) begin
+                        alloc_start<=(alloc_run_len==0)?absolute_block:alloc_run_start;
+                        alloc_mark_offset<=0;
+                        state<=ST_ALLOC_MARK_READ;
                     end else begin
                         if(absolute_block<DATA_START_BLOCK || alloc_word_cache[alloc_bit_index]) begin
                             alloc_run_len<=0;
                         end else begin
                             if(alloc_run_len==0)
                                 alloc_run_start<=absolute_block;
-                            if(alloc_run_len+1>=alloc_needed) begin
-                                alloc_start<=(alloc_run_len==0)?absolute_block:alloc_run_start;
-                                alloc_mark_offset<=0;
-                                state<=ST_ALLOC_MARK_READ;
-                            end else
-                                alloc_run_len<=alloc_run_len+1'b1;
+                            alloc_run_len<=alloc_run_len+1'b1;
                         end
 
-                        if(state==ST_ALLOC_SCAN) begin
-                            if(alloc_bit_index==31) begin
-                                alloc_bit_index<=0;
-                                alloc_word_index<=alloc_word_index+1'b1;
-                                if(!( !alloc_word_cache[31] && alloc_run_len+1>=alloc_needed ))
-                                    state<=ST_ALLOC_READ;
-                            end else
-                                alloc_bit_index<=alloc_bit_index+1'b1;
+                        if(alloc_bit_index==31) begin
+                            alloc_bit_index<=0;
+                            alloc_word_index<=alloc_word_index+1'b1;
+                            state<=ST_ALLOC_READ;
+                        end else begin
+                            alloc_bit_index<=alloc_bit_index+1'b1;
+                            state<=ST_ALLOC_SCAN;
                         end
                     end
                 end
