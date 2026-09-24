@@ -104,74 +104,84 @@ module shama_asm_accel(
         is_digit=(c>="0" && c<="9");
     endfunction
 
-    function automatic logic current_is_reg(input logic _live);
-        integer value;
-        begin
-            value=0;
-            current_is_reg=(token_length>=2 && token_length<=3 &&
-                            up(token_chars[0])=="R" && is_digit(token_chars[1]));
-            if(token_length==3)
-                current_is_reg=current_is_reg && is_digit(token_chars[2]);
-            if(current_is_reg) begin
-                value=token_chars[1]-"0";
-                if(token_length==3)
-                    value=value*10+(token_chars[2]-"0");
-                current_is_reg=(value>=0 && value<16);
+    logic current_token_is_reg;
+    logic [3:0] current_token_reg;
+    logic current_token_is_number;
+    logic [31:0] current_token_number;
+    integer parse_reg_value;
+    integer parse_pos;
+    integer parse_base;
+    integer parse_digit;
+    integer parse_k;
+    logic parse_neg;
+    logic [31:0] parse_value;
+    logic [7:0] parse_char;
+
+    // Keep live token parsing in combinational logic. Yosys 0.33 does not
+    // accept functions that reach into unpacked token-character memories.
+    always_comb begin
+        parse_reg_value=0;
+        current_token_is_reg=0;
+        current_token_reg=0;
+
+        if(token_length>=2 && token_length<=3 &&
+           up(token_chars[0])=="R" && is_digit(token_chars[1])) begin
+            parse_reg_value=token_chars[1]-"0";
+            if(token_length==3) begin
+                if(is_digit(token_chars[2]))
+                    parse_reg_value=parse_reg_value*10+(token_chars[2]-"0");
+                else
+                    parse_reg_value=16;
+            end
+            if(parse_reg_value>=0 && parse_reg_value<16) begin
+                current_token_is_reg=1;
+                current_token_reg=parse_reg_value[3:0];
             end
         end
-    endfunction
 
-    function automatic [3:0] current_reg(input logic _live);
-        integer value;
-        begin
-            value=token_chars[1]-"0";
-            if(token_length==3)
-                value=value*10+(token_chars[2]-"0");
-            current_reg=value[3:0];
-        end
-    endfunction
+        current_token_is_number=0;
+        current_token_number=0;
+        parse_pos=0;
+        parse_base=10;
+        parse_digit=0;
+        parse_neg=0;
+        parse_value=0;
+        parse_char=0;
 
-    function automatic logic current_is_number(input logic _live);
-        begin
-            current_is_number=0;
-            if(token_length==3 && token_chars[0]=="'" && token_chars[2]=="'")
-                current_is_number=1;
-            else if(token_length>0 &&
-                    (is_digit(token_chars[0]) || token_chars[0]=="-" || token_chars[0]=="+"))
-                current_is_number=1;
-        end
-    endfunction
-
-    function automatic [31:0] current_number(input logic _live);
-        integer pos,base,digit;
-        logic neg;
-        logic [31:0] value;
-        logic [7:0] c;
-        begin
-            if(token_length==3 && token_chars[0]=="'" && token_chars[2]=="'") begin
-                current_number={24'd0,token_chars[1]};
-            end else begin
-                pos=0;neg=0;value=0;base=10;
-                if(token_chars[0]=="-") begin neg=1;pos=1;end
-                else if(token_chars[0]=="+") pos=1;
-                if(pos+1<token_length && token_chars[pos]=="0" &&
-                   (up(token_chars[pos+1])=="X" || up(token_chars[pos+1])=="B")) begin
-                    base=(up(token_chars[pos+1])=="X")?16:2;
-                    pos=pos+2;
-                end
-                for(k=0;k<MAX_TOKEN_CHARS;k=k+1) begin
-                    if(k>=pos && k<token_length) begin
-                        c=up(token_chars[k]);
-                        if(c>="0" && c<="9") digit=c-"0";
-                        else if(c>="A" && c<="F") digit=10+c-"A";
-                        else digit=0;
-                        value=value*base+digit;
-                    end
-                end
-                current_number=neg ? (~value+1'b1) : value;
+        if(token_length==3 && token_chars[0]=="'" && token_chars[2]=="'") begin
+            current_token_is_number=1;
+            current_token_number={24'd0,token_chars[1]};
+        end else if(token_length>0 &&
+                    (is_digit(token_chars[0]) || token_chars[0]=="-" || token_chars[0]=="+")) begin
+            current_token_is_number=1;
+            if(token_chars[0]=="-") begin
+                parse_neg=1;
+                parse_pos=1;
+            end else if(token_chars[0]=="+") begin
+                parse_pos=1;
             end
+
+            if(parse_pos+1<token_length && token_chars[parse_pos]=="0" &&
+               (up(token_chars[parse_pos+1])=="X" || up(token_chars[parse_pos+1])=="B")) begin
+                parse_base=(up(token_chars[parse_pos+1])=="X")?16:2;
+                parse_pos=parse_pos+2;
+            end
+
+            for(parse_k=0;parse_k<MAX_TOKEN_CHARS;parse_k=parse_k+1) begin
+                if(parse_k>=parse_pos && parse_k<token_length) begin
+                    parse_char=up(token_chars[parse_k]);
+                    if(parse_char>="0" && parse_char<="9")
+                        parse_digit=parse_char-"0";
+                    else if(parse_char>="A" && parse_char<="F")
+                        parse_digit=10+parse_char-"A";
+                    else
+                        parse_digit=0;
+                    parse_value=parse_value*parse_base+parse_digit;
+                end
+            end
+            current_token_number=parse_neg ? (~parse_value+1'b1) : parse_value;
         end
-    endfunction
+    end
 
     function automatic logic label_exists(input [31:0] h);
         integer s;
@@ -547,10 +557,10 @@ module shama_asm_accel(
                         state<=ST_ERROR;
                     end else begin
                         line_hash[line_token_count]<=hash_work;
-                        line_number[line_token_count]<=current_number(1'b1);
-                        line_reg[line_token_count]<=current_reg(1'b1);
-                        line_is_number[line_token_count]<=current_is_number(1'b1);
-                        line_is_reg[line_token_count]<=current_is_reg(1'b1);
+                        line_number[line_token_count]<=current_token_number;
+                        line_reg[line_token_count]<=current_token_reg;
+                        line_is_number[line_token_count]<=current_token_is_number;
+                        line_is_reg[line_token_count]<=current_token_is_reg;
                         line_first_char[line_token_count]<=token_chars[0];
                         line_token_count<=line_token_count+1'b1;
 
