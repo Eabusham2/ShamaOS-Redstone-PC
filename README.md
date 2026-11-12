@@ -17,7 +17,7 @@ been released. See [implementation status](docs/IMPLEMENTATION_STATUS.md) and th
 |---|---|
 | CPU | 32-bit datapath, sixteen registers, full integer/logic/control-flow ISA, separate 256-entry call and data stacks |
 | SHA | Native SHA-256/double-SHA execution plus programmable primitives and an independent software implementation |
-| Main RAM | **192 KiB physical**, 48 × 4 KiB banks |
+| Main RAM | **96 KiB physical**, 24 × 4 KiB banks |
 | Fast/executable memory | **8 KiB physical**, 2 × 4 KiB banks |
 | Flash | **500 KiB** physical persistent storage, 125 × 4 KiB banks |
 | VRAM | **16 KiB physical**, 4 × 4 KiB banks |
@@ -26,10 +26,12 @@ been released. See [implementation status](docs/IMPLEMENTATION_STATUS.md) and th
 | OS | Resident kernel, one foreground app, persistent files, in-world assembler/editor |
 | Diagnostics | PC, instruction, registers, flags, CPU/stall state, native SHA state/round, faults and usage counters |
 
-The owner finalized **192 KiB RAM, 500 KiB flash, 8 KiB cache and 16 KiB
-VRAM** on 2026-11-12, superseding earlier sizing proposals. Normal Editor/Explorer
-RAM use is now about 36%; Editor temporarily needs 44.36% when assembling its
-largest source files. The initial flash allocates **160 KiB (32.00%)**.
+The owner finalized **96 KiB RAM, 500 KiB flash, 8 KiB cache and 16 KiB
+VRAM** on 2026-11-12, including the latest instruction to halve RAM if all apps
+still fit. Editor uses **72.05% normally and 88.71% at its largest assembly
+peak**; Explorer uses **72.68%**. Shared workspaces and compact executable backing
+preserve the complete 65,535-byte source and 16,380-byte assembly/save limits.
+The initial flash allocates **160 KiB (32.00%)**.
 All source files and binaries remain, and packed boot records remove unused
 padding. Two full screen buffers plus text/sprites fit in **15,680 bytes**;
 scrolling no longer reserves a third frame.
@@ -40,58 +42,85 @@ can still be assembled/saved and must trigger graceful recovery on execution.
 [Memory design and efficiency](docs/MEMORY.md) distinguishes software usage,
 placed blocks, horizontal footprint, occupied chunks and world file size.
 
+### Per-app software occupancy
+
+One foreground app runs at a time. RAM includes the resident kernel, app code
+backing and complete workspace, without optional heap pages. Each app uses the
+same shared **15,680-byte VRAM reservation (95.70% of 16 KiB)**. Flash shares
+include complete editable source, separate executable, packed loader record and
+installed persistent data; shared metadata and documents are counted separately.
+
+| App | RAM bytes | RAM | Cache bytes | Cache | Attributed flash |
+|---|---:|---:|---:|---:|---:|
+| Desktop | 244 | 0.25% | 232 | 2.83% | 0.35% |
+| Editor | 70,824 | 72.05%; peak 88.71% | 4,696 | 57.32% | 4.82% |
+| File Explorer | 71,448 | 72.68% | 5,320 | 64.94% | 5.64% |
+| Bitcoin Miner | 12,696 | 12.92% | 7,308 | 89.21% | 13.83% |
+| System Monitor | 64 | 0.07% | 52 | 0.63% | 0.16% |
+| Terminal | 2,956 | 3.01% | 1,920 | 23.44% | 1.98% |
+| Calculator | 1,836 | 1.87% | 1,824 | 22.27% | 2.06% |
+| Paint | 1,152 | 1.17% | 868 | 10.60% | 0.92% |
+| Settings | 1,056 | 1.07% | 772 | 9.42% | 0.85% |
+
+Editor additionally has 4 KiB of allocatable heap, Explorer 20 KiB and Miner
+76 KiB. Other apps have 80–84 KiB depending on their workspace. The allocator
+protects overlapping workspaces; free bytes are not all interchangeable heap.
+
+Flash's 160 KiB consists of **75.25 KiB sources, 24.25 KiB separate executables,
+22.75 KiB packed loader, 32 KiB Miner history, 0.25 KiB Miner state, 1 KiB welcome
+documents and 4.5 KiB metadata**. It leaves **340 KiB free**, with **315 KiB**
+of allocation headroom before the **475 KiB / 95% write guard**. Copy-on-write
+saves also need their temporary replacement extent to fit. Full byte counts,
+per-app flash attribution and address maps are in [MEMORY.md](docs/MEMORY.md);
+`shamaos software-usage` regenerates the figures from the actual image.
+
 ### Current measured footprint
 
-The default superflat layout starts one block above grass and uses up to
-30 layers. Counts below include the actual local memory selectors and shared
-read-return wiring. They describe occupied horizontal X/Z chunks.
+The default superflat layout starts one block above grass. A shared column
+stacks cache's 2 banks, VRAM's 4 and RAM's 24; flash uses five more columns.
+The top support/control geometry reaches Y=307 in the grass-at-Y=-61 world.
+All local bank selectors, binary row decoders and read-return wiring are counted.
 
-| Component | Physical capacity | Banks | Occupied chunks |
+| Component | Physical capacity | Banks | Occupied X/Z chunks |
 |---|---:|---:|---:|
-| Cache / fast memory and local wiring | 8 KiB | 2 | 6,568 |
-| Main RAM and local wiring | 192 KiB | 48 | 13,594 |
-| Flash and local wiring | 500 KiB | 125 | 34,055 |
-| VRAM and local wiring | 16 KiB | 4 | 6,588 |
+| Shared cache + RAM + VRAM column and local wiring | 8 + 96 + 16 KiB | 30 | 8,355 |
+| Flash and local wiring | 500 KiB | 125 | 38,740 |
 | Screen | 320×180 pixels | — | 6,328 |
 | Keyboard / controller circuitry | — | — | 33 |
 | Debug panel | — | — | 9 |
 | Clock | — | — | 17 |
-| **Measured regular-component subtotal** | **716 KiB memory** | **179** | **67,192** |
+| **Measured regular-component subtotal** | **620 KiB memory** | **155** | **53,482** |
 | Synthesized CPU/GPU/assembler/OS logic and connecting routes | — | — | **Not yet established** |
 
-This snapshot's regular-component envelope is **6,952×6,850 blocks**, or
-**435×429 chunks**; only 67,192 of the 186,615 envelope chunks are occupied.
-The rectangular area includes gaps. It is not the complete computer's footprint.
-Storage cells alone occupy 39,750 chunks stacked versus 793,786 laid flat at the
-same capacities (94.99% fewer). All listed components together emit 444,728,976
-placement operations; synthesized logic and external routes are additional.
+The regular-component envelope is **5,058×6,850 blocks**, or
+**317×429 = 135,993 chunks**, including gaps. The occupied subtotal is **20.40%
+smaller**, and the envelope **27.13% smaller**, than the previous 192 KiB
+checkpoint. These counts include the decoder cost and correctly count shared
+X/Z chunks only once. Placement emits **391,253,772 regular-component operations**;
+that is separate from the unresolved complete-world logic/routing cost.
 
-All 64 keys and 15 perimeter controls now fit a **16×16-block interaction
-area**, with a connected walkable deck and stairs above grass. The complete
-control backend occupies 33 chunks, down from 76; it fits inside the existing
-console reservation. Actual redstone-engine checks exercise every actuator,
-release and keyboard row/column overlap. Readable viewing of the full screen
-from the operating station remains a release gate.
-
-The new regular-component envelope is **26.11% smaller** than the previous
-252,560-chunk rectangle. Full logic routing remains in progress.
-`generation-preflight` regenerates the current footprint report;
-[memory usage](docs/MEMORY.md) lists every app's allocation.
+All 79 input actuators fit a connected, walkable **16×16 activation area**;
+33 chunks is their backend circuitry, not a keyboard spread over 33 chunks.
+Saved-console input replay and the shared 30-bank memory fixture pass actual
+redstone tests. Full-screen viewing, global routing/timing and complete-world
+boot remain release gates. See [MEMORY.md](docs/MEMORY.md) for per-fabric counts
+and [VALIDATION.md](docs/VALIDATION.md) for evidence boundaries.
 
 ### Capacity protections required for release
 
-- RAM, executable-cache and VRAM capacity faults must stop the invalid transfer,
-  report the cause and perform graceful OS recovery/reboot, preserving committed
-  files and completing or recovering any active transaction.
-- Flash becomes write protected at **475 KiB / 95%**. A save that needs more
-  temporary copy-on-write space than that limit is refused before mutation.
-  The OS must show a warning. Explicit deletion or zero-length truncation may
-  reclaim space; filesystem recovery may complete its metadata transaction.
-- File Explorer compaction must preserve full-file viewing, directories, Editor
-  handoff and program execution. Per-app reports are regenerated after changes.
-
-These are acceptance requirements; the implementation status document records
-which hardware and end-to-end tests have actually passed.
+- RAM, executable-cache and VRAM faults stop invalid transfers, show the cause
+  and perform graceful OS recovery/reboot, preserving committed files and
+  completing or recovering active storage transactions.
+- Flash becomes write protected at **475 KiB / 95%**. A temporary copy-on-write
+  reservation beyond that limit is refused before mutation and produces an OS
+  warning. Explicit deletion or zero-length truncation can reclaim space;
+  filesystem journal recovery remains available.
+- Failed normal saves preserve the live app. Keep App is selected initially;
+  Discard and Leave requires an explicit confirmed choice. This keeps a full
+  flash from trapping the user away from Explorer's reclamation controls.
+- Compaction preserves full-file viewing, folders, Editor handoff, assembly,
+  program execution and complete Miner records. Reports are regenerated after
+  changes; the status document distinguishes tested behavior from open gates.
 
 ## Software
 
@@ -105,7 +134,9 @@ Settings persists its choices.
 ShamaFS has owned handles, bounds/path checks, copy-on-write data replacement,
 a metadata journal, recovery, and explicit full-disk errors. App switching and
 power-off request a save/cleanup sequence. A failed save keeps the foreground
-state available. Reboot works even after the executable cache was cleared.
+state available and defaults to **Keep App**. An explicit **Discard and Leave**
+choice allows reaching Files or shutting down when a save is blocked; cancel
+preserves the live buffers. Reboot works even after executable cache was cleared.
 
 The [miner](docs/MINER.md) edits the full header and target, displays all digest
 bytes, measures native/software hashing, stops at nonce exhaustion and persists

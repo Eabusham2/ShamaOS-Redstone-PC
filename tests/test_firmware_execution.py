@@ -3,6 +3,8 @@ import pytest
 from firmware_machine import FirmwareMachine,ROOT
 from shamaos.flashfs import FileType,ShamaFS
 from shamaos.assembler import assemble
+from shamaos.memory_map import EDIT_BUF, EDIT_CTX, EDIT_NAME, RUN_STAGING, APP_SLOT_BYTES
+from shamaos.machine_spec import RAM_BYTES, CACHE_BYTES
 
 A,B,UP,DOWN,LEFT,RIGHT=0x14,0x15,0x10,0x11,0x12,0x13
 
@@ -24,14 +26,14 @@ def action(m,index):
 
 def test_editor_inserts_deletes_moves_between_lines_and_saves_exact_bytes():
     m=editor_file();m.type('ABC');m.event(LEFT);m.event(LEFT);m.type('x')
-    assert bytes(m.memory[0x18000:0x18004])==b'AxBC'
+    assert bytes(m.memory[EDIT_BUF:(EDIT_BUF+4)])==b'AxBC'
     m.event(1,8);m.event(1,127)
-    assert bytes(m.memory[0x18000:0x18002])==b'AC'
+    assert bytes(m.memory[EDIT_BUF:(EDIT_BUF+2)])==b'AC'
     m.type('\n');m.event(A)
     assert m.fs.read_file('notes.TXT')==b'A\nC'
-    assert m.word(0x2c200+8)==3
-    assert m.word(0x2c200+20)==0
-    assert m.word(0x2c200+36)%2==0
+    assert m.word(EDIT_CTX+8)==3
+    assert m.word(EDIT_CTX+20)==0
+    assert m.word(EDIT_CTX+36)%2==0
 
 
 def test_editor_filename_extension_assemble_and_run_and_last_good_binary():
@@ -44,7 +46,7 @@ def test_editor_filename_extension_assemble_and_run_and_last_good_binary():
     m.type('BROKEN\n');action(m,4)
     assert m.regs[8]==8
     assert m.fs.read_file('hello.BIN')==good
-    assert m.word(0x2c200+32)!=0
+    assert m.word(EDIT_CTX+32)!=0
 
 
 @pytest.mark.parametrize('length', [49149, 49152, 49153, 65535])
@@ -64,15 +66,54 @@ def test_editor_reuses_source_tail_without_reducing_full_source_capacity(length,
     machine.settle()
     action(machine, 5 if run else 4)
     src, size, dst, capacity = machine.assembly_requests[-1]
-    assert (src, size, capacity) == (0x18000, length, 16380)
-    expected_dst = (src + length + 3) & ~3 if length <= 49152 else 0x28000
-    assert dst == expected_dst == machine.word(0x2c240)
+    assert (src, size, capacity) == (EDIT_BUF, length, 16380)
+    expected_dst = (src + length + 3) & ~3 if length <= 49152 else RUN_STAGING
+    assert dst == expected_dst == machine.word((EDIT_CTX+64))
     assert dst >= src + size
     assert fs.read_file('large.asm') == source
     assert bytes(machine.memory[src:src + size]) == source
     assert fs.read_file('large.BIN') == assemble('HLT\n').to_bytes()
     if run:
         assert machine.pending_binary == assemble('HLT\n').to_bytes()
+    assert len(machine.memory) == RAM_BYTES
+
+
+@pytest.mark.parametrize('length', [49152, 49153, 65535])
+def test_editor_saves_full_16380_byte_binary_without_reducing_source(length):
+    body = b'NOP\n' * 4094 + b'HLT\n'
+    source = b';' + b'x' * (length - len(body) - 2) + b'\n' + body
+    fs = ShamaFS()
+    fs.create_file('full.asm', source, FileType.ASM)
+    machine = FirmwareMachine('files', fs)
+    machine.settle(); machine.event(A)
+    machine.load_app('editor'); machine.settle()
+    action(machine, 4)
+    assert machine.regs[8] == 3
+    assert fs.read_file('full.asm') == source
+    binary = assemble(source.decode()).to_bytes()
+    assert len(binary) == 16380 > CACHE_BYTES
+    assert fs.read_file('full.BIN') == binary
+    src, size, dst, capacity = machine.assembly_requests[-1]
+    assert src == EDIT_BUF and size == length and capacity == 16380
+    assert bytes(machine.memory[src:src+size]) == source
+    assert bytes(machine.memory[dst:dst+len(binary)]) == binary
+    assert dst+len(binary) <= RAM_BYTES and len(machine.memory) == RAM_BYTES
+
+
+def test_assembly_output_over_capacity_preserves_the_last_saved_binary():
+    source = b'NOP\n' * 4096
+    good = assemble('HLT\n').to_bytes()
+    fs = ShamaFS()
+    fs.create_file('full.asm', source, FileType.ASM)
+    fs.create_file('full.BIN', good, FileType.BIN)
+    machine = FirmwareMachine('files', fs)
+    machine.settle(); machine.event(A)
+    machine.load_app('editor'); machine.settle()
+    action(machine, 4)
+    assert machine.regs[8] == 8 and machine.word(EDIT_CTX+32) != 0
+    assert fs.read_file('full.asm') == source
+    assert fs.read_file('full.BIN') == good
+    assert len(machine.memory) == RAM_BYTES
 
 
 def test_files_binary_launch_reuses_its_text_buffer():
@@ -80,12 +121,12 @@ def test_files_binary_launch_reuses_its_text_buffer():
     fs = ShamaFS()
     fs.create_file('run.bin', binary, FileType.BIN)
     machine = FirmwareMachine('files', fs)
-    machine.memory[0x28000:0x2c000] = bytes([0xA5]) * 16384
+    machine.memory[RUN_STAGING:RUN_STAGING+APP_SLOT_BYTES] = bytes([0xA5]) * 16384
     machine.settle()
     machine.event(A)
     assert machine.pending_binary == binary
-    assert bytes(machine.memory[0x18000:0x18000 + len(binary)]) == binary
-    assert bytes(machine.memory[0x28000:0x2c000]) == bytes([0xA5]) * 16384
+    assert bytes(machine.memory[EDIT_BUF:EDIT_BUF + len(binary)]) == binary
+    assert bytes(machine.memory[RUN_STAGING:RUN_STAGING+APP_SLOT_BYTES]) == bytes([0xA5]) * 16384
 
 
 def test_delete_initially_selects_cancel_then_requires_selecting_delete():
@@ -100,9 +141,9 @@ def test_delete_initially_selects_cancel_then_requires_selecting_delete():
 def test_newline_at_source_capacity_is_rejected_without_overrun():
     m=editor_file()
     m.regs[7]=m.regs[15]=65535
-    m.memory[0x27fff]=0xa5
+    m.memory[(EDIT_BUF+65535)]=0xa5
     m.event(1,13)
-    assert m.regs[7]==65535 and m.memory[0x27fff]==0xa5
+    assert m.regs[7]==65535 and m.memory[(EDIT_BUF+65535)]==0xa5
     assert m.regs[8]==8
 
 
@@ -127,9 +168,9 @@ def test_files_to_editor_preserves_all_shipped_source_and_transfers_owned_handle
     fs=ShamaFS();fs.create_file('editor.asm',source,FileType.ASM)
     m=FirmwareMachine('files',fs);m.settle();m.event(A)
     assert m.pending_app==1
-    assert m.word(0x2c208)==len(source)
-    assert bytes(m.memory[0x18000:0x18000+len(source)])==source
-    handle=m.word(0x2c200)
+    assert m.word((EDIT_CTX+8))==len(source)
+    assert bytes(m.memory[EDIT_BUF:EDIT_BUF+len(source)])==source
+    handle=m.word(EDIT_CTX)
     assert fs.read_handle(handle,len(source),owner=1)==source
     fs.close_owner(2)
     m.load_app('editor');m.settle();m.type(';');m.event(A)
@@ -148,7 +189,7 @@ def test_assembly_reports_explicit_line_code_and_does_not_overwrite_other_file_t
     m=editor_file('hello',True);m.type('HLT\n')
     m.fs.create_file('hello.BIN',b'not an executable',FileType.TXT)
     action(m,4)
-    assert m.regs[8]==8 and m.word(0x2c220)==11
+    assert m.regs[8]==8 and m.word((EDIT_CTX+32))==11
     assert m.fs.read_file('hello.BIN')==b'not an executable'
     rendered=[data for op,args,data in m.draws if op==12]
     assert b'LINE 00000  CODE 0B' in rendered
@@ -165,7 +206,7 @@ def test_assembly_handles_source_without_extension_and_rejects_source_binary_col
     if binary_name:
         assert fs.read_file(binary_name)==assemble(source.decode()).to_bytes()
     else:
-        assert m.regs[8]==8 and m.word(0x2c220)==11
+        assert m.regs[8]==8 and m.word((EDIT_CTX+32))==11
         m.event(B);m.event(B);m.type(';');m.event(A)
         assert fs.read_file(source_name)==b';'+source
 
@@ -187,7 +228,7 @@ def test_explorer_renders_type_and_full_size_metadata():
 
 
 def selected_name(machine):
-    return machine.cstring(0x2c000) if machine.regs[10] else None
+    return machine.cstring(EDIT_NAME) if machine.regs[10] else None
 
 
 def select_file(machine,name):
@@ -210,7 +251,7 @@ def test_explorer_enters_folders_filters_direct_children_and_returns_to_parent()
     m.event(DOWN);assert selected_name(m)=='z.txt'  # descendants are hidden at root
     m.event(UP);m.event(A)
     assert selected_name(m)=='docs/child.asm'
-    assert m.word(0x2c228)==len('docs/')
+    assert m.word((EDIT_CTX+40))==len('docs/')
     m.event(DOWN);assert selected_name(m)=='docs/sub'
     m.event(A);assert selected_name(m)=='docs/sub/nested.txt'
     m.event(B);assert selected_name(m)=='docs/child.asm'

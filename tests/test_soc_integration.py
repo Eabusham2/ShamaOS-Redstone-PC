@@ -1,4 +1,4 @@
-"""Real full-system logic/firmware integration with bounded memory bus models."""
+"""Full-system firmware integration with fast and real-controller backends."""
 from pathlib import Path
 import re
 import shutil
@@ -9,20 +9,26 @@ import pytest
 from shamaos.assembler import assemble, assemble_file
 from shamaos.flashfs import FileType, ShamaFS
 from shamaos.machine_spec import CACHE_BYTES, FLASH_BYTES, RAM_BYTES
+from shamaos.memory_map import HEAP_BASE, RUN_STAGING
 from shamaos.os_image import build_default_os_image, render_boot_parameters
 from shamaos.system_build import SOC_RTL_FILES
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
-@pytest.fixture(scope="module")
-def soc_executable(tmp_path_factory, os_image):
+def build_soc_executable(snapshot, os_image, *, real_adapters=False):
     if not shutil.which("iverilog") or not shutil.which("vvp"):
         pytest.skip("Icarus Verilog is required for full-system behavioral integration")
-    snapshot = tmp_path_factory.mktemp("soc")
     executable = snapshot / "soc.vvp"
-    source_paths = [p for p in SOC_RTL_FILES if p != "rtl/shama_memory_adapter.sv"]
-    source_paths += ["tests/rtl/fast_memory_models.sv", "rtl/tb_soc.sv"]
+    if real_adapters:
+        # Only the storage cells are modeled here. The actual adapters must
+        # latch addresses, select banks/rows, settle reads, merge byte writes,
+        # commit, and deliver responses through their production state machines.
+        source_paths = list(SOC_RTL_FILES)
+        source_paths += ["tests/rtl/persistent_bank_models.sv", "rtl/tb_soc.sv"]
+    else:
+        source_paths = [p for p in SOC_RTL_FILES if p != "rtl/shama_memory_adapter.sv"]
+        source_paths += ["tests/rtl/fast_memory_models.sv", "rtl/tb_soc.sv"]
     # These long simulations must use one coherent source/image revision even
     # when a parallel firmware task updates the checkout. Generate constants
     # from this exact image and compile a private copy of the RTL around it.
@@ -32,12 +38,23 @@ def soc_executable(tmp_path_factory, os_image):
         destination.write_bytes((ROOT / source).read_bytes())
     (snapshot / "rtl/shama_boot_params.svh").write_text(render_boot_parameters(os_image))
     sources = [str(snapshot / source) for source in source_paths]
+    defines = ["-DSHAMA_REAL_ADAPTERS"] if real_adapters else []
     built = subprocess.run(
-        ["iverilog", "-g2012", "-I", str(snapshot / "rtl"), "-s", "tb_soc", "-o", str(executable), *sources],
+        ["iverilog", "-g2012", *defines, "-I", str(snapshot / "rtl"), "-s", "tb_soc", "-o", str(executable), *sources],
         capture_output=True, text=True, timeout=60,
     )
     assert built.returncode == 0, built.stdout + built.stderr
     return executable
+
+
+@pytest.fixture(scope="module")
+def soc_executable(tmp_path_factory, os_image):
+    return build_soc_executable(tmp_path_factory.mktemp("soc"), os_image)
+
+
+@pytest.fixture(scope="module")
+def real_adapter_soc_executable(tmp_path_factory, os_image):
+    return build_soc_executable(tmp_path_factory.mktemp("soc-real-adapters"), os_image, real_adapters=True)
 
 
 @pytest.fixture(scope="module")
@@ -105,6 +122,35 @@ def test_boot_edit_dirty_close_shutdown_reboot_and_explorer_handoff(soc_executab
     assert "SOC INTEGRATION PASS" in output, output
 
 
+def test_real_memory_controllers_boot_save_reboot_and_explorer_handoff(
+    real_adapter_soc_executable, os_image, tmp_path,
+):
+    output = run_soc(real_adapter_soc_executable, os_image.image, tmp_path, timeout=1200)
+    assert "SOC REAL ADAPTERS PASS" in output, output
+    assert "SOC INTEGRATION PASS" in output, output
+
+
+def test_real_memory_controllers_assemble_typed_source_and_run_saved_binary(
+    real_adapter_soc_executable, os_image, tmp_path,
+):
+    output = run_soc(real_adapter_soc_executable, os_image.image, tmp_path, "+program_flow", timeout=1200)
+    assert "SOC PROGRAM ASSEMBLE RUN HOME PASS" in output, output
+
+
+def test_real_memory_controllers_run_code_staged_inside_an_owned_heap_allocation(
+    real_adapter_soc_executable, os_image, tmp_path,
+):
+    replacement = assemble("LDI r7 0x5a17c0de\nHLT\n")
+    program = ["LDI r7 0", f"LDI r1 {RAM_BYTES - HEAP_BASE}", "SYS SYS_ALLOC", f"LDI r1 {RUN_STAGING}"]
+    for index, word in enumerate(replacement.words):
+        program.extend((f"LDI r2 {word}", f"STW r1 r2 {4 * index}"))
+    program.extend((f"LDI r2 {len(replacement.to_bytes())}", "SYS SYS_RUN_BUFFER", "HLT"))
+    fs = ShamaFS.deserialize(os_image.image)
+    fs.create_file("ZSTAGE.BIN", assemble("\n".join(program) + "\n").to_bytes(), FileType.BIN)
+    output = run_soc(real_adapter_soc_executable, fs.serialize(), tmp_path, "+heap_stage_flow", timeout=1200)
+    assert "SOC ALLOCATED HEAP SELF REPLACEMENT PASS" in output, output
+
+
 def test_physical_keyboard_source_assembly_runs_saved_binary_and_exits_halted_app(soc_executable, os_image, tmp_path):
     output = run_soc(soc_executable, os_image.image, tmp_path, "+program_flow")
     assert "SOC PROGRAM ASSEMBLE RUN HOME PASS" in output, output
@@ -118,8 +164,8 @@ def test_real_app_resource_faults_recover_and_protected_flash_rejects_cpu_stores
 ):
     programs = {
         "ram": f"LDI r1 {RAM_BYTES}\nLDB r2 r1 0\nHLT\n",
-        "heap": "LDI r1 49153\nSYS SYS_ALLOC\nHLT\n",
-        "cache": f"LDI r1 0x28000\nLDI r2 {CACHE_BYTES + 4}\nSYS SYS_RUN_BUFFER\nHLT\n",
+        "heap": f"LDI r1 {RAM_BYTES + 1}\nSYS SYS_ALLOC\nHLT\n",
+        "cache": f"LDI r1 {RUN_STAGING}\nLDI r2 {CACHE_BYTES + 4}\nSYS SYS_RUN_BUFFER\nHLT\n",
         # A one-pixel BLIT beyond the complete sprite payload must fail before
         # DMA, and the following fence must not strand its syscall caller.
         "vram": "LDI r1 9\nLDI r2 1024\nLDI r3 0\nLDI r4 0\n"

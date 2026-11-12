@@ -78,6 +78,7 @@ class FirmwareMachine(CPUReference):
                 self.pending_app=0 if sid==SYSCALLS['SYS_EXIT'] else a
                 self.halted=True
             elif sid==SYSCALLS['SYS_RUN_BUFFER']:
+                self._memory_range(a,b)
                 self.pending_binary=bytes(self.memory[a:a+b]);self.halted=True
             elif sid==SYSCALLS['SYS_APP_EVENT']:
                 pass
@@ -93,8 +94,10 @@ class FirmwareMachine(CPUReference):
                 self.fs.transfer_handle(a,b,owner=self.owner)
             elif sid==SYSCALLS['SYS_FILE_READ']:
                 data=self.fs.read_handle(a,c,owner=self.owner)
+                self._memory_range(b,len(data))
                 self.memory[b:b+len(data)]=data;r1=len(data)
             elif sid==SYSCALLS['SYS_FILE_WRITE']:
+                self._memory_range(b,c)
                 data=bytes(self.memory[b:b+c])
                 name=self.fs._handle_name(a,self.owner)
                 self.fs.write_handle(a,data,owner=self.owner)
@@ -111,10 +114,13 @@ class FirmwareMachine(CPUReference):
                 entries=self.fs.list_files()
                 if a<len(entries):
                     ent=entries[a];name=ent.name.encode()
+                    self._memory_range(b,len(name))
                     self.memory[b:b+len(name)]=name
                     r1=int(ent.file_type)|(len(name)<<8)|(ent.start_block<<16)
                     r2=len(ent.data)
             elif sid==SYSCALLS['SYS_ASSEMBLE']:
+                self._memory_range(a,b)
+                self._memory_range(c,d)
                 self.assembly_requests.append((a,b,c,d))
                 try:
                     code=assemble(bytes(self.memory[a:a+b]).decode('ascii')).to_bytes()

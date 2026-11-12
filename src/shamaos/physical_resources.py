@@ -88,6 +88,27 @@ def tile_control_chunks(origin: Vec3, tile: StackedMemoryTileSpec) -> frozenset[
     return frozenset(chunks)
 
 
+def binary_row_resources(origin: Vec3, tile: StackedMemoryTileSpec, *, decoder_x: int) -> tuple[int, frozenset[tuple[int, int]]]:
+    """Exact repeated-row count and X/Z footprint of the literal decoder."""
+    from .hardware.memory_backbone import stacked_tile_ports
+    rows = stacked_tile_ports(origin, tile).row_select
+    bits = max(1, (tile.bank.words - 1).bit_length())
+    count = 2 * bits * (rows[-1].z - origin.z + 9)
+    chunks: set[tuple[int, int]] = set()
+    _line_chunks(chunks, decoder_x + 8, decoder_x + 8, origin.z - 8, rows[-1].z)
+    for pin in rows:
+        count += 46 * bits - 14 + 2 * (pin.x - decoder_x)
+        if bits > 1:
+            _line_chunks(chunks, decoder_x - 4, decoder_x, pin.z - 4, pin.z)
+        else:
+            _line_chunks(chunks, decoder_x, decoder_x, pin.z, pin.z)
+        _line_chunks(chunks, decoder_x + 1, decoder_x + 7, pin.z, pin.z)
+        _line_chunks(chunks, decoder_x, decoder_x, pin.z + 1, pin.z + 3)
+        _line_chunks(chunks, decoder_x, pin.x, pin.z + 4, pin.z + 4)
+        _line_chunks(chunks, pin.x, pin.x, pin.z, pin.z + 3)
+    return count, frozenset(chunks)
+
+
 def _small_profile(placements, *, activation_points: list[Vec3] | None = None) -> tuple[int, frozenset[tuple[int, int]], Box]:
     count = 0
     chunks = set()
@@ -121,24 +142,32 @@ def regular_fabric_resources(geometry: MachineGeometry, origins: PhysicalOrigins
     boxes = [box for _, _, box in regular.values()]
     memory_chunks: set[tuple[int, int]] = set()
     local_placements = 0
+    binary_placements = 0
     memory_details = {}
     for name, base, fabric in zip(("cache", "ram", "flash", "vram"),
                                   (origins.cache, origins.ram, origins.flash, origins.vram),
                                   (*memory_specs(geometry), vram_spec(geometry))):
         fabric_chunks: set[tuple[int, int]] = set()
         controls = 0
+        decoders = 0
         for group in range(fabric.group_count):
             origin, tile = fabric.group_origin(base, group), fabric.tile_spec(group)
             fabric_chunks.update((origin.x // 16 + x, origin.z // 16 + z)
                                  for x, z in _bank_chunk_footprint(tile.bank, origin.x & 15, origin.z & 15))
             fabric_chunks.update(tile_control_chunks(origin, tile))
             controls += _control_placement_count(tile)
+            if fabric.binary_rows:
+                decoder_count, decoder_chunks = binary_row_resources(origin, tile, decoder_x=origin.x + fabric.decoder_x_offset)
+                fabric_chunks.update(decoder_chunks)
+                decoders += decoder_count
         box = fabric.bounds(base)
         boxes.append(box)
         memory_details[name] = {"local_control_and_return_placements": controls,
+                                "binary_row_decoder_placements": decoders,
                                 "storage_and_local_control_chunks": len(fabric_chunks),
                                 "bounds": {"min": vars(box.min), "max": vars(box.max)}}
         local_placements += controls
+        binary_placements += decoders
         memory_chunks.update(fabric_chunks)
     union = regular_chunks | memory_chunks
     regions = {(x // 32, z // 32) for x, z in union}
@@ -169,7 +198,10 @@ def regular_fabric_resources(geometry: MachineGeometry, origins: PhysicalOrigins
         },
         "memory_local_controls": memory_details,
         "local_memory_control_and_return_placements": local_placements,
+        "binary_row_decoder_placements": binary_placements,
         "storage_and_local_control_union_chunks": len(memory_chunks),
+        "memory_fabric_chunk_sum": sum(item["storage_and_local_control_chunks"] for item in memory_details.values()),
+        "shared_memory_chunk_savings": sum(item["storage_and_local_control_chunks"] for item in memory_details.values()) - len(memory_chunks),
         "regular_fabric_union_chunks": len(union),
         "regular_fabric_regions": len(regions),
         "minimum_regular_fabric_region_bytes": len(union) * 4096 + len(regions) * 8192,

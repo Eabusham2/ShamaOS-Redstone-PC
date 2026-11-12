@@ -101,12 +101,13 @@ Loads and LEA use `destination, base, signed_offset`; stores use
 `LDB`/`LDH` zero extend. Halfword and word accesses require 2- and 4-byte
 alignment. Byte/halfword stores preserve the other lanes of the word.
 
-Installed CPU data regions are RAM `0x00000000..0x0002ffff`, flash
+Installed CPU data regions are RAM `0x00000000..0x00017fff`, flash
 `0x01000000..0x0107cfff`, and the device window
 `0x02000000..0x0200ffff`. Individual devices define their registers within that
-window. A transfer must fit entirely inside its region. The SoC routes executable
-fetches through its fast-memory path and supplies immutable boot instructions
-when the OS has not yet loaded.
+window. A transfer must fit entirely inside its region. CPU accesses below
+`0x2000` use the separate executable cache; service DMA reaches the physical RAM
+at those addresses for the application's executable backing. The SoC supplies
+immutable boot instructions when the OS has not yet loaded.
 
 There are no `MEMCPY` or `MEMSET` opcodes. Programs implement loops or use the
 specific OS services that own copying/clearing.
@@ -160,7 +161,7 @@ comparisons use actual CPU RTL, not that reference counter.
 | `INCNONCE rHeader` | Increments the little-endian 32-bit field at header offset 76. |
 
 All SHA input/output pointers must be word aligned, and their complete ranges
-must fit in the 192 KiB RAM region. The digest bytes have conventional SHA output
+must fit in the 96 KiB RAM region. The digest bytes have conventional SHA output
 order. Bitcoin's commonly displayed reversed hash string is a separate display
 convention; software must not silently substitute it into HASHCMP.
 

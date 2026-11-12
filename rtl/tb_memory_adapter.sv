@@ -1,8 +1,9 @@
 `include "shama_boot_params.svh"
 
-// Actual capacity wrappers, controller, and one-hot rings. The storage fixture
+// Actual capacity wrappers and constant-latency controller. The storage fixture
 // models isolated selected-bank read returns, with words interleaved by physical
-// layer. Physical cell propagation/return-wire timing is tested separately.
+// layer. Its one-clock read delay verifies the controller settling phase.
+// Literal binary row decoding and cell propagation are tested separately.
 module tb_memory_adapter #(
     parameter integer KIND=0,
     parameter integer LAYERS=8
@@ -18,7 +19,8 @@ module tb_memory_adapter #(
     wire req_ready,read_enable,write_commit;
     wire [31:0] req_rdata,write_data;
     wire [BANKS-1:0] bank_select;
-    wire [ROWS-1:0] row_select;
+    wire [9:0] row_address;
+    wire [ROWS-1:0] row_select={{(ROWS-1){1'b0}},1'b1} << row_address;
     wire [31:0] selected_word;
     generate
         if(KIND==0) begin : cache
@@ -57,7 +59,9 @@ module tb_memory_adapter #(
     end
     // With asserted one-hot selection, the OR of all isolated per-bank read
     // outputs equals this one selected word; disabled banks contribute zero.
-    assign selected_word=read_enable?storage[physical_word]:32'd0;
+    logic [31:0] delayed_word=0;
+    always @(posedge clk) delayed_word<=read_enable?storage[physical_word]:32'd0;
+    assign selected_word=delayed_word;
     always @(posedge clk) begin
         cycles<=cycles+1;
         if(cycles>3000000) $fatal(1,"adapter watchdog");
@@ -84,6 +88,7 @@ module tb_memory_adapter #(
                 @(negedge clk);watchdog=watchdog+1;
             end
             if(!req_ready) $fatal(1,"memory request did not complete address=%h",address);
+            if(watchdog>6) $fatal(1,"direct controller exceeded constant latency: %0d",watchdog);
             if(selected_bank!=(address>>12) || selected_row!=((address>>2)&1023))
                 $fatal(1,"address mapping failed addr=%h bank=%0d row=%0d",address,selected_bank,selected_row);
             if(req_rdata!==expected)
@@ -141,7 +146,7 @@ module tb_memory_adapter #(
         repeat(3) @(negedge clk);rst=0;
         if($bits(bank_select)*ROWS*4!=BANKS*4096) $fatal(1,"wrapper capacity mismatch");
         // Exercise every logical bank, including the highest flash/RAM address
-        // bits, through each actual fixed-capacity wrapper and its one-hot ring.
+        // bits, through each actual fixed-capacity wrapper and its row-address bus.
         for(integer b=0;b<BANKS;b=b+1) begin
             access(0,b*4096,0,0,expected_first[b],0);
             expected_first[b]=merged(expected_first[b],32'hdeadc0de ^ b,4'(b));

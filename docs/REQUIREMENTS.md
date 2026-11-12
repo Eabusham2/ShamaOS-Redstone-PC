@@ -19,16 +19,21 @@ successful compile, a manifest capacity, or an opcode name is not behavioral pro
   secretly perform its runtime computation. Command blocks must not compute the
   program or hashes on behalf of decorative circuits.
 - Preserve the owner-amended default capacities (2026-11-12): 32-bit CPU, 16
-  architectural registers, 192 KiB RAM, 8 KiB cache/fast scratch,
+  architectural registers, 96 KiB RAM, 8 KiB cache/fast scratch,
   500 KiB flash, 16 KiB VRAM, and a readable
   320x180 one-bit lamp display. Banked layout is allowed; document physical
   capacity, access latency, and the actual cache/scratchpad semantics accurately.
 - This explicit amendment replaces the earlier 1 MiB RAM / 4 MiB flash target.
-  It removes 208 RAM banks and 899 flash banks, with no padded or inaccessible
+  It removes 232 RAM banks and 899 flash banks, with no padded or inaccessible
   substitute banks. The screen, assembler, controls, all supporting circuits and
   every software feature remain required. Seek further size and speed improvements,
   including parallel buses in unused space inside the perimeter, and validate the
   actual resulting behavior before claiming an improvement.
+- The latest RAM halving is conditional on every shipped application retaining
+  its required behavior. Preserve the complete 65,535-byte editable source,
+  16,380-byte assembly/save output, 8 KiB execution capacity and full Miner
+  state/software-SHA workspace. Check app switches and allocator ownership where
+  mutually exclusive workspaces overlap; capacity arithmetic alone is insufficient.
 - Normal Java redstone semantics are the correctness baseline. Faster tick rates,
   a compatible acceleration mod, or MCHPRS are recommended for practical use;
   see [Running and acceleration](RUNNING_AND_ACCELERATION.md).
@@ -76,6 +81,7 @@ successful compile, a manifest capacity, or an opcode name is not behavioral pro
 | O16 | Detect RAM, executable-cache and VRAM capacity faults before an invalid transfer; show the cause and gracefully recover/reboot the OS. Drain or recover storage transactions, preserve committed files, and never silently save partial/corrupt state or deadlock on an interrupted app snapshot. |
 | O17 | At 95% allocated flash usage, disable new data/metadata writes and show an OS popup. Refuse a save whose temporary copy-on-write reservation would exceed that threshold before mutating flash. Permit explicit DELETE/zero-TRUNCATE reclamation and journal/mount recovery so protection is recoverable. Enforce the guard for direct CPU flash writes too. |
 | O18 | Reduce Editor and File Explorer RAM/code costs, Miner executable-cache use and GPU VRAM needs where possible without reducing source limits, file viewing, folders, editing handoff, navigation, assembly, executable launch, complete hashes or screen functionality. Recompute and document per-app RAM/cache/shared-VRAM percentages after changes. |
+| O19 | When a normal close/save fails, preserve the app and show Keep App as the default. Require an explicit Discard and Leave selection before releasing unsaved state. Cancel must preserve ownership and data; an acknowledged discard must allow reaching File Explorer or completing shutdown even when flash writes are protected. |
 
 ## Bitcoin Miner acceptance checklist
 

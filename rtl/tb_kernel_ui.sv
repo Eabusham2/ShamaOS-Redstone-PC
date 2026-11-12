@@ -72,7 +72,7 @@ module tb_kernel_ui;
         repeat(3) @(negedge clk);rst=0;
         view(12'h048,4,2,0);
         if(title!=="ACTION > RENAME                 ") $fatal(1,"selected action invisible: %s",title);
-        if(ramline[255:56]!=="RAM     00012345/00030000") $fatal(1,"RAM used/total: %s",ramline);
+        if(ramline[255:56]!=="RAM     00012345/00018000") $fatal(1,"RAM used/total: %s",ramline);
         if(cacheline[191:120]!==72'h30303030313230302f) $fatal(1,"cache bytes: %s",cacheline);
         if(cacheline[119:56]!=="00002000") $fatal(1,"cache total: %s",cacheline);
         if(flashline[191:120]!==72'h30303034353637382f) $fatal(1,"flash bytes: %s",flashline);
@@ -114,6 +114,16 @@ module tb_kernel_ui;
         wait(!notice_busy);
         if(overlay_code!=0 || overlay_commands!=4 || copies!=copies_before || clears!=clears_before)
             $fatal(1,"modal overlay modified app buffers");
+        notice_code=6;wait(notice_ready);
+        if(overlay_code!=6) $fatal(1,"failed-close default selection missing");
+        notice_code=7;#1;
+        if(notice_ready) $fatal(1,"selection accepted before redraw");
+        wait(notice_ready);
+        if(overlay_code!=7 || !notice_busy) $fatal(1,"visible modal choice did not update");
+        notice_code=6;#1;wait(notice_ready);
+        if(overlay_code!=6) $fatal(1,"safe selection did not restore");
+        notice_code=0;wait(!notice_busy);
+        if(copies!=copies_before || clears!=clears_before) $fatal(1,"choice redraw changed app buffers");
         $display("KERNEL UI BEHAVIOR PASS");$finish;
     end
 endmodule

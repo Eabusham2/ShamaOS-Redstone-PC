@@ -33,8 +33,15 @@ paused shutdown → cache-cleared reboot → Explorer → Editor reopen with the
 bytes intact. A separate flow types a new assembly source through the real input
 path, saves it, invokes the hardware assembler, runs the generated binary, checks
 its result and returns from the halted program using universal Home. Its external
-memory devices are behavioral test models; this is
-not evidence that a complete physical world has performed that flow.
+memory devices use bounded test models for broad failure coverage. A separate
+96 KiB lifecycle run retains the four production memory adapters and exercises
+their physical bank/row/read/write pins against delayed persistent bank models.
+It passes boot, edit/save, paused shutdown, cache-cleared reboot and reopened
+bytes in 8,604,079 simulator cycles. The production-controller typed-assembly
+flow passes in 9,644,941 cycles; heap-backed self-replacement passes in 5,137,109.
+That last case checks all 84 KiB of the released heap, copied code in both cache
+and DMA-only backing, and a later return to Desktop. Neither backend is evidence
+that a complete physical world has performed that flow.
 
 ## Physical fixtures already exercised in the actual engine
 
@@ -58,19 +65,30 @@ stored bits checked after each step. The small saved stacked-world fixture is
 reopened and run from its serialized block states, with ground preservation
 checked independently.
 
-The owner finalized main RAM at 192 KiB and flash at 500 KiB on 2026-11-12.
-The revised 179-bank storage emits 356,487,808 placements and occupies 39,750
-X/Z chunks. Including every local selector/shared return raises memory to
-60,805 chunks; screen, controls, debug and clock add 6,387, giving **67,192
-regular-component chunks**. Their current envelope is 6,952×6,850 blocks;
-synthesized logic and its routes are additional. The Editor retains its full
-source buffer after relocation, and metadata/boot offsets follow the image.
+The owner authorized halving main RAM to **96 KiB**, conditional on all shipped
+features still fitting. The map now uses real RAM beneath the CPU cache alias
+for executable backing, protects a 1 KiB kernel slot and shares workspaces
+between mutually exclusive foreground apps. Full-size editing/assembly, app
+ownership, heap cleanup, code copying and fault recovery are exercised at the
+new capacity. Every shipped app fits, including Editor's **87,208-byte / 88.71%**
+large-source assembly peak before heap allocations. Normal Editor use is 72.05%,
+Explorer 72.68%, and Miner 12.92%. All binary sizes remain unchanged.
 
-The packed boot bundle removes unused fixed-record padding while retaining all
-editable sources, binaries and persistent records. The latest image allocates
-160 KiB / 32.00% of flash. Editor normal RAM use is 36.02% (44.36% with
-large-source assembly staging); Explorer uses 36.34%. Both retain the full
-65,535-byte source limit. `software-usage` regenerates per-app values.
+The **155-bank** storage occupies **25,476 X/Z chunks** across six horizontal
+columns: five flash columns and one shared cache2/VRAM4/RAM24 column. Including
+local selectors, binary row decoders and shared returns gives **47,095 memory
+chunks**. Screen/controls/debug/clock bring the regular union to **53,482 chunks**
+and **391,253,772 emitted placement operations**. The regular envelope is
+**5,058×6,850 blocks / 135,993 chunks**, 27.13% smaller than the previous 192 KiB
+checkpoint. Its highest native control geometry is Y=307; lowest support is
+Y=-60 above grass at -61. These are geometric subtotals, excluding synthesized
+logic and external routes. [MEMORY.md](MEMORY.md) reports exact shared unions.
+
+Flash remains **500 KiB**, with **160 KiB / 32.00%** initially allocated. Packed
+boot records retain all sources, binaries and persistent records while removing
+unused fixed-slot padding. The resource report now reconciles every allocated
+byte by category and by program, including file-block rounding and shared
+metadata. It also reports app-specific heap capacity and peak workspace use.
 
 ## Latest compaction and capacity protections
 
@@ -85,10 +103,11 @@ All shipped binaries fit 8 KiB. Miner is now 7,308 bytes (89.21%), down from
 8,508 bytes before compaction; its complete hashing and persistence behavior is
 retained. Editor and Explorer reuse their source buffer for
 assembly/launch when possible; the peak accounting retains dedicated staging
-for larger Editor documents. Host firmware/assembler/image/filesystem tests
-pass 166 cases at the new capacities. The GPU/model/kernel suite passes 61
-cases, including overlay preservation and changed-row presentation. Physical
-8 KiB cache and 16 KiB VRAM adapter variants have also passed. Eleven integrated
+for larger Editor documents. The focused 96 KiB firmware/CPU/allocator/image/hardware-assembler regression
+passes 166 distinct cases with no skips. The focused modal/kernel/services
+regression passes 17 cases, and six capacity/accounting cases also pass. These
+groups overlap at services coverage. The complete GPU suite and memory-adapter
+variants additionally remain required CI checks. Eleven integrated
 SoC checks pass at these capacities, including boot/lifecycle, typed assembly
 and RAM/heap/cache/VRAM/protected-flash recovery. Five additional malformed
 boot-bundle cases stop with the original diagnostics. These use real CPU/OS RTL
@@ -108,25 +127,53 @@ binaries remain writable.
 The complete compact console has passed physical-engine isolation/release checks
 for all 64 keys and 15 perimeter controls. Its 16×16 activation area has connected
 walkable access, and its backend occupies 33 chunks at the default alignment.
-The smaller console and relocated screen reduce the regular-component envelope
-from 252,560 to 186,615 chunks (26.11%). A saved console world was independently reopened and every actuator replayed
+At the previous checkpoint, the console/screen relocation reduced the envelope
+from 252,560 to 186,615 chunks; the new memory packing reduces it further to
+135,993. A saved console world was independently reopened and every actuator replayed
 from its serialized block states: 81 actual-engine steps / 23,628 redstone ticks.
 All 10,654 unique circuit blocks survived readback, and grass at Y=-61 remained
 intact with the lowest circuit support at Y=-60. Screen viewing and full-machine
 routing remain open gates.
 
-A prototype tile-local row decoder has checked every one of its 1,024 outputs
-for all 1,024 binary addresses in the actual engine. Compact vertical risers
-have also passed full-height and adjacent-channel isolation checks. Neither
-prototype alone establishes the complete memory-to-controller interface;
-mixed-bank integration and the ten-address-wire connection are being audited
-before replacing the production one-hot interface.
+The production interface now carries ten binary row-address bits per memory
+fabric to real tile-local decoders, eliminating 4,056 long row-select signals
+across the four fabrics. The full decoder checks all 1,024 addresses in the
+actual engine. Mixed-bank read/write/retention and external-pin routing are
+validated. The saved 30-bank mixed-stack fixture independently reopens **522,568
+unique circuit blocks** and passes **84 steps / 43,520 redstone ticks**.
+Full-size storage rows and reduced-row multi-bank fixtures remain complementary
+evidence; they do not claim a running full-capacity SoC.
+
+Failed normal saves now show **Keep App** initially, with an explicit
+**Discard and Leave** choice. Cancel keeps the source, heap and ownership.
+Confirmed discard completes the requested app switch or shutdown after the
+popup restore fence, allowing a full flash to be reclaimed through Explorer.
+Tests include physical-key event encoding, selection redraw, irrelevant queued
+keys, Enter/Escape, cancellation and protected-flash Miner exit. Committed files
+remain intact.
+
+A final queue-interleaving regression caught a real dropped-warning defect:
+an older invalid GPU command could discard a queued NOTICE while its later
+fence still completed. The kernel now drains old work, rechecks the desired
+notice, submits it and fences its presentation. The reproduced failure,
+changed-selection and cancellation cases now pass with the real kernel/GPU.
+
+An experimental bounded local router emits reused tracks and matched private
+clock delays without adding blocks. Actual 14-cell and stacked 8+6-cell pipeline
+fixtures pass at 140 and 180 redstone ticks per cycle, with zero observed
+register-clock skew. The stacked fixture fails three transfers at 170 ticks
+and violates hold time, providing a timing-sensitive negative control. This API
+is separate from production routing. Scaling it to the mapped full SoC and
+proving boundary/clock timing remains work in progress. A retained 64-cell cut
+from the green assembler mapping also passes 24 actual-engine vectors with all
+22 inputs and 16 boundary outputs retained. It uses 10 shared tracks, 50,626
+placement operations and 589 chunks; those numbers belong to that cut only.
 
 ## Canonical capacities remain intact
 
 | Item | Contract |
 |---|---|
-| Main RAM | 192 KiB, 48 banks |
+| Main RAM | 96 KiB, 24 banks |
 | Fast memory | 8 KiB, 2 banks |
 | Persistent flash | 500 KiB, 125 banks |
 | VRAM | 16 KiB, 4 banks |
@@ -138,14 +185,15 @@ advertised as that full machine.
 
 ## Exact-commit CI checkpoint
 
-[Commit `a600a9c`](https://github.com/Eabusham2/ShamaOS-Redstone-PC/commit/a600a9c5a0621fd9b72bf10e496bc0e997bbf448)
-passed [CI run 43306021794](https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/43306021794):
-Linux/Windows on Python 3.11/3.12, RTL, all 531 behavioral/redstone tests
-with no failures or skips, the saved-world
-backend, all twelve full physical synthesis partitions and their reconnection.
-This verifies that checkpoint. Subsequent improvements require their own
-exact-commit run; passing synthesis does not establish complete-world routing
-or in-game boot.
+[Commit `0f028a9`](https://github.com/Eabusham2/ShamaOS-Redstone-PC/commit/0f028a9edd6f1a27a039783181eaf53779ae0a0c)
+passed [CI run 43312032746](https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/43312032746):
+Linux/Windows on Python 3.11/3.12, RTL, all required behavioral/redstone checks,
+the saved-world backend, all twelve full physical synthesis partitions and
+reconnection. This is the preceding 192 KiB checkpoint. The current RAM/map,
+binary-interface and shared-stack changes require their own exact-commit run;
+passing synthesis does not establish complete-world routing or in-game boot.
+The behavioral CI budget is now 75 minutes to include production-controller
+SoC persistence and full-size assembly boundaries without dropping coverage.
 
 ## Open release gates
 

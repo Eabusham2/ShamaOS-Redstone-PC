@@ -7,7 +7,9 @@ ROM remains available even after executable fast memory has been erased. Boot
 mounts ShamaFS, copies the kernel into resident RAM, clears foreground RAM/fast
 memory, loads Desktop, and starts its program at fast-memory PC 0.
 
-Kernel RAM base is `0x4000`; foreground app RAM base is `0x8000`.
+Kernel RAM base is `0x2000`, with a protected 1 KiB image slot. Foreground
+executable backing occupies physical RAM `0x0000..0x1FFF`: service DMA reaches
+that RAM while the CPU uses its separate executable cache at those addresses.
 An invalid mount or executable bundle halts before Desktop with the original
 error in r1 and `0xFFFFFFFF` in r2. The immutable ROM and `boot.asm` are checked
 word for word; repairing the image and resetting retries boot. Persistent flash
@@ -29,8 +31,13 @@ Only one foreground app is active. A normal replacement or shutdown:
 
 Hardware-universal Home/Exit/Editor/Files works for a halted or nonpolling app.
 The same save-before-cleanup path applies. A failed save leaves the app, buffer,
-and ownership alive; `SYS_LIFECYCLE_STATUS` reports the failure. It does not
-silently convert a failed save into forced teardown. Power-off overrides pause
+and ownership alive; `SYS_LIFECYCLE_STATUS` reports the failure. A modal dialog
+defaults to **Keep App**. Left selects Keep App; Right selects **Discard and Leave**. A/Enter
+confirms the visible choice, while B/Escape or a universal navigation event
+cancels. Cancel resumes the original app without clearing its state. Explicit
+discard completes the originally requested app switch or shutdown and preserves
+previously committed files. This provides a route to Explorer to reclaim flash
+even if an autosave is blocked by the 95% guard. Power-off overrides pause
 long enough to complete this path. Reset is immediate recovery, distinct from
 orderly power-off.
 
@@ -54,11 +61,13 @@ Enter creates the file exclusively. Names without a final three-character
 extension receive `.TXT`/`.ASM`. Full canonical paths must fit 43 bytes.
 Duplicate names and invalid parents report errors without replacing another file.
 
-The source workspace is 64 KiB at `0x18000`, with **65,535 editable bytes** and a
+The source workspace is 64 KiB at `0x4000`, with **65,535 editable bytes** and a
 reserved guard byte. All shipped app sources fit and are editable in full.
 Oversized files are refused explicitly; saving never replaces a complete file
 with a truncated display prefix. Binaries must fit **16,380 bytes**, the executable
-slot payload after its length word; assembly staging is at `0x28000`.
+slot payload after its length word; large-source assembly staging is at `0x14000`.
+Sources up to 49,152 bytes reuse the source buffer's aligned unused tail for
+output. Executing a result still requires it to fit the 8 KiB executable cache.
 
 Keyboard input inserts at the visible cursor. Left/Right moves by byte;
 Up/Down moves between logical lines while preserving the column where possible.

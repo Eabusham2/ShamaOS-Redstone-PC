@@ -21,13 +21,13 @@ define TYPE_TXT 1
 define TYPE_ASM 2
 define TYPE_BIN 3
 
-define FILE_NAME_PTR 0x0002c000
-define RENAME_PTR 0x0002c080
-define DIR_PATH 0x0002c140
-define EDIT_CTX 0x0002c200
-define EDIT_BUF 0x00018000
+define FILE_NAME_PTR 0x00002400
+define RENAME_PTR 0x00002480
+define DIR_PATH 0x00002540
+define EDIT_CTX 0x00002600
+define EDIT_BUF 0x00004000
 ; BIN launch and full text viewing are mutually exclusive. Reuse source RAM.
-define RUN_BUF 0x00018000
+define RUN_BUF 0x00004000
 define EDIT_MAGIC 0x5348414d
 
 define GPU_BASE 0x02000000

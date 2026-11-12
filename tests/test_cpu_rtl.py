@@ -15,6 +15,7 @@ from shamaos.simulator import CPUReference
 from shamaos.machine_spec import RAM_BYTES
 
 ROOT=Path(__file__).resolve().parents[1]
+RESULT_BASE=RAM_BYTES-(16 << 10)
 
 class Reference(CPUReference):
     def syscall(self, syscall_id):
@@ -29,7 +30,7 @@ def rtl(tmp_path_factory):
     output=build/'cpu.vvp'
     proc=subprocess.run(['iverilog','-g2012','-I',str(ROOT/'rtl'),'-s','tb_cpu','-o',str(output),*(str(ROOT/'rtl'/p) for p in ('sha256_compress.sv','sha256_fixed64.sv','bitcoin_dsha256.sv','shama_cpu.sv','tb_cpu.sv'))],capture_output=True,text=True,timeout=60)
     assert proc.returncode==0,proc.stdout+proc.stderr
-    def execute(source,initial=None,dump_base=0x18000,dump_words=0,stall=0,hold_sha=False):
+    def execute(source,initial=None,dump_base=RESULT_BASE,dump_words=0,stall=0,hold_sha=False):
         words=assemble(source).words if isinstance(source,str) else source
         program=build/'program.hex'
         lines=['@00000000',*(f'{w:08x}' for w in words)]
@@ -58,9 +59,9 @@ def reference(source,initial=None):
 
 
 @pytest.mark.parametrize('source,expected_fault', [
-    ('LDI r1 0x2ffff\nLDI r2 42\nSTB r1 r2 0\nLDB r3 r1 0\nHLT', 0),
-    ('LDI r1 0x30000\nLDB r2 r1 0\nHLT', 8),
-    ('LDI r1 0x30000\nSTW r1 r0 0\nHLT', 8),
+    (f'LDI r1 {RAM_BYTES-1}\nLDI r2 42\nSTB r1 r2 0\nLDB r3 r1 0\nHLT', 0),
+    (f'LDI r1 {RAM_BYTES}\nLDB r2 r1 0\nHLT', 8),
+    (f'LDI r1 {RAM_BYTES}\nSTW r1 r0 0\nHLT', 8),
     ('LDI r1 0x107cfff\nLDB r2 r1 0\nHLT', 0),
     ('LDI r1 0x107d000\nLDB r2 r1 0\nHLT', 8),
     ('LDI r1 0x107d000\nSTW r1 r0 0\nHLT', 8),
@@ -97,7 +98,7 @@ def test_native_sha_family_full_buffer_endpoints(rtl, opcode, source_size, which
 def test_integer_flags_immediates_and_sha_primitives_differential(rtl,stall,batch):
     rng=random.Random(0x5A4A)
     values=[0,1,31,32,0x7fffffff,0x18000000,0xfffffffe,0xffffffff]+[rng.getrandbits(32) for _ in range(12)]
-    lines=['LDI r15 0x18000']
+    lines=[f'LDI r15 {RESULT_BASE}']
     cases=0
     binary='ADD ADC SUB SBC MUL DIV MOD AND OR XOR NOR NAND XNOR SHL SHR SAR ROL ROR'.split()
     unary='MOV NEG NOT BSIG0 BSIG1 SSIG0 SSIG1 RSH1'.split()
@@ -120,7 +121,7 @@ def test_integer_flags_immediates_and_sha_primitives_differential(rtl,stall,batc
     cpu=reference(source)
     regs,memory,flags,fault=rtl(source,dump_words=cases*2,stall=stall)
     assert fault==0
-    assert [memory[0x18000+4*i] for i in range(cases*2)]==[int.from_bytes(cpu.memory[0x18000+4*i:0x18004+4*i],'little') for i in range(cases*2)]
+    assert [memory[RESULT_BASE+4*i] for i in range(cases*2)]==[int.from_bytes(cpu.memory[RESULT_BASE+4*i:RESULT_BASE+4+4*i],'little') for i in range(cases*2)]
     assert [regs[i] for i in range(16)]==cpu.regs
 
 
@@ -216,7 +217,7 @@ def test_architectural_sha_round_register_contract(rtl):
     ('LDI r1 257\n.loop\nPUSH r1\nDEC r1\nBR.NE .loop\nHLT',5),
     ('POP r1',6),('LDI r1 3\nLDW r2 r1 0',7),
     ('LDI r1 0x100000\nLDB r2 r1 0',8),
-    ('LDI r1 0x2fff0\nLDI r2 0x10000\nDSHA256 r2 r1',8),
+    (f'LDI r1 {RAM_BYTES-16}\nLDI r2 0x10000\nDSHA256 r2 r1',8),
 ])
 def test_architectural_faults_are_visible(rtl,source,code):
     assert rtl(source)[3]==code
@@ -225,14 +226,14 @@ def test_architectural_faults_are_visible(rtl,source,code):
 def test_all_conditional_branches_with_signed_overflow(rtl):
     conditions='EQ NE C NC LT LE GT GE NEG POS VALID NVALID'.split()
     values=[(0,0),(1,0),(0,1),(0x7fffffff,0xffffffff),(0x18000000,1),(0xffffffff,0x18000000)]
-    lines=['LDI r15 0x18000'];index=0
+    lines=[f'LDI r15 {RESULT_BASE}'];index=0
     for a,b in values:
         for condition in conditions:
             lines += [f'LDI r1 {a}',f'LDI r2 {b}','CMP r1 r2','LDI r3 0',f'BR.{condition} .taken{index}',f'JMP .done{index}',f'.taken{index}','LDI r3 1',f'.done{index}','STW r15 r3 0','ADDI r15 4'];index+=1
     source='\n'.join(lines+['HLT']);cpu=reference(source)
     _,memory,_,fault=rtl(source,dump_words=index)
     assert fault==0
-    assert [memory[0x18000+4*i] for i in range(index)]==[int.from_bytes(cpu.memory[0x18000+4*i:0x18004+4*i],'little') for i in range(index)]
+    assert [memory[RESULT_BASE+4*i] for i in range(index)]==[int.from_bytes(cpu.memory[RESULT_BASE+4*i:RESULT_BASE+4+4*i],'little') for i in range(index)]
 
 
 def test_shipped_software_double_sha_runs_on_cpu_rtl_and_matches_native(rtl):

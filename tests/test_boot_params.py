@@ -9,6 +9,7 @@ from shamaos.os_image import (
     render_boot_parameters,
 )
 from shamaos.flashfs import ShamaFS
+from shamaos.memory_map import RTL_MEMORY_CONSTANTS
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -35,13 +36,13 @@ def test_rtl_boot_parameters_match_generated_flash_image():
     assert (ROOT / "rtl/shama_boot_params.svh").read_text() == render_boot_parameters(image)
     assert d["SHAMA_MINER_HISTORY_ENTRY"] == image.file_entry_indices["miner-history.log"]
     assert d["SHAMA_MINER_STATE_ENTRY"] == image.file_entry_indices["miner-state.cfg"]
-    assert d["SHAMA_RAM_BYTES"] == 192 << 10
+    assert d["SHAMA_RAM_BYTES"] == 96 << 10
     assert d["SHAMA_CACHE_BYTES"] == 8 << 10
     assert d["SHAMA_VRAM_BYTES"] == 16 << 10
     assert d["SHAMA_CACHE_BANKS"] == 2
     assert d["SHAMA_VRAM_BANKS"] == 4
     assert d["SHAMA_FLASH_BYTES"] == len(image.image) == 500 << 10
-    assert d["SHAMA_RAM_BANKS"] == 48
+    assert d["SHAMA_RAM_BANKS"] == 24
     assert d["SHAMA_FLASH_BANKS"] == 125
     assert d["SHAMA_FS_BLOCK_COUNT"] == fs.block_count == 2000
     assert d["SHAMA_FS_BITMAP_WORDS"] == (fs.block_count + 31) // 32 == 63
@@ -55,6 +56,8 @@ def test_rtl_boot_parameters_match_generated_flash_image():
     assert d["SHAMA_APP_RAM_BASE"] == APP_RAM_BASE
     assert d["SHAMA_PC_KERNEL"] == KERNEL_RAM_BASE // 4
     assert d["SHAMA_PC_APP"] == 0
+    for name, value in RTL_MEMORY_CONSTANTS.items():
+        assert d[f"SHAMA_{name}"] == value
 
     flash_defines = {
         "kernel": "SHAMA_KERNEL_FLASH",

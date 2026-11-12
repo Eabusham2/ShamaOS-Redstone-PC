@@ -247,14 +247,21 @@ class GPUReference:
         code = self.notice_code & 0x7f
         if line == 0:
             return {1: 'FLASH WRITES PAUSED AT 95%', 2: 'RAM LIMIT - OS RESTARTED',
-                    3: 'CODE LIMIT - OS RESTARTED', 4: 'VRAM LIMIT - OS RESTARTED'}.get(
+                    3: 'CODE LIMIT - OS RESTARTED', 4: 'VRAM LIMIT - OS RESTARTED',
+                    6: 'SAVE FAILED - CHANGES UNSAVED', 7: 'SAVE FAILED - CHANGES UNSAVED'}.get(
                         code, 'APP FAULT - OS RESTARTED')
         if line == 1:
             if code == 1:
                 return 'DELETE FILES TO RESTORE WRITING'
+            if code == 6:
+                return '> KEEP APP   DISCARD AND LEAVE'
+            if code == 7:
+                return '  KEEP APP > DISCARD AND LEAVE'
             if self.notice_code & 0x80:
                 return 'UNSAVED EDITS COULD NOT BE SAVED'
             return 'PREVIOUS SAVED FILES PRESERVED'
+        if code in (6, 7):
+            return 'ARROWS SELECT  A APPLY  B CANCEL'
         return 'PRESS A / ENTER TO CONTINUE'
 
     def execute(self, cmd: GPUCommand) -> int | None:

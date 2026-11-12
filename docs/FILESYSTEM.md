@@ -245,5 +245,9 @@ validation. `tests/test_flashfs.py` checks host image roundtrips and malformed
 images. Firmware execution tests cover complete source editing and file handoff.
 The integrated SoC test runs real CPU/services/filesystem/kernel/GPU/input logic
 through edit, automatic save, shutdown, cache erasure, reboot and reopening.
-Its RAM/flash/VRAM devices use bounded wait-state test models; physical memory
-cells and generated-world execution have separate validation gates.
+The broad integration suite uses bounded wait-state test memory devices. A
+second lifecycle backend retains all four production memory adapters, drives
+persistent bank models only through their exported bank/row/read/write pins and
+returns reads after a delay. It passes the same persistence flow at 96 KiB RAM.
+The bank cells are still simulated storage; physical cells and generated-world
+OS execution have separate validation gates.

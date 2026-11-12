@@ -67,6 +67,21 @@ end: HLT
     run_case(rtl_assembler,tmp_path,source)
 
 
+@pytest.mark.parametrize('length', [49152, 49153, 65535])
+def test_full_source_and_maximum_editor_output_fit_physical_ram(rtl_assembler,tmp_path,length):
+    body = 'NOP\n' * 4094 + 'HLT\n'
+    source = ';' + 'x' * (length - len(body) - 2) + '\n' + body
+    assert len(source) == length
+    assert len(assemble(source).to_bytes()) == 16380
+    run_case(rtl_assembler,tmp_path,source)
+
+
+def test_first_output_word_beyond_editor_capacity_is_rejected(rtl_assembler,tmp_path):
+    # The accelerator may emit the valid prefix, but the final RAM guard word
+    # must remain untouched and the caller receives an output-full diagnostic.
+    run_case(rtl_assembler,tmp_path,'NOP\n' * 4096,error=7,line=4096)
+
+
 def test_escaped_quotes_backslash_and_full_byte_literals_match(rtl_assembler,tmp_path):
     source = r'''LDI r1 '\''
 LDI r2 '\"'

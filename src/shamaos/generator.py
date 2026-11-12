@@ -24,6 +24,7 @@ from .layout import (
     memory_placement_options,
     memory_specs,
     plan_machine,
+    shared_memory_tile,
 )
 from .model import BlockState, BuildPlan, Placement, Vec3
 from .machine_spec import RAM_BYTES, FLASH_BYTES, CACHE_BYTES, VRAM_BYTES
@@ -42,7 +43,7 @@ REQUIRED_CAPACITY = {
 def source_provenance() -> dict[str, object]:
     """Record exact generation sources, including an uncommitted work tree."""
     root = Path(__file__).resolve().parents[2]
-    files = ["src/shamaos/generator.py", "src/shamaos/worldio.py", "src/shamaos/layout.py",
+    files = ["src/shamaos/generator.py", "src/shamaos/worldio.py", "src/shamaos/layout.py", "src/shamaos/model.py",
              "src/shamaos/hardware/logic.py", "src/shamaos/hardware/memory.py",
              "src/shamaos/hardware/memory_backbone.py", "src/shamaos/hardware/memory_streaming.py",
              "src/shamaos/hardware/binary_row_decoder.py", "src/shamaos/hardware/vertical_wiring.py",
@@ -157,31 +158,37 @@ def _storage_layout_cost(g: MachineGeometry) -> dict[str, object]:
     from .layout import vram_spec
     fabrics = (("cache", origins.cache, cache), ("ram", origins.ram, ram),
                ("flash", origins.flash, flash), ("vram", origins.vram, vram_spec(g)))
-    regions: set[tuple[int, int]] = set()
-    total_chunks = 0
+    storage_chunks: set[tuple[int, int]] = set()
+    horizontal_tiles: set[tuple[int, int]] = set()
     details = {}
     for name, origin, fabric in fabrics:
-        chunks = 0
+        chunks: set[tuple[int, int]] = set()
         for group in range(fabric.group_count):
             base = fabric.group_origin(origin, group)
             footprint = _bank_chunk_footprint(fabric.bank, base.x & 15, base.z & 15)
-            chunks += len(footprint)
-            regions.update(((base.x // 16 + cx) // 32, (base.z // 16 + cz) // 32) for cx, cz in footprint)
+            chunks.update((base.x // 16 + cx, base.z // 16 + cz) for cx, cz in footprint)
+            horizontal_tiles.add((base.x, base.z))
         box = fabric.bounds(origin)
         details[name] = {
             "bytes": fabric.total_bytes, "banks": fabric.bank_count, "layers": fabric.layers,
             "tiles": fabric.group_count, "banks_in_final_tile": fabric.tile_spec(fabric.group_count - 1).banks,
-            "chunks": chunks, "origin": vars(origin),
+            "chunks": len(chunks), "origin": vars(origin),
             "bounds_with_local_controls": {"min": vars(box.min), "max": vars(box.max)},
         }
-        total_chunks += chunks
-    # Separate tile/control envelopes have gaps greater than one chunk; only
-    # vertically stacked banks share a chunk. Count each horizontal tile once.
+        storage_chunks.update(chunks)
+    # Shared cache/VRAM/RAM can occupy the same X/Z chunks at different Y.
+    # Count the occupied union; per-fabric figures are intentionally additive
+    # only when their horizontal placements are disjoint.
+    regions = {(cx // 32, cz // 32) for cx, cz in storage_chunks}
+    total_chunks = len(storage_chunks)
     return {
         "storage_fabrics": details, "storage_chunks": total_chunks, "storage_regions": len(regions),
         "minimum_storage_region_bytes": total_chunks * 4096 + len(regions) * 8192,
         "storage_banks": sum(fabric.bank_count for _, _, fabric in fabrics),
         "storage_bits": sum(fabric.total_bytes for _, _, fabric in fabrics) * 8,
+        "horizontal_memory_tiles": len(horizontal_tiles),
+        "logical_memory_tiles": sum(fabric.group_count for _, _, fabric in fabrics),
+        "storage_fabric_chunk_sum": sum(detail["chunks"] for detail in details.values()),
     }
 
 
@@ -196,9 +203,14 @@ def generation_preflight(config: dict, *, world_path: str | Path | None = None, 
     profile = memory_bank_profile(ram.bank)
     layout_cost = _storage_layout_cost(g)
     from .physical_resources import regular_fabric_resources
-    regular = regular_fabric_resources(g)
+    regular = dict(regular_fabric_resources(g))
     total_chunks = int(layout_cost["storage_chunks"])
     total_banks = int(layout_cost["storage_banks"])
+    regular["physical_storage_placements"] = int(profile["placements"]) * total_banks
+    regular["regular_fabric_emitted_placements"] = (
+        regular["physical_storage_placements"] + regular["local_memory_control_and_return_placements"]
+        + regular.get("binary_row_decoder_placements", 0)
+        + sum(item["emitted_placements"] for item in regular["screen_controls_debug_clock"].values()))
     minimum_region_bytes = int(layout_cost["minimum_storage_region_bytes"])
     disk_path = Path(world_path or ".").resolve()
     while not disk_path.exists():
@@ -224,6 +236,8 @@ def generation_preflight(config: dict, *, world_path: str | Path | None = None, 
                                "layer_pitch": g.memory_layer_pitch, "surface_y": g.surface_y,
                                "minimum_build_y": g.minimum_build_y, "storage_base_y": g.storage_origin_y,
                                "control_ceiling_y": g.memory_control_ceiling,
+                               "shared_fabrics": {name: {"y_offset": dy, "decoder_x_offset": dx}
+                                                  for name, (dy, dx) in shared_memory_tile(g).items()},
                                "scope": "complete literal banks with above-ground local decode and shared isolated read return"},
         "resident_chunk_memory_scenarios": [
             {"assumed_bytes_per_chunk": assumption, "total_bytes": total_chunks * assumption}
@@ -519,6 +533,10 @@ def manifest(config: dict, plan: BuildPlan) -> dict:
             "surface_y": g.surface_y, "minimum_build_y": g.minimum_build_y,
             "storage_base_y": g.storage_origin_y, "control_ceiling_y": g.memory_control_ceiling,
             "bank_address_order": "group,layer=divmod(bank_index,layers)",
+            "row_interface": "binary-address-to-local-decoder" if g.memory_binary_rows else "one-hot-row-selection",
+            "shared_fabrics": {name: {"y_offset": dy, "decoder_x_offset": dx}
+                               for name, (dy, dx) in shared_memory_tile(g).items()},
+            "horizontal_tiles": _storage_layout_cost(g)["horizontal_memory_tiles"],
             "actual_layers": {"cache": cache_spec.layers, "ram": ram_spec.layers,
                               "flash": flash_spec.layers, "vram": vram_fabric.layers},
             "tiles": {"cache": cache_spec.group_count, "ram": ram_spec.group_count,

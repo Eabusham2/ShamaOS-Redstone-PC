@@ -5,13 +5,13 @@
 ; Context +0 handle,+4 type,+8 length,+12 handoff magic,+16 name length,
 ; +20 dirty,+24 cursor,+28 view,+32 diagnostic,+40 return mode,+44 name input
 ; length,+48 assembled size,+52 cursor x,+56 cursor y,+64 assembly output pointer.
-define CTX 0x0002c200
-define NAME 0x0002c000
-define NAME_EDIT 0x0002c080
-define BIN_NAME 0x0002c100
-define TEXT 0x00018000
+define CTX 0x00002600
+define NAME 0x00002400
+define NAME_EDIT 0x00002480
+define BIN_NAME 0x00002500
+define TEXT 0x00004000
 define CAPACITY 65535
-define RUN 0x00028000
+define RUN 0x00014000
 define GPU 0x02000000
 define GPU_TEXT 0x020004a0
 define MAGIC 0x5348414d

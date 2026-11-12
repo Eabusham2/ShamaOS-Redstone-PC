@@ -33,10 +33,12 @@ def test_interface_contracts_are_derived_from_surface_and_native_tiles(surface):
     assert min(p.pos.y for p in interfaces.obstacles)>=interfaces.minimum_y
     assert interfaces.access[shell_pin]==("south",)
     pins=fabric_tile_ports(origins.cache,memory_specs(geometry)[0])[0]
-    assert all(interfaces.access[pin]==("west",) for pin in (*pins.bank_select,*pins.row_select,pins.read_enable,pins.write_enable))
+    assert not pins.row_select
+    assert all(interfaces.access[pin]==("north",) for pin in (*pins.bank_select,*pins.row_address,pins.write_enable))
+    assert interfaces.access[pins.read_enable]==("west",)
     assert all(interfaces.access[pin]==("north",) for pin in pins.write_data)
     assert all(interfaces.access[pin]==("south",) for pin in pins.selected_word)
-    assert len(interfaces.obstacle_bounds)==6  # Four small tiles, console, and lamp panel.
+    assert len(interfaces.obstacle_bounds)==18  # Four tiles + two address buses/body each, console and display.
 
 
 def test_router_rejects_any_terminal_support_at_or_below_protected_grass():

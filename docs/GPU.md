@@ -135,12 +135,25 @@ native-screen presentation. These are transfer counts, not measured wall time.
 | `2` | RAM limit; OS restarted |
 | `3` | Executable-cache limit; OS restarted |
 | `4` | VRAM limit; OS restarted |
+| `6` | Save failed; Keep App selected |
+| `7` | Save failed; Discard and Leave selected |
 | Other nonzero code | App fault; OS restarted |
 
 For recovery warnings, bit 7 reports that unsaved edits could not be saved;
 otherwise the message confirms preservation of previously saved files. The
-kernel controls modal input and dismisses with NOTICE 0 after A or Enter. The GPU
-only renders the notice; it does not perform the recovery or consume input.
+services control modal input and dismiss ordinary warnings with NOTICE 0 after
+A/B or Enter/Escape. Codes 6 and 7 instead present a failed-close decision:
+Left/Right chooses, A/Enter confirms, and B/Escape cancels. The initial selection
+is always Keep App. The kernel fences each changed selection before accepting
+confirmation, so the committed choice is the one already visible on the screen.
+The GPU renders the notice; it does not perform recovery or consume input.
+
+Before submitting a show, selection change or dismissal, the kernel drains
+older GPU work. Otherwise a queued invalid app command could discard the
+NOTICE before it rendered while a later fence still appeared to succeed.
+After draining, the kernel rechecks the desired notice, submits it and waits
+for its presentation fence. A changed or cancelled request cannot make an
+undisplayed choice ready for confirmation.
 
 On the native screen the warning occupies X=24..295, Y=48..119. It overrides the
 cursor inside that rectangle while preserving the cursor state. Dismissal

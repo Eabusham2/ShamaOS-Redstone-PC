@@ -209,7 +209,8 @@ def memory_fabric_nets(
     if len(bank_pins) != fabric.bank_count:
         raise ValueError("physical tile selectors do not match literal bank capacity")
     yield from _vector_nets(f"{name}_bank_select", _require_port(outputs, f"{name}_bank_select", fabric.bank_count), bank_pins)
-    for field, width in (("row_select", fabric.bank.words), ("write_data", fabric.bank.word_bits)):
+    row_field = ("row_address", max(1, (fabric.bank.words - 1).bit_length())) if getattr(fabric, "binary_rows", False) else ("row_select", fabric.bank.words)
+    for field, width in (row_field, ("write_data", fabric.bank.word_bits)):
         for bit, source in enumerate(_require_port(outputs, f"{name}_{field}", width)):
             yield ExternalNet(f"{name}_{field}[{bit}]", source, tuple(getattr(tile, field)[bit] for tile in tiles))
     for port_name, tile_field in (("read_enable", "read_enable"), ("write_commit", "write_enable")):

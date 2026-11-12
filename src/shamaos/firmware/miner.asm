@@ -12,13 +12,13 @@ define EVT_LEFT 0x12
 define EVT_RIGHT 0x13
 define EVT_A 0x14
 define EVT_B 0x15
-define HEADER 0x0002d000
-define HASHBUF 0x0002d100
-define TARGET 0x0002d140
-define COMPARE_HASH 0x0002d180
-define RECORD 0x0002d200
-define HISTORY 0x0002d400
-define CONFIG_BUF 0x0002d600
+define HEADER 0x00004000
+define HASHBUF 0x00004100
+define TARGET 0x00004140
+define COMPARE_HASH 0x00004180
+define RECORD 0x00004200
+define HISTORY 0x00004400
+define CONFIG_BUF 0x00004600
 define GPU_BASE 0x02000000
 define GPU_TEXT 0x02000400
 
@@ -1169,12 +1169,12 @@ RET
 ; CPU-only SHA-256. All rounds use ordinary ALU/load/store instructions.
 ; .soft_sha256: r1 source, r2 byte length (0..119), r3 output32.
 ; .soft_dsha256: r1 header80, r3 output32. Preserves all registers.
-; Workspace 0x2e000..0x2e41f, separate from app/file/edit buffers.
-define SOFT_BASE 0x0002e000
-define SOFT_MSG 0x0002e100
-define SOFT_W 0x0002e200
-define SOFT_K 0x0002e300
-define SOFT_TMP 0x0002e400
+; Workspace 0x5000..0x54ff, owned by the foreground miner.
+define SOFT_BASE 0x00005000
+define SOFT_MSG 0x00005100
+define SOFT_W 0x00005200
+define SOFT_K 0x00005300
+define SOFT_TMP 0x00005400
 .soft_constants
 PUSH r1
 PUSH r2

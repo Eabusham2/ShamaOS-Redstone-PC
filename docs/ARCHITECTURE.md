@@ -6,7 +6,7 @@ ShamaOS is a 32-bit redstone computer generated as one synthesized SoC plus larg
 flowchart TD
     I["Keyboard and controller"] --> E["Queued input"]
     E --> C["32-bit CPU and native SHA"]
-    C <--> R["192 KiB RAM and 8 KiB fast memory"]
+    C <--> R["96 KiB RAM and 8 KiB fast memory"]
     C <--> O["OS services, filesystem and assembler"]
     O <--> F["500 KiB persistent flash"]
     C --> G["Independent GPU"]
@@ -36,14 +36,17 @@ faster file exporter does not make a running CPU instruction faster.
 Literal default capacities:
 
 - cache 8 KiB / 2 banks;
-- RAM 192 KiB / 48 banks;
+- RAM 96 KiB / 24 banks;
 - flash 500 KiB / 125 banks;
 - VRAM 16 KiB / 4 banks.
 
 Each bank is 4 KiB (1,024 × 32-bit words).
-The owner approved the RAM/flash reduction on 2026-11-12. No screen, input,
+The owner approved the RAM/flash reduction and subsequent RAM halving on
+2026-11-12. No screen, input,
 assembler, compute or OS functionality was removed with it. Bank selection wraps
 at the exact physical bank count, including the non-power-of-two RAM/flash counts.
+The compact controller exports a ten-bit binary row address to each tile's
+physical decoder instead of routing 1,024 row-select signals across the system.
 
 ## GPU/display
 

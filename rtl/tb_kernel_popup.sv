@@ -108,6 +108,10 @@ module tb_kernel_popup;
         if(!notice_busy || gpu.front_sel || screen[100*WIDTH+25]!==0 || screen[0]!==1)
             $fatal(1,"popup did not visibly overlay the application");
         check_app_state();
+        notice_code=6;#1;wait(notice_ready);@(negedge clk);check_app_state();
+        if(gpu.notice_code!=6) $fatal(1,"keep-app decision not drawn");
+        notice_code=7;#1;wait(notice_ready);@(negedge clk);check_app_state();
+        if(gpu.notice_code!=7) $fatal(1,"discard decision not redrawn");
         notice_code=0;
         wait(!notice_busy);
         @(negedge clk);

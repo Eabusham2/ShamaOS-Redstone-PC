@@ -69,6 +69,15 @@ def test_exit_reclaims_app_ram_and_cache():
     assert after.cache_used <= with_editor.cache_used
 
 
+def test_all_app_replacements_fit_halved_ram_without_hidden_desktop_allocation():
+    os = booted()
+    for app in ('editor', 'files', 'miner', 'monitor', 'terminal', 'calculator', 'paint', 'settings', 'desktop'):
+        os.launch(app, close_foreground=True)
+        assert os.foreground.name == app
+        assert len(os.processes) == 1
+        assert os.resources().ram_used <= os.resources().ram_total == 96 << 10
+
+
 def test_miner_start_stop_and_valid_history():
     os = booted()
     # All-zero target accepts only zero; all-FF accepts the first hash.

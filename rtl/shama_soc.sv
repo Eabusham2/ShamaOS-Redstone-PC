@@ -29,28 +29,28 @@ module shama_soc #(
 
     input  logic [31:0]  cache_selected_word,
     output logic [`SHAMA_CACHE_BANKS-1:0] cache_bank_select,
-    output logic [1023:0] cache_row_select,
+    output logic [9:0] cache_row_address,
     output logic         cache_read_enable,
     output logic         cache_write_commit,
     output logic [31:0]  cache_write_data,
 
     input  logic [31:0]  ram_selected_word,
     output logic [`SHAMA_RAM_BANKS-1:0] ram_bank_select,
-    output logic [1023:0] ram_row_select,
+    output logic [9:0] ram_row_address,
     output logic         ram_read_enable,
     output logic         ram_write_commit,
     output logic [31:0]  ram_write_data,
 
     input  logic [31:0]  flash_selected_word,
     output logic [`SHAMA_FLASH_BANKS-1:0] flash_bank_select,
-    output logic [1023:0] flash_row_select,
+    output logic [9:0] flash_row_address,
     output logic         flash_read_enable,
     output logic         flash_write_commit,
     output logic [31:0]  flash_write_data,
 
     input  logic [31:0]  vram_selected_word,
     output logic [`SHAMA_VRAM_BANKS-1:0] vram_bank_select,
-    output logic [1023:0] vram_row_select,
+    output logic [9:0] vram_row_address,
     output logic         vram_read_enable,
     output logic         vram_write_commit,
     output logic [31:0]  vram_write_data,
@@ -227,7 +227,7 @@ module shama_soc #(
         .req_addr({17'd0,gpu_vram_addr}),.req_wdata(gpu_vram_wdata),
         .req_wstrb(gpu_vram_wstrb),
         .req_ready(gpu_vram_ready),.req_rdata(gpu_vram_rdata),
-        .bank_select(vram_bank_select),.row_select(vram_row_select),
+        .bank_select(vram_bank_select),.row_address(vram_row_address),
         .read_enable(vram_read_enable),.write_commit(vram_write_commit),
         .write_data(vram_write_data),.selected_word(vram_selected_word)
     );
@@ -350,7 +350,7 @@ module shama_soc #(
         .req_valid(cache_req_valid),.req_we(cache_req_we),
         .req_addr(cache_req_addr),.req_wdata(cache_req_wdata),.req_wstrb(cache_req_wstrb),
         .req_ready(cache_req_ready),.req_rdata(cache_req_rdata),
-        .bank_select(cache_bank_select),.row_select(cache_row_select),
+        .bank_select(cache_bank_select),.row_address(cache_row_address),
         .read_enable(cache_read_enable),.write_commit(cache_write_commit),
         .write_data(cache_write_data),.selected_word(cache_selected_word)
     );
@@ -364,7 +364,7 @@ module shama_soc #(
         .req_valid(ram_req_valid),.req_we(ram_req_we),
         .req_addr(ram_req_addr),.req_wdata(ram_req_wdata),.req_wstrb(ram_req_wstrb),
         .req_ready(ram_req_ready),.req_rdata(ram_req_rdata),
-        .bank_select(ram_bank_select),.row_select(ram_row_select),
+        .bank_select(ram_bank_select),.row_address(ram_row_address),
         .read_enable(ram_read_enable),.write_commit(ram_write_commit),
         .write_data(ram_write_data),.selected_word(ram_selected_word)
     );
@@ -378,7 +378,7 @@ module shama_soc #(
         .req_valid(flash_req_valid),.req_we(flash_req_we),
         .req_addr(flash_req_addr),.req_wdata(flash_req_wdata),.req_wstrb(flash_req_wstrb),
         .req_ready(flash_req_ready),.req_rdata(flash_req_rdata),
-        .bank_select(flash_bank_select),.row_select(flash_row_select),
+        .bank_select(flash_bank_select),.row_address(flash_row_address),
         .read_enable(flash_read_enable),.write_commit(flash_write_commit),
         .write_data(flash_write_data),.selected_word(flash_selected_word)
     );

@@ -2,7 +2,7 @@
 
 // OS service sequencer. A replacement/shutdown first completes requested saves,
 // then closes app-owned handles and zeroes allocations/workspaces. Refused saves
-// preserve the foreground program and expose an error; no forced teardown occurs.
+// preserve the foreground program and offer a cancel-first explicit discard.
 module shama_services #(
     parameter integer APP_SLOT_BYTES=16*1024
 )(
@@ -67,9 +67,9 @@ module shama_services #(
         SYS_GET_CONTROLLER=12'h031,SYS_INPUT_STATUS=12'h032,
         SYS_RUN_BUFFER=12'h061;
     localparam [7:0] EVT_HOME=8'h16,EVT_EXIT=8'h17,EVT_EDITOR=8'h18,EVT_FILES=8'h19;
-    localparam integer HEAP_BASE=32'h0000c000,HEAP_PAGE_BYTES=4096,HEAP_PAGES=12,MAX_ALLOCS=16;
-    localparam [31:0] EDIT_CTX=32'h0002c200,EDIT_BUF=32'h00018000,MINER_RECORD=32'h0002d200;
-    localparam [31:0] RUN_STAGING=32'h00028000;
+    localparam integer HEAP_BASE=`SHAMA_HEAP_BASE,HEAP_PAGE_BYTES=`SHAMA_HEAP_PAGE_BYTES,HEAP_PAGES=`SHAMA_HEAP_PAGES,MAX_ALLOCS=16;
+    localparam [31:0] EDIT_CTX=`SHAMA_EDIT_CTX,EDIT_BUF=`SHAMA_EDIT_BUF,MINER_RECORD=`SHAMA_MINER_RECORD;
+    localparam [31:0] RUN_STAGING=`SHAMA_RUN_STAGING;
     localparam integer FAST_BYTES=(APP_SLOT_BYTES<`SHAMA_CACHE_BYTES)?APP_SLOT_BYTES:`SHAMA_CACHE_BYTES;
     typedef enum logic [5:0] {
         ST_IDLE,ST_SLOT_LENGTH,ST_COPY_READ,ST_COPY_RAM_WRITE,ST_COPY_CACHE_WRITE,
@@ -78,7 +78,7 @@ module shama_services #(
         ST_CLOSE_EDITOR_DIRTY,ST_CLOSE_MINER_STOP,ST_CLOSE_SAVE,ST_CLOSE_SAVE_DROP,
         ST_CLOSE_HANDLES,ST_HEAP_NEXT,ST_HEAP_CLEAR,ST_HEAP_INIT,ST_WORK_NEXT,ST_WORK_CLEAR,
         ST_FLUSH_READ,ST_FLUSH_WRITE,ST_SHUTDOWN_DONE,ST_SNAPSHOT_READ,ST_SNAPSHOT_DELAY,
-        ST_RUN_CLEAR
+        ST_RUN_CLEAR,ST_CLOSE_DECISION,ST_CLOSE_DECISION_FINISH
     } state_t;
     state_t state;
     logic [11:0] latched_id;
@@ -101,6 +101,7 @@ module shama_services #(
     logic response_jump;
     logic [31:0] response_pc;
     logic async_switch,force_jump_pulse,close_shutdown,force_discard;
+    logic close_discard_confirmed;
     logic shutdown_pending,shutdown_prev;
     logic [31:0] close_handle,close_length;
     logic [4:0] clear_slot;
@@ -172,12 +173,31 @@ module shama_services #(
         end
     endfunction
 
+    // Only the foreground app owns workspace pages. These reservations protect
+    // future accesses as well as current data (including Editor's optional RUN
+    // staging); allocated pages are separately tracked by heap_bitmap.
+    function automatic logic heap_page_reserved(input integer page);
+        reg [31:0] addr;
+        begin
+            addr=HEAP_BASE+page*HEAP_PAGE_BYTES;
+            case(foreground_app)
+                1:heap_page_reserved=addr>=EDIT_BUF && addr<RUN_STAGING+`SHAMA_SLOT_BYTES;
+                2:heap_page_reserved=addr>=EDIT_BUF && addr<EDIT_BUF+65536;
+                3:heap_page_reserved=(addr==`SHAMA_MINER_BASE || addr==`SHAMA_MINER_SOFT_BASE);
+                5:heap_page_reserved=addr==(`SHAMA_TERMINAL_BUF/HEAP_PAGE_BYTES)*HEAP_PAGE_BYTES;
+                7:heap_page_reserved=addr==(`SHAMA_PAINT_BASE/HEAP_PAGE_BYTES)*HEAP_PAGE_BYTES;
+                8:heap_page_reserved=addr==(`SHAMA_SETTINGS_BASE/HEAP_PAGE_BYTES)*HEAP_PAGE_BYTES;
+                default:heap_page_reserved=0;
+            endcase
+        end
+    endfunction
+
     function automatic integer find_heap_run(input integer needed);
         integer k,run,start;
         begin
             run=0;start=0;find_heap_run=-1;
             for(k=0;k<HEAP_PAGES;k=k+1) begin
-                if(!heap_bitmap[k]) begin
+                if(!heap_bitmap[k] && !heap_page_reserved(k)) begin
                     if(run==0) start=k;
                     run=run+1;
                     if(run>=needed && find_heap_run<0)
@@ -210,14 +230,14 @@ module shama_services #(
     endfunction
     function automatic [31:0] workspace_base(input logic [3:0] idx);
         case(idx)
-            0:workspace_base=32'h0002c000;
+            0:workspace_base=`SHAMA_EDIT_NAME;
             1:workspace_base=EDIT_CTX;
             2:workspace_base=EDIT_BUF;
             3:workspace_base=RUN_STAGING;
-            4:workspace_base=32'h0002d000;
-            5:workspace_base=32'h0002e000;
-            6:workspace_base=32'h0002f000;
-            7:workspace_base=32'h0002f200;
+            4:workspace_base=`SHAMA_MINER_BASE;
+            5:workspace_base=`SHAMA_MINER_SOFT_BASE;
+            6:workspace_base=`SHAMA_SETTINGS_BASE;
+            7:workspace_base=`SHAMA_PAINT_BASE;
             default:workspace_base=0;
         endcase
     endfunction
@@ -285,10 +305,12 @@ module shama_services #(
                 // unsaved edits when persistence cannot complete safely.
                 recovery_reason[7]<=1;force_discard<=1;state<=ST_CLOSE_SAVE_DROP;
             end else begin
-                close_shutdown<=0;shutdown_pending<=0;run_staged<=0;
-                if(error_code==32'hfffffff8) begin notice_code<=1;flash_notice_latched<=1;end
-                if(async_switch) begin async_switch<=0;state<=ST_IDLE;end
-                else state<=ST_RESP;
+                // Keep the requested launch/shutdown and all live buffers
+                // while the user chooses. A failed save must not trap Miner
+                // away from Files, nor silently discard an Editor document.
+                close_discard_confirmed<=0;notice_code<=6;
+                if(error_code==32'hfffffff8) flash_notice_latched<=1;
+                state<=ST_CLOSE_DECISION;
             end
         end
     endtask
@@ -332,7 +354,14 @@ module shama_services #(
             ST_CLOSE_EDITOR_LENGTH:begin dma_valid=1;dma_addr=EDIT_CTX+8;end
             ST_CLOSE_EDITOR_DIRTY:begin dma_valid=1;dma_addr=EDIT_CTX+20;end
             ST_CLOSE_MINER_STOP:begin dma_valid=1;dma_we=1;dma_addr=MINER_RECORD+24;dma_wdata=0;end
-            ST_HEAP_CLEAR,ST_HEAP_INIT,ST_WORK_CLEAR,ST_RUN_CLEAR:begin dma_valid=1;dma_we=1;dma_addr=clear_base+copy_offset;dma_wdata=0;end
+            ST_HEAP_CLEAR:begin
+                dma_valid=1;dma_addr=clear_base+copy_offset;dma_wdata=0;
+                // A non-Editor app may have allocated the otherwise free RUN
+                // pages. Retain only the launch source until both code copies
+                // finish; ST_RUN_CLEAR then erases those last words too.
+                dma_we=!(run_staged && dma_addr>=staged_source_ptr && dma_addr<staged_source_ptr+staged_bytes);
+            end
+            ST_HEAP_INIT,ST_WORK_CLEAR,ST_RUN_CLEAR:begin dma_valid=1;dma_we=1;dma_addr=clear_base+copy_offset;dma_wdata=0;end
             ST_FLUSH_READ:begin dma_valid=1;dma_cache=1;dma_addr=copy_offset;end
             ST_FLUSH_WRITE:begin dma_valid=1;dma_we=1;dma_addr=`SHAMA_APP_RAM_BASE+copy_offset;end
             default:begin end
@@ -353,18 +382,22 @@ module shama_services #(
             response<=0;response_jump<=0;response_pc<=0;async_switch<=0;force_jump_pulse<=0;
             event_ack<=0;event_ack_data<=0;os_loaded<=0;foreground_app<=0;
             close_shutdown<=0;force_discard<=0;shutdown_pending<=0;shutdown_prev<=0;shutdown_ready<=0;
+            close_discard_confirmed<=0;
             lifecycle_error<=0;close_handle<=0;close_length<=0;clear_slot<=0;free_one<=0;
             workspace_index<=0;clear_base<=0;clear_bytes<=0;snapshot_delay<=0;
         end else begin
             event_ack<=0;force_jump_pulse<=0;shutdown_prev<=shutdown_request;clear_gpu_capacity_fault<=0;
             raw_flash_block_previous<=raw_flash_write_blocked;
             if(!flash_write_protected) flash_notice_latched<=0;
-            if(os_loaded && raw_flash_write_blocked && !raw_flash_block_previous && !recovering_app) begin
+            if(os_loaded && raw_flash_write_blocked && !raw_flash_block_previous && !recovering_app && notice_code==0) begin
                 notice_code<=1;flash_notice_latched<=1;
             end
-            if(notice_code!=0 && notice_ready && event_valid &&
-               (event_code==8'h14 || event_code==8'h15 || universal_event(event_code))) begin
-                notice_code<=0;event_ack<=1;event_ack_data<={controller_latched,key_code,event_code};
+            if(notice_code!=0 && notice_ready && event_valid && state!=ST_CLOSE_DECISION) begin
+                // Consume irrelevant modal input too, so a queued ordinary
+                // key cannot block Enter/A behind it indefinitely.
+                event_ack<=1;event_ack_data<={controller_latched,key_code,event_code};
+                if(event_code==8'h14 || event_code==8'h15 || universal_event(event_code) ||
+                   (event_code==8'h01 && (key_code==8'h0d || key_code==8'h1b))) notice_code<=0;
             end
             if(shutdown_request && !shutdown_prev && !shutdown_ready) shutdown_pending<=1;
             if(!shutdown_request && !close_shutdown) shutdown_ready<=0;
@@ -505,6 +538,27 @@ module shama_services #(
                     if(ext_ret[63:32]==32'hffffffff) refuse_close(ext_ret[31:0]);
                     else state<=ST_CLOSE_SAVE_DROP;
                 end
+                ST_CLOSE_DECISION:if(notice_ready && event_valid) begin
+                    event_ack<=1;event_ack_data<={controller_latched,key_code,event_code};
+                    if(event_code==8'h12 || (event_code==8'h01 && key_code==8'h82)) notice_code<=6;
+                    else if(event_code==8'h13 || (event_code==8'h01 && key_code==8'h83)) notice_code<=7;
+                    else if(event_code==8'h14 || (event_code==8'h01 && key_code==8'h0d)) begin
+                        close_discard_confirmed<=notice_code==7;notice_code<=0;state<=ST_CLOSE_DECISION_FINISH;
+                    end else if(event_code==8'h15 || universal_event(event_code) ||
+                                (event_code==8'h01 && key_code==8'h1b)) begin
+                        close_discard_confirmed<=0;notice_code<=0;state<=ST_CLOSE_DECISION_FINISH;
+                    end
+                end
+                ST_CLOSE_DECISION_FINISH:if(!notice_busy && !ext_ready) begin
+                    // Both the failed storage handshake and overlay restore
+                    // have finished before any cleanup or CPU continuation.
+                    if(close_discard_confirmed) begin force_discard<=1;state<=ST_CLOSE_BEGIN;end
+                    else begin
+                        close_shutdown<=0;shutdown_pending<=0;run_staged<=0;force_discard<=0;
+                        if(async_switch) begin async_switch<=0;state<=ST_IDLE;end
+                        else state<=ST_RESP;
+                    end
+                end
                 ST_CLOSE_SAVE_DROP:if(!ext_ready) state<=ST_CLOSE_HANDLES;
                 ST_CLOSE_HANDLES:if(fs_cleanup_ready) begin clear_slot<=0;free_one<=0;state<=ST_HEAP_NEXT;end
                 ST_HEAP_NEXT:begin
@@ -532,7 +586,10 @@ module shama_services #(
                     else copy_offset<=copy_offset+4;
                 end
                 ST_APP_CLEAR_RAM:if(dma_ready) begin
-                    if(copy_offset+4>=APP_SLOT_BYTES) begin copy_offset<=0;state<=ST_APP_CLEAR_CACHE;end
+                    // Backing occupies the RAM underneath the CPU's cache
+                    // alias. Clearing the assembly slot size here would erase
+                    // the resident kernel and Editor name/context metadata.
+                    if(copy_offset+4>=FAST_BYTES) begin copy_offset<=0;state<=ST_APP_CLEAR_CACHE;end
                     else copy_offset<=copy_offset+4;
                 end
                 ST_APP_CLEAR_CACHE:if(dma_ready) begin
@@ -549,7 +606,8 @@ module shama_services #(
                     end else copy_offset<=copy_offset+4;
                 end
                 ST_SLOT_LENGTH:if(dma_ready) begin
-                    if(dma_rdata==0 || dma_rdata>APP_SLOT_BYTES-4 || (copy_to_cache && dma_rdata>FAST_BYTES) || dma_rdata[1:0]!=0 ||
+                    if(dma_rdata==0 || dma_rdata>APP_SLOT_BYTES-4 || (copy_to_cache && dma_rdata>FAST_BYTES) ||
+                       (copy_is_kernel && dma_rdata>`SHAMA_KERNEL_SLOT_BYTES) || dma_rdata[1:0]!=0 ||
                        dma_rdata>(copy_is_kernel?`SHAMA_KERNEL_BINARY_BYTES:app_binary_limit(target_app))) begin
                         response<=64'hfffffffffffffff9;lifecycle_error<=32'hfffffff9;
                         if(os_loaded && !copy_is_kernel && target_app!=0) begin

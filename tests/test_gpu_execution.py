@@ -234,7 +234,7 @@ def test_resource_fault_discards_queued_app_work_and_allows_recovery(gpu_binary,
     run(gpu_binary, tmp_path, s)
 
 
-@pytest.mark.parametrize('code', [1, 2, 3, 4, 5, 0x82, 0x84])
+@pytest.mark.parametrize('code', [1, 2, 3, 4, 5, 6, 7, 0x82, 0x84])
 def test_notice_overlay_preserves_both_frames_resources_and_drawing_state(gpu_binary, tmp_path, code):
     s = Scenario(320, 180).seed_back(611)
     s.command(G.SWAP_BUFFER).check().seed_back(622)

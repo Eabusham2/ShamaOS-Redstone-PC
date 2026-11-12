@@ -20,7 +20,7 @@ DataVersion 3700, with all physical computation performed by emitted redstone.
 
 ## Regular fabrics
 
-The default image reserves 4 cache, 48 RAM, 125 flash and 8 VRAM banks, each
+The default image reserves 2 cache, 24 RAM, 125 flash and 4 VRAM banks, each
 4 KiB. Flash is initialized from the assembled 500 KiB ShamaFS image. Compact
 memory cells use locked repeaters and isolated read/write buses; see
 [MEMORY.md](MEMORY.md) for counts, stacking work and initialization details.

@@ -39,8 +39,11 @@ image, then reset. The machine does not silently format invalid persistent data.
 Codes in this table are hexadecimal. Universal Home/Exit/Editor/Files is serviced
 by hardware, including when the foreground program is halted or never polls
 input. Dirty named Editor content and miner state must finish saving before
-replacement. A failed save retains the app and reports a lifecycle error;
-ordinary buttons do not silently force a discard.
+replacement. A failed save retains the app and shows **Keep App** initially.
+Left selects Keep App; Right selects **Discard and Leave**. A/Enter confirms the visible choice,
+and B/Escape cancels. Universal controls while this dialog is open also cancel
+it. The explicit discard choice completes the originally requested destination
+or shutdown; ordinary navigation does not silently discard unsaved work.
 
 ## Keyboard matrix
 

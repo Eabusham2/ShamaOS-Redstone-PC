@@ -220,7 +220,9 @@ jobs:
 
   behavioral-and-redstone:
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    # Full-size source boundaries and production-controller SoC persistence
+    # flows extend the previous ~35-minute behavioral/redstone workload.
+    timeout-minutes: 75
     env:
       PYTHONPATH: src:tests
       SHAMA_MCHPRS_RUNNER: ${{ github.workspace }}/tests/mchprs_runtime/target/release/shama-redstone-check
@@ -520,10 +522,10 @@ jobs:
           assert len(outputs["ram_bank_select"]) == 48
           assert len(outputs["flash_bank_select"]) == 125
           assert len(outputs["vram_bank_select"]) == 4
-          assert len(outputs["cache_row_select"]) == 1024
-          assert len(outputs["ram_row_select"]) == 1024
-          assert len(outputs["flash_row_select"]) == 1024
-          assert len(outputs["vram_row_select"]) == 1024
+          assert len(outputs["cache_row_address"]) == 10
+          assert len(outputs["ram_row_address"]) == 10
+          assert len(outputs["flash_row_address"]) == 10
+          assert len(outputs["vram_row_address"]) == 10
           assert len(outputs["display_row_data"]) == 320
           assert len(outputs["display_row_select"]) == 180
 

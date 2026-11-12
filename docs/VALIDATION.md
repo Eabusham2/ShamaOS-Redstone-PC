@@ -13,7 +13,8 @@ level must not be presented as a result at another.
 | CPU RTL | Icarus runs the actual CPU with instruction fetches, byte strobes, wait states and SHA blocks | Arithmetic/flags/branches/stacks, faults, negative offsets, byte preservation, counters, SHA primitives/native hashes, actual software/native SHA comparison | Memory device responses are testbench models. |
 | GPU RTL differential | Actual command engine against full reference frames | All primitives, clipping, text/glyphs, dirty rows, cursor overlays, queue depths/backpressure, native-resolution last pixel, VRAM/display stalls | This does not exercise a complete placed lamp panel. |
 | Services/filesystem/input RTL | Actual hardware state machines and explicit bus stalls | Owned handles, allocator cleanup, queued keys and held acknowledgements, directory rules, full disk/table, journal recovery, save refusal and shutdown | Flash is represented by an exact byte-addressed test memory. |
-| Integrated SoC RTL | CPU, native SHA, GPU, input, services, filesystem, kernel and assembler running shipped code | Boot, pause/step, universal Editor, X.TXT creation/ABC entry, dirty save, memory cleanup, paused shutdown, cache-cleared reboot, Explorer-to-Editor handoff and reopened bytes | Fast test memory devices replace the slow physical bank adapters for this long scenario. |
+| Integrated SoC RTL | CPU, native SHA, GPU, input, services, filesystem, kernel and assembler running shipped code | Boot, pause/step, universal Editor, X.TXT creation/ABC entry, dirty save, memory cleanup, paused shutdown, cache-cleared reboot, Explorer-to-Editor handoff and reopened bytes | Broad failure cases use bounded fast memory models; this is not generated-world execution. |
+| Production-controller SoC RTL | The same SoC with its actual cache/RAM/flash/VRAM adapters, binary row addresses and physical bank control pins | Full lifecycle, typed assembly/run and heap-backed self-replacement at 96 KiB RAM; delayed pin-level reads and persistent writes on all four fabrics | Bank-cell storage is modeled; redstone cells and full-world timing require separate proof. |
 | Real synthesis | Installed Yosys/ABC and Icarus equivalence | ABC option compatibility; DFF/DFFE/SDFF/SDFFE/SDFFCE polarities, reset values, edge behavior and priority; real primitive-bank differential traces | Mapping a netlist does not establish electrical/timing correctness of all routes. |
 | Actual redstone fixtures | Pinned MCHPRS redstone engine, emitted blocks and scheduled neighbour/tick updates | Gate/DFF traces; complete clock pulses at all phases; buttons/keys; preloaded compact memory read/write/retention/isolation; small display; representative routed signals/fanout/sequential circuits | Small fixtures do not prove complete-world loading or global clock skew. |
 | Native world backend | Java NBT/Anvil files written, reopened and independently decoded | Exact states, coordinate/height checks, conflicting-write rejection, save/readback integrity, corruption detection and a saved-block runtime fixture | File fidelity is not proof of OS execution in that save. |
@@ -21,8 +22,36 @@ level must not be presented as a result at another.
 The integrated lifecycle scenario is a behavioral integration test, not a
 pre-recorded UI animation. It drives the actual input path and verifies data
 written by the filesystem across shutdown/reboot. Its recorded successful run
-required 8,034,643 raw testbench clock cycles; subsequent source revisions must
-rerun the same scenario rather than inheriting that result.
+with the production adapters required **8,604,079 testbench clock cycles** at
+96 KiB RAM. Observed write commits were 18,188 cache, 39,485 RAM, 1,447 flash
+and 180,420 VRAM, with delayed reads covered on every fabric. Those are simulator
+transactions and cycles, not Minecraft speed. Subsequent revisions must rerun
+the scenario rather than inheriting that result.
+
+The same production-controller backend passes typed assembly/save/run in
+**9,644,941 cycles**. A separate **5,137,109-cycle** case allocates the complete
+84 KiB generic heap, writes a new program into its RUN pages, self-replaces,
+executes the marker, compares both code copies and checks every released heap
+word before returning Home. It directly guards against cleanup erasing the
+staged source before the loader reads it.
+
+The 96 KiB map regression executes 49,152-, 49,153- and 65,535-byte source
+assembly/save/run flows and the 16,380-byte hardware-assembler output boundary.
+It checks every app's workspace/heap exclusion, both ends of the 8 KiB RAM
+executable backing, cache flush/clear, kernel/metadata retention and graceful
+heap exhaustion. A staged launch from an allocated RUN page must preserve its
+code until loading completes, then clear the entire released allocation.
+
+Failed-close modal tests check the safe initial choice, Left/Right selection,
+Enter/A confirmation, Escape/B cancellation, unrelated queued keys, shutdown
+and a blocked Miner save followed by explicit discard to Explorer. Pixel and
+kernel tests verify selection redraw/fences and preserve every VRAM word,
+unfinished back frame and drawing setting.
+The queued-fault regression places an invalid BLIT after a long draw and before
+a pending warning: the old implementation reported readiness without rendering
+the notice. Waiting for old work to drain before submitting the current notice
+fixes the reproduction; choice changes and cancellation during that wait are
+also checked.
 
 ## Actual runtime harness
 
@@ -74,6 +103,22 @@ redstone updates, and rejects conflicting block placements before simulation:
   85,128 ticks. The literal fixture and its routes fit Y=-60..318 above the
   classic-flat grass. This fixture has four words and eight bits per bank;
   it does not establish full-size row-interface timing.
+- The local binary decoder checks all 1,024 row addresses. Production memory
+  interfaces expose ten address pins instead of 1,024 global row-select pins.
+  External escape planning includes the complete decoder/control geometry.
+- A mixed cache2/VRAM4/RAM24 column has independent bank/control/read-return
+  paths. Its saved fixture reopens **522,568 unique circuit blocks** and passes
+  **84 steps / 43,520 redstone ticks**, with native blocks at Y=-60..307 above
+  preserved grass. This uses a reduced number of rows per bank; full 1,024-word
+  storage and full-address decoding are separately exercised.
+- The bounded experimental local router reuses real isolated tracks and matches
+  private clock paths without adding blocks. A 14-cell register pipeline passes
+  140-redstone-tick cycles; two stacked 8+6-cell tiles pass 180-tick cycles, with
+  zero observed register-clock skew, at least 10 ticks of setup and 171 of hold.
+  The single-tile 70-tick and stacked 170-tick negative controls lose transfers;
+  the latter also reduces observed hold to one tick. These timing-sensitive
+  small-circuit tests do not change the production divider or certify arbitrary
+  mapped logic.
 
 The router uses a separate endpoint landing plane and reserves stair headroom.
 Directional repeaters refresh junctions as well as straight runs. The caller

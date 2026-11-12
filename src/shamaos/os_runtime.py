@@ -7,6 +7,7 @@ from typing import Literal
 from .assembler import AssemblyError, assemble
 from .flashfs import FileEntry, FileType, ShamaFS
 from .machine_spec import RAM_BYTES, CACHE_BYTES
+from .memory_map import HEAP_BASE
 from .sha256 import MiningState
 
 
@@ -55,7 +56,7 @@ class Allocation:
 class MemoryManager:
     """Abstract owner-allocation policy model, not the RTL workspace map."""
 
-    def __init__(self, total: int = RAM_BYTES, reserved: int = 96 << 10) -> None:
+    def __init__(self, total: int = RAM_BYTES, reserved: int = HEAP_BASE) -> None:
         if not 0 <= reserved < total:
             raise ValueError("invalid RAM reservation")
         self.total = total
@@ -94,7 +95,7 @@ class MemoryManager:
 
 
 class CacheManager:
-    def __init__(self, total: int = 16 << 10, line_size: int = 32) -> None:
+    def __init__(self, total: int = CACHE_BYTES, line_size: int = 32) -> None:
         if total <= 0 or line_size <= 0 or total % line_size:
             raise ValueError("invalid cache geometry")
         self.total = total
@@ -237,7 +238,7 @@ class ShamaOSRuntime:
         if not self.powered and name != "desktop":
             raise RuntimeError("ShamaOS is powered off")
         if close_foreground and self.foreground_pid:
-            self.exit_foreground()
+            self.exit_foreground(return_desktop=False)
         executable = self._app_executable(name)
         if not self.fs.exists(executable):
             raise FileNotFoundError(executable)

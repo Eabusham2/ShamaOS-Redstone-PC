@@ -1,10 +1,10 @@
 """Owner-approved physical capacities, amended on 2026-11-12.
 
-RAM, flash, cache and VRAM were explicitly reduced to 192 KiB, 500 KiB,
+RAM, flash, cache and VRAM were explicitly reduced to 96 KiB, 500 KiB,
 8 KiB and 16 KiB. Display and CPU features remain unchanged.
 """
 
-RAM_BYTES = 192 << 10
+RAM_BYTES = 96 << 10
 FLASH_BYTES = 500 << 10
 FLASH_WRITE_LIMIT_PERCENT = 95
 FLASH_WRITE_LIMIT_BYTES = FLASH_BYTES * FLASH_WRITE_LIMIT_PERCENT // 100

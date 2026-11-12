@@ -2,8 +2,8 @@
 ; mark into the artwork. D-pad/arrow keys move, A draws, B erases, C clears.
 ; Settings restores cursor visibility/shape from the persistent versioned file.
 define GPU 0x02000000
-define CONFIG 0x0002f200
-define CONFIG_NAME 0x0002f300
+define CONFIG 0x00004200
+define CONFIG_NAME 0x00004300
 LEA r8 r0 160
 LEA r9 r0 90
 LEA r11 r0 1

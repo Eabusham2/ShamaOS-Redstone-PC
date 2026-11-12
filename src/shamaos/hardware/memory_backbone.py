@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 import math
 from typing import Iterator
 
@@ -16,6 +16,9 @@ from .memory import (
     repeater,
 )
 from .memory_streaming import iter_memory_bank_ordered
+
+
+BINARY_ROW_X_OFFSET = -138
 
 
 @dataclass(frozen=True)
@@ -46,6 +49,7 @@ class StackedMemoryTilePorts:
     write_data: tuple[Vec3, ...]
     selected_word: tuple[Vec3, ...]
     bank_read_data: tuple[tuple[Vec3, ...], ...]
+    row_address: tuple[Vec3, ...] = ()
 
 
 def stacked_bank_origin(origin: Vec3, tile: StackedMemoryTileSpec, index: int) -> Vec3:
@@ -81,6 +85,8 @@ class StackedMemoryFabricSpec(MemoryFabricSpec):
 
     layers: int = 32
     layer_pitch: int = 12
+    binary_rows: bool = False
+    decoder_x_offset: int = BINARY_ROW_X_OFFSET
 
     def __post_init__(self) -> None:
         StackedMemoryTileSpec(self.bank, self.layers, self.layer_pitch)
@@ -88,6 +94,8 @@ class StackedMemoryFabricSpec(MemoryFabricSpec):
             raise ValueError("a memory fabric needs positive capacity and columns")
         if self.bank_gap_x < 128 or self.bank_gap_z < 32:
             raise ValueError("stacked tile gaps must reserve local decoder and return routing")
+        if self.binary_rows and self.bank_gap_x < 160:
+            raise ValueError("binary row decoding needs at least 160 blocks of bank X spacing")
         _ = self.bank_count
 
     @property
@@ -123,8 +131,24 @@ class StackedMemoryFabricSpec(MemoryFabricSpec):
     def bounds(self, origin: Vec3, *, local_controls: bool = True) -> Box:
         boxes = [stacked_tile_bounds(self.group_origin(origin, group), self.tile_spec(group), local_controls=local_controls)
                  for group in range(self.group_count)]
+        if local_controls and self.binary_rows:
+            from .binary_row_decoder import binary_row_decoder_bounds
+            boxes.extend(binary_row_decoder_bounds(self.group_origin(origin, group), self.tile_spec(group),
+                                                    decoder_x=self.group_origin(origin, group).x + self.decoder_x_offset)
+                         for group in range(self.group_count))
         return Box(Vec3(min(box.min.x for box in boxes), min(box.min.y for box in boxes), min(box.min.z for box in boxes)),
                    Vec3(max(box.max.x for box in boxes), max(box.max.y for box in boxes), max(box.max.z for box in boxes)))
+
+    def collision_bounds(self, origin: Vec3) -> tuple[Box, ...]:
+        """Conservative occupied volumes, preserving empty decoder headroom."""
+        from .binary_row_decoder import binary_row_collision_bounds
+        boxes = []
+        for group in range(self.group_count):
+            base, tile = self.group_origin(origin, group), self.tile_spec(group)
+            boxes.append(stacked_tile_bounds(base, tile))
+            if self.binary_rows:
+                boxes.extend(binary_row_collision_bounds(base, tile, decoder_x=base.x + self.decoder_x_offset))
+        return tuple(boxes)
 
 
 def stacked_tile_bounds(origin: Vec3, tile: StackedMemoryTileSpec, *, local_controls: bool = True) -> Box:
@@ -539,6 +563,8 @@ def backbone_ports(
     fabric: MemoryFabricSpec,
 ) -> MemoryBackbonePorts:
     if isinstance(fabric, StackedMemoryFabricSpec):
+        if fabric.binary_rows:
+            raise ValueError("binary row-address fabrics require fabric_tile_ports")
         if fabric.group_count != 1:
             raise ValueError("a multi-tile fabric has multiple row/data/return terminals; use fabric_tile_ports")
         tile = stacked_tile_ports(origin, fabric.tile_spec(0))
@@ -585,8 +611,16 @@ def backbone_ports(
 def fabric_tile_ports(origin: Vec3, fabric: MemoryFabricSpec) -> tuple[MemoryBackbonePorts | StackedMemoryTilePorts, ...]:
     """Terminals in logical bank order, with one broadcast/return set per tile."""
     if isinstance(fabric, StackedMemoryFabricSpec):
-        return tuple(stacked_tile_ports(fabric.group_origin(origin, group), fabric.tile_spec(group))
-                     for group in range(fabric.group_count))
+        tiles = []
+        for group in range(fabric.group_count):
+            tile_origin, tile = fabric.group_origin(origin, group), fabric.tile_spec(group)
+            ports = stacked_tile_ports(tile_origin, tile)
+            if fabric.binary_rows:
+                from .binary_row_decoder import binary_row_address_ports
+                ports = replace(ports, row_select=(), row_address=binary_row_address_ports(
+                    tile_origin, tile, decoder_x=tile_origin.x + fabric.decoder_x_offset))
+            tiles.append(ports)
+        return tuple(tiles)
     return (backbone_ports(origin, fabric),)
 
 
@@ -596,9 +630,10 @@ def iter_memory_backbone(
     fabric: MemoryFabricSpec,
     component: str = "memory-backbone",
 ) -> Iterator[Placement]:
-    """Wire one-hot controller signals to all regular memory banks.
+    """Wire controller signals to complete regular memory banks.
 
-    The backbone is deliberately large but avoids an N×M binary decoder:
+    Stacked fabrics use local binary row decode when configured. The legacy
+    flat path retains its one-hot interface:
       * one global 1,024-row selector bus,
       * one bank-select input/trunk per bank,
       * one read/write-enable trunk per bank,
@@ -610,8 +645,13 @@ def iter_memory_backbone(
     """
     if isinstance(fabric, StackedMemoryFabricSpec):
         for group in range(fabric.group_count):
-            yield from iter_stacked_memory_tile(fabric.group_origin(origin, group), tile=fabric.tile_spec(group),
+            tile_origin, tile = fabric.group_origin(origin, group), fabric.tile_spec(group)
+            yield from iter_stacked_memory_tile(tile_origin, tile=tile,
                                                 component=f"{component}:tile-{group:03d}", include_storage=False)
+            if fabric.binary_rows:
+                from .binary_row_decoder import iter_binary_row_decoder
+                yield from iter_binary_row_decoder(tile_origin, tile, decoder_x=tile_origin.x + fabric.decoder_x_offset,
+                                                    component=f"{component}:row-decoder-{group:03d}")
         return
     spec = fabric.bank
     ports = backbone_ports(origin, fabric)

@@ -11,6 +11,7 @@ from .display import LampPanelSpec, iter_panel_terminal_keepouts, panel_bounds, 
 from .memory import DUST
 from .logic import REDSTONE_BLOCK
 from .memory_backbone import fabric_tile_ports, iter_stacked_tile_terminal_keepouts, stacked_tile_bounds
+from .binary_row_decoder import binary_row_obstacle_bounds, iter_binary_row_terminal_keepouts
 
 
 @dataclass(frozen=True)
@@ -63,8 +64,19 @@ def system_routing_interfaces(
             bounds=stacked_tile_bounds(tile_origin,tile)
             obstacle_bounds.append(bounds)
             obstacles.extend(iter_stacked_tile_terminal_keepouts(tile_origin,tile))
-            groups=(((*pins.bank_select,*pins.row_select,pins.read_enable,pins.write_enable),"west"),
-                    (pins.write_data,"north"),(pins.selected_word,"south"))
+            if fabric.binary_rows:
+                groups=(((*pins.bank_select,pins.write_enable),"north"),((pins.read_enable,),"west"),
+                        (pins.write_data,"north"),(pins.selected_word,"south"))
+                decoder_x=tile_origin.x+fabric.decoder_x_offset
+                decoder_boxes=binary_row_obstacle_bounds(tile_origin,tile,decoder_x=decoder_x)
+                obstacle_bounds.extend(decoder_boxes)
+                obstacles.extend(iter_binary_row_terminal_keepouts(tile_origin,tile,decoder_x=decoder_x))
+                for pin,box in zip(pins.row_address,decoder_boxes[1:]):
+                    access[pin]=("north",)
+                    endpoint_bounds[pin]=box
+            else:
+                groups=(((*pins.bank_select,*pins.row_select,pins.read_enable,pins.write_enable),"west"),
+                        (pins.write_data,"north"),(pins.selected_word,"south"))
             for terminals,direction in groups:
                 for pin in terminals:
                     access[pin]=(direction,)

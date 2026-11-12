@@ -67,6 +67,7 @@ class ComponentPlan:
     ports: dict[str, tuple[Vec3, int]] = field(default_factory=dict)
     metadata: dict[str, object] = field(default_factory=dict)
     placements: list[Placement] = field(default_factory=list)
+    collision_boxes: tuple[Box, ...] = ()
 
 
 @dataclass
@@ -74,8 +75,15 @@ class BuildPlan:
     components: list[ComponentPlan] = field(default_factory=list)
 
     def add(self, component: ComponentPlan) -> None:
+        occupied = component.collision_boxes or (component.box,)
+        for box in occupied:
+            if any(getattr(box.min, axis) < getattr(component.box.min, axis)
+                   or getattr(box.max, axis) > getattr(component.box.max, axis)
+                   for axis in ("x", "y", "z")):
+                raise ValueError(f"component collision bounds leave envelope: {component.name}")
         for existing in self.components:
-            if component.box.intersects(existing.box):
+            if any(box.intersects(other) for box in occupied
+                   for other in (existing.collision_boxes or (existing.box,))):
                 raise ValueError(
                     f"component overlap: {component.name} intersects {existing.name}"
                 )
@@ -111,6 +119,7 @@ class BuildPlan:
                         for n, (pos, width) in c.ports.items()
                     },
                     "metadata": c.metadata,
+                    "collision_boxes": [{"min": vars(box.min), "max": vars(box.max)} for box in c.collision_boxes],
                     "placement_count": len(c.placements),
                 }
                 for c in self.components

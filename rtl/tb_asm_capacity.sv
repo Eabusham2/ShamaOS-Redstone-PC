@@ -42,13 +42,13 @@ module tb_asm_capacity;
     endtask
     initial begin
         repeat(3) @(negedge clk);rst=0;
-        assemble_at(`SHAMA_RAM_BYTES-4,4,32'h28000,4,0);
-        assemble_at(32'h18000,4,`SHAMA_RAM_BYTES-4,4,0);
-        assemble_at(`SHAMA_RAM_BYTES,4,32'h28000,4,1);
-        assemble_at(`SHAMA_RAM_BYTES-1,2,32'h28000,4,1);
-        assemble_at(32'h18000,4,`SHAMA_RAM_BYTES,4,1);
-        assemble_at(32'h18000,4,`SHAMA_RAM_BYTES-4,8,1);
-        assemble_at(32'h18000,4,32'he0000,4,1);
+        assemble_at(`SHAMA_RAM_BYTES-4,4,`SHAMA_RUN_STAGING,4,0);
+        assemble_at(`SHAMA_EDIT_BUF,4,`SHAMA_RAM_BYTES-4,4,0);
+        assemble_at(`SHAMA_RAM_BYTES,4,`SHAMA_RUN_STAGING,4,1);
+        assemble_at(`SHAMA_RAM_BYTES-1,2,`SHAMA_RUN_STAGING,4,1);
+        assemble_at(`SHAMA_EDIT_BUF,4,`SHAMA_RAM_BYTES,4,1);
+        assemble_at(`SHAMA_EDIT_BUF,4,`SHAMA_RAM_BYTES-4,8,1);
+        assemble_at(`SHAMA_EDIT_BUF,4,32'he0000,4,1);
         $display("ASSEMBLER PHYSICAL RAM ENDPOINTS PASS");
         $finish;
     end

@@ -1,4 +1,7 @@
+import pytest
+
 from shamaos.flashfs import FileType, ShamaFS
+from shamaos.memory_map import KERNEL_SLOT_BYTES, EDIT_NAME
 from shamaos.os_image import (
     APP_RAM_BASE,
     APP_SLOT_BYTES,
@@ -63,8 +66,8 @@ def test_default_boot_bundle_geometry():
         start += 4 + encoded_len
     assert start == len(bundle_data)
 
-    assert KERNEL_RAM_BASE == 16 << 10
-    assert APP_RAM_BASE == 32 << 10
+    assert KERNEL_RAM_BASE == 8 << 10
+    assert APP_RAM_BASE == 0
 
 
 def test_miner_persistent_records_have_fixed_capacity():
@@ -99,3 +102,18 @@ def test_packed_boot_removes_padding_from_the_fixed_flash_capacity():
     removed_padding = (former_bundle_blocks - fs.stat("boot.bundle").block_count) * fs.block_size
     assert removed_padding > 128 << 10
     assert fs.used_bytes + fs.free_bytes == fs.flash_bytes
+
+
+@pytest.mark.parametrize('extra_word', [False, True], ids=['last_kernel_word', 'metadata_overlap'])
+def test_kernel_cannot_overwrite_editor_metadata(monkeypatch, extra_word):
+    import shamaos.os_image as module
+    original = module._firmware_source
+    kernel_source = 'NOP\n' * (KERNEL_SLOT_BYTES // 4 + int(extra_word))
+    monkeypatch.setattr(module, '_firmware_source', lambda filename: kernel_source if filename == 'kernel.asm' else original(filename))
+    assert KERNEL_RAM_BASE + KERNEL_SLOT_BYTES == EDIT_NAME
+    if extra_word:
+        with pytest.raises(ValueError, match='kernel firmware.*1024-byte executable capacity'):
+            build_default_os_image()
+    else:
+        image = build_default_os_image()
+        assert image.slot_binary_lengths['kernel'] == KERNEL_SLOT_BYTES

@@ -228,14 +228,20 @@ module shama_gpu #(
                     2:notice_message="RAM LIMIT - OS RESTARTED        ";
                     3:notice_message="CODE LIMIT - OS RESTARTED       ";
                     4:notice_message="VRAM LIMIT - OS RESTARTED       ";
+                    6,7:notice_message="SAVE FAILED - CHANGES UNSAVED   ";
                     default:notice_message="APP FAULT - OS RESTARTED        ";
                 endcase
                 1:begin
                     if(code[6:0]==1) notice_message="DELETE FILES TO RESTORE WRITING ";
+                    else if(code[6:0]==6) notice_message="> KEEP APP   DISCARD AND LEAVE  ";
+                    else if(code[6:0]==7) notice_message="  KEEP APP > DISCARD AND LEAVE  ";
                     else if(code[7]) notice_message="UNSAVED EDITS COULD NOT BE SAVED";
                     else notice_message="PREVIOUS SAVED FILES PRESERVED  ";
                 end
-                default:notice_message="PRESS A / ENTER TO CONTINUE     ";
+                default:begin
+                    if(code[6:0]==6 || code[6:0]==7) notice_message="ARROWS SELECT  A APPLY  B CANCEL";
+                    else notice_message="PRESS A / ENTER TO CONTINUE     ";
+                end
             endcase
         end
     endfunction

@@ -17,7 +17,7 @@ call_stack_depth = 256
 native_sha = true
 
 [memory]
-logical_ram_bytes = 196608
+logical_ram_bytes = 98304
 cache_bytes = 8192
 flash_bytes = 512000
 vram_bytes = 16384
@@ -29,6 +29,8 @@ stack_layers = "auto"
 stack_layer_pitch = 12
 storage_base_y = "auto"
 control_ceiling_y = 307
+row_decoder = "binary"
+share_small_memory_tile = true
 
 [display]
 width = 320

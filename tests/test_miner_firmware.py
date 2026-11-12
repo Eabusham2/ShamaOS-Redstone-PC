@@ -8,10 +8,10 @@ from shamaos.flashfs import FileType,ShamaFS
 from shamaos.isa import SYSCALLS
 from shamaos.simulator import CPUReference
 
-BASE=0x2d200
-HEADER=0x2d000
-HASH=0x2d100
-TARGET=0x2d140
+BASE=0x4200
+HEADER=0x4000
+HASH=0x4100
+TARGET=0x4140
 ROOT=Path(__file__).resolve().parents[1]
 
 class MinerMachine(FirmwareMachine):

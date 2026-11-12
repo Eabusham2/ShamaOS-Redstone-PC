@@ -24,7 +24,7 @@ state and resumes the new executable at PC 0.
 | `00C` | SYS_SHUTDOWN | Complete persistence/cleanup before permitting clock gating |
 | `010` | SYS_ALLOC | r1 requested bytes; return zeroed allocation base; exhaustion initiates visible OS recovery |
 | `011` | SYS_FREE | r1 exact allocation base; clear and release allocation |
-| `012` | SYS_RAM_USAGE | r1 used bytes, r2 total bytes (196,608) |
+| `012` | SYS_RAM_USAGE | r1 used bytes, r2 total bytes (98,304) |
 | `013` | SYS_CACHE_USAGE | r1 used executable fast-memory bytes, r2 total (8,192) |
 | `014` | SYS_CACHE_FLUSH_APP | Copy active executable fast memory to its RAM backing; retain executable contents; return copied bytes |
 | `030` | SYS_GET_KEY | Consume a queued key event and return its byte, otherwise 0 |
@@ -40,28 +40,45 @@ by hardware even if the foreground app does not poll.
 App IDs are Desktop 0, Editor 1, Files 2, Miner 3, Monitor 4, Terminal 5,
 Calculator 6, Paint 7, and Settings 8. Staged user code runs as app 15.
 
-The foreground heap is `0xC000..0x17FFF`: 12 pages of 4 KiB, with up to 16 live
-allocation records. Allocation rounds up to pages, initializes them to zero,
-and reports reserved pages in usage. Free/exit clears them before reuse.
+The foreground heap arena is `0x3000..0x17FFF`: 21 candidate pages of 4 KiB,
+with up to 16 live allocation records. Pages intersecting the active app's
+workspace are excluded, including Editor's potential assembly staging before
+it is needed. Allocation rounds up to pages, initializes them to zero, and
+reports reserved pages in usage. Free/exit clears them before reuse.
+
+| App | Initially allocatable heap | Largest contiguous allocation |
+|---|---:|---:|
+| Editor | 4 KiB | 4 KiB |
+| File Explorer | 20 KiB | 16 KiB |
+| Miner | 76 KiB | 72 KiB |
+| Terminal | 80 KiB | 72 KiB |
+| Paint / Settings | 80 KiB | 76 KiB |
+| Desktop / Monitor / Calculator / staged user code | 84 KiB | 84 KiB |
+
 Close/save errors preserve the live app and appear in `SYS_LIFECYCLE_STATUS`.
-A caller must intentionally set the forced-discard flag; normal GUI paths use 0.
+Normal GUI launch calls use a zero forced-discard flag. If saving fails, the
+modal dialog defaults to Keep App; Left selects Keep App, Right selects Discard and Leave,
+A/Enter confirms, and B/Escape or universal navigation cancels. A selected
+discard resumes the original launch/shutdown request only after the overlay's
+restore fence completes. Cancel preserves the buffers, handles and ownership.
 
 `SYS_RAM_USAGE` counts the actual loaded kernel and foreground executable byte
 lengths, live page-rounded heap allocations, and the foreground app's assigned
 workspace below. It does not count nonzero bytes or the length of the current
 document. An empty Editor therefore still reserves its full editing workspace.
 Unused heap pages, unfilled code-slot capacity and unassigned RAM ranges are not
-reported as used. The heap exposes 49,152 of the 196,608 physical RAM bytes;
-the other addresses are outside the general allocator.
+reported as used. The table above gives available page capacity for each app;
+`total - used` is not a contiguous allocation promise. Each allocated 4 KiB page
+adds 4.1667 percentage points to RAM use.
 
 | Foreground app | Assigned workspace bytes | RAM ranges |
 | --- | ---: | --- |
-| Editor / Files | 66,116 | `0x2C000..0x2C1FF`, `0x2C200..0x2C243`, `0x18000..0x27FFF` |
-| Editor external assembly staging, when needed | +16,384 | `0x28000..0x2BFFF` |
-| Miner | 5,376 | `0x2D000..0x2DFFF`, `0x2E000..0x2E4FF` |
-| Terminal | 1,024 | `0x2E000..0x2E3FF` |
-| Settings | 272 | `0x2F000..0x2F10F` |
-| Paint | 272 | `0x2F200..0x2F30F` |
+| Editor / Files | 66,116 | `0x2400..0x25FF`, `0x2600..0x2643`, `0x4000..0x13FFF` |
+| Editor external assembly staging, when needed | +16,384 | `0x14000..0x17FFF` |
+| Miner | 5,376 | `0x4000..0x4FFF`, `0x5000..0x54FF` |
+| Terminal | 1,024 | `0x5000..0x53FF` |
+| Settings | 272 | `0x4000..0x410F` |
+| Paint | 272 | `0x4200..0x430F` |
 | Desktop / Monitor / Calculator / staged user code (app 15) | 0 | No fixed main-RAM workspace |
 
 Fast-memory usage counts the loaded foreground executable bytes. CPU register
@@ -80,8 +97,9 @@ The system first attempts a safe Editor/Miner save. A faulted CPU cannot finish
 an odd sequence-protected edit: recovery preserves the previous committed file,
 discards the incomplete working state, and explicitly warns that unsaved edits
 could not be saved. Ordinary user-requested close failures still preserve the
-live app. Recovery messages and storage-protection messages pause the app until
-A/B acknowledgement. The notice is a scanout-only overlay: it preserves both
+live app until a discard is explicitly selected. Recovery messages and
+storage-protection messages pause the app until A/B or Enter/Escape
+acknowledgement. The notice is a scanout-only overlay: it preserves both
 framebuffers (including an unfinished back frame), text/sprite staging, clip,
 font, drawing color and cursor settings. Dismissal re-presents the original
 front and completes a GPU fence before execution resumes. No extra RAM or VRAM
@@ -198,8 +216,8 @@ or undefined name, and 7 insufficient output space. Failed staging is never a
 valid executable; callers must retain their previous BIN until assembly succeeds.
 
 `SYS_RUN_BUFFER` (`061`) takes r1 staging pointer and r2 emitted byte length.
-Staging normally lies within `0x28000..0x2BFFF`; Editor and Files may instead
-borrow a nonoverrunning range within `0x18000..0x27FFF`. The pointer and byte
+Staging normally lies within `0x14000..0x17FFF`; Editor and Files may instead
+borrow a nonoverrunning range within `0x4000..0x13FFF`. The pointer and byte
 length must be word aligned and the length nonzero. Executables may use at most
 8,192 bytes of fast memory. Larger results can still be assembled and saved,
 but attempting to execute them initiates the visible code-capacity recovery.

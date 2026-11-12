@@ -1,0 +1,1551 @@
+{
+  "modules": {
+    "dma_data_bit0": {
+      "ports": {
+        "i306248": {
+          "direction": "input",
+          "bits": [
+            306248
+          ]
+        },
+        "i306254": {
+          "direction": "input",
+          "bits": [
+            306254
+          ]
+        },
+        "i306260": {
+          "direction": "input",
+          "bits": [
+            306260
+          ]
+        },
+        "i306266": {
+          "direction": "input",
+          "bits": [
+            306266
+          ]
+        },
+        "i306272": {
+          "direction": "input",
+          "bits": [
+            306272
+          ]
+        },
+        "i306278": {
+          "direction": "input",
+          "bits": [
+            306278
+          ]
+        },
+        "i307333": {
+          "direction": "input",
+          "bits": [
+            307333
+          ]
+        },
+        "i381088": {
+          "direction": "input",
+          "bits": [
+            381088
+          ]
+        },
+        "i383388": {
+          "direction": "input",
+          "bits": [
+            383388
+          ]
+        },
+        "i383403": {
+          "direction": "input",
+          "bits": [
+            383403
+          ]
+        },
+        "i569110": {
+          "direction": "input",
+          "bits": [
+            569110
+          ]
+        },
+        "i628975": {
+          "direction": "input",
+          "bits": [
+            628975
+          ]
+        },
+        "i634976": {
+          "direction": "input",
+          "bits": [
+            634976
+          ]
+        },
+        "i634982": {
+          "direction": "input",
+          "bits": [
+            634982
+          ]
+        },
+        "i634989": {
+          "direction": "input",
+          "bits": [
+            634989
+          ]
+        },
+        "i634995": {
+          "direction": "input",
+          "bits": [
+            634995
+          ]
+        },
+        "i635002": {
+          "direction": "input",
+          "bits": [
+            635002
+          ]
+        },
+        "i635008": {
+          "direction": "input",
+          "bits": [
+            635008
+          ]
+        },
+        "i635015": {
+          "direction": "input",
+          "bits": [
+            635015
+          ]
+        },
+        "i650537": {
+          "direction": "input",
+          "bits": [
+            650537
+          ]
+        },
+        "i680013": {
+          "direction": "input",
+          "bits": [
+            680013
+          ]
+        },
+        "i680023": {
+          "direction": "input",
+          "bits": [
+            680023
+          ]
+        },
+        "o296": {
+          "direction": "output",
+          "bits": [
+            296
+          ]
+        },
+        "o69345": {
+          "direction": "output",
+          "bits": [
+            69345
+          ]
+        },
+        "o307109": {
+          "direction": "output",
+          "bits": [
+            307109
+          ]
+        },
+        "o307119": {
+          "direction": "output",
+          "bits": [
+            307119
+          ]
+        },
+        "o383389": {
+          "direction": "output",
+          "bits": [
+            383389
+          ]
+        },
+        "o628982": {
+          "direction": "output",
+          "bits": [
+            628982
+          ]
+        },
+        "o628989": {
+          "direction": "output",
+          "bits": [
+            628989
+          ]
+        },
+        "o628996": {
+          "direction": "output",
+          "bits": [
+            628996
+          ]
+        },
+        "o629003": {
+          "direction": "output",
+          "bits": [
+            629003
+          ]
+        },
+        "o629010": {
+          "direction": "output",
+          "bits": [
+            629010
+          ]
+        },
+        "o629017": {
+          "direction": "output",
+          "bits": [
+            629017
+          ]
+        },
+        "o634983": {
+          "direction": "output",
+          "bits": [
+            634983
+          ]
+        },
+        "o634992": {
+          "direction": "output",
+          "bits": [
+            634992
+          ]
+        },
+        "o634996": {
+          "direction": "output",
+          "bits": [
+            634996
+          ]
+        },
+        "o635005": {
+          "direction": "output",
+          "bits": [
+            635005
+          ]
+        },
+        "o680025": {
+          "direction": "output",
+          "bits": [
+            680025
+          ]
+        }
+      },
+      "cells": {
+        "$auto$aigmap.cc:123:execute$2311149": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              307333
+            ],
+            "B": [
+              307119
+            ],
+            "Y": [
+              296
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$2311591": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              307109
+            ],
+            "Y": [
+              307119
+            ]
+          }
+        },
+        "$auto$simplemap.cc:225:simplemap_logbin$582409": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {
+            "src": "/home/runner/work/ShamaOS-Redstone-PC/ShamaOS-Redstone-PC/rtl/shama_asm_accel.sv:523.12-523.93"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              650537
+            ],
+            "B": [
+              69345
+            ],
+            "Y": [
+              307109
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$3143769": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              569110
+            ],
+            "B": [
+              569111
+            ],
+            "Y": [
+              69345
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$2666777": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              383404
+            ],
+            "Y": [
+              569111
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$2666775": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              383403
+            ],
+            "B": [
+              381089
+            ],
+            "Y": [
+              383404
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$2658927": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              381088
+            ],
+            "B": [
+              381084
+            ],
+            "Y": [
+              381089
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$2658911": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              381083
+            ],
+            "B": [
+              381080
+            ],
+            "Y": [
+              381084
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$2658895": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              381079
+            ],
+            "B": [
+              381064
+            ],
+            "Y": [
+              381080
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$2658847": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              381062
+            ],
+            "B": [
+              381063
+            ],
+            "Y": [
+              381064
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$2658845": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              635016
+            ],
+            "Y": [
+              381063
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$3317665": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              635015
+            ],
+            "B": [
+              629017
+            ],
+            "Y": [
+              635016
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$3317309": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              306278
+            ],
+            "Y": [
+              629017
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$2658843": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              668557
+            ],
+            "Y": [
+              381062
+            ]
+          }
+        },
+        "$auto$simplemap.cc:75:simplemap_bitop$1105152": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {
+            "src": "/home/runner/work/ShamaOS-Redstone-PC/ShamaOS-Redstone-PC/rtl/shama_asm_accel.sv:690.24-690.41|/home/runner/work/ShamaOS-Redstone-PC/ShamaOS-Redstone-PC/rtl/shama_asm_accel.sv:591.24-591.52|/usr/bin/../share/yosys/techmap.v:286.27-286.69|/usr/bin/../share/yosys/techmap.v:240.19-240.41"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              635018
+            ],
+            "B": [
+              635009
+            ],
+            "Y": [
+              668557
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$3317651": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              635008
+            ],
+            "B": [
+              629010
+            ],
+            "Y": [
+              635009
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$3317295": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              306272
+            ],
+            "Y": [
+              629010
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$3317669": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              635017
+            ],
+            "B": [
+              381063
+            ],
+            "Y": [
+              635018
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$3317663": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              635014
+            ],
+            "Y": [
+              635017
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$3317661": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              306278
+            ],
+            "B": [
+              635013
+            ],
+            "Y": [
+              635014
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$3317659": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              635015
+            ],
+            "Y": [
+              635013
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$2658891": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              668566
+            ],
+            "Y": [
+              381079
+            ]
+          }
+        },
+        "$auto$simplemap.cc:75:simplemap_bitop$1105160": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {
+            "src": "/home/runner/work/ShamaOS-Redstone-PC/ShamaOS-Redstone-PC/rtl/shama_asm_accel.sv:690.24-690.41|/home/runner/work/ShamaOS-Redstone-PC/ShamaOS-Redstone-PC/rtl/shama_asm_accel.sv:591.24-591.52|/usr/bin/../share/yosys/techmap.v:286.27-286.69|/usr/bin/../share/yosys/techmap.v:240.19-240.41"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              680025
+            ],
+            "B": [
+              669563
+            ],
+            "Y": [
+              668566
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$2666737": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              383395
+            ],
+            "Y": [
+              669563
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$2666735": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              383393
+            ],
+            "B": [
+              383394
+            ],
+            "Y": [
+              383395
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$2666733": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              635003
+            ],
+            "Y": [
+              383394
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$3317637": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              635002
+            ],
+            "B": [
+              629003
+            ],
+            "Y": [
+              635003
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$3317281": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              306266
+            ],
+            "Y": [
+              629003
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$2666731": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              669562
+            ],
+            "Y": [
+              383393
+            ]
+          }
+        },
+        "$auto$simplemap.cc:75:simplemap_bitop$1095996": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {
+            "src": "/home/runner/work/ShamaOS-Redstone-PC/ShamaOS-Redstone-PC/rtl/shama_asm_accel.sv:523.77-523.93|/home/runner/work/ShamaOS-Redstone-PC/ShamaOS-Redstone-PC/rtl/shama_asm_accel.sv:201.24-201.46|/usr/bin/../share/yosys/techmap.v:286.27-286.69|/usr/bin/../share/yosys/techmap.v:240.19-240.41"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              635005
+            ],
+            "B": [
+              634996
+            ],
+            "Y": [
+              669562
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$3317623": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              634995
+            ],
+            "B": [
+              628996
+            ],
+            "Y": [
+              634996
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$3317267": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              306260
+            ],
+            "Y": [
+              628996
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$3317641": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              635004
+            ],
+            "B": [
+              383394
+            ],
+            "Y": [
+              635005
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$3317635": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              635001
+            ],
+            "Y": [
+              635004
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$3317633": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              306266
+            ],
+            "B": [
+              635000
+            ],
+            "Y": [
+              635001
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$3317631": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              635002
+            ],
+            "Y": [
+              635000
+            ]
+          }
+        },
+        "$auto$simplemap.cc:75:simplemap_bitop$1096027": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {
+            "src": "/home/runner/work/ShamaOS-Redstone-PC/ShamaOS-Redstone-PC/rtl/shama_asm_accel.sv:523.77-523.93|/home/runner/work/ShamaOS-Redstone-PC/ShamaOS-Redstone-PC/rtl/shama_asm_accel.sv:201.24-201.46|/usr/bin/../share/yosys/techmap.v:286.27-286.69|/usr/bin/../share/yosys/techmap.v:241.12-241.34"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              635018
+            ],
+            "B": [
+              635012
+            ],
+            "Y": [
+              680025
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$3317655": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              635010
+            ],
+            "B": [
+              635011
+            ],
+            "Y": [
+              635012
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$3317653": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              635009
+            ],
+            "Y": [
+              635011
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$3317649": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              635007
+            ],
+            "Y": [
+              635010
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$3317647": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              306272
+            ],
+            "B": [
+              635006
+            ],
+            "Y": [
+              635007
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$3317645": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              635008
+            ],
+            "Y": [
+              635006
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$2658907": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              668569
+            ],
+            "Y": [
+              381083
+            ]
+          }
+        },
+        "$auto$simplemap.cc:75:simplemap_bitop$1096009": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {
+            "src": "/home/runner/work/ShamaOS-Redstone-PC/ShamaOS-Redstone-PC/rtl/shama_asm_accel.sv:523.77-523.93|/home/runner/work/ShamaOS-Redstone-PC/ShamaOS-Redstone-PC/rtl/shama_asm_accel.sv:201.24-201.46|/usr/bin/../share/yosys/techmap.v:286.27-286.69|/usr/bin/../share/yosys/techmap.v:240.19-240.41"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              680013
+            ],
+            "B": [
+              668565
+            ],
+            "Y": [
+              668569
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$2658889": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              381078
+            ],
+            "Y": [
+              668565
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$2658887": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              381076
+            ],
+            "B": [
+              381077
+            ],
+            "Y": [
+              381078
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$2666727": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              383391
+            ],
+            "B": [
+              383392
+            ],
+            "Y": [
+              381077
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$2666725": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              634990
+            ],
+            "Y": [
+              383392
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$3317609": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              634989
+            ],
+            "B": [
+              628989
+            ],
+            "Y": [
+              634990
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$3317253": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              306254
+            ],
+            "Y": [
+              628989
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$2666723": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              669561
+            ],
+            "Y": [
+              383391
+            ]
+          }
+        },
+        "$auto$simplemap.cc:75:simplemap_bitop$1095995": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {
+            "src": "/home/runner/work/ShamaOS-Redstone-PC/ShamaOS-Redstone-PC/rtl/shama_asm_accel.sv:523.77-523.93|/home/runner/work/ShamaOS-Redstone-PC/ShamaOS-Redstone-PC/rtl/shama_asm_accel.sv:201.24-201.46|/usr/bin/../share/yosys/techmap.v:286.27-286.69|/usr/bin/../share/yosys/techmap.v:240.19-240.41"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              634992
+            ],
+            "B": [
+              634983
+            ],
+            "Y": [
+              669561
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$3317595": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              634982
+            ],
+            "B": [
+              628982
+            ],
+            "Y": [
+              634983
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$3317239": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              306248
+            ],
+            "Y": [
+              628982
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$3317613": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              634991
+            ],
+            "B": [
+              383392
+            ],
+            "Y": [
+              634992
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$3317607": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              634988
+            ],
+            "Y": [
+              634991
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$3317605": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              306254
+            ],
+            "B": [
+              634987
+            ],
+            "Y": [
+              634988
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$3317603": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              634989
+            ],
+            "Y": [
+              634987
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$2658883": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              668564
+            ],
+            "Y": [
+              381076
+            ]
+          }
+        },
+        "$auto$simplemap.cc:75:simplemap_bitop$1105159": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {
+            "src": "/home/runner/work/ShamaOS-Redstone-PC/ShamaOS-Redstone-PC/rtl/shama_asm_accel.sv:690.24-690.41|/home/runner/work/ShamaOS-Redstone-PC/ShamaOS-Redstone-PC/rtl/shama_asm_accel.sv:591.24-591.52|/usr/bin/../share/yosys/techmap.v:286.27-286.69|/usr/bin/../share/yosys/techmap.v:240.19-240.41"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              680023
+            ],
+            "B": [
+              669560
+            ],
+            "Y": [
+              668564
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$2666721": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              383390
+            ],
+            "Y": [
+              669560
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$2666719": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              383388
+            ],
+            "B": [
+              383389
+            ],
+            "Y": [
+              383390
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$2666717": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              634977
+            ],
+            "Y": [
+              383389
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$3317581": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              634976
+            ],
+            "B": [
+              628975
+            ],
+            "Y": [
+              634977
+            ]
+          }
+        }
+      },
+      "netnames": {}
+    }
+  },
+  "proof_source": {
+    "commit": "a600a9c5a0621fd9b72bf10e496bc0e997bbf448",
+    "partition": "shama_asm_accel",
+    "mapped_output_bit": 296,
+    "selection": "depth-first combinational fanin, limited to 64 cells; stop at registers",
+    "boundary": "all outside input bits and all observed outside consumers of selected outputs",
+    "scope": "physical local-router regression; not full assembler or current complete-SoC proof"
+  }
+}

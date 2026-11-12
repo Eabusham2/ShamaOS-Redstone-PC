@@ -150,6 +150,7 @@ module shama_kernel_accel(
 
     typedef enum logic [5:0] {
         ST_IDLE,
+        ST_NOTICE_DRAIN,
         ST_EVENT_RESP,
         ST_FS,
         ST_ASM,
@@ -220,6 +221,7 @@ module shama_kernel_accel(
     logic [31:0] gfx_fence_target;
     logic gfx_wait_fence;
     logic popup_render,popup_visible,popup_restoring;
+    logic [7:0] popup_code;
 
     function automatic [255:0] title_for(input logic [3:0] view);
         begin
@@ -448,7 +450,7 @@ module shama_kernel_accel(
         req_load_app=(state==ST_RESP)&&response_load_app;
         req_app_id=response_app_id;
         notice_busy=popup_render || popup_visible || popup_restoring;
-        notice_ready=popup_visible && !popup_restoring;
+        notice_ready=popup_visible && !popup_render && !popup_restoring && popup_code==notice_code;
 
         fs_valid=(state==ST_FS);
         fs_id=latched_id;
@@ -559,6 +561,7 @@ module shama_kernel_accel(
             gfx_opcode<=0;gfx_a0<=0;gfx_a1<=0;gfx_a2<=0;gfx_a3<=0;gfx_a4<=0;
             gfx_fence_target<=0;gfx_wait_fence<=0;
             popup_render<=0;popup_visible<=0;popup_restoring<=0;
+            popup_code<=0;
         end else begin
             if(state==ST_RESP && !req_valid) begin
                 state<=ST_IDLE;
@@ -575,14 +578,14 @@ module shama_kernel_accel(
                 ST_IDLE: if(popup_visible && notice_code==0) begin
                     popup_restoring<=1;gfx_opcode<=8'h18;gfx_a0<=0;
                     gfx_a1<=0;gfx_a2<=0;gfx_a3<=0;gfx_a4<=0;
-                    gfx_wait_fence<=0;state<=ST_GFX_A0;
-                end else if(!popup_visible && notice_code!=0) begin
+                    gfx_wait_fence<=0;state<=ST_NOTICE_DRAIN;
+                end else if(notice_code!=0 && (!popup_visible || popup_code!=notice_code)) begin
                     // The notice is a scanout-only overlay. Both app frames,
                     // drawing resources, clip/color/font and cursor remain
                     // untouched, including a not-yet-presented back frame.
-                    popup_render<=1;gfx_opcode<=8'h18;gfx_a0<={24'd0,notice_code};
+                    popup_render<=1;popup_code<=notice_code;gfx_opcode<=8'h18;gfx_a0<={24'd0,notice_code};
                     gfx_a1<=0;gfx_a2<=0;gfx_a3<=0;gfx_a4<=0;
-                    gfx_wait_fence<=0;state<=ST_GFX_A0;
+                    gfx_wait_fence<=0;state<=ST_NOTICE_DRAIN;
                 end else if(req_valid) begin
                     latched_id<=req_id;
                     latched_args<=req_args;
@@ -655,6 +658,23 @@ module shama_kernel_accel(
                         // available, but normal ShamaOS apps use UI views.
                         response<=0;
                         state<=ST_RESP;
+                    end
+                end
+
+                ST_NOTICE_DRAIN:if(!gpu_busy) begin
+                    // An older app command may reject a resource and discard
+                    // the entire queued suffix, including an early NOTICE.
+                    // Drain that work before submitting any show/update/hide,
+                    // then fence the notice itself before declaring it ready.
+                    // Re-read the requested choice: it may have changed or
+                    // been cancelled while the app's GPU work was draining.
+                    popup_code<=notice_code;gfx_a0<={24'd0,notice_code};
+                    if(notice_code==0 && !popup_visible) begin
+                        popup_render<=0;popup_restoring<=0;state<=ST_IDLE;
+                    end else begin
+                        popup_render<=notice_code!=0;
+                        popup_restoring<=notice_code==0;
+                        state<=ST_GFX_A0;
                     end
                 end
 

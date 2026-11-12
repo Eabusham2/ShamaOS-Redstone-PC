@@ -93,16 +93,19 @@ flow; they are not used as a claim about native hardware cycle performance.
 
 | RAM address | Use |
 |---|---|
-| `0x2D000` | 80-byte live header |
-| `0x2D100` | 32-byte live digest |
-| `0x2D140` | 32-byte target |
-| `0x2D180` | 32-byte software comparison digest |
-| `0x2D200` | 256-byte state snapshot; first 128 bytes are a history record |
-| `0x2D400` | Loaded 128-byte history record |
-| `0x2D600` | 80-byte edit staging buffer |
-| `0x2E000..0x2E4ff` | Software SHA scratch/constants reservation |
+| `0x4000` | 80-byte live header |
+| `0x4100` | 32-byte live digest |
+| `0x4140` | 32-byte target |
+| `0x4180` | 32-byte software comparison digest |
+| `0x4200` | 256-byte state snapshot; first 128 bytes are a history record |
+| `0x4400` | Loaded 128-byte history record |
+| `0x4600` | 80-byte edit staging buffer |
+| `0x5000..0x54FF` | Software SHA scratch/constants reservation |
 
-The lifecycle owns and clears the complete miner workspace. A sequence word at
+These locations overlay the Editor/Files source buffer because only one
+foreground app runs at a time. Lifecycle cleanup clears the outgoing workspace
+before the next app starts. The lifecycle owns and clears the complete miner
+workspace. A sequence word at
 state offset 252 is odd during a multiword update and even after a coherent
 snapshot. Asynchronous close/shutdown waits for an even snapshot before saving.
 

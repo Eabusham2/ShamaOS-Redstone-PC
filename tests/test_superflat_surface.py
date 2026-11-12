@@ -5,6 +5,7 @@ import pytest
 from shamaos.cli import main
 from shamaos.generator import geometry_from_config, load_config
 from shamaos.layout import memory_specs
+from shamaos.machine_spec import RAM_BYTES, CACHE_BYTES, FLASH_BYTES
 from shamaos.model import BlockState, Placement, Vec3
 from shamaos.worldio import (
     NativeWorldReader, NativeWorldWriter, WorldWriteError, _Region,
@@ -61,7 +62,7 @@ def test_existing_higher_flat_preset_relocates_and_reduces_stack_without_losing_
     assert resolve_world_surface(resolved, world) == resolved
     g = geometry_from_config(resolved)
     cache, ram, flash = memory_specs(g)
-    assert (cache.total_bytes, ram.total_bytes, flash.total_bytes) == (8192, 196608, 512000)
+    assert (cache.total_bytes, ram.total_bytes, flash.total_bytes) == (CACHE_BYTES, RAM_BYTES, FLASH_BYTES)
     assert (cache.layers, ram.layers, flash.layers) == (2, 20, 20)
     assert g.storage_origin_y == 68
 

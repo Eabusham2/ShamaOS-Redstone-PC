@@ -6,6 +6,10 @@ from importlib.resources import files
 from .assembler import assemble
 from .flashfs import FileType, ShamaFS
 from .machine_spec import BANK_BYTES, CACHE_BYTES, FLASH_BYTES, FLASH_WRITE_LIMIT_PERCENT, RAM_BYTES, VRAM_BYTES
+from .memory_map import (
+    APP_RAM_BASE, APP_SLOT_BYTES, KERNEL_RAM_BASE, KERNEL_SLOT_BYTES,
+    RTL_MEMORY_CONSTANTS,
+)
 
 
 DEFAULT_TEXT = """Welcome to ShamaOS.
@@ -33,11 +37,6 @@ FIRMWARE = {
     "paint": ("paint.asm", "paint.bin", FileType.BIN),
     "settings": ("settings.asm", "settings.bin", FileType.BIN),
 }
-
-# Physical/ABI memory contract.
-APP_SLOT_BYTES = 16 << 10
-KERNEL_RAM_BASE = 16 << 10
-APP_RAM_BASE = 32 << 10
 
 BUNDLE_ORDER = (
     "kernel",
@@ -107,10 +106,11 @@ def build_default_os_image(flash_bytes: int = FLASH_BYTES) -> OSImage:
     record_offsets: dict[str, int] = {}
     for name in BUNDLE_ORDER:
         binary = binaries[name]
-        if len(binary) > min(CACHE_BYTES, APP_SLOT_BYTES - 4):
+        limit = min(KERNEL_SLOT_BYTES if name == "kernel" else CACHE_BYTES, APP_SLOT_BYTES - 4)
+        if len(binary) > limit:
             raise ValueError(
                 f"{name} firmware is {len(binary)} bytes; exceeds "
-                f"{min(CACHE_BYTES, APP_SLOT_BYTES - 4)}-byte executable capacity"
+                f"{limit}-byte executable capacity"
             )
         if len(binary) % 4:
             raise ValueError(f"{name} executable must be word aligned")
@@ -188,8 +188,7 @@ def render_boot_parameters(image: OSImage | None = None) -> str:
         "SLOT_DATA_OFFSET": 4,
         **{f"{name.upper()}_FLASH":address for name,address in image.slot_flash_offsets.items()},
         **{f"{name.upper()}_BINARY_BYTES":length for name,length in image.slot_binary_lengths.items()},
-        "KERNEL_RAM_BASE": KERNEL_RAM_BASE,
-        "APP_RAM_BASE": APP_RAM_BASE,
+        **RTL_MEMORY_CONSTANTS,
         "PC_KERNEL": KERNEL_RAM_BASE // 4,
         "PC_APP": 0,
         **{f"PC_{name.upper()}":address for name,address in image.app_pc_words.items()},

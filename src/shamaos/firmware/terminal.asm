@@ -7,7 +7,7 @@ define EVT_B 0x15
 define KEY_ENTER 0x0d
 define KEY_BACKSPACE 0x08
 
-define TERM_BUF 0x0002e000
+define TERM_BUF 0x00005000
 define GPU_BASE 0x02000000
 define GPU_TEXT 0x02000400
 

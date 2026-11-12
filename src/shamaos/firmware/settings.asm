@@ -1,7 +1,7 @@
 ; Settings are persisted before the updated state is presented. Paint reads the
 ; same versioned record on launch. Flags: bit0 cursor enabled, bit1 single pixel.
-define CONFIG 0x0002f000
-define CONFIG_NAME 0x0002f100
+define CONFIG 0x00004000
+define CONFIG_NAME 0x00004100
 define GPU 0x02000000
 MOV r8 r0
 MOV r9 r0
