@@ -169,6 +169,15 @@ buttons/keyboard/clock/debug lamps, synthesized technology cells, and their
 interconnect. Primitive mapping includes enabled and synchronous-reset flip-flop
 forms; ABC options are detected for the installed Yosys version.
 
+The assembler now accumulates numbers during its existing byte reads, sharing
+one arithmetic path and retaining only the short character prefix needed for
+registers and quoted bytes. Its matched AIG mapping drops from **738,790 to
+559,593 physical logic cells (24.26%)** while preserving complete symbols,
+numeric limits and the exact assembly cycle counts of all nine shipped apps.
+The focused assembler regression passes 84 cases without skips. This is a logic
+size reduction; complete routing, chunk savings and world timing still need
+measurement in the full build.
+
 The native Java 1.20.4 Anvil backend creates a grass superflat world without Amulet,
 preserves the ground, writes exact block properties, and reads the saved chunks
 back independently. Every part of the full build stays above the grass. Stacking

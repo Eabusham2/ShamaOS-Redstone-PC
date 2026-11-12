@@ -52,6 +52,14 @@ lowers supported clock enables and synchronous-reset variants with their exact
 polarities/reset/enable priority. It probes installed ABC options and explicitly
 rejects unsupported sequential semantics rather than guessing.
 
+The assembler computes numeric values incrementally during the existing source
+reads. Its eight-byte prefix store serves register/quoted-byte decoding; the
+full token still feeds the symbol hash, and a separate last-character register
+preserves label/quote termination. Sharing this arithmetic reduces the matched
+mapped logic by 24.26% without adding assembly cycles. See
+[implementation status](IMPLEMENTATION_STATUS.md) for the measured baseline,
+regression scope and remaining full-routing gates.
+
 ## Routing and timing
 
 Internal nets and system interconnect use separated routing planes. Stair

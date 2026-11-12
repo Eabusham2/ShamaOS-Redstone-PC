@@ -186,6 +186,35 @@ from the green assembler mapping also passes 24 actual-engine vectors with all
 22 inputs and 16 boundary outputs retained. It uses 10 shared tracks, 50,626
 placement operations and 589 chunks; those numbers belong to that cut only.
 
+## Shared assembler arithmetic
+
+The assembler's numeric accumulator now runs alongside the existing source-byte
+reads. It replaces the unrolled 48-character arithmetic chain with one shared
+36-bit intermediate path. Numeric bases, signs and overflow diagnostics are
+preserved. Character storage falls from 64 bytes to an eight-byte prefix plus
+the last character, while all 48 token characters still contribute to the full
+symbol hash. Register and quoted-byte parsing need at most six prefix bytes.
+No parser states or assembly cycles are added.
+
+The candidate completes AIG mapping and driver-completeness checks. Its matched
+physical-cell count is **559,593**, compared with **738,790** in the successful
+[96 KiB baseline ASM job](https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/43322462484/job/131546381733):
+**179,197 fewer cells / 24.26%**. That baseline has identical assembler source
+and effective preprocessed RTL to the preceding 250 KiB checkpoint. Candidate
+local cell placements total 23,030,258, with 17,486 register clock terminals and
+a maximum nonclock data-pin fanout of 672. These are mapping measurements, not
+a complete routed-world footprint or measured Minecraft execution speed.
+
+The focused host/RTL regression passes **84 tests with no skips**, including
+52 permanent numeric, token, symbol-table and source-endpoint cases. Coverage
+retains signed/unsigned decimal, hex and binary limits; malformed/overflowing
+literals; quoted bytes; 48-character symbols sharing the same short prefix;
+128 labels plus 128 definitions; source/output and physical RAM boundaries.
+All nine shipped app sources retain their exact assembly cycle counts, including
+Editor 67,555, Files 82,267 and Miner 102,541. Firmware image sizes and RCC
+occupancy do not change. The normal physical-builder and complete CI gates
+must still pass on the exact candidate commit.
+
 ## Component appearance and release automation
 
 The generator applies deterministic component colors to existing stone supports
@@ -205,6 +234,13 @@ readback, safe copied saves and failures. **The full-world acceptance runner is
 still absent, and publication is explicitly blocked until it exists and passes.**
 Hash-valid evidence or a manually supplied pass label cannot certify runtime.
 [RELEASES.md](RELEASES.md) records this boundary and the concrete workflow.
+
+The next installer revision corrects the Windows shared world lock and preserves
+the owning session-lock descriptor throughout inventory and copying on POSIX.
+It also rejects unsafe ZIP member names before platform normalization. The
+focused installer/release regression passes 63 cases locally, including a
+separate writer process attempting an exclusive lock after inventory and copy.
+Both Windows CI variants must independently confirm the fix.
 
 ## Canonical capacities remain intact
 
@@ -232,8 +268,14 @@ The later [96 KiB checkpoint, `6391e3f`](https://github.com/Eabusham2/ShamaOS-Re
 passed 19 of 20 jobs, including all 638 required behavioral/redstone tests with no skips and all
 twelve partition mappings. Its reconnection job failed because a CI assertion
 still expected 48 RAM bank-select pins instead of 24. The workflow
-now derives bank counts from the canonical capacity constants. The 250 KiB,
-partial-bank, packed-Miner and screen/style changes require a fresh complete CI
+now derives bank counts from the canonical capacity constants.
+
+The [250 KiB checkpoint, `5b1e1b0`](https://github.com/Eabusham2/ShamaOS-Redstone-PC/commit/5b1e1b05c700775f4bb89f7af7f763285613cc48)
+passed all twelve partition mappings and their full-SoC reconnection, Linux
+tests, RTL and the saved-world backend. Its Windows variants exposed shared-lock and ZIP-fixture portability
+errors; the recovered fixes above are included with the shared-assembler change.
+The required behavioral suite was still running when this checkpoint note was
+written. The next candidate requires a fresh complete CI
 run; [current CI results](https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/workflows/ci.yml)
 are the authority for the exact candidate. Passing synthesis does not establish
 complete-world routing or in-game boot.

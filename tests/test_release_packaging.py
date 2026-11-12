@@ -13,7 +13,7 @@ import pytest
 
 from shamaos.generator import build_plan, load_config, manifest
 from shamaos.hardware.memory import comparator, repeater
-from shamaos.installer import extract_ready_world, install_world
+from shamaos.installer import closed_world_lock, extract_ready_world, install_world
 from shamaos.model import BlockState, Placement, Vec3
 from shamaos.release import GATES, validate_candidate, validate_ci
 from shamaos.release_acceptance import verify_full_world_acceptance
@@ -118,8 +118,16 @@ def test_archive_round_trip_split_join_and_missing_parts(tmp_path):
 @pytest.mark.parametrize("name", ["../outside", "/absolute", "C:/drive", "a\\b", "normal/../../outside"])
 def test_archive_rejects_unsafe_paths_without_leaving_output(tmp_path, name):
     path = tmp_path / "bad.zip"
+    stored = name.replace("\\", "/")
     with zipfile.ZipFile(path, "w") as archive:
-        archive.writestr(name, "bad")
+        archive.writestr(stored, "bad")
+    if stored != name:
+        # ZipInfo itself normalizes os.sep while writing on Windows. Replace
+        # both equal-length filename fields after ZIP creation so every platform
+        # actually reads a malicious backslash from the saved archive bytes.
+        raw = path.read_bytes()
+        assert raw.count(stored.encode()) == 2
+        path.write_bytes(raw.replace(stored.encode(), name.encode()))
     with pytest.raises(WorldWriteError, match="Unsafe"):
         extract_zip(path, tmp_path / "out")
     assert not (tmp_path / "out").exists()
@@ -197,6 +205,44 @@ except WorldWriteError as exc:
     assert result.returncode == 3
     assert "Close Minecraft" in result.stdout
     assert not (tmp_path / "out").exists()
+
+
+def test_shared_world_lock_allows_independent_inventory_and_copy_reads(tmp_path):
+    import shutil
+    world = tiny_world(tmp_path / "world")
+    expected = file_inventory(world)
+    with closed_world_lock(world):
+        assert file_inventory(world) == expected
+        shutil.copytree(world, tmp_path / "copy")
+        assert file_inventory(tmp_path / "copy") == expected
+    assert file_inventory(world) == expected
+
+
+def test_installer_lock_survives_inventory_and_complete_copy(tmp_path, monkeypatch):
+    import shamaos.installer as installer
+    source = tiny_world(tmp_path / "original")
+    template = tiny_world(tmp_path / "template")
+    real_copy = installer._copy_locked_world
+    checked = []
+    code = """from shamaos.worldio import NativeWorldWriter, WorldWriteError
+import sys
+try:
+ with NativeWorldWriter(sys.argv[1], spawn_platform=False, surface_y=-61):
+  pass
+except WorldWriteError as exc:
+ print(exc)
+ sys.exit(3)
+"""
+    def copy_then_probe(source, staging, lock_stream):
+        real_copy(source, staging, lock_stream)
+        result = subprocess.run([sys.executable, "-c", code, str(source)], capture_output=True, text=True)
+        assert result.returncode == 3, result.stdout + result.stderr
+        assert "locked by another writer" in result.stdout
+        checked.append(True)
+    monkeypatch.setattr(installer, "_copy_locked_world", copy_then_probe)
+    install_world(template, source, tmp_path / "out", console={"x": 0, "y": -59, "z": 0},
+        source_commit=COMMIT, setup_steps=["start"])
+    assert checked == [True]
 
 
 def test_pending_ticks_survive_installer_translation_and_schematic_export(tmp_path):

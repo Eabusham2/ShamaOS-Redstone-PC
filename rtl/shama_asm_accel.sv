@@ -22,10 +22,12 @@ module shama_asm_accel(
     localparam integer MAX_SYMBOLS=128;
     localparam integer MAX_LINE_TOKENS=8;
     localparam integer MAX_TOKEN_CHARS=48;
-    // Keep the public token limit 48 while giving the physical read mux a
-    // complete, zero-initialized 64-byte backing store. Non-power-of-two
-    // inferred memories otherwise leave unused mux leaves undriven.
-    localparam integer TOKEN_STORAGE_CHARS=64;
+    // Numeric values and hashes stream as bytes arrive. Only register and
+    // quoted-byte parsing need a prefix (at most six characters), plus the
+    // final character for label/quote termination. Keep an initialized power-
+    // of-two prefix store so every physical mux leaf has a defined driver.
+    // The public token-length limit stays 48 characters.
+    localparam integer TOKEN_STORAGE_CHARS=8;
 
     localparam [3:0]
         FMT_NONE=0,FMT_R=1,FMT_RR=2,FMT_RRR=3,FMT_RRRR=4,
@@ -70,7 +72,7 @@ module shama_asm_accel(
     logic [5:0] token_length;
     logic [31:0] hash_work;
     logic [7:0] token_chars [0:TOKEN_STORAGE_CHARS-1];
-    logic [7:0] token_quote;
+    logic [7:0] token_quote,token_last_char;
     logic token_quote_closed,token_escape;
     logic [1:0] after_token; // 0=scan, 1=line, 2=comment
 
@@ -126,13 +128,31 @@ module shama_asm_accel(
     logic current_token_bad;
     logic [31:0] current_token_number;
     integer parse_reg_value;
-    integer parse_pos;
-    integer parse_base;
-    integer parse_digit;
     integer parse_k;
-    logic parse_neg;
     logic [35:0] parse_value;
-    logic [7:0] parse_char;
+
+    // A single numeric accumulator runs alongside the existing byte scanner.
+    // Prefixes/signs consume the same source reads as before: numeric tokens
+    // do not add finalize cycles or instantiate 48 cascaded arithmetic units.
+    logic number_candidate,number_negative,number_invalid,number_has_digit;
+    logic number_allow_prefix,number_after_sign;
+    logic [1:0] number_base; // 0=decimal, 1=hexadecimal, 2=binary
+    logic [31:0] number_value;
+    logic [4:0] number_digit;
+    logic number_bad_digit;
+    logic [35:0] number_step;
+
+    always_comb begin
+        number_digit=hex_digit(selected_byte);
+        number_bad_digit=(number_digit==31) ||
+                         (number_base==0 && number_digit>=10) ||
+                         (number_base==2 && number_digit>=2);
+        case(number_base)
+            1:number_step=({4'd0,number_value}<<4)+number_digit;
+            2:number_step=({4'd0,number_value}<<1)+number_digit;
+            default:number_step=({4'd0,number_value}<<3)+({4'd0,number_value}<<1)+number_digit;
+        endcase
+    end
 
     // Keep live token parsing in combinational logic. Yosys 0.33 does not
     // accept functions that reach into unpacked token-character memories.
@@ -159,13 +179,8 @@ module shama_asm_accel(
         current_token_is_number=0;
         current_token_bad=0;
         current_token_number=0;
-        parse_pos=0;
-        parse_base=10;
-        parse_digit=0;
         parse_k=0;
-        parse_neg=0;
         parse_value=0;
-        parse_char=0;
 
         if(token_chars[0]==8'h27 || token_chars[0]==8'h22) begin
             if(token_length==3 && token_chars[2]==token_chars[0]) begin
@@ -194,7 +209,7 @@ module shama_asm_accel(
                 current_token_is_number=1;
                 current_token_number=(hex_digit(token_chars[3])<<4)|hex_digit(token_chars[4]);
             end else if(token_length>=4 && token_length<=6 && token_chars[1]==8'h5c &&
-                        token_chars[token_length-1]==token_chars[0]) begin
+                        token_last_char==token_chars[0]) begin
                 current_token_is_number=1;
                 parse_value=0;
                 for(parse_k=2;parse_k<5;parse_k=parse_k+1) begin
@@ -207,46 +222,11 @@ module shama_asm_accel(
                 current_token_number=parse_value[31:0];
                 if(current_token_bad) current_token_is_number=0;
             end else current_token_bad=1;
-        end else if(token_length>0 &&
-                    (is_digit(token_chars[0]) || token_chars[0]=="-" || token_chars[0]=="+")) begin
-            current_token_is_number=1;
-            if(token_chars[0]=="-") begin
-                parse_neg=1;
-                parse_pos=1;
-            end else if(token_chars[0]=="+") begin
-                parse_pos=1;
-            end
-
-            if(parse_pos+1<token_length && token_chars[parse_pos]=="0" &&
-               (up(token_chars[parse_pos+1])=="X" || up(token_chars[parse_pos+1])=="B")) begin
-                parse_base=(up(token_chars[parse_pos+1])=="X")?16:2;
-                parse_pos=parse_pos+2;
-            end
-            if(parse_pos>=token_length) current_token_bad=1;
-
-            for(parse_k=0;parse_k<MAX_TOKEN_CHARS;parse_k=parse_k+1) begin
-                if(parse_k>=parse_pos && parse_k<token_length) begin
-                    parse_char=up(token_chars[parse_k]);
-                    if(parse_char>="0" && parse_char<="9")
-                        parse_digit=parse_char-"0";
-                    else if(parse_char>="A" && parse_char<="F")
-                        parse_digit=10+parse_char-"A";
-                    else begin
-                        parse_digit=0;
-                        current_token_bad=1;
-                    end
-                    if(parse_digit>=parse_base) current_token_bad=1;
-                    case(parse_base)
-                        16:parse_value=(parse_value<<4)+parse_digit;
-                        2:parse_value=(parse_value<<1)+parse_digit;
-                        default:parse_value=(parse_value<<3)+(parse_value<<1)+parse_digit;
-                    endcase
-                    if(parse_value>36'h0ffffffff) current_token_bad=1;
-                end
-            end
-            if(parse_neg && parse_value>36'h080000000) current_token_bad=1;
-            current_token_number=parse_neg ? (~parse_value[31:0]+1'b1) : parse_value[31:0];
-            if(current_token_bad) current_token_is_number=0;
+        end else if(number_candidate) begin
+            current_token_bad=number_invalid || !number_has_digit ||
+                              (number_negative && number_value>32'h80000000);
+            current_token_is_number=!current_token_bad;
+            current_token_number=number_negative ? (~number_value+1'b1) : number_value;
         end
     end
 
@@ -550,7 +530,9 @@ module shama_asm_accel(
             error_code<=0;error_line<=0;
             pass_two<=0;line_no<=0;end_after_line<=0;
             token_active<=0;token_length<=0;hash_work<=FNV_OFFSET;after_token<=0;
-            token_quote<=0;token_quote_closed<=0;token_escape<=0;
+            token_quote<=0;token_last_char<=0;token_quote_closed<=0;token_escape<=0;
+            number_candidate<=0;number_negative<=0;number_invalid<=0;number_has_digit<=0;
+            number_allow_prefix<=0;number_after_sign<=0;number_base<=0;number_value<=0;
             line_token_count<=0;
             label_count<=0;def_count<=0;
             emit0<=0;emit1<=0;emit_two<=0;
@@ -618,7 +600,8 @@ module shama_asm_accel(
                         if(selected_byte==8'h0a || token_length>=MAX_TOKEN_CHARS) begin
                             error_code<=2;error_line<=line_no+1'b1;state<=ST_ERROR;
                         end else begin
-                            token_chars[token_length]<=selected_byte;
+                            if(token_length<TOKEN_STORAGE_CHARS) token_chars[token_length[2:0]]<=selected_byte;
+                            token_last_char<=selected_byte;
                             token_length<=token_length+1'b1;
                             hash_work<=(hash_work ^ up(selected_byte))*FNV_PRIME;
                             if(token_escape) token_escape<=0;
@@ -657,6 +640,15 @@ module shama_asm_accel(
                             token_active<=1;
                             token_length<=1;
                             token_chars[0]<=selected_byte;
+                            token_last_char<=selected_byte;
+                            number_candidate<=is_digit(selected_byte) || selected_byte=="-" || selected_byte=="+";
+                            number_negative<=selected_byte=="-";
+                            number_invalid<=0;
+                            number_has_digit<=is_digit(selected_byte);
+                            number_allow_prefix<=selected_byte=="0";
+                            number_after_sign<=selected_byte=="-" || selected_byte=="+";
+                            number_base<=0;
+                            number_value<=is_digit(selected_byte) ? selected_byte-"0" : 0;
                             token_quote<=((selected_byte==8'h27 || selected_byte==8'h22)?selected_byte:0);
                             token_quote_closed<=0;token_escape<=0;
                             hash_work<=(FNV_OFFSET ^ up(selected_byte))*FNV_PRIME;
@@ -666,8 +658,22 @@ module shama_asm_accel(
                             error_line<=line_no+1'b1;
                             state<=ST_ERROR;
                         end else begin
-                            token_chars[token_length]<=selected_byte;
+                            if(token_length<TOKEN_STORAGE_CHARS) token_chars[token_length[2:0]]<=selected_byte;
+                            token_last_char<=selected_byte;
                             token_length<=token_length+1'b1;
+                            if(number_candidate) begin
+                                number_after_sign<=0;
+                                if(number_allow_prefix && (up(selected_byte)=="X" || up(selected_byte)=="B")) begin
+                                    number_base<=(up(selected_byte)=="X")?1:2;
+                                    number_has_digit<=0;
+                                    number_allow_prefix<=0;
+                                end else begin
+                                    number_value<=number_step[31:0];
+                                    number_invalid<=number_invalid || number_bad_digit || |number_step[35:32];
+                                    number_has_digit<=1;
+                                    number_allow_prefix<=number_after_sign && selected_byte=="0";
+                                end
+                            end
                             // A trailing colon marks a label and is not part of its name.
                             if(selected_byte!=":") hash_work<=(hash_work ^ up(selected_byte))*FNV_PRIME;
                             state<=ST_SCAN;
@@ -714,7 +720,7 @@ module shama_asm_accel(
                         line_is_number[line_token_count]<=current_token_is_number;
                         line_is_reg[line_token_count]<=current_token_is_reg;
                         line_first_char[line_token_count]<=token_chars[0];
-                        line_is_label[line_token_count]<=token_chars[0]=="." || token_chars[token_length-1]==":";
+                        line_is_label[line_token_count]<=token_chars[0]=="." || token_last_char==":";
                         line_token_count<=line_token_count+1'b1;
 
                         token_active<=0;

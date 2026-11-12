@@ -70,7 +70,11 @@ def extract_zip(archive_path: Path, destination: Path, *, inventory: dict | None
             for info in archive.infolist():
                 if info.is_dir():
                     continue
-                relative = safe_relative(info.filename)
+                # ZipInfo normalizes backslashes on Windows and truncates at
+                # NUL. Validate the stored name before either transformation.
+                relative = safe_relative(info.orig_filename)
+                if info.filename != info.orig_filename:
+                    raise WorldWriteError("Unsafe archive path was normalized by the ZIP reader")
                 # Case-fold to avoid collisions on Windows/macOS as well.
                 normalized = str(relative).casefold()
                 if normalized in seen or stat.S_ISLNK(info.external_attr >> 16):

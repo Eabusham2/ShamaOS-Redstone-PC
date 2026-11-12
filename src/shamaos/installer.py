@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 from collections import OrderedDict
 from contextlib import contextmanager, closing
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -27,26 +28,88 @@ from .worldio import (
 )
 
 
+def _windows_shared_lock(stream):
+    """Use Win32 shared locking; CRT LK_NBRLCK also blocks other read handles.
+
+    Inventory hashing and copytree open independent read handles. A real shared
+    LockFileEx lock permits those reads while still excluding Minecraft's
+    exclusive session lock. Keep the OVERLAPPED object alive until unlock.
+    """
+    import ctypes
+    from ctypes import wintypes
+    import msvcrt
+
+    class Overlapped(ctypes.Structure):
+        _fields_ = [("Internal", ctypes.c_size_t), ("InternalHigh", ctypes.c_size_t),
+                    ("Offset", wintypes.DWORD), ("OffsetHigh", wintypes.DWORD), ("hEvent", wintypes.HANDLE)]
+
+    kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel.LockFileEx.argtypes = [wintypes.HANDLE, wintypes.DWORD, wintypes.DWORD,
+                                 wintypes.DWORD, wintypes.DWORD, ctypes.POINTER(Overlapped)]
+    kernel.LockFileEx.restype = wintypes.BOOL
+    kernel.UnlockFileEx.argtypes = [wintypes.HANDLE, wintypes.DWORD, wintypes.DWORD,
+                                   wintypes.DWORD, ctypes.POINTER(Overlapped)]
+    kernel.UnlockFileEx.restype = wintypes.BOOL
+    handle = wintypes.HANDLE(msvcrt.get_osfhandle(stream.fileno()))
+    overlapped = Overlapped()
+    # LOCKFILE_FAIL_IMMEDIATELY; deliberately omit LOCKFILE_EXCLUSIVE_LOCK.
+    if not kernel.LockFileEx(handle, 1, 0, 1, 0, ctypes.byref(overlapped)):
+        raise ctypes.WinError(ctypes.get_last_error())
+
+    def unlock():
+        if not kernel.UnlockFileEx(handle, 0, 1, 0, ctypes.byref(overlapped)):
+            raise ctypes.WinError(ctypes.get_last_error())
+    return unlock
+
+
 @contextmanager
 def closed_world_lock(world: Path):
-    """Hold a read-only lock against Minecraft's exclusive session lock."""
+    """Hold a read-only lock against Minecraft's exclusive session lock.
+
+    Yield its owning handle: POSIX record locks are released if another handle
+    to the same inode is closed, so installer inventory/copy must use this handle
+    for session.lock rather than opening the file again.
+    """
     path = world / "session.lock"
     if path.is_symlink() or not path.is_file():
         raise WorldWriteError("Open this world once in Minecraft Java 1.20.4, then close Minecraft and try again.")
     stream = path.open("rb")
+    unlock = None
     try:
         try:
             if os.name == "nt":
-                import msvcrt
-                msvcrt.locking(stream.fileno(), msvcrt.LK_NBRLCK, 1)
+                unlock = _windows_shared_lock(stream)
             else:
                 import fcntl
                 fcntl.lockf(stream.fileno(), fcntl.LOCK_SH | fcntl.LOCK_NB, 0, 0, os.SEEK_SET)
         except OSError as exc:
             raise WorldWriteError("Close Minecraft and any world editor before installing.") from exc
-        yield
+        yield stream
     finally:
-        stream.close()
+        try:
+            if unlock is not None:
+                unlock()
+        finally:
+            stream.close()
+
+
+def _locked_world_inventory(world: Path, lock_stream) -> dict:
+    inventory = file_inventory(world, exclude=("session.lock",))
+    lock_stream.seek(0)
+    inventory["session.lock"] = {"bytes": os.fstat(lock_stream.fileno()).st_size,
+                                 "sha256": hashlib.file_digest(lock_stream, "sha256").hexdigest()}
+    lock_stream.seek(0)
+    return inventory
+
+
+def _copy_locked_world(source: Path, staging: Path, lock_stream) -> None:
+    shutil.copytree(source, staging, dirs_exist_ok=True,
+        ignore=lambda folder, _names: {"session.lock"} if Path(folder) == source else set())
+    lock_stream.seek(0)
+    with (staging / "session.lock").open("xb") as output:
+        shutil.copyfileobj(lock_stream, output, 1 << 20)
+    lock_stream.seek(0)
+    shutil.copystat(source / "session.lock", staging / "session.lock")
 
 
 def _region_inventory(world: Path):
@@ -121,7 +184,7 @@ def install_world(template: Path, source: Path, output: Path, *, console: dict,
         raise WorldWriteError("Choose a new save folder outside both original folders.")
     output.parent.mkdir(parents=True, exist_ok=True)
     staging = None
-    with closed_world_lock(source), closed_world_lock(template):
+    with closed_world_lock(source) as source_lock, closed_world_lock(template):
         level, surface = _source_settings(source)
         report = validate_native_world(template)
         _check_template_sidecars(template)
@@ -129,7 +192,7 @@ def install_world(template: Path, source: Path, output: Path, *, console: dict,
             raise WorldWriteError(
                 "This world uses a different ground height. Use a default grass superflat world "
                 "or the ready-made ShamaOS save; moving this tall machine vertically could exceed build height.")
-        original = file_inventory(source)
+        original = _locked_world_inventory(source, source_lock)
         template_bytes = sum(p.stat().st_size for p in (template / "region").glob("*.mca"))
         required = sum(item["bytes"] for item in original.values()) + template_bytes * 2 + (128 << 20)
         if shutil.disk_usage(output.parent).free < required:
@@ -161,8 +224,8 @@ def install_world(template: Path, source: Path, output: Path, *, console: dict,
 
             staging = Path(tempfile.mkdtemp(prefix=f".{output.name}-install-", dir=output.parent))
             try:
-                shutil.copytree(source, staging, dirs_exist_ok=True)
-                if file_inventory(staging) != original or file_inventory(source) != original:
+                _copy_locked_world(source, staging, source_lock)
+                if file_inventory(staging) != original or _locked_world_inventory(source, source_lock) != original:
                     raise WorldWriteError("The original save changed while copying. Close Minecraft and try again.")
                 # The complete copy is verified before its first mutation. The
                 # unchanged original remains the recoverable pre-install save.
@@ -215,7 +278,7 @@ def install_world(template: Path, source: Path, output: Path, *, console: dict,
                     "Open this new save in Minecraft Java 1.20.4. Your original save is unchanged.\n"
                     f"To reach the console: /tp @s {position['x']} {position['y']} {position['z']}\n"
                     + "\n".join(details["setup_steps"]) + "\n", encoding="utf-8")
-                if file_inventory(source) != original:
+                if _locked_world_inventory(source, source_lock) != original:
                     raise WorldWriteError("The original save changed during installation; the new copy was not published.")
                 # Refuse a destination created by another process since preflight.
                 if output.exists():
