@@ -4,7 +4,9 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: [.github/workflows/hdl-toolchain.yml]
+    paths:
+      - .github/workflows/hdl-toolchain.yml
+      - tests/mchprs_runtime/**
 
 permissions:
   contents: read

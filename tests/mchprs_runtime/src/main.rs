@@ -35,6 +35,8 @@ struct Case {
     outputs: HashMap<String, [i32; 3]>,
     #[serde(default = "default_initial_ticks")]
     initial_ticks: usize,
+    #[serde(default)]
+    capture_trace: bool,
     steps: Vec<Step>,
 }
 
@@ -94,6 +96,7 @@ fn main() {
     }
     for _ in 0..case.initial_ticks { tick(&mut world); }
     let mut total_ticks = case.initial_ticks;
+    let mut traces: HashMap<String, Vec<bool>> = case.outputs.keys().map(|name| (name.clone(), Vec::new())).collect();
     for (index, step) in case.steps.iter().enumerate() {
         for (name, value) in &step.drive {
             let pin = pos(*case.inputs.get(name).expect("unknown input name"));
@@ -108,9 +111,17 @@ fn main() {
         for offset in 0..step.ticks {
             tick(&mut world);
             total_ticks += 1;
+            if case.capture_trace {
+                for (name, point) in &case.outputs {
+                    traces.get_mut(name).unwrap().push(powered(&world, pos(*point)));
+                }
+            }
             if step.continuous { verify(&world, &case, &step.expect, index, offset); }
         }
         verify(&world, &case, &step.expect, index, step.ticks);
     }
-    println!("{{\"runtime\":\"MCHPRS redstone\",\"revision\":\"f9e10d2572116bf5dcb9a36a305f28e40641a61a\",\"steps\":{},\"ticks\":{},\"status\":\"passed\"}}", case.steps.len(), total_ticks);
+    println!("{}", serde_json::json!({
+        "runtime": "MCHPRS redstone", "revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+        "steps": case.steps.len(), "ticks": total_ticks, "status": "passed", "traces": traces,
+    }));
 }
