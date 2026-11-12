@@ -1,0 +1,48 @@
+name: Export Rust validation tools
+
+on:
+  push:
+    branches: [automation/rust-validation-tools]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build pinned redstone runtime and resolve public dependencies
+        run: cargo build --locked --release --manifest-path tests/mchprs_runtime/Cargo.toml
+      - name: Package compiler and public offline dependency sources
+        run: |
+          python3 - <<'PY'
+          import pathlib
+          import shutil
+          import subprocess
+          root = pathlib.Path('rust-validation-tools')
+          compiler = pathlib.Path(subprocess.check_output(['rustc', '--print', 'sysroot'], text=True).strip())
+          cargo_root = pathlib.Path.home() / '.cargo'
+          (root / 'toolchain' / 'bin').mkdir(parents=True)
+          for name in ('cargo', 'rustc'):
+              shutil.copy2(compiler / 'bin' / name, root / 'toolchain' / 'bin' / name)
+          shutil.copytree(compiler / 'lib', root / 'toolchain' / 'lib')
+          for name in ('registry', 'git'):
+              path = cargo_root / name
+              if path.is_dir():
+                  shutil.copytree(path, root / 'cargo' / name)
+          # Do not copy Cargo config, credentials, SSH files or runner settings.
+          (root / 'VERSIONS.txt').write_text(
+              subprocess.check_output(['rustc', '--version', '--verbose'], text=True) +
+              subprocess.check_output(['cargo', '--version'], text=True))
+          PY
+          tar -czf rust-validation-tools-linux-x86_64.tar.gz rust-validation-tools
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rust-validation-tools-linux-x86_64
+          path: rust-validation-tools-linux-x86_64.tar.gz
+          retention-days: 3
+          if-no-files-found: error
