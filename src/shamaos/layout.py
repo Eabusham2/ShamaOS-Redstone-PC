@@ -33,7 +33,7 @@ class MachineGeometry:
     memory_binary_rows: bool = True
     memory_share_small_tile: bool = True
     pixel_pitch_x: int = 5
-    pixel_pitch_y: int = 5
+    pixel_pitch_y: int = 4
 
     def __post_init__(self) -> None:
         if not -64 <= self.surface_y <= 314:
@@ -226,7 +226,7 @@ def shared_memory_tile(g: MachineGeometry) -> dict[str, tuple[int, int]]:
 
 def _stacked_fabric(g: MachineGeometry, total_bytes: int, *, decoder_x_offset: int = BINARY_ROW_X_OFFSET) -> StackedMemoryFabricSpec:
     bank = MemoryBankSpec(words=g.bank_words, word_bits=g.bank_word_bits)
-    banks = total_bytes // bank.bytes
+    banks = (total_bytes + bank.bytes - 1) // bank.bytes
     layers = min(g.resolved_memory_layers, banks)
     return StackedMemoryFabricSpec(total_bytes=total_bytes, bank=bank,
                                   banks_per_row=min(g.banks_per_row, max(1, math.ceil(banks / max(1, layers)))),

@@ -24,7 +24,7 @@ def _line_chunks(chunks: set[tuple[int, int]], x0: int, x1: int, z0: int, z1: in
 def panel_resources(origin: Vec3, panel: LampPanelSpec) -> tuple[int, frozenset[tuple[int, int]]]:
     """Count the authoritative panel's columns, row buses and pixel cells."""
     width, height, px, pz = panel.width, panel.height, panel.pixel_pitch_x, panel.pixel_pitch_y
-    if width <= 0 or height <= 0 or px < 5 or pz < 5:
+    if width <= 0 or height <= 0 or px < 5 or pz < 4:
         raise ValueError("unsupported physical panel geometry")
     count = 2 * width * ((height - 1) * pz + 67)
     count += height * (120 + 2 * ((width - 1) * px + 8) + 24 * width)
@@ -49,19 +49,29 @@ def _control_placement_count(tile: StackedMemoryTileSpec) -> int:
     """Rows alternate between two gate columns; each pair adds equal work."""
     origin = Vec3(0, -60, 0)
 
-    def sample(words: int) -> int:
-        small = replace(tile, bank=replace(tile.bank, words=words))
+    def sample(words: int, tail_words: int | None = None) -> int:
+        small = replace(tile, bank=replace(tile.bank, words=words), tail_words=tail_words)
         return sum(1 for _ in iter_stacked_memory_tile(origin, tile=small, include_storage=False, include_read_return=False))
 
     first, second, fourth = sample(1), sample(2), sample(4)
     pair = fourth - second
     words = tile.bank.words
     controls = (first + ((words - 1) // 2) * pair) if words % 2 else (second + ((words - 2) // 2) * pair)
+    if tile.tail_words is not None and tile.tail_words < words:
+        # Only the last bank loses rows; the other banks retain their full
+        # selectors. Sample each row parity, including the shorter row tower
+        # and last-bank qualifier trunk, then subtract the exact suffix.
+        missing_odd = fourth - sample(4, 3)
+        missing_even = fourth - sample(4, 2) - missing_odd
+        even_rows = (words + 1) // 2 - (tile.tail_words + 1) // 2
+        odd_rows = words - tile.tail_words - even_rows
+        controls -= even_rows * missing_even + odd_rows * missing_odd
     # Each return descent occupies one full span, each lower bank contributes
     # a parallel isolated lead, and the bottom exports a buffered flat pin.
     span = _return_span(tile.layer_pitch)
     per_bit = 8 + (tile.banks - 1) * (span * (tile.banks + 2) + 2)
-    return controls + tile.bank.word_bits * per_bit
+    extension = sum(tile.words - tile.bank_spec(index).words for index in range(tile.banks))
+    return controls + tile.bank.word_bits * (per_bit + 2 * extension * tile.bank.word_pitch)
 
 
 @lru_cache(maxsize=64)
@@ -76,9 +86,14 @@ def _control_prefix_chunks(bank: MemoryBankSpec, x_mod: int, z_mod: int) -> froz
 
 def tile_control_chunks(origin: Vec3, tile: StackedMemoryTileSpec) -> frozenset[tuple[int, int]]:
     chunks = {(origin.x // 16 + x, origin.z // 16 + z)
-              for x, z in _control_prefix_chunks(tile.bank, origin.x & 15, origin.z & 15)}
+              for x, z in _control_prefix_chunks(tile.common_bank, origin.x & 15, origin.z & 15)}
     distance = (tile.banks - 1) * _return_span(tile.layer_pitch)
-    for source in bank_ports(origin, tile.bank).data_out:
+    for actual_bank in range(tile.banks):
+        for actual, source in zip(bank_ports(origin, tile.bank_spec(actual_bank)).data_out,
+                                  bank_ports(origin, tile.common_bank).data_out):
+            if actual.z < source.z:
+                _line_chunks(chunks, actual.x, actual.x, actual.z + 1, source.z)
+    for source in bank_ports(origin, tile.common_bank).data_out:
         _line_chunks(chunks, source.x + 2, source.x + 2, source.z, source.z + distance + 2)
         if distance:
             _line_chunks(chunks, source.x, source.x, source.z + 1, source.z + distance)
@@ -153,7 +168,7 @@ def regular_fabric_resources(geometry: MachineGeometry, origins: PhysicalOrigins
         for group in range(fabric.group_count):
             origin, tile = fabric.group_origin(base, group), fabric.tile_spec(group)
             fabric_chunks.update((origin.x // 16 + x, origin.z // 16 + z)
-                                 for x, z in _bank_chunk_footprint(tile.bank, origin.x & 15, origin.z & 15))
+                                 for x, z in _bank_chunk_footprint(tile.common_bank, origin.x & 15, origin.z & 15))
             fabric_chunks.update(tile_control_chunks(origin, tile))
             controls += _control_placement_count(tile)
             if fabric.binary_rows:

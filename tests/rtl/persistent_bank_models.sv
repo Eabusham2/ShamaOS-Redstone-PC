@@ -11,6 +11,7 @@
 module shama_persistent_bank_model #(
     parameter integer BANKS=1,
     parameter integer ROW_BITS=10,
+    parameter integer CAPACITY_BYTES=BANKS*(1<<ROW_BITS)*4,
     parameter integer FLASH=0,
     parameter integer RETURN_DELAY_NS=3
 )(
@@ -21,10 +22,11 @@ module shama_persistent_bank_model #(
     input logic [31:0] write_data,
     output logic [31:0] selected_word
 );
-    localparam integer WORDS=BANKS*(1<<ROW_BITS);
+    localparam integer WORDS=CAPACITY_BYTES/4;
     logic [31:0] memory[0:WORDS-1];
     integer selected_bank=0,selected_count=0;
     integer read_samples=0,committed_writes=0;
+    integer last_word_reads=0,last_word_writes=0;
     string flash_file;
     integer unused,flash_handle;
 
@@ -51,19 +53,25 @@ module shama_persistent_bank_model #(
 
     always @(negedge clk) begin
         if(read_enable) begin
-            if(selected_count!=1 || (^row_address===1'bx))
+            if(selected_count!=1 || (^bank_select===1'bx) || (^row_address===1'bx))
                 $fatal(1,"physical read must select exactly one real bank and a known row");
+            if(((selected_bank<<ROW_BITS)|row_address)>=WORDS)
+                $fatal(1,"physical read selected an uninstalled partial-bank row");
             selected_word<=#RETURN_DELAY_NS memory[(selected_bank<<ROW_BITS)|row_address];
             read_samples<=read_samples+1;
+            if(((selected_bank<<ROW_BITS)|row_address)==WORDS-1) last_word_reads<=last_word_reads+1;
         end else selected_word<=#RETURN_DELAY_NS 0;
     end
 
     always @(posedge clk) begin
         if(write_commit) begin
-            if(!read_enable || selected_count!=1 || (^row_address===1'bx))
+            if(!read_enable || selected_count!=1 || (^bank_select===1'bx) || (^row_address===1'bx))
                 $fatal(1,"physical write must hold one selected bank/row with read return enabled");
+            if(((selected_bank<<ROW_BITS)|row_address)>=WORDS)
+                $fatal(1,"physical write selected an uninstalled partial-bank row");
             memory[(selected_bank<<ROW_BITS)|row_address]<=write_data;
             committed_writes<=committed_writes+1;
+            if(((selected_bank<<ROW_BITS)|row_address)==WORDS-1) last_word_writes<=last_word_writes+1;
         end
     end
 endmodule

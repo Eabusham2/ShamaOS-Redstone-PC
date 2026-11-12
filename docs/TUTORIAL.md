@@ -103,7 +103,7 @@ shamaos plan --config configs/default.toml --manifest build/plan.json
 shamaos generation-preflight --config configs/default.toml --world build/ShamaOS --report build/resource-preflight.json
 ```
 
-The flash image is exactly 500 KiB and contains packed, length-prefixed boot/application records,
+The flash image is exactly 250 KiB and contains packed, length-prefixed boot/application records,
 complete editable sources, documents, directories, settings/miner data and
 filesystem metadata. The preflight reports physical storage bits, banks,
 placements, touched chunks, disk lower bounds, source identity and unverified

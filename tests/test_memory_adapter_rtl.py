@@ -26,6 +26,8 @@ def test_adapter_full_capacity_layer_boundaries_byte_merge_and_held_requests(tmp
     result = subprocess.run(["vvp", str(binary)], capture_output=True, text=True, timeout=60)
     assert result.returncode == 0, result.stdout + result.stderr
     assert f"MEMORY ADAPTER LAYERED BOUNDARIES PASS kind={kind} layers={layers} bytes={capacity}" in result.stdout
+    if capacity % 4096:
+        assert f"PARTIAL BANK EXACT CAPACITY PASS banks={(capacity + 4095) // 4096} tail_rows={(capacity % 4096) // 4}" in result.stdout
 
 
 def test_adapter_reset_suppresses_commit_without_resetting_persistent_cells(tmp_path):

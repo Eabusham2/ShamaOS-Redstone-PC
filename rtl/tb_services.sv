@@ -385,7 +385,7 @@ module tb_services;
         // replacing its owner, even where the next app uses the same addresses.
         check_foreground_heap(1,1,0,0,EDIT_BUF,65536,STAGE,16384);
         check_foreground_heap(2,1,STAGE,4,EDIT_BUF,65536,0,0);
-        check_foreground_heap(3,1,32'h6000,18,`SHAMA_MINER_BASE,4096,`SHAMA_MINER_SOFT_BASE,1280);
+        check_foreground_heap(3,1,32'h5000,19,`SHAMA_MINER_BASE,`SHAMA_MINER_WORKSPACE_BYTES,0,0);
         check_foreground_heap(4,21,0,0,0,0,0,0);
         check_foreground_heap(5,2,32'h6000,18,`SHAMA_TERMINAL_BUF,1024,0,0);
         check_foreground_heap(6,21,0,0,0,0,0,0);
@@ -400,14 +400,14 @@ module tb_services;
         // Cancelling a failed staged launch keeps its allocation and data.
         // A later explicit free must clear the once-staged words normally.
         call2(12'h006,3,0);ram[(RECORD+252)>>2]=2;
-        call2(12'h010,18*4096,0);
-        if(sys_ret!=32'h6000) $fatal(1,"Miner large heap allocation misplaced");
+        call2(12'h010,19*4096,0);
+        if(sys_ret!=32'h5000) $fatal(1,"Miner large heap allocation misplaced");
         ram[STAGE>>2]=32'h76543210;ram[(`SHAMA_RAM_BYTES-4)>>2]=32'habcdef01;
         fail_save=1;call_keep2(12'h061,STAGE,4);
-        if(foreground_app!=3 || dut.heap_used_bytes!=18*4096 || ram[STAGE>>2]!=32'h76543210 ||
+        if(foreground_app!=3 || dut.heap_used_bytes!=19*4096 || ram[STAGE>>2]!=32'h76543210 ||
            ram[(`SHAMA_RAM_BYTES-4)>>2]!=32'habcdef01 || cache_mem[0]!=32'h55555555)
             $fatal(1,"cancelled staged launch discarded its owned heap or cache");
-        call2(12'h011,32'h6000,0);
+        call2(12'h011,32'h5000,0);
         if(dut.heap_used_bytes!=0 || ram[STAGE>>2]!=0 || ram[(`SHAMA_RAM_BYTES-4)>>2]!=0)
             $fatal(1,"cancelled staging protection leaked into explicit free");
         fail_save=0;call2(12'h006,0,0);

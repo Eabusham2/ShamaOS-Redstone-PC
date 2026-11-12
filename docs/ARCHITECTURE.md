@@ -8,7 +8,7 @@ flowchart TD
     E --> C["32-bit CPU and native SHA"]
     C <--> R["96 KiB RAM and 8 KiB fast memory"]
     C <--> O["OS services, filesystem and assembler"]
-    O <--> F["500 KiB persistent flash"]
+    O <--> F["250 KiB persistent flash"]
     C --> G["Independent GPU"]
     O --> G
     G <--> V["16 KiB VRAM"]
@@ -37,7 +37,7 @@ Literal default capacities:
 
 - cache 8 KiB / 2 banks;
 - RAM 96 KiB / 24 banks;
-- flash 500 KiB / 125 banks;
+- flash 250 KiB / 62 full banks plus one 2 KiB bank;
 - VRAM 16 KiB / 4 banks.
 
 Each bank is 4 KiB (1,024 × 32-bit words).

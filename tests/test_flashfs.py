@@ -26,8 +26,8 @@ def test_round_trip_and_mutations():
 
 def test_full_image_size():
     fs = ShamaFS()
-    assert len(fs.serialize()) == 500 << 10
-    assert fs.block_count == 2000
+    assert len(fs.serialize()) == 250 << 10
+    assert fs.block_count == 1000
     assert fs.bitmap_blocks == 1
     assert fs.table_start == 2
     assert fs.data_start == 18
@@ -162,7 +162,7 @@ def test_95_percent_guard_is_atomic_persistent_and_has_a_reclamation_path():
     from shamaos.flashfs import FlashWriteProtectedError
 
     fs = ShamaFS()
-    assert fs.write_limit_bytes == 475 << 10
+    assert fs.write_limit_bytes == 243200
     fs.create_file("bulk.bin", bytes(fs.write_limit_bytes - fs.used_bytes - 256), FileType.BIN)
     fs.create_file("last.txt", b"", FileType.TXT)
     assert not fs.write_protected
@@ -213,7 +213,7 @@ def test_full_imported_flash_mounts_protected_and_retains_last_physical_byte():
                      fs.block_count - fs.data_start, 1, 8, b"full.bin")
     image[-1] = 0xA5
     loaded = ShamaFS.deserialize(image)
-    assert loaded.used_bytes == 500 << 10
+    assert loaded.used_bytes == 250 << 10
     assert loaded.free_bytes == 0
     assert loaded.write_protected
     assert loaded.read_file("full.bin")[-1] == 0xA5

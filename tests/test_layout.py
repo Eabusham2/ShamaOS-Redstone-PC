@@ -2,7 +2,7 @@ from dataclasses import replace
 import pytest
 
 from shamaos.layout import MachineGeometry, default_origins, memory_specs, plan_machine, shared_memory_tile, vram_spec
-from shamaos.machine_spec import RAM_BYTES
+from shamaos.machine_spec import RAM_BYTES, FLASH_BYTES
 from shamaos.model import Box, BuildPlan, ComponentPlan, Vec3
 
 
@@ -11,7 +11,7 @@ def test_default_floorplan_has_no_overlaps():
         origin=Vec3(0, 8, 0),
         ram_bytes=RAM_BYTES,
         cache_bytes=8 << 10,
-        flash_bytes=500 << 10,
+        flash_bytes=FLASH_BYTES,
         display_width=320,
         display_height=180,
     ))
@@ -21,7 +21,7 @@ def test_default_floorplan_has_no_overlaps():
 
 @pytest.mark.parametrize("surface,base,layers", [(-61, -56, 30), (63, 68, 20)])
 def test_auto_stacking_preserves_surface_and_routing_canopy(surface, base, layers):
-    geometry = MachineGeometry(Vec3(0, surface + 5, 0), RAM_BYTES, 8 << 10, 500 << 10, 320, 180, surface_y=surface)
+    geometry = MachineGeometry(Vec3(0, surface + 5, 0), RAM_BYTES, 8 << 10, FLASH_BYTES, 320, 180, surface_y=surface)
     assert geometry.storage_origin_y == base
     assert geometry.resolved_memory_layers == layers
     origins = default_origins(geometry)
@@ -30,7 +30,7 @@ def test_auto_stacking_preserves_surface_and_routing_canopy(surface, base, layer
         bounds = fabric.bounds(origin)
         assert bounds.min.y >= surface + 1
         assert bounds.max.y <= 307
-    assert [fabric.bank_count for fabric in fabrics] == [2, 24, 125, 4]
+    assert [fabric.bank_count for fabric in fabrics] == [2, 24, 63, 4]
     assert [fabric.layers for fabric in fabrics] == [2, min(24, layers), layers, 4]
     if surface == -61:
         assert shared_memory_tile(geometry) == {"cache": (0, -170), "vram": (28, -154), "ram": (80, -138)}
@@ -62,7 +62,7 @@ def test_component_fragments_allow_empty_headroom_but_reject_real_overlap():
 
 @pytest.mark.parametrize("layers", [8, 16, 24])
 def test_shared_tile_respects_requested_total_layer_limit(layers):
-    geometry = MachineGeometry(Vec3(0, -56, 0), RAM_BYTES, 8 << 10, 500 << 10, 320, 180, memory_layers=layers)
+    geometry = MachineGeometry(Vec3(0, -56, 0), RAM_BYTES, 8 << 10, FLASH_BYTES, 320, 180, memory_layers=layers)
     assert shared_memory_tile(geometry) == {}
     origins = default_origins(geometry)
     assert len({origins.cache.x, origins.ram.x, origins.vram.x}) == 3
@@ -74,7 +74,7 @@ def test_legacy_one_hot_geometry_never_uses_shared_fabric_placement():
     from shamaos.generator import geometry_from_config, load_config
     from shamaos.hardware.memory_backbone import fabric_tile_ports
 
-    geometry = MachineGeometry(Vec3(0, -56, 0), RAM_BYTES, 8 << 10, 500 << 10, 320, 180, memory_binary_rows=False)
+    geometry = MachineGeometry(Vec3(0, -56, 0), RAM_BYTES, 8 << 10, FLASH_BYTES, 320, 180, memory_binary_rows=False)
     assert shared_memory_tile(geometry) == {}
     origins = default_origins(geometry)
     assert len({origins.cache.x, origins.ram.x, origins.vram.x}) == 3
@@ -103,8 +103,9 @@ def test_production_sections_manifest_and_capacity_match_shared_placement(surfac
     assert bool(packing["shared_fabrics"]) is shared
     assert packing["horizontal_tiles"] == _storage_layout_cost(geometry)["horizontal_memory_tiles"]
     sections = [section for section in physical_sections(config) if section.metadata.get("kind") == "stacked-memory-tile"]
-    assert sum(section.metadata["banks"] for section in sections) == 155
+    assert sum(section.metadata["banks"] for section in sections) == 93
     ram_sections = [section for section in sections if section.name.startswith("ram-")]
     assert sum(section.metadata["bytes"] for section in ram_sections) == RAM_BYTES
     assert ram_sections[0].metadata["origin"] == vars(origins.ram)
-    assert exported["memory_banks"] == {"cache": 2, "ram": 24, "flash": 125, "vram": 4, "bytes_per_bank": 4096}
+    assert exported["memory_banks"] == {"cache": 2, "ram": 24, "flash": 63, "vram": 4, "bytes_per_bank": 4096,
+                                        "final_bank_bytes": {"cache": 4096, "ram": 4096, "flash": 2048, "vram": 4096}}

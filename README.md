@@ -19,22 +19,22 @@ been released. See [implementation status](docs/IMPLEMENTATION_STATUS.md) and th
 | SHA | Native SHA-256/double-SHA execution plus programmable primitives and an independent software implementation |
 | Main RAM | **96 KiB physical**, 24 × 4 KiB banks |
 | Fast/executable memory | **8 KiB physical**, 2 × 4 KiB banks |
-| Flash | **500 KiB** physical persistent storage, 125 × 4 KiB banks |
+| Flash | **250 KiB** physical persistent storage, 62 × 4 KiB banks plus one 2 KiB bank |
 | VRAM | **16 KiB physical**, 4 × 4 KiB banks |
 | Display | **320×180** monochrome, double buffered, 57,600 lamps |
 | Input | 8×8 keyboard with Shift, controller, Home/Exit/Editor/Files, power/reset/pause/manual step |
 | OS | Resident kernel, one foreground app, persistent files, in-world assembler/editor |
 | Diagnostics | PC, instruction, registers, flags, CPU/stall state, native SHA state/round, faults and usage counters |
 
-The owner finalized **96 KiB RAM, 500 KiB flash, 8 KiB cache and 16 KiB
-VRAM** on 2026-11-12, including the latest instruction to halve RAM if all apps
-still fit. Editor uses **72.05% normally and 88.71% at its largest assembly
-peak**; Explorer uses **72.68%**. Shared workspaces and compact executable backing
-preserve the complete 65,535-byte source and 16,380-byte assembly/save limits.
-The initial flash allocates **160 KiB (32.00%)**.
-All source files and binaries remain, and packed boot records remove unused
-padding. Two full screen buffers plus text/sprites fit in **15,680 bytes**;
-scrolling no longer reserves a third frame.
+The owner finalized **96 KiB RAM, 250 KiB flash, 8 KiB cache and 16 KiB
+VRAM** on 2026-11-12, including the latest instructions to halve RAM if every
+app still fits and then halve flash. Editor uses **72.05% normally and 88.71%
+at its largest assembly peak**; Explorer uses **72.68%**. Shared workspaces and
+compact executable backing preserve the complete 65,535-byte source and
+16,380-byte assembly/save limits. Miner now uses **8.44% RAM and 84.28% cache**.
+The initial flash allocates **158.5 KiB (63.40%)**. All complete editable source
+files, binaries and persistent records remain. Two full screen buffers plus
+text/sprites fit in **15,680 bytes**; scrolling reserves no third frame.
 
 CPU, SHA, screen, controls, in-world assembly and OS features remain required.
 All shipped programs fit the new 8 KiB executable cache. Oversized user programs
@@ -52,52 +52,56 @@ installed persistent data; shared metadata and documents are counted separately.
 
 | App | RAM bytes | RAM | Cache bytes | Cache | Attributed flash |
 |---|---:|---:|---:|---:|---:|
-| Desktop | 244 | 0.25% | 232 | 2.83% | 0.35% |
-| Editor | 70,824 | 72.05%; peak 88.71% | 4,696 | 57.32% | 4.82% |
-| File Explorer | 71,448 | 72.68% | 5,320 | 64.94% | 5.64% |
-| Bitcoin Miner | 12,696 | 12.92% | 7,308 | 89.21% | 13.83% |
-| System Monitor | 64 | 0.07% | 52 | 0.63% | 0.16% |
-| Terminal | 2,956 | 3.01% | 1,920 | 23.44% | 1.98% |
-| Calculator | 1,836 | 1.87% | 1,824 | 22.27% | 2.06% |
-| Paint | 1,152 | 1.17% | 868 | 10.60% | 0.92% |
-| Settings | 1,056 | 1.07% | 772 | 9.42% | 0.85% |
+| Desktop | 244 | 0.25% | 232 | 2.83% | 0.69% |
+| Editor | 70,824 | 72.05%; peak 88.71% | 4,696 | 57.32% | 9.64% |
+| File Explorer | 71,448 | 72.68% | 5,320 | 64.94% | 11.28% |
+| Bitcoin Miner | 8,292 | 8.44% | 6,904 | 84.28% | 27.10% |
+| System Monitor | 64 | 0.07% | 52 | 0.63% | 0.32% |
+| Terminal | 2,956 | 3.01% | 1,920 | 23.44% | 3.95% |
+| Calculator | 1,836 | 1.87% | 1,824 | 22.27% | 4.11% |
+| Paint | 1,152 | 1.17% | 868 | 10.60% | 1.84% |
+| Settings | 1,056 | 1.07% | 772 | 9.42% | 1.70% |
 
 Editor additionally has 4 KiB of allocatable heap, Explorer 20 KiB and Miner
-76 KiB. Other apps have 80–84 KiB depending on their workspace. The allocator
+80 KiB. Other apps have 80–84 KiB depending on their workspace. The allocator
 protects overlapping workspaces; free bytes are not all interchangeable heap.
 
-Flash's 160 KiB consists of **75.25 KiB sources, 24.25 KiB separate executables,
-22.75 KiB packed loader, 32 KiB Miner history, 0.25 KiB Miner state, 1 KiB welcome
-documents and 4.5 KiB metadata**. It leaves **340 KiB free**, with **315 KiB**
-of allocation headroom before the **475 KiB / 95% write guard**. Copy-on-write
-saves also need their temporary replacement extent to fit. Full byte counts,
-per-app flash attribution and address maps are in [MEMORY.md](docs/MEMORY.md);
-`shamaos software-usage` regenerates the figures from the actual image.
+Flash's 158.5 KiB consists of **74.75 KiB sources, 23.75 KiB separate executables,
+22.25 KiB packed loader, 32 KiB Miner history, 0.25 KiB Miner state, 1 KiB welcome
+documents and 4.5 KiB metadata**. It leaves **91.5 KiB free**, with **79 KiB**
+of allocation headroom before the **237.5 KiB / 95% write guard**. Copy-on-write
+saves also need their temporary replacement extent to fit. At this capacity,
+saving a maximum-size source and maximum-size output together can require
+reclaiming space first; the OS preserves the previous file if a save cannot fit.
+Full byte counts, per-app flash attribution and address maps are in
+[MEMORY.md](docs/MEMORY.md); `shamaos software-usage` regenerates the figures from
+the actual image.
 
 ### Current measured footprint
 
 The default superflat layout starts one block above grass. A shared column
-stacks cache's 2 banks, VRAM's 4 and RAM's 24; flash uses five more columns.
+stacks cache's 2 banks, VRAM's 4 and RAM's 24; flash uses three more columns.
 The top support/control geometry reaches Y=307 in the grass-at-Y=-61 world.
 All local bank selectors, binary row decoders and read-return wiring are counted.
 
-| Component | Physical capacity | Banks | Occupied X/Z chunks |
+| Component | Physical capacity | Bank modules | Occupied X/Z chunks |
 |---|---:|---:|---:|
 | Shared cache + RAM + VRAM column and local wiring | 8 + 96 + 16 KiB | 30 | 8,355 |
-| Flash and local wiring | 500 KiB | 125 | 38,740 |
-| Screen | 320×180 pixels | — | 6,328 |
+| Flash and local wiring | 250 KiB | 62 full + one half | 23,035 |
+| Screen | 320×180 pixels | — | 5,084 |
 | Keyboard / controller circuitry | — | — | 33 |
 | Debug panel | — | — | 9 |
 | Clock | — | — | 17 |
-| **Measured regular-component subtotal** | **620 KiB memory** | **155** | **53,482** |
+| **Measured regular-component subtotal** | **370 KiB memory** | **93** | **36,533** |
 | Synthesized CPU/GPU/assembler/OS logic and connecting routes | — | — | **Not yet established** |
 
-The regular-component envelope is **5,058×6,850 blocks**, or
-**317×429 = 135,993 chunks**, including gaps. The occupied subtotal is **20.40%
-smaller**, and the envelope **27.13% smaller**, than the previous 192 KiB
-checkpoint. These counts include the decoder cost and correctly count shared
-X/Z chunks only once. Placement emits **391,253,772 regular-component operations**;
-that is separate from the unresolved complete-world logic/routing cost.
+The regular-component envelope is **4,338×6,850 blocks**, or
+**272×429 = 116,688 chunks**, including gaps. Compared with the previous
+96 KiB RAM / 500 KiB flash checkpoint, occupied chunks fall **31.69%** and the
+envelope **14.20%**. The tighter screen rows save 1,244 occupied chunks while
+retaining all 57,600 pixels. These counts include decoders and count shared X/Z
+chunks once. Placement emits **235,478,992 regular-component operations**;
+complete-world logic and routing remain additional.
 
 All 79 input actuators fit a connected, walkable **16×16 activation area**;
 33 chunks is their backend circuitry, not a keyboard spread over 33 chunks.
@@ -106,12 +110,27 @@ redstone tests. Full-screen viewing, global routing/timing and complete-world
 boot remain release gates. See [MEMORY.md](docs/MEMORY.md) for per-fabric counts
 and [VALIDATION.md](docs/VALIDATION.md) for evidence boundaries.
 
+### Component colors
+
+Existing supports now give each component a distinct color, with simple alignment
+stripes: red CPU, blue GPU, green RAM, orange flash, yellow cache and cyan VRAM.
+The compact console has a dark deck, alternating keyboard rows and colored
+action controls. This adds **no blocks, height, chunks or perimeter**. Functional
+blocks and their positions remain unchanged. Saved/read-back memory, display and
+all 79 console actuators pass actual-engine checks with the colors applied.
+
+![Console operating layer and component colors](docs/images/component-colors.svg)
+
+This is an operating-layer diagram generated from actual console coordinates;
+overhead circuits are omitted for clarity. See [component colors and design
+references](docs/APPEARANCE.md) for the complete palette and GitHub inspiration.
+
 ### Capacity protections required for release
 
 - RAM, executable-cache and VRAM faults stop invalid transfers, show the cause
   and perform graceful OS recovery/reboot, preserving committed files and
   completing or recovering active storage transactions.
-- Flash becomes write protected at **475 KiB / 95%**. A temporary copy-on-write
+- Flash becomes write protected at **237.5 KiB / 95%**. A temporary copy-on-write
   reservation beyond that limit is refused before mutation and produces an OS
   warning. Explicit deletion or zero-length truncation can reclaim space;
   filesystem journal recovery remains available.
@@ -202,6 +221,21 @@ This fixture is a mechanism test, not the complete computer. The
 [step-by-step tutorial](docs/TUTORIAL.md) covers tool installation, the real
 runtime harness, new-world creation, preflight and full generation.
 
+## Release downloads
+
+The release workflow packages a complete superflat save, a `.litematic`
+schematic, an installer for a new copy of a selected superflat save, the exact
+source/tools, validation files and a short [README.txt](release/README.txt).
+It retains the existing release assets and all original CI evidence. The guide
+covers setup, controls, tick speed, simulation/render distance and the
+acceleration/viewing tools below. Large downloads are split and checked.
+
+The packaging and installer are implemented and tested with clearly identified
+small fixtures. **Complete-world publication remains blocked** while full routing,
+timing, screen viewing and the whole-computer acceptance runner are unfinished.
+There is no verified complete-world download yet. See the
+[release workflow and remaining gates](docs/RELEASES.md).
+
 ## Running speed
 
 **Increasing the game tick rate or using a compatible acceleration mod/server is
@@ -225,6 +259,7 @@ scope. Acceleration does not repair wiring errors or unloadable parts of a build
 - [ISA](docs/ISA.md), [GPU](docs/GPU.md), [memory](docs/MEMORY.md), [controls](docs/CONTROLS.md)
 - [ShamaOS](docs/OS.md), [syscalls](docs/SYSCALLS.md), [filesystem](docs/FILESYSTEM.md), [miner](docs/MINER.md)
 - [Tutorial](docs/TUTORIAL.md), [validation](docs/VALIDATION.md), [implementation status](docs/IMPLEMENTATION_STATUS.md)
+- [Component colors](docs/APPEARANCE.md), [release downloads](docs/RELEASES.md), [simple release guide](release/README.txt)
 
 ## License
 

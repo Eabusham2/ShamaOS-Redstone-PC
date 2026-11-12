@@ -12,6 +12,7 @@ import subprocess
 import tomllib
 from typing import Callable, Iterable, Iterator
 
+from .hardware.appearance import AppearancePlan, appearance_for_system
 from .hardware.controls import iter_controls
 from .hardware.display import LampPanelSpec, iter_lamp_panel
 from .hardware.memory import MemoryBankSpec, MemoryFabricSpec, bank_ports, iter_memory_bank
@@ -44,7 +45,7 @@ def source_provenance() -> dict[str, object]:
     """Record exact generation sources, including an uncommitted work tree."""
     root = Path(__file__).resolve().parents[2]
     files = ["src/shamaos/generator.py", "src/shamaos/worldio.py", "src/shamaos/layout.py", "src/shamaos/model.py",
-             "src/shamaos/hardware/logic.py", "src/shamaos/hardware/memory.py",
+             "src/shamaos/hardware/logic.py", "src/shamaos/hardware/memory.py", "src/shamaos/hardware/appearance.py",
              "src/shamaos/hardware/memory_backbone.py", "src/shamaos/hardware/memory_streaming.py",
              "src/shamaos/hardware/binary_row_decoder.py", "src/shamaos/hardware/vertical_wiring.py",
              "src/shamaos/hardware/memory_interfaces.py", "src/shamaos/hardware/interfaces.py",
@@ -80,14 +81,27 @@ def validate_manifest_capacity(data: dict) -> dict[str, object]:
             errors.append(f"display.{key}: expected {expected}, got {display.get(key)!r}")
     banks = data.get("memory_banks", {})
     bank_bytes = banks.get("bytes_per_bank")
+    if bank_bytes != 4096:
+        errors.append("memory_banks.bytes_per_bank: nominal banks must remain 4096 bytes")
     for name, key in (("cache", "cache_bytes"), ("ram", "logical_ram_bytes"), ("flash", "flash_bytes"), ("vram", "vram_bytes")):
         count = banks.get(name)
-        if type(count) is not int or type(bank_bytes) is not int or count <= 0 or bank_bytes <= 0 or count * bank_bytes != REQUIRED_CAPACITY[key]:
-            errors.append(f"memory_banks.{name}: count × bytes_per_bank must equal {REQUIRED_CAPACITY[key]}")
+        tail = banks.get("final_bank_bytes", {}).get(name, bank_bytes)
+        if (type(count) is not int or type(bank_bytes) is not int or type(tail) is not int
+                or count <= 0 or bank_bytes <= 0 or not 1 <= tail <= bank_bytes
+                or (count - 1) * bank_bytes + tail != REQUIRED_CAPACITY[key]):
+            errors.append(f"memory_banks.{name}: complete banks plus exact final_bank_bytes must equal {REQUIRED_CAPACITY[key]}")
     return {
         "status": "passed" if not errors else "failed", "scope": "declared-literal-capacity-contract",
         "errors": errors, "complete_world_runtime_verified": False,
     }
+
+
+def _memory_bank_claims(g: MachineGeometry) -> dict[str, object]:
+    bank_bytes = g.bank_words * g.bank_word_bits // 8
+    sizes = {"cache": g.cache_bytes, "ram": g.ram_bytes, "flash": g.flash_bytes, "vram": g.vram_bytes}
+    counts = {name: (size + bank_bytes - 1) // bank_bytes for name, size in sizes.items()}
+    return {"bytes_per_bank": bank_bytes, **counts,
+            "final_bank_bytes": {name: size - (counts[name] - 1) * bank_bytes for name, size in sizes.items()}}
 
 
 def _capacity_claims(config: dict) -> dict[str, object]:
@@ -102,10 +116,7 @@ def _capacity_claims(config: dict) -> dict[str, object]:
         "physical_flash_bytes": g.flash_bytes if flags.get("physical_flash", True) else 0,
         "vram_bytes": g.vram_bytes,
         "display": {"width": g.display_width, "height": g.display_height, "bits_per_pixel": config["display"]["bits_per_pixel"]},
-        "memory_banks": {"bytes_per_bank": g.bank_words * g.bank_word_bits // 8, **{
-            name: size // (g.bank_words * g.bank_word_bits // 8)
-            for name, size in (("cache", g.cache_bytes), ("ram", g.ram_bytes), ("flash", g.flash_bytes), ("vram", g.vram_bytes))
-        }},
+        "memory_banks": _memory_bank_claims(g),
     }
 
 
@@ -165,12 +176,15 @@ def _storage_layout_cost(g: MachineGeometry) -> dict[str, object]:
         chunks: set[tuple[int, int]] = set()
         for group in range(fabric.group_count):
             base = fabric.group_origin(origin, group)
-            footprint = _bank_chunk_footprint(fabric.bank, base.x & 15, base.z & 15)
+            footprint = _bank_chunk_footprint(fabric.tile_spec(group).common_bank, base.x & 15, base.z & 15)
             chunks.update((base.x // 16 + cx, base.z // 16 + cz) for cx, cz in footprint)
             horizontal_tiles.add((base.x, base.z))
         box = fabric.bounds(origin)
         details[name] = {
             "bytes": fabric.total_bytes, "banks": fabric.bank_count, "layers": fabric.layers,
+            "full_banks": fabric.total_bytes // fabric.bank.bytes,
+            "final_bank_bytes": fabric.bank_spec(fabric.bank_count - 1).bytes,
+            "final_bank_words": fabric.bank_spec(fabric.bank_count - 1).words,
             "tiles": fabric.group_count, "banks_in_final_tile": fabric.tile_spec(fabric.group_count - 1).banks,
             "chunks": len(chunks), "origin": vars(origin),
             "bounds_with_local_controls": {"min": vars(box.min), "max": vars(box.max)},
@@ -186,6 +200,8 @@ def _storage_layout_cost(g: MachineGeometry) -> dict[str, object]:
         "minimum_storage_region_bytes": total_chunks * 4096 + len(regions) * 8192,
         "storage_banks": sum(fabric.bank_count for _, _, fabric in fabrics),
         "storage_bits": sum(fabric.total_bytes for _, _, fabric in fabrics) * 8,
+        "storage_full_banks": sum(fabric.total_bytes // fabric.bank.bytes for _, _, fabric in fabrics),
+        "storage_partial_banks": sum(bool(fabric.total_bytes % fabric.bank.bytes) for _, _, fabric in fabrics),
         "horizontal_memory_tiles": len(horizontal_tiles),
         "logical_memory_tiles": sum(fabric.group_count for _, _, fabric in fabrics),
         "storage_fabric_chunk_sum": sum(detail["chunks"] for detail in details.values()),
@@ -201,12 +217,15 @@ def generation_preflight(config: dict, *, world_path: str | Path | None = None, 
     from .layout import vram_spec
     fabrics = (("cache", origins.cache, cache), ("ram", origins.ram, ram), ("flash", origins.flash, flash), ("vram", origins.vram, vram_spec(g)))
     profile = memory_bank_profile(ram.bank)
+    bank_shapes = Counter(fabric.bank_spec(index) for _, _, fabric in fabrics for index in range(fabric.bank_count))
+    sampled_banks = [{"bank_count": count, **memory_bank_profile(spec)} for spec, count in bank_shapes.items()]
+    storage_placements = sum(sample["bank_count"] * sample["placements"] for sample in sampled_banks)
     layout_cost = _storage_layout_cost(g)
     from .physical_resources import regular_fabric_resources
     regular = dict(regular_fabric_resources(g))
     total_chunks = int(layout_cost["storage_chunks"])
     total_banks = int(layout_cost["storage_banks"])
-    regular["physical_storage_placements"] = int(profile["placements"]) * total_banks
+    regular["physical_storage_placements"] = storage_placements
     regular["regular_fabric_emitted_placements"] = (
         regular["physical_storage_placements"] + regular["local_memory_control_and_return_placements"]
         + regular.get("binary_row_decoder_placements", 0)
@@ -223,9 +242,9 @@ def generation_preflight(config: dict, *, world_path: str | Path | None = None, 
             contract["status"] = "failed"
     result: dict[str, object] = {
         "kind": "full-capacity-generation-preflight", "capacity_contract": contract,
-        "source": source_provenance(), "sample_bank": profile, **layout_cost,
+        "source": source_provenance(), "sample_bank": profile, "sampled_bank_shapes": sampled_banks, **layout_cost,
         "regular_fabrics": regular,
-        "storage_banks": total_banks, "storage_placements": int(profile["placements"]) * total_banks,
+        "storage_banks": total_banks, "storage_placements": storage_placements,
         "minimum_storage_region_bytes": minimum_region_bytes, "available_disk_bytes": free,
         "storage_minimum_fits_available_disk": minimum_region_bytes < free,
         "estimate_excludes": ["synthesized logic", "interconnect", "validation ledger", "temporary compaction space"],
@@ -254,7 +273,7 @@ def generation_preflight(config: dict, *, world_path: str | Path | None = None, 
         alternate = _storage_layout_cost(replace(g, memory_layers=layers, memory_layer_pitch=pitch))
         density_scenarios.append({
             "layers": layers, "layer_pitch": pitch, "physical_storage_bytes": sum(f.total_bytes for _, _, f in fabrics),
-            "physical_storage_placements": int(profile["placements"]) * total_banks,
+            "physical_storage_placements": storage_placements,
             **alternate,
             "production_enabled": layers == g.resolved_memory_layers and pitch == g.memory_layer_pitch,
             "scope": "storage chunks only; bounds include local control and shared return geometry; global routes are additional",
@@ -313,8 +332,8 @@ def geometry_from_config(config: dict) -> MachineGeometry:
         bank_word_bits=m.get("bank_word_bits", 32),
         banks_per_row=m.get("banks_per_row", 16),
         **memory_placement_options(config),
-        pixel_pitch_x=d.get("pixel_pitch_x", 4),
-        pixel_pitch_y=d.get("pixel_pitch_y", 2),
+        pixel_pitch_x=d.get("pixel_pitch_x", 5),
+        pixel_pitch_y=d.get("pixel_pitch_y", 4),
     )
 
 
@@ -345,6 +364,8 @@ def _memory_sections(
     fabric: MemoryFabricSpec,
     initial: bytes | None,
 ) -> Iterator[PhysicalSection]:
+    if initial is not None and len(initial) > fabric.total_bytes:
+        raise ValueError("initial image exceeds exact fabric capacity")
     if isinstance(fabric, StackedMemoryFabricSpec):
         for group in range(fabric.group_count):
             tile = fabric.tile_spec(group)
@@ -360,6 +381,7 @@ def _memory_sections(
             yield PhysicalSection(f"{name}-tile-{group:03d}", factory, {
                 "kind": "stacked-memory-tile", "tile_index": group,
                 "first_bank_index": first_bank, "banks": tile.banks,
+                "bank_words": [tile.bank_spec(index).words for index in range(tile.banks)],
                 "bytes": tile.bytes, "layer_pitch": tile.layer_pitch,
                 "origin": vars(tile_origin), "preloaded": tile_data is not None,
                 "emission_order": "ascending-z-slabs-interleaved-layers",
@@ -367,21 +389,23 @@ def _memory_sections(
         return
     for bank_index in range(fabric.bank_count):
         bank_origin = _bank_origin(origin, fabric, bank_index)
+        bank_spec = fabric.bank_spec(bank_index)
         start = bank_index * fabric.bank.bytes
         bank_data = (
             None
             if initial is None
-            else initial[start : start + fabric.bank.bytes]
+            else initial[start : start + bank_spec.bytes]
         )
 
         def factory(
             bank_origin: Vec3 = bank_origin,
             bank_data: bytes | None = bank_data,
             bank_index: int = bank_index,
+            bank_spec: MemoryBankSpec = bank_spec,
         ) -> Iterator[Placement]:
             yield from iter_memory_bank_ordered(
                 bank_origin,
-                spec=fabric.bank,
+                spec=bank_spec,
                 initial=bank_data,
                 component=f"{name}-bank-{bank_index:03d}",
             )
@@ -392,7 +416,7 @@ def _memory_sections(
             {
                 "kind": "memory-bank",
                 "bank_index": bank_index,
-                "bytes": fabric.bank.bytes,
+                "bytes": bank_spec.bytes, "words": bank_spec.words,
                 "origin": vars(bank_origin),
                 "preloaded": bank_data is not None,
             },
@@ -520,13 +544,7 @@ def manifest(config: dict, plan: BuildPlan) -> dict:
         "physical_flash_bytes": g.flash_bytes
             if config["generator"].get("physical_flash", True) else 0,
         "vram_bytes": config["memory"]["vram_bytes"],
-        "memory_banks": {
-            "cache": cache_spec.bank_count,
-            "ram": ram_spec.bank_count,
-            "flash": flash_spec.bank_count,
-            "vram": vram_fabric.bank_count,
-            "bytes_per_bank": ram_spec.bank.bytes,
-        },
+        "memory_banks": _memory_bank_claims(g),
         "memory_packing": {
             "requested_layers": g.memory_layers if g.memory_layers is not None else "auto",
             "maximum_safe_layers": g.maximum_memory_layers, "layer_pitch": g.memory_layer_pitch,
@@ -587,6 +605,7 @@ def write_placement_stages(
     spawn: Vec3 = Vec3(-16, 64, -16),
     name: str = "ShamaOS Redstone PC",
     surface_y: int | None = None,
+    appearance: AppearancePlan | None = None,
 ) -> tuple[int, dict[str, int], dict[str, object]]:
     """Stream placements with collision checks and optional exact disk readback.
 
@@ -601,6 +620,8 @@ def write_placement_stages(
                 raise WorldWriteError(f"duplicate generation stage name: {stage_name}")
             stage_count = 0
             for placement in placements:
+                if appearance is not None:
+                    placement = appearance.apply(placement)
                 writer.set_block(placement)
                 count += 1
                 stage_count += 1
@@ -724,11 +745,13 @@ def write_available_placements(
         # crosses or replaces another component must fail before publication.
         yield "system-interconnect", iter_interconnect(prepared)
 
+    appearance = appearance_for_system(geometry_from_config(config), partitions=prepared.logic.partitions)
     count, stage_counts, verification = write_placement_stages(
         world_path, stages(), save_every=save_every,
         validate_after_write=config.get("generator", {}).get("validate_after_write", True),
         spawn=Vec3(config["world"]["origin_x"] - 16, config["world"]["surface_y"] + 2, config["world"]["origin_z"] - 16),
         surface_y=config["world"]["surface_y"],
+        appearance=appearance,
     )
 
     metadata = dict(prepared.metadata)
@@ -738,6 +761,7 @@ def write_available_placements(
     metadata["runtime_validation"] = {"status": "not-run"}
     metadata["generation_preflight"] = preflight
     metadata["mapped_resource_preflight"] = mapped_preflight
+    metadata["appearance"] = appearance.manifest()
 
     return GenerationResult(
         written_blocks=count,

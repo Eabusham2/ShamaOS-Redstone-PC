@@ -14,18 +14,26 @@ successful compile, a manifest capacity, or an opcode name is not behavioral pro
   together with the modular generator, assembler, firmware source, documentation,
   tutorial, version tags, and release artifacts. The default repository branch is
   `main`, and the public project is **ShamaOS Redstone PC**.
+- Release automation must retain the existing source/tools and validation assets,
+  and add a full-machine schematic, a ZIP of the superflat world with the computer
+  already installed, and a script that lets the player select a closed superflat
+  save and install into a separate copy. Include a short, plain-language
+  `README.txt` describing each download, setup, controls and speed/view-distance
+  settings. Explain the recommended acceleration and viewing tools with their
+  compatibility limits. The installer must preserve the original save and reject
+  collisions, incompatible ground heights or incomplete world evidence.
 - Runtime CPU, SHA, GPU, memory, input, filesystem, and OS operations execute in
   physical redstone. Python/Yosys construct and verify the machine; they do not
   secretly perform its runtime computation. Command blocks must not compute the
   program or hashes on behalf of decorative circuits.
 - Preserve the owner-amended default capacities (2026-11-12): 32-bit CPU, 16
   architectural registers, 96 KiB RAM, 8 KiB cache/fast scratch,
-  500 KiB flash, 16 KiB VRAM, and a readable
+  250 KiB flash, 16 KiB VRAM, and a readable
   320x180 one-bit lamp display. Banked layout is allowed; document physical
   capacity, access latency, and the actual cache/scratchpad semantics accurately.
 - This explicit amendment replaces the earlier 1 MiB RAM / 4 MiB flash target.
-  It removes 232 RAM banks and 899 flash banks, with no padded or inaccessible
-  substitute banks. The screen, assembler, controls, all supporting circuits and
+  RAM uses 24 full 4 KiB banks; flash uses 62 full 4 KiB banks plus
+  one exact 2 KiB bank, with no padded or inaccessible substitute cells. The screen, assembler, controls, all supporting circuits and
   every software feature remain required. Seek further size and speed improvements,
   including parallel buses in unused space inside the perimeter, and validate the
   actual resulting behavior before claiming an improvement.
@@ -58,6 +66,7 @@ successful compile, a manifest capacity, or an opcode name is not behavioral pro
 | H11 | Valid physical logic cells, isolated routes, regenerated long wires, correct repeater/torch timing, defined reset state, build-height/world-border bounds and a workable loaded/ticking-chunk strategy. |
 | H12 | Build entirely above the superflat grass surface. Preserve every grass, dirt and bedrock block; supports, selectors, buses and other wiring must obey the same lower bound. Choose the maximum safe stack height above that surface while reserving the upper routing space. Fewer vertical layers must be compensated by more horizontal groups, without reducing any memory capacity. |
 | H13 | Put all keyboard keys, Shift, controller/navigation and power/reset/pause/step in a compact walkable operating station with a readable screen view. The player must not fly around the machine to use controls. Backend circuits may be larger but must be clearly separated from the interaction footprint and stay above grass. |
+| H14 | Give components distinct, simple colors and consistent visual accents, informed by the referenced Minecraft computers. Reuse existing support positions so styling adds no footprint, perimeter, blocks or timing changes. Validate the styled functional circuits and document the color legend and reference provenance. |
 
 ## OS, files and app acceptance checklist
 
@@ -105,6 +114,7 @@ successful compile, a manifest capacity, or an opcode name is not behavioral pro
 | V06 | Full default-capacity synthesis, physical placement/interconnect validation, complete world creation and structural read-back. Reduced test fixtures do not substitute for the full deliverable. |
 | V07 | End-to-end generated-world run: power/boot, keyboard/controller, create/save/edit/assemble/run, Explorer handoff, exit/cleanup, reboot/persistence, miner both modes and display updates. |
 | V08 | CI for the exact release commit passes the required gates; publish the actual tested world and sources with checksums/version metadata. Report any unexecuted gate explicitly. |
+| V09 | Release CI packages the complete schematic, installed superflat world, existing-world installer, simple `README.txt`, source/tool bundle and retained validation artifacts. Check archive contents, checksums, exact capacity and independent readback; require actual full-world routing/timing/runtime evidence before publishing complete-world assets. Test backup/install failure paths and never substitute a small fixture for the computer. |
 
 ## Conditional ideas and provenance
 

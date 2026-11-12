@@ -130,7 +130,8 @@ player activation area. Exports use explicit open faces and climb outside the
 backend envelope; input-tower and pulse-output clearance is tested.
 
 This establishes walking access to the controls. The unchanged **320×180 lamp
-display**, currently 1600×900 blocks at five-block pixel pitch, has not been
+display**, currently 1600×720 blocks at five-block column/four-block row pitch
+(before external panel interfaces), has not been
 demonstrated readable from this console. A coherent screen view remains a
 separate operating-station requirement.
 

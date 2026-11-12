@@ -33,13 +33,13 @@ def test_actual_binary_row_decoder_selects_every_row_without_neighbor_activity(r
     run_case(iter_binary_row_decoder(origin, tile, decoder_x=decoder_x), inputs, outputs, steps, initial_ticks=256)
 
 
-def run_full_row_decoder_case(work_path: Path, runner: str, *, decoder_x_offset: int = -138) -> dict:
+def run_full_row_decoder_case(work_path: Path, runner: str, *, decoder_x_offset: int = -138, tail_words: int | None = None) -> dict:
     """Check all 1,024 outputs for every binary address on the real long buses."""
     from shamaos.generator import source_provenance
 
     work_path.mkdir(parents=True, exist_ok=True)
     origin = Vec3(400, 8, 128)
-    tile = StackedMemoryTileSpec(MemoryBankSpec(words=1024, word_bits=32), 1, 12)
+    tile = StackedMemoryTileSpec(MemoryBankSpec(words=1024, word_bits=32), 1, 12, tail_words)
     decoder_x = origin.x + decoder_x_offset
     occupied_bounds = binary_row_collision_bounds(origin, tile, decoder_x=decoder_x)
     coord = lambda point: [point.x, point.y, point.z]
@@ -47,7 +47,7 @@ def run_full_row_decoder_case(work_path: Path, runner: str, *, decoder_x_offset:
     outputs = {f"R{row}": coord(point) for row, point in enumerate(stacked_tile_ports(origin, tile).row_select)}
     addresses = [*(index ^ index >> 1 for index in range(1024)), 1023, 0, 511, 512, 341, 682, 0]
     steps = [{"drive": {f"A{bit}": bool(address >> bit & 1) for bit in range(10)}, "ticks": 1024,
-              "expect": {f"R{row}": row == address for row in range(1024)}} for address in addresses]
+              "expect": {f"R{row}": row == address for row in range(tile.words)}} for address in addresses]
     case_path = work_path / "case.json"
     count = 0
     seen = {}
@@ -81,10 +81,10 @@ def run_full_row_decoder_case(work_path: Path, runner: str, *, decoder_x_offset:
     runtime = json.loads(result.stdout)
     runtime.pop("traces", None)
     assert runtime["status"] == "passed"
-    report = {"kind": "literal-1024-row-binary-decoder-runtime", "rows": 1024, "address_bits": 10,
+    report = {"kind": "literal-binary-decoder-runtime", "rows": tile.words, "address_bits": 10,
               "decoder_x_offset": decoder_x_offset,
               "collision_volumes_cover_every_placement": True,
-              "distinct_addresses_tested": len(set(addresses)), "outputs_checked_after_each_step": 1024,
+              "distinct_addresses_tested": len(set(addresses)), "outputs_checked_after_each_step": tile.words,
               "emitted_placements": count, "unique_blocks": unique_blocks,
               "case_json_bytes": case_path.stat().st_size, "case_generation_seconds": prepared - started,
               "runtime_seconds": time.perf_counter() - prepared, "runtime": runtime,
@@ -93,7 +93,8 @@ def run_full_row_decoder_case(work_path: Path, runner: str, *, decoder_x_offset:
     destination = os.environ.get("SHAMA_VALIDATION_REPORT_DIR")
     if destination:
         Path(destination).mkdir(parents=True, exist_ok=True)
-        (Path(destination) / "binary-row-decoder-runtime.json").write_text(json.dumps(report, indent=2) + "\n")
+        name = "binary-row-decoder-runtime.json" if tail_words is None else "partial-binary-row-decoder-runtime.json"
+        (Path(destination) / name).write_text(json.dumps(report, indent=2) + "\n")
     return report
 
 
@@ -104,6 +105,16 @@ def test_actual_full_1024_row_binary_decoder_all_addresses(tmp_path):
     report = run_full_row_decoder_case(tmp_path, runner)
     assert report["distinct_addresses_tested"] == 1024
     assert report["runtime"]["steps"] == 1031
+
+
+def test_actual_half_bank_decoder_tests_all_1024_addresses_without_aliasing(tmp_path):
+    runner = os.environ.get("SHAMA_MCHPRS_RUNNER")
+    if not runner or not Path(runner).is_file():
+        pytest.skip("actual MCHPRS runner not available; partial decoding is unverified")
+    report = run_full_row_decoder_case(tmp_path, runner, tail_words=512)
+    assert report["rows"] == 512
+    assert report["distinct_addresses_tested"] == 1024
+    assert report["outputs_checked_after_each_step"] == 512
 
 
 @pytest.mark.parametrize("decoder_x_offset", [-156, -138])

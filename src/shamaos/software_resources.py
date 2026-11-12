@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from .flashfs import MAX_FILES, FileType, ShamaFS
 from .machine_spec import CACHE_BYTES, FLASH_BYTES, FLASH_WRITE_LIMIT_BYTES, RAM_BYTES, VRAM_BYTES
-from .memory_map import HEAP_BASE, HEAP_PAGE_BYTES, HEAP_PAGES, app_heap_spans
+from .memory_map import HEAP_BASE, HEAP_PAGE_BYTES, HEAP_PAGES, MINER_WORKSPACE_BYTES, app_heap_spans
 from .os_image import APP_IDS, APP_SLOT_BYTES, BUNDLE_ORDER, FIRMWARE, OSImage, build_default_os_image
 
 
@@ -20,7 +20,7 @@ APP_WORKSPACE_BYTES = {
     "desktop": 0,
     "editor": 512 + 68 + 65536,
     "files": 512 + 68 + 65536,
-    "miner": 4096 + 1280,
+    "miner": MINER_WORKSPACE_BYTES,
     "monitor": 0,
     "terminal": 1024,
     "calculator": 0,

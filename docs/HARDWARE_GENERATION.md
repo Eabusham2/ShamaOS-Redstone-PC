@@ -20,8 +20,9 @@ DataVersion 3700, with all physical computation performed by emitted redstone.
 
 ## Regular fabrics
 
-The default image reserves 2 cache, 24 RAM, 125 flash and 4 VRAM banks, each
-4 KiB. Flash is initialized from the assembled 500 KiB ShamaFS image. Compact
+The default image reserves 2 cache, 24 RAM, 63 flash and 4 VRAM bank modules.
+All are 4 KiB except the final flash bank, which contains exactly 512 words /
+2 KiB. Flash is initialized from the assembled 250 KiB ShamaFS image. Compact
 memory cells use locked repeaters and isolated read/write buses; see
 [MEMORY.md](MEMORY.md) for counts, stacking work and initialization details.
 
@@ -33,7 +34,9 @@ horizontal groups without changing capacity. All component and route supports
 must pass the same above-ground check as the memory cells.
 
 The display is a horizontal 320×180 X/Z panel, viewed from above, with a locked
-latch per lamp and five-block pixel pitch. Physical keyboard/controller, Shift,
+latch per lamp, five-block column pitch and four-block row pitch. The full
+57,600-pixel panel passes actual-engine retention/isolation checks. Its view
+from the operator console still needs integration. Physical keyboard/controller, Shift,
 power/reset/pause/step, clock and architectural debug lamps form the interface.
 
 ## Logic mapping

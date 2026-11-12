@@ -152,7 +152,7 @@ def _geometry_from_config(config: dict) -> MachineGeometry:
         banks_per_row=m.get("banks_per_row", 16),
         **memory_placement_options(config),
         pixel_pitch_x=d.get("pixel_pitch_x", 5),
-        pixel_pitch_y=d.get("pixel_pitch_y", 5),
+        pixel_pitch_y=d.get("pixel_pitch_y", 4),
     )
 
 
@@ -212,7 +212,9 @@ def memory_fabric_nets(
     row_field = ("row_address", max(1, (fabric.bank.words - 1).bit_length())) if getattr(fabric, "binary_rows", False) else ("row_select", fabric.bank.words)
     for field, width in (row_field, ("write_data", fabric.bank.word_bits)):
         for bit, source in enumerate(_require_port(outputs, f"{name}_{field}", width)):
-            yield ExternalNet(f"{name}_{field}[{bit}]", source, tuple(getattr(tile, field)[bit] for tile in tiles))
+            sinks = tuple(getattr(tile, field)[bit] for tile in tiles if bit < len(getattr(tile, field)))
+            if sinks:
+                yield ExternalNet(f"{name}_{field}[{bit}]", source, sinks)
     for port_name, tile_field in (("read_enable", "read_enable"), ("write_commit", "write_enable")):
         yield ExternalNet(f"{name}_{port_name}", _require_port(outputs, f"{name}_{port_name}", 1)[0],
                           tuple(getattr(tile, tile_field) for tile in tiles))

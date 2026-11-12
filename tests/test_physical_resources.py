@@ -8,7 +8,7 @@ from shamaos.model import Vec3
 from shamaos.physical_resources import _control_placement_count, binary_row_resources, panel_resources, tile_control_chunks
 
 
-@pytest.mark.parametrize("width,height,px,pz", [(3, 2, 5, 5), (7, 9, 7, 5), (17, 3, 17, 19)])
+@pytest.mark.parametrize("width,height,px,pz", [(3, 2, 5, 5), (8, 17, 5, 4), (7, 9, 7, 5), (17, 3, 17, 19)])
 def test_panel_count_and_chunk_formula_matches_actual_blocks(width, height, px, pz):
     origin = Vec3(7, 64, 9)
     spec = LampPanelSpec(width, height, px, pz)
@@ -39,3 +39,16 @@ def test_stacked_decoder_and_return_counts_match_actual_geometry(words, bits, la
     blocks = list(iter_stacked_memory_tile(origin, tile=tile, include_storage=False))
     assert count == len(blocks)
     assert chunks == {(block.pos.x // 16, block.pos.z // 16) for block in blocks}
+
+
+@pytest.mark.parametrize("words,tail,layers", [(8, 4, 3), (8, 5, 3), (7, 2, 1), (7, 3, 2), (2, 1, 1)])
+def test_partial_bank_control_counts_chunks_and_bounds_match_literal_geometry(words, tail, layers):
+    from shamaos.hardware.memory_backbone import stacked_tile_bounds
+    origin = Vec3(7, -56, 9)
+    tile = StackedMemoryTileSpec(MemoryBankSpec(words=words, word_bits=32), layers, 12, tail)
+    blocks = list(iter_stacked_memory_tile(origin, tile=tile, include_storage=False))
+    assert _control_placement_count(tile) == len(blocks)
+    assert tile_control_chunks(origin, tile) == {(block.pos.x // 16, block.pos.z // 16) for block in blocks}
+    bounds = stacked_tile_bounds(origin, tile)
+    assert all(bounds.min.x <= block.pos.x <= bounds.max.x and bounds.min.y <= block.pos.y <= bounds.max.y
+               and bounds.min.z <= block.pos.z <= bounds.max.z for block in blocks)

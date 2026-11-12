@@ -2,7 +2,7 @@
 
 ## Boot
 
-ShamaOS is stored in the 500 KiB physical flash image. An immutable gate-based boot
+ShamaOS is stored in the 250 KiB physical flash image. An immutable gate-based boot
 ROM remains available even after executable fast memory has been erased. Boot
 mounts ShamaFS, copies the kernel into resident RAM, clears foreground RAM/fast
 memory, loads Desktop, and starts its program at fast-memory PC 0.

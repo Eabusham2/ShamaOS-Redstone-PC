@@ -7,13 +7,20 @@ operations. The software path does not call a native SHA opcode or a host hash
 function. Python `hashlib` is an independent test oracle, not a Minecraft runtime
 service.
 
-The current executable is **7,308 bytes / 89.2090% of the 8 KiB executable
-cache**, down from 8,508 bytes before compaction (14.10% smaller). Relative
-workspace addressing, short immediates and tail calls preserve the native and independent
-software SHA paths. Clearing a 53-character display line uses thirteen word
-stores and one byte store instead of 53 byte stores; bytes beyond that line are
-unchanged. The [memory report](MEMORY.md) includes the complete 5,376-byte
-workspace and executable RAM backing.
+The current executable is **6,904 bytes / 84.2773% of the 8 KiB executable
+cache**, down from 8,508 bytes before compaction (18.85% smaller). The latest
+pass removes 404 bytes of redundant record-pointer reloads, dead drawing saves
+and address-only immediate instructions. Relative addressing and tail calls
+preserve the native and independent software SHA paths. Clearing a 53-character
+display line uses thirteen word stores and one byte store instead of 53 byte
+stores; bytes beyond that line are unchanged.
+
+The complete workspace now uses **1,376 contiguous bytes**, down from 5,376.
+All simultaneously live header, digest, target, snapshot, history, edit and
+software-SHA regions remain distinct. Together with the 12-byte kernel and
+executable backing, Miner uses **8,292 bytes / 8.4351% of 96 KiB RAM** and leaves
+80 KiB of allocatable heap. Neighbor-guard tests exercise native/software hashing,
+configuration and full digest comparison without writes outside this workspace.
 
 ## Controls
 
@@ -93,14 +100,18 @@ flow; they are not used as a claim about native hardware cycle performance.
 
 | RAM address | Use |
 |---|---|
-| `0x4000` | 80-byte live header |
-| `0x4100` | 32-byte live digest |
-| `0x4140` | 32-byte target |
-| `0x4180` | 32-byte software comparison digest |
-| `0x4200` | 256-byte state snapshot; first 128 bytes are a history record |
-| `0x4400` | Loaded 128-byte history record |
-| `0x4600` | 80-byte edit staging buffer |
-| `0x5000..0x54FF` | Software SHA scratch/constants reservation |
+| `0x4000..0x404F` | 80-byte live header |
+| `0x4050..0x406F` | 32-byte live digest |
+| `0x4070..0x408F` | 32-byte target |
+| `0x4090..0x40AF` | 32-byte software comparison digest |
+| `0x40B0..0x41AF` | 256-byte state snapshot; first 128 bytes are a history record |
+| `0x41B0..0x422F` | Loaded 128-byte history record |
+| `0x4230..0x427F` | 80-byte edit staging buffer |
+| `0x4280..0x42BF` | Software-SHA working state |
+| `0x42C0..0x433F` | Software-SHA padded message |
+| `0x4340..0x443F` | Software-SHA schedule |
+| `0x4440..0x453F` | Software-SHA constants |
+| `0x4540..0x455F` | Software-SHA temporary digest |
 
 These locations overlay the Editor/Files source buffer because only one
 foreground app runs at a time. Lifecycle cleanup clears the outgoing workspace

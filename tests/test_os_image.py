@@ -38,7 +38,7 @@ def test_default_boot_bundle_geometry():
     image = build_default_os_image()
     fs = ShamaFS.deserialize(image.image)
 
-    assert len(image.image) == 500 << 10
+    assert len(image.image) == 250 << 10
     assert len(image.boot_binary) <= 8 << 10
 
     bundle = fs.stat("boot.bundle")
@@ -95,9 +95,9 @@ def test_miner_hardware_file_entries_are_stable():
 def test_packed_boot_removes_padding_from_the_fixed_flash_capacity():
     image = build_default_os_image()
     fs = ShamaFS.deserialize(image.image)
-    # Preserve the owner's explicit 500 KiB choice. Packing changes allocated
+    # Preserve the owner's explicit 250 KiB choice. Packing changes allocated
     # bytes, not flash capacity or the separate editable source/binary files.
-    assert fs.flash_bytes == 500 << 10
+    assert fs.flash_bytes == 250 << 10
     former_bundle_blocks = len(BUNDLE_ORDER) * APP_SLOT_BYTES // fs.block_size
     removed_padding = (former_bundle_blocks - fs.stat("boot.bundle").block_count) * fs.block_size
     assert removed_padding > 128 << 10

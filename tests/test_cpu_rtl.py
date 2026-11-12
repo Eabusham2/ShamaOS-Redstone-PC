@@ -12,7 +12,7 @@ import pytest
 from shamaos.assembler import assemble
 from shamaos.isa import SPECS
 from shamaos.simulator import CPUReference
-from shamaos.machine_spec import RAM_BYTES
+from shamaos.machine_spec import RAM_BYTES, FLASH_BYTES
 
 ROOT=Path(__file__).resolve().parents[1]
 RESULT_BASE=RAM_BYTES-(16 << 10)
@@ -62,9 +62,9 @@ def reference(source,initial=None):
     (f'LDI r1 {RAM_BYTES-1}\nLDI r2 42\nSTB r1 r2 0\nLDB r3 r1 0\nHLT', 0),
     (f'LDI r1 {RAM_BYTES}\nLDB r2 r1 0\nHLT', 8),
     (f'LDI r1 {RAM_BYTES}\nSTW r1 r0 0\nHLT', 8),
-    ('LDI r1 0x107cfff\nLDB r2 r1 0\nHLT', 0),
-    ('LDI r1 0x107d000\nLDB r2 r1 0\nHLT', 8),
-    ('LDI r1 0x107d000\nSTW r1 r0 0\nHLT', 8),
+    (f'LDI r1 {0x1000000+FLASH_BYTES-1}\nLDB r2 r1 0\nHLT', 0),
+    (f'LDI r1 {0x1000000+FLASH_BYTES}\nLDB r2 r1 0\nHLT', 8),
+    (f'LDI r1 {0x1000000+FLASH_BYTES}\nSTW r1 r0 0\nHLT', 8),
 ])
 def test_ram_and_flash_capacity_boundaries_are_architecturally_enforced(rtl, source, expected_fault):
     regs, _, _, fault = rtl(source, stall=1)

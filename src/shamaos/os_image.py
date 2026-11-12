@@ -176,7 +176,7 @@ def render_boot_parameters(image: OSImage | None = None) -> str:
         "RAM_BANKS": RAM_BYTES // BANK_BYTES,
         "CACHE_BANKS": CACHE_BYTES // BANK_BYTES,
         "VRAM_BANKS": VRAM_BYTES // BANK_BYTES,
-        "FLASH_BANKS": len(image.image) // BANK_BYTES,
+        "FLASH_BANKS": (len(image.image) + BANK_BYTES - 1) // BANK_BYTES,
         "FS_BLOCK_COUNT": fs.block_count,
         "FS_WRITE_LIMIT_BLOCKS": fs.block_count * FLASH_WRITE_LIMIT_PERCENT // 100,
         "FS_BITMAP_WORDS": (fs.block_count + 31) // 32,

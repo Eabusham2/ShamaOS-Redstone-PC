@@ -431,6 +431,7 @@ jobs:
           from pathlib import Path
 
           from shamaos.layout import default_origins, memory_specs, vram_spec
+          from shamaos.machine_spec import BANK_BYTES, CACHE_BYTES, FLASH_BANKS, RAM_BANKS, VRAM_BYTES
           from shamaos.model import Vec3
           from shamaos.synthesis import (
               MacroInstance,
@@ -518,10 +519,10 @@ jobs:
           assert len(inputs["flash_selected_word"]) == 32
           assert len(inputs["vram_selected_word"]) == 32
 
-          assert len(outputs["cache_bank_select"]) == 2
-          assert len(outputs["ram_bank_select"]) == 48
-          assert len(outputs["flash_bank_select"]) == 125
-          assert len(outputs["vram_bank_select"]) == 4
+          assert len(outputs["cache_bank_select"]) == CACHE_BYTES // BANK_BYTES
+          assert len(outputs["ram_bank_select"]) == RAM_BANKS
+          assert len(outputs["flash_bank_select"]) == FLASH_BANKS
+          assert len(outputs["vram_bank_select"]) == VRAM_BYTES // BANK_BYTES
           assert len(outputs["cache_row_address"]) == 10
           assert len(outputs["ram_row_address"]) == 10
           assert len(outputs["flash_row_address"]) == 10
@@ -531,10 +532,10 @@ jobs:
 
           cache, ram, flash = memory_specs(geometry)
           vram = vram_spec(geometry)
-          assert cache.bank_count == 2
-          assert ram.bank_count == 48
-          assert flash.bank_count == 125
-          assert vram.bank_count == 4
+          assert cache.bank_count == CACHE_BYTES // BANK_BYTES
+          assert ram.bank_count == RAM_BANKS
+          assert flash.bank_count == FLASH_BANKS
+          assert vram.bank_count == VRAM_BYTES // BANK_BYTES
           assert geometry.display_width == 320
           assert geometry.display_height == 180
 

@@ -24,7 +24,7 @@ module tb_popup_fault_interleave;
     shama_kernel_accel kernel(
         .clk,.rst,.req_valid(1'b0),.req_id(12'd0),.req_args(192'd0),
         .req_ready,.req_ret,.req_jump_valid,.req_jump_pc,.req_load_app,.req_app_id,
-        .ram_used_bytes(32'd0),.cache_used_bytes(32'd0),.flash_used_bytes(32'd486400),
+        .ram_used_bytes(32'd0),.cache_used_bytes(32'd0),.flash_used_bytes(32'd243200),
         .cpu_halted(1'b0),.sha_busy(1'b0),.gpu_busy,.gpu_capacity_fault,
         .notice_code,.notice_busy,.notice_ready,
         .gpu_valid,.gpu_we,.gpu_addr,.gpu_wdata,.gpu_wstrb,.gpu_ready,.gpu_rdata,

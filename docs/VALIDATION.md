@@ -16,20 +16,20 @@ level must not be presented as a result at another.
 | Integrated SoC RTL | CPU, native SHA, GPU, input, services, filesystem, kernel and assembler running shipped code | Boot, pause/step, universal Editor, X.TXT creation/ABC entry, dirty save, memory cleanup, paused shutdown, cache-cleared reboot, Explorer-to-Editor handoff and reopened bytes | Broad failure cases use bounded fast memory models; this is not generated-world execution. |
 | Production-controller SoC RTL | The same SoC with its actual cache/RAM/flash/VRAM adapters, binary row addresses and physical bank control pins | Full lifecycle, typed assembly/run and heap-backed self-replacement at 96 KiB RAM; delayed pin-level reads and persistent writes on all four fabrics | Bank-cell storage is modeled; redstone cells and full-world timing require separate proof. |
 | Real synthesis | Installed Yosys/ABC and Icarus equivalence | ABC option compatibility; DFF/DFFE/SDFF/SDFFE/SDFFCE polarities, reset values, edge behavior and priority; real primitive-bank differential traces | Mapping a netlist does not establish electrical/timing correctness of all routes. |
-| Actual redstone fixtures | Pinned MCHPRS redstone engine, emitted blocks and scheduled neighbour/tick updates | Gate/DFF traces; complete clock pulses at all phases; buttons/keys; preloaded compact memory read/write/retention/isolation; small display; representative routed signals/fanout/sequential circuits | Small fixtures do not prove complete-world loading or global clock skew. |
+| Actual redstone fixtures | Pinned MCHPRS redstone engine, emitted blocks and scheduled neighbour/tick updates | Gate/DFF traces; complete clock pulses at all phases; buttons/keys; preloaded compact memory read/write/retention/isolation; complete 320×180 panel; representative routed signals/fanout/sequential circuits | Small fixtures do not prove complete-world loading or global clock skew. |
 | Native world backend | Java NBT/Anvil files written, reopened and independently decoded | Exact states, coordinate/height checks, conflicting-write rejection, save/readback integrity, corruption detection and a saved-block runtime fixture | File fidelity is not proof of OS execution in that save. |
 
 The integrated lifecycle scenario is a behavioral integration test, not a
 pre-recorded UI animation. It drives the actual input path and verifies data
 written by the filesystem across shutdown/reboot. Its recorded successful run
-with the production adapters required **8,604,079 testbench clock cycles** at
-96 KiB RAM. Observed write commits were 18,188 cache, 39,485 RAM, 1,447 flash
-and 180,420 VRAM, with delayed reads covered on every fabric. Those are simulator
+with the production adapters required **8,603,261 testbench clock cycles** at
+96 KiB RAM and 250 KiB flash. Observed write commits were 18,188 cache, 39,485
+RAM, 1,373 flash and 180,435 VRAM, with delayed reads covered on every fabric. Those are simulator
 transactions and cycles, not Minecraft speed. Subsequent revisions must rerun
 the scenario rather than inheriting that result.
 
 The same production-controller backend passes typed assembly/save/run in
-**9,644,941 cycles**. A separate **5,137,109-cycle** case allocates the complete
+**9,640,839 cycles**. A separate **5,137,683-cycle** case allocates the complete
 84 KiB generic heap, writes a new program into its RUN pages, self-replaces,
 executes the marker, compares both code copies and checks every released heap
 word before returning Home. It directly guards against cleanup erasing the
@@ -111,6 +111,21 @@ redstone updates, and rejects conflicting block placements before simulation:
   **84 steps / 43,520 redstone ticks**, with native blocks at Y=-60..307 above
   preserved grass. This uses a reduced number of rows per bank; full 1,024-word
   storage and full-address decoding are separately exercised.
+- Exact partial flash tests cover the final 512×32-bit bank: all 16,384 bits
+  are checked after each of 19 steps / 81,920 redstone ticks. A partial-stack
+  return uses full-length buses, retaining 12,288 bits across 39 steps / 163,840
+  ticks. A 512-row decoder exercises all 1,024 binary addresses, including high
+  values that must select no row. Saved/reopened partial-bank fixtures preserve
+  the same states; controller byte/halfword/word boundaries are checked separately.
+- The complete 320×180 physical panel checks all 57,600 lamps and 57,600 stored
+  bits after each of 22 actual-engine steps / 23,552 redstone ticks. Its five-by-
+  four pitch uses 2,482,200 unique placements and 5,084 horizontal chunks. Tighter
+  three-block row spacing fails isolation and is not the production setting.
+- All 16 support-concrete colors preserve powered-support and latch behavior in
+  actual MCHPRS tests. Colored memory, display and all 79 console actuators are
+  saved, independently reopened and exercised. The transform leaves coordinates,
+  block count and every non-stone functional state unchanged; see
+  [component colors](APPEARANCE.md).
 - The bounded experimental local router reuses real isolated tracks and matches
   private clock paths without adding blocks. A 14-cell register pipeline passes
   140-redstone-tick cycles; two stacked 8+6-cell tiles pass 180-tick cycles, with
@@ -140,7 +155,7 @@ literal-geometry test proves a connected player deck, two-block headroom and
 four ordinary steps from above-grass supports. The backend bounds are
 `origin+(2,-4,0)..origin+(126,39,128)`, with 10,902 emitted placements and 33
 occupied chunks at the production alignment. The walking proof does not prove
-screen readability: the 320×180 lamp panel still spans 1600×900 physical blocks,
+screen readability: the 320×180 lamp panel still spans 1600×720 physical blocks before its interfaces,
 and viewing it coherently from the console remains an explicit release gap.
 
 These are fixture contracts, not a measured full-SoC frequency. The enabled

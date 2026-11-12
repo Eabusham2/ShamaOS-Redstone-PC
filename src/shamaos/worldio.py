@@ -75,6 +75,12 @@ _STATE_PROPERTIES: dict[str, dict[str, tuple[str, set[str]]]] = {
         "smooth_quartz", "redstone_block", "bedrock", "barrier", "dirt",
     )
 }
+# The appearance pass only replaces full-cube stone supports with full-cube
+# concrete; every dye variant is an exact Java state with no properties.
+_STATE_PROPERTIES.update({f"{color}_concrete": {} for color in (
+    "white", "orange", "magenta", "light_blue", "yellow", "lime", "pink", "gray",
+    "light_gray", "cyan", "purple", "blue", "brown", "green", "red", "black",
+)})
 _STATE_PROPERTIES.update({
     "grass_block": {"snowy": ("false", _BOOL)},
     "target": {"power": ("0", {str(i) for i in range(16)})},

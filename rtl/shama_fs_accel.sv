@@ -325,7 +325,7 @@ module shama_fs_accel #(
                 dma_valid=1;dma_we=1;dma_flash=1;dma_addr=BITMAP_FLASH_OFFSET+(bitmap_index<<2);
                 // Reserve exactly the current geometry's metadata blocks.
                 // Mark unused tail bits unavailable without counting them as
-                // capacity. The final500KiB image ends halfway through a word.
+                // capacity. A partial bitmap word must not count tail bits.
                 dma_wdata=0;
                 for(integer b=0;b<32;b=b+1)
                     if(bitmap_index*32+b<DATA_START_BLOCK || bitmap_index*32+b>=BLOCK_COUNT) dma_wdata[b]=1;

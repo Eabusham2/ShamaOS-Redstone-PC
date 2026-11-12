@@ -325,7 +325,7 @@ def test_actual_display_pixels_latch_rows_without_neighbor_crosstalk():
     pins = panel_ports(origin,spec)
     inputs = {f"D{i}":west_driver(p) for i,p in enumerate(pins.data_in)}
     inputs |= {f"R{i}":west_driver(p) for i,p in enumerate(pins.row_select)}
-    outputs = {f"P{row}:{col}":origin.offset(col*5+3,2,row*5) for row in range(4) for col in range(8)}
+    outputs = {f"P{row}:{col}":origin.offset(col*spec.pixel_pitch_x+3,2,row*spec.pixel_pitch_y) for row in range(4) for col in range(8)}
     expected = dict.fromkeys(outputs,False)
     steps = [{"ticks":64,"expect":expected.copy()}]
     for row,value in ((0,0xA5),(1,0x5A),(2,0xFF),(3,0x81),(0,0),(3,0x18)):
@@ -591,7 +591,7 @@ def test_actual_routed_display_uses_clear_front_and_side_approaches():
     sources={name:Vec3(32+i*4,32,5200) for i,name in enumerate(inputs)}
     nets=[ExternalNet(name,sources[name],(pin,)) for name,pin in inputs.items()]
     blocks=cell+list(iter_external_router(nets,branch_y=96,trunk_y=100,obstacles=cell))
-    outputs={f"P{row}:{col}":origin.offset(col*5+3,2,row*5) for row in range(4) for col in range(8)}
+    outputs={f"P{row}:{col}":origin.offset(col*spec.pixel_pitch_x+3,2,row*spec.pixel_pitch_y) for row in range(4) for col in range(8)}
     expected=dict.fromkeys(outputs,False)
     steps=[]
     for row,value in ((0,0xA5),(1,0x5A),(2,0x81),(3,0x18)):

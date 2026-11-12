@@ -19,7 +19,7 @@ native_sha = true
 [memory]
 logical_ram_bytes = 98304
 cache_bytes = 8192
-flash_bytes = 512000
+flash_bytes = 256000
 vram_bytes = 16384
 cache_line_bytes = 32
 bank_words = 1024
@@ -38,7 +38,7 @@ height = 180
 bits_per_pixel = 1
 double_buffer = true
 pixel_pitch_x = 5
-pixel_pitch_y = 5
+pixel_pitch_y = 4
 font_width = 6
 font_height = 8
 

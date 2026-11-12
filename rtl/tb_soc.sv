@@ -43,16 +43,16 @@ module tb_soc;
         .display_row_ready(1'b1)
     );
 `ifdef SHAMA_REAL_ADAPTERS
-    shama_persistent_bank_model #(.BANKS(`SHAMA_CACHE_BANKS)) cache_store(
+    shama_persistent_bank_model #(.BANKS(`SHAMA_CACHE_BANKS),.CAPACITY_BYTES(`SHAMA_CACHE_BYTES)) cache_store(
         .clk(dut.core_clk),.bank_select(cache_bank_select),.row_address(cache_row_address),
         .read_enable(cache_read_enable),.write_commit(cache_write_commit),.write_data(cache_write_data),.selected_word(cache_selected_word));
-    shama_persistent_bank_model #(.BANKS(`SHAMA_RAM_BANKS)) ram_store(
+    shama_persistent_bank_model #(.BANKS(`SHAMA_RAM_BANKS),.CAPACITY_BYTES(`SHAMA_RAM_BYTES)) ram_store(
         .clk(dut.core_clk),.bank_select(ram_bank_select),.row_address(ram_row_address),
         .read_enable(ram_read_enable),.write_commit(ram_write_commit),.write_data(ram_write_data),.selected_word(ram_selected_word));
-    shama_persistent_bank_model #(.BANKS(`SHAMA_FLASH_BANKS),.FLASH(1)) flash_store(
+    shama_persistent_bank_model #(.BANKS(`SHAMA_FLASH_BANKS),.CAPACITY_BYTES(`SHAMA_FLASH_BYTES),.FLASH(1)) flash_store(
         .clk(dut.core_clk),.bank_select(flash_bank_select),.row_address(flash_row_address),
         .read_enable(flash_read_enable),.write_commit(flash_write_commit),.write_data(flash_write_data),.selected_word(flash_selected_word));
-    shama_persistent_bank_model #(.BANKS(`SHAMA_VRAM_BANKS)) vram_store(
+    shama_persistent_bank_model #(.BANKS(`SHAMA_VRAM_BANKS),.CAPACITY_BYTES(`SHAMA_VRAM_BYTES)) vram_store(
         .clk(dut.core_clk),.bank_select(vram_bank_select),.row_address(vram_row_address),
         .read_enable(vram_read_enable),.write_commit(vram_write_commit),.write_data(vram_write_data),.selected_word(vram_selected_word));
 `else

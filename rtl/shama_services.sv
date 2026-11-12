@@ -183,7 +183,7 @@ module shama_services #(
             case(foreground_app)
                 1:heap_page_reserved=addr>=EDIT_BUF && addr<RUN_STAGING+`SHAMA_SLOT_BYTES;
                 2:heap_page_reserved=addr>=EDIT_BUF && addr<EDIT_BUF+65536;
-                3:heap_page_reserved=(addr==`SHAMA_MINER_BASE || addr==`SHAMA_MINER_SOFT_BASE);
+                3:heap_page_reserved=addr==`SHAMA_MINER_BASE;
                 5:heap_page_reserved=addr==(`SHAMA_TERMINAL_BUF/HEAP_PAGE_BYTES)*HEAP_PAGE_BYTES;
                 7:heap_page_reserved=addr==(`SHAMA_PAINT_BASE/HEAP_PAGE_BYTES)*HEAP_PAGE_BYTES;
                 8:heap_page_reserved=addr==(`SHAMA_SETTINGS_BASE/HEAP_PAGE_BYTES)*HEAP_PAGE_BYTES;
@@ -222,7 +222,7 @@ module shama_services #(
         case(app_id)
             1:workspace_bytes=32'd66116+editor_extra_staging_bytes;
             2:workspace_bytes=32'd66116;
-            3:workspace_bytes=5376;
+            3:workspace_bytes=`SHAMA_MINER_WORKSPACE_BYTES;
             5:workspace_bytes=1024;
             7,8:workspace_bytes=272; // config record plus filename staging at +0x100
             default:workspace_bytes=0;
@@ -235,7 +235,7 @@ module shama_services #(
             2:workspace_base=EDIT_BUF;
             3:workspace_base=RUN_STAGING;
             4:workspace_base=`SHAMA_MINER_BASE;
-            5:workspace_base=`SHAMA_MINER_SOFT_BASE;
+            5:workspace_base=`SHAMA_TERMINAL_BUF;
             6:workspace_base=`SHAMA_SETTINGS_BASE;
             7:workspace_base=`SHAMA_PAINT_BASE;
             default:workspace_base=0;
@@ -251,9 +251,8 @@ module shama_services #(
                 1:if((foreground_app==1 || foreground_app==2) && !handoff) workspace_size=68;
                 2:if((foreground_app==1 || foreground_app==2) && !handoff && !(run_staged && staged_from_text)) workspace_size=65536;
                 3:if(foreground_app==1 && !(run_staged && !staged_from_text)) workspace_size=APP_SLOT_BYTES;
-                4:if(foreground_app==3) workspace_size=4096;
-                5:if(foreground_app==3) workspace_size=1280;
-                  else if(foreground_app==5) workspace_size=1024;
+                4:if(foreground_app==3) workspace_size=`SHAMA_MINER_WORKSPACE_BYTES;
+                5:if(foreground_app==5) workspace_size=1024;
                 6:if(foreground_app==8) workspace_size=272;
                 7:if(foreground_app==7) workspace_size=272;
                 default:begin end

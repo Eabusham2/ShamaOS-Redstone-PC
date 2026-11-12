@@ -6,12 +6,13 @@ from firmware_machine import FirmwareMachine
 from shamaos.assembler import assemble
 from shamaos.flashfs import FileType,ShamaFS
 from shamaos.isa import SYSCALLS
+from shamaos.memory_map import MINER_BASE, MINER_HASH, MINER_RECORD, MINER_TARGET, MINER_WORKSPACE_BYTES
 from shamaos.simulator import CPUReference
 
-BASE=0x4200
-HEADER=0x4000
-HASH=0x4100
-TARGET=0x4140
+BASE=MINER_RECORD
+HEADER=MINER_BASE
+HASH=MINER_HASH
+TARGET=MINER_TARGET
 ROOT=Path(__file__).resolve().parents[1]
 
 class MinerMachine(FirmwareMachine):
@@ -56,6 +57,35 @@ class MinerMachine(FirmwareMachine):
 
 def configure(machine,key,data):
     machine.type(key+data.hex()+'\n')
+
+
+def test_compact_miner_workspace_preserves_neighbors_in_both_hash_modes():
+    machine=MinerMachine()
+    end=MINER_BASE+MINER_WORKSPACE_BYTES
+    machine.memory[MINER_BASE-16:MINER_BASE]=b'\xa5'*16
+    machine.memory[end:end+16]=b'\x5a'*16
+    original_write=machine.write_memory
+    def bounded_write(address,size,value):
+        if address < 0x01000000:
+            assert MINER_BASE <= address and address+size <= end, (address,size)
+        original_write(address,size,value)
+    machine.write_memory=bounded_write
+    machine.settle()
+    configure(machine,'H',bytes(range(80)))
+    configure(machine,'T',b'\xff'*32)
+    expected=hashlib.sha256(hashlib.sha256(bytes(range(80))).digest()).digest()
+    machine.event(0x14)
+    assert bytes(machine.memory[HASH:HASH+32])==expected
+    machine.type('M')
+    assert machine.word(BASE+28)==1
+    machine.event(0x14)
+    # Resuming after a found result advances the nonce before hashing again.
+    expected=hashlib.sha256(hashlib.sha256(bytes(machine.memory[HEADER:HEADER+80])).digest()).digest()
+    assert bytes(machine.memory[HASH:HASH+32])==expected
+    machine.type('C')
+    assert machine.word(BASE+236)==1
+    assert machine.memory[MINER_BASE-16:MINER_BASE]==b'\xa5'*16
+    assert machine.memory[end:end+16]==b'\x5a'*16
 
 
 def test_miner_line_clear_packs_writes_and_preserves_following_text_bytes():

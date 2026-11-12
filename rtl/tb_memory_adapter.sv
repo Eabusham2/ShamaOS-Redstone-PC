@@ -9,6 +9,7 @@ module tb_memory_adapter #(
     parameter integer LAYERS=8
 );
     localparam integer BANKS=(KIND==0)?`SHAMA_CACHE_BANKS:(KIND==1)?`SHAMA_RAM_BANKS:(KIND==2)?`SHAMA_FLASH_BANKS:`SHAMA_VRAM_BANKS;
+    localparam integer CAPACITY=(KIND==0)?`SHAMA_CACHE_BYTES:(KIND==1)?`SHAMA_RAM_BYTES:(KIND==2)?`SHAMA_FLASH_BYTES:`SHAMA_VRAM_BYTES;
     localparam integer ROWS=1024;
     localparam integer GROUPS=(BANKS+LAYERS-1)/LAYERS;
     localparam integer PHYSICAL_WORDS=GROUPS*LAYERS*ROWS;
@@ -37,7 +38,11 @@ module tb_memory_adapter #(
     logic [31:0] storage[0:PHYSICAL_WORDS-1];
     logic [31:0] expected_first[0:BANKS-1],expected_last[0:BANKS-1];
     integer selected_bank,selected_row,physical_word;
-    integer cycles=0,commits=0,requests=0;
+    integer cycles=0,commits=0,requests=0,read_samples=0;
+
+    function automatic integer bank_rows(input integer bank);
+        bank_rows=(CAPACITY-bank*4096<4096)?(CAPACITY-bank*4096)/4:ROWS;
+    endfunction
 
     function automatic integer placement(input integer bank,row);
         // bank = group*LAYERS + layer; the layer is the innermost physical
@@ -69,6 +74,10 @@ module tb_memory_adapter #(
             if(bank_select==0 || (bank_select & (bank_select-1'b1))!=0 ||
                row_select==0 || (row_select & (row_select-1'b1))!=0)
                 $fatal(1,"physical bank/row selection is not one-hot");
+            if(read_enable || write_commit)
+                if(selected_bank*4096+selected_row*4>=CAPACITY)
+                    $fatal(1,"partial-bank tail received a physical access");
+            if(read_enable) read_samples<=read_samples+1;
             if(write_commit) begin
                 if(!read_enable) $fatal(1,"byte read/modify/write disabled the old-word read path");
                 storage[physical_word]<=write_data;
@@ -102,27 +111,29 @@ module tb_memory_adapter #(
         end
     endtask
     task automatic boundary(input integer before_bank);
-        integer after_bank;
+        integer after_bank,last_address;
         begin
             after_bank=(before_bank+1)%BANKS;
+            last_address=before_bank*4096+bank_rows(before_bank)*4-1;
             // Last byte and halfword before a 4 KiB boundary. Low address bits
             // select the same word; CPU/DMA already supplies shifted strobes.
             expected_last[before_bank]=(expected_last[before_bank]&32'h00ffffff)|32'ha5000000;
-            access(1,before_bank*4096+4095,32'ha5000000,4'b1000,expected_last[before_bank],0);
+            access(1,last_address,32'ha5000000,4'b1000,expected_last[before_bank],0);
             expected_first[after_bank]=(expected_first[after_bank]&32'hffffff00)|32'h0000005a;
             access(1,after_bank*4096,32'h0000005a,4'b0001,expected_first[after_bank],0);
-            access(0,before_bank*4096+4092,0,0,expected_last[before_bank],0);
+            access(0,last_address-3,0,0,expected_last[before_bank],0);
             access(0,after_bank*4096,0,0,expected_first[after_bank],0);
             expected_last[before_bank]=(expected_last[before_bank]&32'h0000ffff)|32'hbeef0000;
-            access(1,before_bank*4096+4094,32'hbeef0000,4'b1100,expected_last[before_bank],0);
+            access(1,last_address-1,32'hbeef0000,4'b1100,expected_last[before_bank],0);
             expected_first[after_bank]=(expected_first[after_bank]&32'hffff0000)|32'h00001234;
             access(1,after_bank*4096,32'h00001234,4'b0011,expected_first[after_bank],1);
         end
     endtask
     task automatic reject_address(input [31:0] address,input logic write_request);
-        integer watchdog,previous_bank,previous_row,previous_commits;
+        integer watchdog,previous_bank,previous_row,previous_commits,previous_reads;
         begin
             previous_bank=selected_bank;previous_row=selected_row;previous_commits=commits;
+            previous_reads=read_samples;
             @(negedge clk);req_valid=1;req_we=write_request;req_addr=address;
             req_wdata=32'hbad0cafe;req_wstrb=15;
             watchdog=0;
@@ -130,8 +141,8 @@ module tb_memory_adapter #(
             while(!req_ready && watchdog<8) begin @(negedge clk);watchdog=watchdog+1;end
             if(!req_ready || req_rdata!==0 || read_enable || write_commit)
                 $fatal(1,"out-of-capacity access did not return bounded zero addr=%h",address);
-            if(selected_bank!=previous_bank || selected_row!=previous_row || commits!=previous_commits)
-                $fatal(1,"out-of-capacity request stepped or wrote a real bank");
+            if(selected_bank!=previous_bank || selected_row!=previous_row || commits!=previous_commits || read_samples!=previous_reads)
+                $fatal(1,"out-of-capacity request selected, read or wrote a real bank");
             @(negedge clk);req_valid=0;
             repeat(2) @(negedge clk);
         end
@@ -141,10 +152,11 @@ module tb_memory_adapter #(
             expected_first[b]=32'h11223344 ^ (b*32'h01010101);
             expected_last[b]=32'h89abcdef ^ b;
             storage[placement(b,0)]=expected_first[b];
-            storage[placement(b,ROWS-1)]=expected_last[b];
+            storage[placement(b,bank_rows(b)-1)]=expected_last[b];
         end
         repeat(3) @(negedge clk);rst=0;
-        if($bits(bank_select)*ROWS*4!=BANKS*4096) $fatal(1,"wrapper capacity mismatch");
+        if($bits(bank_select)!=BANKS || CAPACITY<=(BANKS-1)*4096 || CAPACITY>BANKS*4096)
+            $fatal(1,"wrapper exact-capacity/bank-envelope mismatch");
         // Exercise every logical bank, including the highest flash/RAM address
         // bits, through each actual fixed-capacity wrapper and its row-address bus.
         for(integer b=0;b<BANKS;b=b+1) begin
@@ -158,21 +170,31 @@ module tb_memory_adapter #(
         boundary(0);
         boundary((LAYERS-1)%BANKS);
         boundary(BANKS-1);
-        access(0,BANKS*4096-1,0,0,expected_last[BANKS-1],1);
+        access(0,CAPACITY-1,0,0,expected_last[BANKS-1],1);
         // Logic reset selects bank/row zero but must not erase physical storage.
         @(negedge clk);rst=1;
         repeat(3) @(negedge clk);rst=0;
         access(0,0,0,0,expected_first[0],1);
-        access(0,BANKS*4096-4,0,0,expected_last[BANKS-1],1);
+        access(0,CAPACITY-4,0,0,expected_last[BANKS-1],1);
+        reject_address(CAPACITY,0);
+        reject_address(CAPACITY,1);
+        reject_address(CAPACITY+1,0);
+        reject_address(CAPACITY+1,1);
+        if(CAPACITY<BANKS*4096) begin
+            reject_address(BANKS*4096-1,0);
+            reject_address(BANKS*4096-4,1);
+        end
         reject_address(BANKS*4096,0);
         reject_address(BANKS*4096,1);
         reject_address(32'hffffffff,0);
         reject_address(32'hfffffffc,1);
         access(0,0,0,0,expected_first[0],1);
-        access(0,BANKS*4096-4,0,0,expected_last[BANKS-1],1);
+        access(0,CAPACITY-4,0,0,expected_last[BANKS-1],1);
         if(commits!=BANKS+12) $fatal(1,"held-valid requests duplicated/lost writes: %0d",commits);
         $display("MEMORY ADAPTER LAYERED BOUNDARIES PASS kind=%0d layers=%0d bytes=%0d requests=%0d cycles=%0d",
-            KIND,LAYERS,BANKS*4096,requests,cycles);
+            KIND,LAYERS,CAPACITY,requests,cycles);
+        if(CAPACITY<BANKS*4096)
+            $display("PARTIAL BANK EXACT CAPACITY PASS banks=%0d tail_rows=%0d",BANKS,bank_rows(BANKS-1));
         $finish;
     end
 endmodule

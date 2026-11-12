@@ -13,17 +13,17 @@ The current hardware accepts this version-1 geometry:
 | Region | Blocks | Byte offset | Size |
 |---|---:|---:|---:|
 | Superblock and transaction journal | 0 | `0x000000` | 256 bytes |
-| Allocation bitmap | 1 | `0x000100` | 256 bytes (250 meaningful) |
+| Allocation bitmap | 1 | `0x000100` | 256 bytes (125 meaningful) |
 | File table | 2–17 | `0x000200` | 4,096 bytes |
-| File data | 18–1,999 | `0x001200` | 507,392 bytes |
+| File data | 18–999 | `0x001200` | 251,392 bytes |
 
-Flash is **500 KiB**, divided into 2,000 blocks of 256 bytes. The table contains
+Flash is **250 KiB**, divided into 1,000 blocks of 256 bytes. The table contains
 64 fixed-size entries, including directories. Metadata reserves 4,608 bytes;
 installed files consume additional data blocks. Used space includes reserved
 metadata and allocated file blocks, so it is not the sum of logical file sizes.
 There is no second superblock or redundant metadata copy in this format.
 
-The 2,000-bit bitmap needs 63 32-bit controller words. Only the low 16 bits of
+The 1,000-bit bitmap needs 32 32-bit controller words. Only the low eight bits of
 its final word represent real blocks; the remaining bits are outside the
 physical flash and must never be allocated or counted as free capacity.
 
@@ -41,7 +41,7 @@ Python layout `<8sIIIIIIII`:
 | 0 | 8 | Magic `SHAMAFS1` |
 | 8 | 4 | Format version: 1 |
 | 12 | 4 | Block size: 256 |
-| 16 | 4 | Block count: 2,000 |
+| 16 | 4 | Block count: 1,000 |
 | 20 | 4 | Bitmap start block: 1 |
 | 24 | 4 | Table start block: 2 |
 | 28 | 4 | Data start block: 18 |
@@ -141,8 +141,8 @@ use the filesystem API so allocation and journaling stay consistent.
 
 ## 95% write protection
 
-The configured threshold is **1,900 of 2,000 blocks**, or **486,400 bytes
-(475 KiB / 95%)**, including metadata. Before reserving a copy-on-write extent,
+The configured threshold is **950 of 1,000 blocks**, or **243,200 bytes
+(237.5 KiB / 95%)**, including metadata. Before reserving a copy-on-write extent,
 the controller checks current allocation plus the complete temporary extent.
 A reservation above the limit returns **`E_PROTECTED = -8`** before any bitmap,
 file data or journal write. A transaction admitted exactly at the limit can

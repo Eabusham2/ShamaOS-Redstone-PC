@@ -13,20 +13,21 @@ from shamaos.hardware.memory_streaming import iter_memory_bank_ordered
 from shamaos.model import Vec3
 
 
-def run_full_bank_case(work_path: Path, runner: str) -> dict:
+def run_full_bank_case(work_path: Path, runner: str, *, words: int = 1024) -> dict:
     """Stream the case to disk so Python never holds two million Placements."""
     work_path.mkdir(parents=True, exist_ok=True)
     case_path = work_path / "case.json"
     origin = Vec3(32, 16, 32)
-    bank = MemoryBankSpec(words=1024, word_bits=32)
+    bank = MemoryBankSpec(words=words, word_bits=32)
+    addresses = (0, words // 2, words - 1)
     pins = bank_ports(origin, bank)
     values = [((word + 1) * 0x9E3779B9 ^ 0xA53C96F0) & 0xFFFFFFFF for word in range(bank.words)]
     image = b"".join(value.to_bytes(4, "little") for value in values)
     coord = lambda point: [point.x, point.y, point.z]
     driver = lambda point: coord(point.offset(-1, 0, -1))
     inputs = {f"D{bit}": driver(point) for bit, point in enumerate(pins.data_in)}
-    inputs |= {f"W{word}": driver(pins.write_select[word]) for word in (0, 512, 1023)}
-    inputs |= {f"R{word}": driver(pins.read_select[word]) for word in (0, 512, 1023)}
+    inputs |= {f"W{word}": driver(pins.write_select[word]) for word in addresses}
+    inputs |= {f"R{word}": driver(pins.read_select[word]) for word in addresses}
     outputs = {f"Q{bit}": coord(point) for bit, point in enumerate(pins.data_out)}
     outputs |= {f"S{word}:{bit}": coord(origin.offset(bit * bank.bit_pitch + 2, bank.cell_y, 3 + word * bank.word_pitch))
                 for word in range(bank.words) for bit in range(32)}
@@ -38,7 +39,7 @@ def run_full_bank_case(work_path: Path, runner: str) -> dict:
         return {f"Q{bit}": bool(value >> bit & 1) for bit in range(32)}
 
     steps = [{"ticks": 4096, "expect": stored() | selected(0)}]
-    for word, value in ((0, 0), (512, 0xFFFFFFFF), (1023, 0x6A95F00F)):
+    for word, value in zip(addresses, (0, 0xFFFFFFFF, 0x6A95F00F)):
         steps.extend([
             {"drive": {f"R{word}": True}, "ticks": 4096, "expect": stored() | selected(values[word])},
             {"drive": {f"R{word}": False}, "ticks": 4096, "expect": stored() | selected(0)},
@@ -74,11 +75,11 @@ def run_full_bank_case(work_path: Path, runner: str) -> dict:
     runtime = json.loads(result.stdout)
     runtime.pop("traces", None)
     assert runtime["status"] == "passed"
-    assert count == 1_991_552
+    assert count == {1024: 1_991_552, 512: 996_224}[words]
     report = {
-        "kind": "literal-4KiB-memory-bank-runtime", "physical_placements": count,
-        "stored_bits": 32768, "stored_bits_checked_after_each_step": 32768,
-        "words": 1024, "word_bits": 32, "addresses_exercised": [0, 512, 1023],
+        "kind": "literal-memory-bank-runtime", "physical_bytes": bank.bytes, "physical_placements": count,
+        "stored_bits": words * 32, "stored_bits_checked_after_each_step": words * 32,
+        "words": words, "word_bits": 32, "addresses_exercised": list(addresses),
         "settling_ticks_per_step": 4096, "runtime": runtime,
         "case_json_bytes": case_path.stat().st_size,
         "case_generation_seconds": prepared - started,
@@ -90,7 +91,8 @@ def run_full_bank_case(work_path: Path, runner: str) -> dict:
     if report_directory:
         destination = Path(report_directory)
         destination.mkdir(parents=True, exist_ok=True)
-        (destination / "full-bank-runtime.json").write_text(json.dumps(report, indent=2) + "\n")
+        name = "full-bank-runtime.json" if words == 1024 else "half-bank-runtime.json"
+        (destination / name).write_text(json.dumps(report, indent=2) + "\n")
     return report
 
 
@@ -101,3 +103,12 @@ def test_actual_full_1024_by_32_bank_preload_first_middle_last_and_retention(tmp
     report = run_full_bank_case(tmp_path, runner)
     assert report["runtime"]["steps"] == 19
     assert report["runtime"]["ticks"] == 81920
+
+
+def test_actual_half_512_by_32_bank_has_exact_2kib_and_retains_every_bit(tmp_path):
+    runner = os.environ.get("SHAMA_MCHPRS_RUNNER")
+    if not runner or not Path(runner).is_file():
+        pytest.skip("actual MCHPRS runner not available; half bank runtime is unverified")
+    report = run_full_bank_case(tmp_path, runner, words=512)
+    assert report["physical_bytes"] == 2048
+    assert report["stored_bits_checked_after_each_step"] == 16384

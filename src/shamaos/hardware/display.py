@@ -21,7 +21,7 @@ class LampPanelSpec:
     width: int = 320
     height: int = 180
     pixel_pitch_x: int = 5
-    pixel_pitch_y: int = 5
+    pixel_pitch_y: int = 4
 
     @property
     def physical_width(self) -> int:
@@ -152,8 +152,8 @@ def iter_lamp_panel(
     """
     if spec.width <= 0 or spec.height <= 0:
         raise ValueError("invalid panel geometry")
-    if spec.pixel_pitch_x < 5 or spec.pixel_pitch_y < 5:
-        raise ValueError("lamp-panel pitch must be at least 5 blocks")
+    if spec.pixel_pitch_x < 5 or spec.pixel_pitch_y < 4:
+        raise ValueError("lamp-panel pitch must be at least 5 X blocks and 4 Z blocks")
 
     data_y = origin.y + 1
     row_y = origin.y - 2

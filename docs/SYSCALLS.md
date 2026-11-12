@@ -50,7 +50,7 @@ reports reserved pages in usage. Free/exit clears them before reuse.
 |---|---:|---:|
 | Editor | 4 KiB | 4 KiB |
 | File Explorer | 20 KiB | 16 KiB |
-| Miner | 76 KiB | 72 KiB |
+| Miner | 80 KiB | 76 KiB |
 | Terminal | 80 KiB | 72 KiB |
 | Paint / Settings | 80 KiB | 76 KiB |
 | Desktop / Monitor / Calculator / staged user code | 84 KiB | 84 KiB |
@@ -75,7 +75,7 @@ adds 4.1667 percentage points to RAM use.
 | --- | ---: | --- |
 | Editor / Files | 66,116 | `0x2400..0x25FF`, `0x2600..0x2643`, `0x4000..0x13FFF` |
 | Editor external assembly staging, when needed | +16,384 | `0x14000..0x17FFF` |
-| Miner | 5,376 | `0x4000..0x4FFF`, `0x5000..0x54FF` |
+| Miner | 1,376 | `0x4000..0x455F` |
 | Terminal | 1,024 | `0x5000..0x53FF` |
 | Settings | 272 | `0x4000..0x410F` |
 | Paint | 272 | `0x4200..0x430F` |
@@ -127,7 +127,7 @@ longest path plus slash and terminator; the stored/LIST name remains 43 bytes.
 | `027` | SYS_FILE_DELETE | r1 handle; GUI confirmation must already have occurred |
 | `028` | SYS_FILE_STAT | r1 handle; return packed metadata in r1 and size in r2 |
 | `029` | SYS_FILE_LIST | r1 table index 0–63, r2 name destination; return metadata/size, copy name plus NUL |
-| `02A` | SYS_FLASH_USAGE | r1 allocated bytes, r2 total bytes (512,000) |
+| `02A` | SYS_FLASH_USAGE | r1 allocated bytes, r2 total bytes (256,000) |
 | `02B` | SYS_FILE_TRANSFER | r1 handle, r2 new owner app ID 0–15; transfer an open handle before app replacement |
 | `02C` | SYS_FS_SYNC | Complete prior serialized storage work; return 0 |
 
@@ -157,7 +157,7 @@ Filesystem errors return `r2=0xFFFFFFFF` and the signed code in r1:
 | -8 | Flash write protection at the 95% allocation limit |
 | -9 | Attempt to mutate the private immutable `boot.bundle` loader image |
 
-At 1,900 allocated blocks (486,400 bytes), new mutations are refused with `-8`
+At 950 allocated blocks (243,200 bytes), new mutations are refused with `-8`
 and an OS popup. Copy-on-write reservations are checked before writes begin;
 an admitted transaction may finish at the limit. DELETE and truncation to zero
 remain available to free space, and journal recovery remains available at mount.

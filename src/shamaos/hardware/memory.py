@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Iterable, Iterator
 
 from ..model import BlockState, Placement, Vec3
@@ -363,9 +363,19 @@ class MemoryFabricSpec:
 
     @property
     def bank_count(self) -> int:
-        if self.total_bytes % self.bank.bytes:
-            raise ValueError("memory size must be an integer number of banks")
-        return self.total_bytes // self.bank.bytes
+        if self.bank.word_bits <= 0 or self.bank.word_bits % 8 or self.bank.words <= 0:
+            raise ValueError("memory fabric banks need whole-byte words")
+        if self.total_bytes <= 0 or self.total_bytes % (self.bank.word_bits // 8):
+            raise ValueError("memory size must contain a positive whole number of words")
+        return (self.total_bytes + self.bank.bytes - 1) // self.bank.bytes
+
+    def bank_spec(self, index: int) -> MemoryBankSpec:
+        """Literal bank geometry, including an exact shorter final bank."""
+        if not 0 <= index < self.bank_count:
+            raise IndexError("bank index outside physical capacity")
+        remaining = self.total_bytes - index * self.bank.bytes
+        words = min(self.bank.bytes, remaining) // (self.bank.word_bits // 8)
+        return self.bank if words == self.bank.words else replace(self.bank, words=words)
 
 
 def iter_memory_fabric(
@@ -380,6 +390,7 @@ def iter_memory_fabric(
         raise ValueError("initial image exceeds fabric capacity")
 
     for bank_index in range(count):
+        bank_spec = fabric.bank_spec(bank_index)
         grid_x = bank_index % fabric.banks_per_row
         grid_z = bank_index // fabric.banks_per_row
         bank_origin = Vec3(
@@ -388,10 +399,10 @@ def iter_memory_fabric(
             origin.z + grid_z * (fabric.bank.depth + fabric.bank_gap_z),
         )
         start = bank_index * fabric.bank.bytes
-        bank_data = None if initial is None else initial[start:start + fabric.bank.bytes]
+        bank_data = None if initial is None else initial[start:start + bank_spec.bytes]
         yield from iter_memory_bank(
             bank_origin,
-            spec=fabric.bank,
+            spec=bank_spec,
             initial=bank_data,
             component=f"{component}-bank-{bank_index:03d}",
         )

@@ -102,7 +102,7 @@ Loads and LEA use `destination, base, signed_offset`; stores use
 alignment. Byte/halfword stores preserve the other lanes of the word.
 
 Installed CPU data regions are RAM `0x00000000..0x00017fff`, flash
-`0x01000000..0x0107cfff`, and the device window
+`0x01000000..0x0103e7ff`, and the device window
 `0x02000000..0x0200ffff`. Individual devices define their registers within that
 window. A transfer must fit entirely inside its region. CPU accesses below
 `0x2000` use the separate executable cache; service DMA reaches the physical RAM
