@@ -6,6 +6,13 @@
 
 This document freezes the initial intent of the project so later implementation work cannot quietly simplify it. It separates facts learned from the supplied videos/transcripts from requirements that were agreed for ShamaOS.
 
+The complete reconciled acceptance checklist is [REQUIREMENTS.md](REQUIREMENTS.md).
+It restores planning commitments omitted or deferred in later implementation
+notes, including software/native SHA comparison, dirty-region display updates,
+complete in-world source editing, clean app/shutdown lifecycle and debug controls.
+For practical runtime speed, increased game tick rate or compatible acceleration
+software is recommended; see [RUNNING_AND_ACCELERATION.md](RUNNING_AND_ACCELERATION.md).
+
 ## 1. Source material ingested
 
 The supplied material consisted of four standalone YouTube videos plus all eleven videos in MattBatWings' *Let's Make a Redstone Computer!* playlist.

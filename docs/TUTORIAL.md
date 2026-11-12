@@ -52,6 +52,11 @@ Generation is extremely large.
 
 ## Run
 
+Increasing game tick rate or using a compatible acceleration mod/server is
+recommended. Read [Running and acceleration](RUNNING_AND_ACCELERATION.md) for
+Java `/tick rate` examples, MCHPRS guidance, and the distinction from
+`randomTickSpeed`.
+
 Vanilla is the correctness baseline but is intentionally extremely slow. MCHPRS or a compatible accelerator is strongly recommended.
 
 Universal hardware controls: Home, Exit, Editor and File Explorer. Editor can create/save/rename/delete/assemble/run programs and text. File Explorer can view/edit/run/rename/delete persistent files. Bitcoin Miner performs real CPU double-SHA work.

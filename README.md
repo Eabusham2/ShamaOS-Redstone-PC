@@ -1,5 +1,9 @@
 # ShamaOS Redstone PC
 
+**Development status:** the complete feature contract is being implemented and
+verified. A passing compilation or partial synthesis is not a verified working
+Minecraft world. See [requirements and release gates](docs/REQUIREMENTS.md).
+
 **ShamaOS Redstone PC** is a programmable Minecraft Java redstone computer and one-shot world generator. Python/Yosys build the machine; after generation, the CPU, SHA unit, GPU, memory, storage, input, filesystem and ShamaOS software execute in the generated redstone hardware rather than calling Python for runtime computation.
 
 ## Locked default machine
@@ -34,6 +38,11 @@ These capacities and the 320×180 resolution are canonical and are not silently 
 The Amulet world writer creates missing far-away chunks and preserves exact repeater/comparator/wire/lamp block states.
 
 ## Timing
+
+**Recommended:** increase the game tick rate or use compatible acceleration
+software for practical operation. Java 1.20.4 supports `/tick rate`; MCHPRS is a
+specialized redstone acceleration server. See the [running and acceleration
+guide](docs/RUNNING_AND_ACCELERATION.md) for commands and validation requirements.
 
 The input latch uses the raw physical clock. The computational core uses a heavily divided clock (default divider bit 17) because literal RAM/flash routes can be extremely long. Vanilla operation is intentionally very slow; MCHPRS can accelerate the same circuitry without changing architectural results.
 
@@ -93,6 +102,9 @@ Release-candidate commits additionally trigger the heavyweight **full physical S
 A final in-game smoke test is per generated world and requires an actual disposable save path.
 
 ## Documentation
+
+- [Complete requirements and acceptance checklist](docs/REQUIREMENTS.md)
+- [Running and acceleration](docs/RUNNING_AND_ACCELERATION.md)
 
 - `docs/INITIAL_SPEC_AND_TRANSCRIPTS.md`
 - `docs/ARCHITECTURE.md`
