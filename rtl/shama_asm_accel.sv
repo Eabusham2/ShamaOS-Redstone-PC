@@ -20,6 +20,10 @@ module shama_asm_accel(
     localparam integer MAX_SYMBOLS=128;
     localparam integer MAX_LINE_TOKENS=8;
     localparam integer MAX_TOKEN_CHARS=48;
+    // Keep the public token limit 48 while giving the physical read mux a
+    // complete, zero-initialized 64-byte backing store. Non-power-of-two
+    // inferred memories otherwise leave unused mux leaves undriven.
+    localparam integer TOKEN_STORAGE_CHARS=64;
 
     localparam [3:0]
         FMT_NONE=0,FMT_R=1,FMT_RR=2,FMT_RRR=3,FMT_RRRR=4,
@@ -63,7 +67,7 @@ module shama_asm_accel(
     logic token_active;
     logic [5:0] token_length;
     logic [31:0] hash_work;
-    logic [7:0] token_chars [0:MAX_TOKEN_CHARS-1];
+    logic [7:0] token_chars [0:TOKEN_STORAGE_CHARS-1];
     logic [7:0] token_quote;
     logic token_quote_closed,token_escape;
     logic [1:0] after_token; // 0=scan, 1=line, 2=comment
@@ -548,7 +552,7 @@ module shama_asm_accel(
             line_token_count<=0;
             label_count<=0;def_count<=0;
             emit0<=0;emit1<=0;emit_two<=0;
-            for(i=0;i<MAX_TOKEN_CHARS;i=i+1)
+            for(i=0;i<TOKEN_STORAGE_CHARS;i=i+1)
                 token_chars[i]<=0;
             for(i=0;i<MAX_LINE_TOKENS;i=i+1) begin
                 line_hash[i]<=0;line_number[i]<=0;line_reg[i]<=0;

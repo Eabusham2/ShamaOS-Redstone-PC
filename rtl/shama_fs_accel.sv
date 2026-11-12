@@ -42,6 +42,10 @@ module shama_fs_accel(
         SYS_MINER_LOAD_HISTORY=12'h052, SYS_MINER_LOAD_STATE=12'h053;
     localparam integer BLOCK_SIZE=256, BLOCK_COUNT=16384, BITMAP_WORDS=512;
     localparam integer MAX_FILES=64, NAME_BYTES=43, DATA_START_BLOCK=25;
+    // A power-of-two backing array gives every synthesized read-mux leaf a
+    // defined source. The public on-disk/path limit remains exactly 43 bytes;
+    // spare leaves are zeroed and are never accepted by the range checks.
+    localparam integer NAME_STORAGE_BYTES=64;
     localparam integer BITMAP_FLASH_OFFSET=256, TABLE_FLASH_OFFSET=2304;
     localparam [31:0] JOURNAL_MAGIC=32'h314e524a, JOURNAL_SEED=32'h53464a31;
     localparam [63:0] E_HANDLE=64'hffffffffffffffff,
@@ -82,7 +86,7 @@ module shama_fs_accel(
     logic [7:0] entry_type,entry_name_len;
     logic [15:0] entry_flags;
     logic [31:0] entry_size,entry_start,entry_blocks,entry_generation;
-    logic [7:0] entry_name [0:NAME_BYTES-1];
+    logic [7:0] entry_name [0:NAME_STORAGE_BYTES-1];
     logic [6:0] entry_index,original_index,first_free_index;
     logic [4:0] entry_word;
     logic first_free_valid,parent_found;
@@ -219,7 +223,7 @@ module shama_fs_accel(
         begin
             entry_used<=0;entry_type<=0;entry_flags<=0;entry_size<=0;
             entry_start<=0;entry_blocks<=0;entry_generation<=0;entry_name_len<=0;
-            for(integer k=0;k<NAME_BYTES;k=k+1) entry_name[k]<=0;
+            for(integer k=0;k<NAME_STORAGE_BYTES;k=k+1) entry_name[k]<=0;
         end
     endtask
     task automatic begin_load(input logic [6:0] idx,input action_t next_action);
@@ -310,7 +314,10 @@ module shama_fs_accel(
                 end
             end
             ST_NAME_READ:begin
-                dma_valid=1;dma_addr=query_ptr+query_len;
+                // A stripped leading slash advances query_ptr beyond the
+                // original 44-byte range check. Validate the final terminator
+                // byte as well before it can alias address zero in RAM.
+                dma_addr=query_ptr+query_len;dma_valid=ram_range(dma_addr,1);
                 selected_byte=dma_rdata >> ((dma_addr&3)*8);
             end
             ST_ALLOC_READ:begin dma_valid=1;dma_flash=1;dma_addr=BITMAP_FLASH_OFFSET+(alloc_word_index<<2);end
@@ -526,7 +533,9 @@ module shama_fs_accel(
                     end
                 end
                 ST_MOUNT_DONE:begin mounted<=1;response<=used_blocks<<8;state<=ST_DONE;end
-                ST_NAME_READ:if(dma_ready) begin
+                ST_NAME_READ:begin
+                    if(!ram_range(query_ptr+query_len,1)) begin response<=E_RANGE;state<=ST_ERROR;end
+                    else if(dma_ready) begin
                     if(selected_byte==0) begin
                         if(!valid_path(1'b1)) begin response<=E_PATH;state<=ST_ERROR;end
                         else start_search();
@@ -534,6 +543,7 @@ module shama_fs_accel(
                         leading_slash<=1;query_ptr<=query_ptr+1'b1;
                     end else if(query_len>=NAME_BYTES || selected_byte<32) begin response<=E_PATH;state<=ST_ERROR;end
                     else begin query_name[query_len]<=selected_byte;query_len<=query_len+1'b1;end
+                    end
                 end
                 ST_SEARCH_LOAD:if(dma_ready) begin
                     decode_entry_word(entry_word,dma_rdata);

@@ -18,10 +18,12 @@ module tb_fs_accel;
     logic [3:0] dma_wstrb;
     logic [31:0] flash_used_bytes;
     logic mounted;
-    logic [31:0] ram [0:4095];
+    logic [31:0] ram [0:262143];
     logic [31:0] flash [0:65535];
     integer i,watchdog;
     logic [31:0] x_handle,dir_handle,child_handle,z_handle;
+    logic [31:0] edge_handle;
+    string edge_name;
     always #5 clk=~clk;
     shama_fs_accel dut(.*);
     // Clocked read agent avoids artificial combinational dependence on every
@@ -33,7 +35,7 @@ module tb_fs_accel;
                 if(dma_addr>=262144) $fatal(1,"test flash address out of backing %h",dma_addr);
                 dma_rdata<=flash[dma_addr>>2];
             end else begin
-                if(dma_addr>=16384) $fatal(1,"RAM range exceeded %h",dma_addr);
+                if(dma_addr>=1048576) $fatal(1,"RAM range exceeded %h",dma_addr);
                 dma_rdata<=ram[dma_addr>>2];
             end
         end
@@ -85,7 +87,7 @@ module tb_fs_accel;
         end
     endtask
     initial begin
-        for(i=0;i<4096;i=i+1) ram[i]=0;
+        for(i=0;i<262144;i=i+1) ram[i]=0;
         for(i=0;i<65536;i=i+1) flash[i]=0;
         flash[0]=32'h4d414853;flash[1]=32'h31534641;
         flash[2]=1;flash[3]=256;flash[4]=16384;flash[5]=1;flash[6]=9;flash[7]=25;flash[8]=1;flash[9]=1;
@@ -99,6 +101,28 @@ module tb_fs_accel;
         ram_string(16'h280,"missing/bad.txt");
         reset_and_mount();
         if(flash_used_bytes!=(25+128+1)*256) $fatal(1,"rebuild usage %d",flash_used_bytes);
+
+        // Canonical 43-byte paths fit exactly in the final 44 RAM bytes.
+        // A leading slash needs one more input byte, but is not stored.
+        edge_name="";
+        for(i=0;i<43;i=i+1) edge_name={edge_name,"a"};
+        ram_string(32'h100000-44,edge_name);
+        call4(12'h020,32'h100000-44,1,0,0);ok();edge_handle=req_ret[31:0];
+        call4(12'h028,edge_handle,0,0,0);ok();
+        if(req_ret[15:8]!=43) $fatal(1,"maximum canonical path was truncated");
+        ram_string(32'h100000-45,{"/",edge_name});
+        call4(12'h021,32'h100000-45,0,0,0);ok();
+        if(req_ret[31:0]!=edge_handle) $fatal(1,"leading slash changed path identity");
+        call4(12'h027,edge_handle,0,0,0);ok();
+        ram_string(32'h100000-44,{"/",edge_name.substr(0,41)});
+        call4(12'h020,32'h100000-44,1,0,0);ok();edge_handle=req_ret[31:0];
+        call4(12'h027,edge_handle,0,0,0);ok();
+        // No terminator is accessible after slash+43 bytes. The controller
+        // must reject it before issuing a DMA at 0x100000 and aliasing bank0.
+        for(i=0;i<44;i=i+1)
+            ram[(32'h100000-44+i)>>2][((32'h100000-44+i)&3)*8+:8]=(i==0)?8'h2f:8'h61;
+        call4(12'h020,32'h100000-44,1,0,0);error_expected();
+        if(req_ret!=64'hfffffffffffffffe) $fatal(1,"escaped name range needs E_RANGE");
 
         call4(12'h020,32'h100,1,0,0);ok();x_handle=req_ret[31:0];
         call4(12'h024,x_handle,32'h200,5,0);ok();

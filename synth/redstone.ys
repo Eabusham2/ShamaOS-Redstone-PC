@@ -8,6 +8,9 @@ fsm
 opt
 memory_map
 opt
+# Reject floating/conflicting nets before technology lowering can obscure
+# their RTL names. Undefined unused memory leaves must be defined in RTL.
+check -assert
 techmap
 opt
 # Retain sequential semantics. Python lowers supported synchronous register

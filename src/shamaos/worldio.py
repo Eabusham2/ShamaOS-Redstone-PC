@@ -720,11 +720,21 @@ class NativeWorldWriter(WorldWriter):
                 raise WorldWriteError(f"invalid native world metadata: {exc}") from exc
         self._lock = (self.world_path / "session.lock").open("a+b")
         try:
-            import fcntl
-            fcntl.lockf(self._lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+            # Lock the same region from byte zero on every platform, including
+            # an existing session.lock whose append-mode cursor starts at EOF.
+            # Minecraft locks this file too; another process must fail before
+            # either the session marker or any world data is changed.
+            self._lock.seek(0)
+            if os.name == "nt":
+                import msvcrt
+                msvcrt.locking(self._lock.fileno(), msvcrt.LK_NBLCK, 1)
+            else:
+                import fcntl
+                fcntl.lockf(self._lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB,
+                            0, 0, os.SEEK_SET)
         except ImportError as exc:
             self._lock.close()
-            raise WorldWriteError("native world generation currently requires POSIX file locking") from exc
+            raise WorldWriteError("native world generation needs Windows or POSIX file locking") from exc
         except OSError as exc:
             self._lock.close()
             raise WorldWriteError("world is locked by another writer or Minecraft") from exc

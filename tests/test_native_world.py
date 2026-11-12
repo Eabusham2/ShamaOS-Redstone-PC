@@ -1,6 +1,8 @@
 """Behavioral export/readback tests for the dependency-light Anvil backend."""
 from pathlib import Path
 import struct
+import subprocess
+import sys
 
 import nbtlib
 import pytest
@@ -294,3 +296,36 @@ def test_disk_reserve_stops_before_saving_chunks(tmp_path, monkeypatch):
                 writer.save()
             assert list((world / "region").glob("*.mca")) == []
         assert writer.validate()["assigned_blocks"] == 1
+
+
+def test_session_lock_excludes_other_processes_and_releases_after_close(tmp_path):
+    world = one_chunk(tmp_path)
+    attempt = """
+import sys
+from shamaos.worldio import NativeWorldWriter, WorldWriteError
+try:
+    with NativeWorldWriter(sys.argv[1], spawn_platform=False):
+        print('opened')
+except WorldWriteError as exc:
+    if 'locked by another writer or Minecraft' not in str(exc):
+        raise
+    print('locked')
+"""
+    def probe():
+        result = subprocess.run(
+            [sys.executable, "-c", attempt, str(world)],
+            capture_output=True, text=True, timeout=20, check=True,
+        )
+        return result.stdout.strip()
+
+    with NativeWorldWriter(world, spawn_platform=False) as writer:
+        # POSIX record locks belong to the process; closing a separately
+        # opened descriptor for this inode would release the test's lock.
+        writer._lock.seek(0)
+        before = writer._lock.read()
+        assert probe() == "locked"
+        writer._lock.seek(0)
+        assert writer._lock.read() == before
+        assert writer.validate()["assigned_blocks"] == 1
+    assert probe() == "opened"
+    assert validate_native_world(world)["assigned_blocks"] == 1

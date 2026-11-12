@@ -9,6 +9,8 @@ fsm
 opt
 memory_map
 opt
+# Keep the same driver-completeness gate as the ABC flow.
+check -assert
 techmap
 opt
 # Do not silently turn asynchronous resets into synchronous ones.

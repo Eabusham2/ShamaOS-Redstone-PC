@@ -19,9 +19,9 @@ been released. See [implementation status](docs/IMPLEMENTATION_STATUS.md) and th
 | SHA | Native SHA-256/double-SHA execution plus programmable primitives and an independent software implementation |
 | Main RAM | **1 MiB physical**, 256 × 4 KiB banks |
 | Fast/executable memory | **16 KiB physical**, 4 × 4 KiB banks |
-| Persistent flash | **4 MiB physical**, 1,024 × 4 KiB banks |
+| Flash | **4 MiB** physical persistent storage, 1,024 × 4 KiB banks |
 | VRAM | **32 KiB physical**, 8 × 4 KiB banks |
-| Display | **320×180 monochrome**, double buffered, 57,600 lamps |
+| Display | **320×180** monochrome, double buffered, 57,600 lamps |
 | Input | 8×8 keyboard with Shift, controller, Home/Exit/Editor/Files, power/reset/pause/manual step |
 | OS | Resident kernel, one foreground app, persistent files, in-world assembler/editor |
 | Diagnostics | PC, instruction, registers, flags, CPU/stall state, native SHA state/round, faults and usage counters |
