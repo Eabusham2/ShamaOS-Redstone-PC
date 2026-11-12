@@ -17,14 +17,14 @@ def test_world_writer_preserves_functional_redstone_properties():
     lp = props(locked)
     assert locked.namespace == "minecraft"
     assert locked.base_name == "repeater"
-    assert lp["facing"] == "east"
+    assert lp["facing"] == "west"  # Java facing is the input side; output is east.
     assert lp["powered"] == "true"
     assert lp["locked"] == "true"
     assert lp["delay"] == "1"
 
     comp = to_amulet_block(comparator("north", powered=True))
     cp = props(comp)
-    assert cp["facing"] == "north"
+    assert cp["facing"] == "south"  # Output direction is north.
     assert cp["mode"] == "subtract"
     assert cp["powered"] == "true"
 

@@ -16,14 +16,14 @@ module shama_asm_accel(
     input  logic         dma_ready,
     input  logic [31:0]  dma_rdata
 );
-    localparam integer MAX_SOURCE=4096;
+    localparam integer MAX_SOURCE=65536;
     localparam integer MAX_SYMBOLS=128;
     localparam integer MAX_LINE_TOKENS=8;
     localparam integer MAX_TOKEN_CHARS=48;
 
     localparam [3:0]
         FMT_NONE=0,FMT_R=1,FMT_RR=2,FMT_RRR=3,FMT_RRRR=4,
-        FMT_RI32=5,FMT_J32=6,FMT_BR32=7,FMT_MEM=8,FMT_SYS=9,FMT_RSYS=10;
+        FMT_RI32=5,FMT_J32=6,FMT_BR32=7,FMT_MEM=8,FMT_SYS=9,FMT_RSYS=10,FMT_BRCOND=11;
 
     localparam [31:0] HASH_DEFINE=32'h3b4f3492;
     localparam [31:0] FNV_OFFSET=32'h811c9dc5;
@@ -34,6 +34,7 @@ module shama_asm_accel(
         ST_SCAN,
         ST_READ,
         ST_SKIP_COMMENT,
+        ST_SLASH,
         ST_FINALIZE,
         ST_PROCESS_LINE,
         ST_LINE_DONE,
@@ -63,6 +64,8 @@ module shama_asm_accel(
     logic [5:0] token_length;
     logic [31:0] hash_work;
     logic [7:0] token_chars [0:MAX_TOKEN_CHARS-1];
+    logic [7:0] token_quote;
+    logic token_quote_closed,token_escape;
     logic [1:0] after_token; // 0=scan, 1=line, 2=comment
 
     logic [3:0] line_token_count;
@@ -72,6 +75,7 @@ module shama_asm_accel(
     logic line_is_number [0:MAX_LINE_TOKENS-1];
     logic line_is_reg [0:MAX_LINE_TOKENS-1];
     logic [7:0] line_first_char [0:MAX_LINE_TOKENS-1];
+    logic line_is_label [0:MAX_LINE_TOKENS-1];
 
     // Labels/definitions are the only persistent pass-one workspace.
     logic [31:0] label_hash [0:MAX_SYMBOLS-1];
@@ -100,6 +104,12 @@ module shama_asm_accel(
         is_space=(c==" " || c==8'h09 || c==8'h0d || c==",");
     endfunction
 
+    function automatic [4:0] hex_digit(input [7:0] c);
+        if(c>="0" && c<="9") hex_digit=c-"0";
+        else if(up(c)>="A" && up(c)<="F") hex_digit=up(c)-"A"+10;
+        else hex_digit=31;
+    endfunction
+
     function automatic logic is_digit(input [7:0] c);
         is_digit=(c>="0" && c<="9");
     endfunction
@@ -107,6 +117,7 @@ module shama_asm_accel(
     logic current_token_is_reg;
     logic [3:0] current_token_reg;
     logic current_token_is_number;
+    logic current_token_bad;
     logic [31:0] current_token_number;
     integer parse_reg_value;
     integer parse_pos;
@@ -114,7 +125,7 @@ module shama_asm_accel(
     integer parse_digit;
     integer parse_k;
     logic parse_neg;
-    logic [31:0] parse_value;
+    logic [35:0] parse_value;
     logic [7:0] parse_char;
 
     // Keep live token parsing in combinational logic. Yosys 0.33 does not
@@ -140,6 +151,7 @@ module shama_asm_accel(
         end
 
         current_token_is_number=0;
+        current_token_bad=0;
         current_token_number=0;
         parse_pos=0;
         parse_base=10;
@@ -149,9 +161,46 @@ module shama_asm_accel(
         parse_value=0;
         parse_char=0;
 
-        if(token_length==3 && token_chars[0]=="'" && token_chars[2]=="'") begin
-            current_token_is_number=1;
-            current_token_number={24'd0,token_chars[1]};
+        if(token_chars[0]==8'h27 || token_chars[0]==8'h22) begin
+            if(token_length==3 && token_chars[2]==token_chars[0]) begin
+                current_token_is_number=1;
+                current_token_number={24'd0,token_chars[1]};
+            end else if(token_length==4 && token_chars[1]==8'h5c &&
+                        token_chars[3]==token_chars[0]) begin
+                current_token_is_number=1;
+                case(token_chars[2])
+                    "n":current_token_number=10;
+                    "r":current_token_number=13;
+                    "t":current_token_number=9;
+                    "0":current_token_number=0;
+                    8'h27:current_token_number=39;
+                    8'h22:current_token_number=34;
+                    8'h5c:current_token_number=92;
+                    default:begin
+                        if(token_chars[2]>="1" && token_chars[2]<="7")
+                            current_token_number=token_chars[2]-"0";
+                        else begin current_token_is_number=0;current_token_bad=1;end
+                    end
+                endcase
+            end else if(token_length==6 && token_chars[1]==8'h5c &&
+                        token_chars[2]=="x" && token_chars[5]==token_chars[0] &&
+                        hex_digit(token_chars[3])<16 && hex_digit(token_chars[4])<16) begin
+                current_token_is_number=1;
+                current_token_number=(hex_digit(token_chars[3])<<4)|hex_digit(token_chars[4]);
+            end else if(token_length>=4 && token_length<=6 && token_chars[1]==8'h5c &&
+                        token_chars[token_length-1]==token_chars[0]) begin
+                current_token_is_number=1;
+                parse_value=0;
+                for(parse_k=2;parse_k<5;parse_k=parse_k+1) begin
+                    if(parse_k<token_length-1) begin
+                        if(token_chars[parse_k]<"0" || token_chars[parse_k]>"7") current_token_bad=1;
+                        parse_value=(parse_value<<3)+(token_chars[parse_k]-"0");
+                    end
+                end
+                if(parse_value>255) current_token_bad=1;
+                current_token_number=parse_value[31:0];
+                if(current_token_bad) current_token_is_number=0;
+            end else current_token_bad=1;
         end else if(token_length>0 &&
                     (is_digit(token_chars[0]) || token_chars[0]=="-" || token_chars[0]=="+")) begin
             current_token_is_number=1;
@@ -167,6 +216,7 @@ module shama_asm_accel(
                 parse_base=(up(token_chars[parse_pos+1])=="X")?16:2;
                 parse_pos=parse_pos+2;
             end
+            if(parse_pos>=token_length) current_token_bad=1;
 
             for(parse_k=0;parse_k<MAX_TOKEN_CHARS;parse_k=parse_k+1) begin
                 if(parse_k>=parse_pos && parse_k<token_length) begin
@@ -175,12 +225,22 @@ module shama_asm_accel(
                         parse_digit=parse_char-"0";
                     else if(parse_char>="A" && parse_char<="F")
                         parse_digit=10+parse_char-"A";
-                    else
+                    else begin
                         parse_digit=0;
-                    parse_value=parse_value*parse_base+parse_digit;
+                        current_token_bad=1;
+                    end
+                    if(parse_digit>=parse_base) current_token_bad=1;
+                    case(parse_base)
+                        16:parse_value=(parse_value<<4)+parse_digit;
+                        2:parse_value=(parse_value<<1)+parse_digit;
+                        default:parse_value=(parse_value<<3)+(parse_value<<1)+parse_digit;
+                    endcase
+                    if(parse_value>36'h0ffffffff) current_token_bad=1;
                 end
             end
-            current_token_number=parse_neg ? (~parse_value+1'b1) : parse_value;
+            if(parse_neg && parse_value>36'h080000000) current_token_bad=1;
+            current_token_number=parse_neg ? (~parse_value[31:0]+1'b1) : parse_value[31:0];
+            if(current_token_bad) current_token_is_number=0;
         end
     end
 
@@ -275,6 +335,12 @@ module shama_asm_accel(
                 32'h55e4c614: syscall_value=32'h00000052; // SYS_MINER_LOAD_HISTORY
                 32'h17e68ca3: syscall_value=32'h00000060; // SYS_ASSEMBLE
                 32'h8dad8fff: syscall_value=32'h00000061; // SYS_RUN_BUFFER
+                32'h77a5afe5: syscall_value=32'h0000002b; // SYS_FILE_TRANSFER
+                32'h9e825ba9: syscall_value=32'h00000053; // SYS_MINER_LOAD_STATE
+                32'hfbea79a8: syscall_value=32'h0000000b; // SYS_LIFECYCLE_STATUS
+                32'h9c3047f1: syscall_value=32'h0000000c; // SYS_SHUTDOWN
+                32'h8a60b826: syscall_value=32'h0000002c; // SYS_FS_SYNC
+                32'h3a80395c: syscall_value=32'h00000032; // SYS_INPUT_STATUS
                 default: syscall_value=32'hffffffff;
             endcase
         end
@@ -337,7 +403,7 @@ module shama_asm_accel(
                 32'h8d6cf347: decode_info={1'b1,8'h30,4'd2,2'd1,4'd0}; // CMP
                 32'hb2d739e5: decode_info={1'b1,8'h31,4'd2,2'd1,4'd0}; // TEST
                 32'h48850ae0: decode_info={1'b1,8'h40,4'd6,2'd2,4'd0}; // JMP
-                32'h2edd7375: decode_info={1'b1,8'h41,4'd7,2'd2,4'd0}; // BR
+                32'h2edd7375: decode_info={1'b1,8'h41,4'd11,2'd2,4'd0}; // BR
                 32'hb14354e9: decode_info={1'b1,8'h42,4'd6,2'd2,4'd0}; // CALL
                 32'h73ce7ecc: decode_info={1'b1,8'h43,4'd0,2'd1,4'd0}; // RET
                 32'h33a4171d: decode_info={1'b1,8'h44,4'd1,2'd1,4'd0}; // PUSH
@@ -369,7 +435,7 @@ module shama_asm_accel(
                 32'h314e4d5f: decode_info={1'b1,8'h42,4'd6,2'd2,4'd0}; // CAL
                 32'hbf2bc878: decode_info={1'b1,8'h52,4'd8,2'd1,4'd0}; // LOD
                 32'h0525e8b0: decode_info={1'b1,8'h55,4'd8,2'd1,4'd0}; // STR
-                32'h8bb69fae: decode_info={1'b1,8'h28,4'd3,2'd1,4'd0}; // RSH
+                32'h8bb69fae: decode_info={1'b1,8'h2f,4'd2,2'd1,4'd0}; // RSH
                 32'h02b3f7a7: decode_info={1'b1,8'h41,4'd7,2'd2,4'd0}; // BR.EQ
                 32'h0ecfe108: decode_info={1'b1,8'h41,4'd7,2'd2,4'd1}; // BR.NE
                 32'heb834b26: decode_info={1'b1,8'h41,4'd7,2'd2,4'd2}; // BR.C
@@ -382,9 +448,48 @@ module shama_asm_accel(
                 32'hbcf1dc95: decode_info={1'b1,8'h41,4'd7,2'd2,4'd9}; // BR.POS
                 32'h24af496d: decode_info={1'b1,8'h41,4'd7,2'd2,4'd10}; // BR.VALID
                 32'hc08f7079: decode_info={1'b1,8'h41,4'd7,2'd2,4'd11}; // BR.NVALID
+                32'h1cba7f27: decode_info={1'b1,8'h1a,4'd5,2'd2,4'd0}; // ADDI
+                32'h72754783: decode_info={1'b1,8'h1a,4'd5,2'd2,4'd0}; // ADI
+                32'h8876b334: decode_info={1'b1,8'h1b,4'd5,2'd2,4'd0}; // SUBI
+                32'h733e781d: decode_info={1'b1,8'h2c,4'd5,2'd2,4'd0}; // ANDI
+                32'he8f81737: decode_info={1'b1,8'h2d,4'd5,2'd2,4'd0}; // ORI
+                32'he2bb1935: decode_info={1'b1,8'h2e,4'd5,2'd2,4'd0}; // XORI
+                32'hed3c0f27: decode_info={1'b1,8'h03,4'd5,2'd2,4'd0}; // LI32
+                32'h8f7d474d: decode_info={1'b1,8'h2f,4'd2,2'd1,4'd0}; // RSH1
+                32'h039c6907: decode_info={1'b1,8'h41,4'd11,2'd2,4'd0}; // BRH
+                32'h04837281: decode_info={1'b1,8'h41,4'd7,2'd2,4'd0}; // BR.Z
+                32'hb7a4746f: decode_info={1'b1,8'h41,4'd7,2'd2,4'd0}; // BR.ZERO
+                32'hfdcfc645: decode_info={1'b1,8'h41,4'd7,2'd2,4'd1}; // BR.NZ
+                32'he6d3d6c4: decode_info={1'b1,8'h41,4'd7,2'd2,4'd1}; // BR.NOTZERO
+                32'h011f05d4: decode_info={1'b1,8'h41,4'd7,2'd2,4'd2}; // BR.CARRY
+                32'h70bf47e5: decode_info={1'b1,8'h41,4'd7,2'd2,4'd3}; // BR.NOTCARRY
                 default: decode_info=19'd0;
             endcase
         end
+    endfunction
+
+    function automatic [3:0] condition_code(input [31:0] h);
+        case(h)
+            32'h23cc1903:condition_code=4'd0;
+            32'hdf0c214d:condition_code=4'd0;
+            32'h9051b4a3:condition_code=4'd0;
+            32'h37e67bfc:condition_code=4'd1;
+            32'h2ee66dd1:condition_code=4'd1;
+            32'h425c6d78:condition_code=4'd1;
+            32'hc60bf9f2:condition_code=4'd2;
+            32'h1a5a0fd0:condition_code=4'd2;
+            32'h35e678d6:condition_code=4'd3;
+            32'ha37491e1:condition_code=4'd3;
+            32'h7ce26b6d:condition_code=4'd4;
+            32'h6be250aa:condition_code=4'd5;
+            32'h6ad105f6:condition_code=4'd6;
+            32'h5bd0ee59:condition_code=4'd7;
+            32'hbad4c761:condition_code=4'd8;
+            32'h98e880e9:condition_code=4'd9;
+            32'he6319411:condition_code=4'd10;
+            32'h82daa9bd:condition_code=4'd11;
+            default:condition_code=4'hf;
+        endcase
     endfunction
 
     function automatic [31:0] enc_header(
@@ -397,7 +502,8 @@ module shama_asm_accel(
 
     always_comb begin
         req_ready=(state==ST_DONE || state==ST_ERROR);
-        req_ret={error_code,out_bytes};
+        // Failure returns no executable and a stable packed line/code diagnostic.
+        req_ret=error_code ? {error_line[23:0],error_code[7:0],32'd0} : {32'd0,out_bytes};
 
         dma_valid=0;
         dma_we=0;
@@ -408,7 +514,7 @@ module shama_asm_accel(
 
         selected_byte=0;
 
-        if((state==ST_READ || state==ST_SKIP_COMMENT) && scan_pos<src_len) begin
+        if((state==ST_READ || state==ST_SKIP_COMMENT || state==ST_SLASH) && scan_pos<src_len) begin
             dma_valid=1;
             dma_addr=(src_ptr+scan_pos)&32'hfffffffc;
             case((src_ptr+scan_pos)&3)
@@ -438,6 +544,7 @@ module shama_asm_accel(
             error_code<=0;error_line<=0;
             pass_two<=0;line_no<=0;end_after_line<=0;
             token_active<=0;token_length<=0;hash_work<=FNV_OFFSET;after_token<=0;
+            token_quote<=0;token_quote_closed<=0;token_escape<=0;
             line_token_count<=0;
             label_count<=0;def_count<=0;
             emit0<=0;emit1<=0;emit_two<=0;
@@ -445,7 +552,7 @@ module shama_asm_accel(
                 token_chars[i]<=0;
             for(i=0;i<MAX_LINE_TOKENS;i=i+1) begin
                 line_hash[i]<=0;line_number[i]<=0;line_reg[i]<=0;
-                line_is_number[i]<=0;line_is_reg[i]<=0;line_first_char[i]<=0;
+                line_is_number[i]<=0;line_is_reg[i]<=0;line_first_char[i]<=0;line_is_label[i]<=0;
             end
         end else begin
             if((state==ST_DONE || state==ST_ERROR) && !req_valid)
@@ -468,13 +575,20 @@ module shama_asm_accel(
                     end_after_line<=0;
                     token_active<=0;
                     token_length<=0;
+                    token_quote<=0;token_quote_closed<=0;token_escape<=0;
                     hash_work<=FNV_OFFSET;
                     line_token_count<=0;
                     label_count<=0;
                     def_count<=0;
 
-                    if(req_args[63:32]==0 || req_args[63:32]>MAX_SOURCE) begin
+                    if(req_args[63:32]==0 || req_args[63:32]>MAX_SOURCE ||
+                       req_args[31:0]>=32'h100000 || req_args[63:32]>32'h100000-req_args[31:0] ||
+                       req_args[95:64]>=32'h100000 || req_args[127:96]>32'h100000-req_args[95:64] ||
+                       req_args[65:64]!=0 || req_args[127:96]<4 ||
+                       (req_args[31:0]<req_args[95:64]+req_args[127:96] &&
+                        req_args[95:64]<req_args[31:0]+req_args[63:32])) begin
                         error_code<=1;
+                        error_line<=1;
                         state<=ST_ERROR;
                     end else
                         state<=ST_SCAN;
@@ -493,7 +607,20 @@ module shama_asm_accel(
                 end
 
                 ST_READ: if(dma_ready) begin
-                    if(selected_byte==8'h0a) begin
+                    if(token_quote!=0 && !token_quote_closed) begin
+                        scan_pos<=scan_pos+1'b1;
+                        if(selected_byte==8'h0a || token_length>=MAX_TOKEN_CHARS) begin
+                            error_code<=2;error_line<=line_no+1'b1;state<=ST_ERROR;
+                        end else begin
+                            token_chars[token_length]<=selected_byte;
+                            token_length<=token_length+1'b1;
+                            hash_work<=(hash_work ^ up(selected_byte))*FNV_PRIME;
+                            if(token_escape) token_escape<=0;
+                            else if(selected_byte==8'h5c) token_escape<=1;
+                            else if(selected_byte==token_quote) token_quote_closed<=1;
+                            state<=ST_SCAN;
+                        end
+                    end else if(selected_byte==8'h0a) begin
                         scan_pos<=scan_pos+1'b1;
                         end_after_line<=0;
                         if(token_active) begin
@@ -501,7 +628,10 @@ module shama_asm_accel(
                             state<=ST_FINALIZE;
                         end else
                             state<=ST_PROCESS_LINE;
-                    end else if(selected_byte==";" || selected_byte=="/") begin
+                    end else if(selected_byte=="/") begin
+                        scan_pos<=scan_pos+1'b1;
+                        state<=ST_SLASH;
+                    end else if(selected_byte==";") begin
                         scan_pos<=scan_pos+1'b1;
                         if(token_active) begin
                             after_token<=2;
@@ -521,6 +651,8 @@ module shama_asm_accel(
                             token_active<=1;
                             token_length<=1;
                             token_chars[0]<=selected_byte;
+                            token_quote<=((selected_byte==8'h27 || selected_byte==8'h22)?selected_byte:0);
+                            token_quote_closed<=0;token_escape<=0;
                             hash_work<=(FNV_OFFSET ^ up(selected_byte))*FNV_PRIME;
                             state<=ST_SCAN;
                         end else if(token_length>=MAX_TOKEN_CHARS) begin
@@ -530,12 +662,24 @@ module shama_asm_accel(
                         end else begin
                             token_chars[token_length]<=selected_byte;
                             token_length<=token_length+1'b1;
-                            hash_work<=(hash_work ^ up(selected_byte))*FNV_PRIME;
+                            // A trailing colon marks a label and is not part of its name.
+                            if(selected_byte!=":") hash_work<=(hash_work ^ up(selected_byte))*FNV_PRIME;
                             state<=ST_SCAN;
                         end
                     end
                 end
 
+                ST_SLASH: begin
+                    if(scan_pos>=src_len) begin error_code<=2;error_line<=line_no+1'b1;state<=ST_ERROR;end
+                    else if(dma_ready) begin
+                        if(selected_byte!="/") begin error_code<=2;error_line<=line_no+1'b1;state<=ST_ERROR;end
+                        else begin
+                            scan_pos<=scan_pos+1'b1;
+                            if(token_active) begin after_token<=2;state<=ST_FINALIZE;end
+                            else state<=ST_SKIP_COMMENT;
+                        end
+                    end
+                end
                 ST_SKIP_COMMENT: begin
                     if(scan_pos>=src_len) begin
                         end_after_line<=1;
@@ -552,7 +696,8 @@ module shama_asm_accel(
                 end
 
                 ST_FINALIZE: begin
-                    if(line_token_count>=MAX_LINE_TOKENS) begin
+                    if(line_token_count>=MAX_LINE_TOKENS || current_token_bad ||
+                       (token_quote!=0 && !token_quote_closed)) begin
                         error_code<=2;
                         error_line<=line_no+1'b1;
                         state<=ST_ERROR;
@@ -563,10 +708,12 @@ module shama_asm_accel(
                         line_is_number[line_token_count]<=current_token_is_number;
                         line_is_reg[line_token_count]<=current_token_is_reg;
                         line_first_char[line_token_count]<=token_chars[0];
+                        line_is_label[line_token_count]<=token_chars[0]=="." || token_chars[token_length-1]==":";
                         line_token_count<=line_token_count+1'b1;
 
                         token_active<=0;
                         token_length<=0;
+                        token_quote<=0;token_quote_closed<=0;token_escape<=0;
                         hash_work<=FNV_OFFSET;
 
                         case(after_token)
@@ -583,9 +730,9 @@ module shama_asm_accel(
                     if(line_token_count==0) begin
                         state<=ST_LINE_DONE;
                     end else begin
-                        if(line_first_char[0]==".") begin
+                        if(line_is_label[0]) begin
                             if(!pass_two) begin
-                                if(label_count>=MAX_SYMBOLS) begin
+                                if(label_count>=MAX_SYMBOLS || label_exists(line_hash[0]) || def_exists(line_hash[0])) begin
                                     error_code<=3;
                                     error_line<=line_no+1'b1;
                                     state<=ST_ERROR;
@@ -599,14 +746,16 @@ module shama_asm_accel(
                                 mn_idx=1;
                         end
 
-                        if(!(line_first_char[0]=="." &&
+                        if(!(line_is_label[0] &&
                              !pass_two &&
-                             label_count>=MAX_SYMBOLS)) begin
+                             (label_count>=MAX_SYMBOLS || label_exists(line_hash[0]) || def_exists(line_hash[0])))) begin
                             if(mn_idx>=line_token_count) begin
                                 state<=ST_LINE_DONE;
                             end else if(line_hash[mn_idx]==HASH_DEFINE) begin
                                 if(!pass_two) begin
-                                    if(mn_idx+2>=line_token_count || def_count>=MAX_SYMBOLS) begin
+                                    if(mn_idx+3!=line_token_count || def_count>=MAX_SYMBOLS ||
+                                       def_exists(line_hash[mn_idx+1]) || label_exists(line_hash[mn_idx+1]) ||
+                                       !line_value_exists(mn_idx+2)) begin
                                         error_code<=4;
                                         error_line<=line_no+1'b1;
                                         state<=ST_ERROR;
@@ -617,7 +766,7 @@ module shama_asm_accel(
                                         else if(def_exists(line_hash[mn_idx+2]))
                                             def_value[def_count]<=def_lookup(line_hash[mn_idx+2]);
                                         else
-                                            def_value[def_count]<=0;
+                                            def_value[def_count]<=syscall_value(line_hash[mn_idx+2]);
                                         def_count<=def_count+1'b1;
                                         state<=ST_LINE_DONE;
                                     end
@@ -709,11 +858,19 @@ module shama_asm_accel(
                                             emit0=enc_header(8'h41,dec[3:0],0,0,0);
                                             emit1=v1;
                                         end
+                                        FMT_BRCOND: begin
+                                            args_valid=args_valid && arg_count==2 &&
+                                                       condition_code(line_hash[mn_idx+1])!=4'hf &&
+                                                       line_value_exists(mn_idx+2);
+                                            emit0=enc_header(8'h41,condition_code(line_hash[mn_idx+1]),0,0,0);
+                                            emit1=v2;
+                                        end
                                         FMT_MEM: begin
                                             args_valid=args_valid && arg_count==3 &&
                                                        line_is_reg[mn_idx+1] &&
                                                        line_is_reg[mn_idx+2] &&
-                                                       line_value_exists(mn_idx+3);
+                                                       line_value_exists(mn_idx+3) &&
+                                                       ($signed(v3)>=-2048 && $signed(v3)<=2047);
                                             if(dec[17:10]>=8'h53 && dec[17:10]<=8'h55)
                                                 emit0=enc_header(dec[17:10],0,r1,r2,v3[11:0]);
                                             else
@@ -721,13 +878,13 @@ module shama_asm_accel(
                                         end
                                         FMT_SYS: begin
                                             args_valid=args_valid && arg_count==1 &&
-                                                       line_value_exists(mn_idx+1);
+                                                       line_value_exists(mn_idx+1) && v1<=4095;
                                             emit0=enc_header(dec[17:10],0,0,0,v1[11:0]);
                                         end
                                         FMT_RSYS: begin
                                             args_valid=args_valid && arg_count==2 &&
                                                        line_is_reg[mn_idx+1] &&
-                                                       line_value_exists(mn_idx+2);
+                                                       line_value_exists(mn_idx+2) && v2<=4095;
                                             emit0=enc_header(dec[17:10],r1,0,0,v2[11:0]);
                                         end
                                         default:args_valid=0;
@@ -767,6 +924,7 @@ module shama_asm_accel(
                     line_token_count<=0;
                     token_active<=0;
                     token_length<=0;
+                    token_quote<=0;token_quote_closed<=0;token_escape<=0;
                     hash_work<=FNV_OFFSET;
 
                     if(end_after_line) begin

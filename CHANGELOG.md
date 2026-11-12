@@ -1,6 +1,27 @@
 # Changelog
 
-## 1.0.0 — Full ShamaOS Redstone PC release candidate
+## Unreleased — Requirement reconciliation and measured validation
+
+- Restored the complete planning contract, Windows setup and acceleration guidance;
+  documentation distinguishes software/RTL, physical fixtures and full-world gates.
+- Added independent software SHA, native/software measured comparison, full-width
+  editable miner inputs/records, persistence and nonce-exhaustion behavior.
+- Completed full-source editing/assembly, Explorer folders/handoff, GPU dirty rows,
+  printable lowercase glyphs, cursor overlays and persistent settings.
+- Added owned resource cleanup, journaled copy-on-write storage, failure-safe app
+  close/power-off, queued input and checked immutable-ROM reboot.
+- Corrected actual redstone diode directions, state retention, display isolation,
+  clock pulse completion and routed stair/fanout/sequential behavior.
+- Reduced a 4 KiB storage bank from 2,511,744 to 1,991,552 placed blocks (20.7%); added
+  explicit density/chunk/resource accounting and an experimental stacked fixture.
+- Added native Java 1.20.4 world creation, independent saved-block validation and
+  actual-engine fixtures without requiring Amulet for generated worlds.
+- Added behavioral CPU/GPU/assembler/SoC tests, real Yosys sequential equivalence,
+  pinned MCHPRS tests, Windows/Linux CI and exact-source validation artifacts.
+- Full-capacity world generation, global timing/loading and in-world acceptance
+  remain required; no complete-world success is implied by these changes.
+
+## 1.0.0 — Earlier implementation milestone (full-world validation pending)
 
 - Completed the 32-bit CPU and native SHA execution unit.
 - Implemented literal **1 MiB RAM**, **16 KiB cache**, **4 MiB flash**, **32 KiB VRAM**.

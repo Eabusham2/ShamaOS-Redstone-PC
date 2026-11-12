@@ -45,15 +45,16 @@ module shama_display_bridge #(
                         active_row <= active_row + 1'b1;
                 end
             end else if (pixel_valid) begin
-                // pixel_index is retained as a consistency check/debug source;
-                // streaming order is row-major from the GPU.
-                row_buffer[column] <= pixel_bit;
-                if (column == WIDTH-1) begin
+                // The GPU may skip clean rows. Use the actual pixel address
+                // instead of assuming every presentation starts at row zero.
+                row_buffer[pixel_index % WIDTH] <= pixel_bit;
+                active_row <= pixel_index / WIDTH;
+                if (pixel_index % WIDTH == WIDTH-1) begin
                     row_data <= {
                         pixel_bit,
                         row_buffer[WIDTH-2:0]
                     };
-                    row_index <= active_row;
+                    row_index <= pixel_index / WIDTH;
                     waiting_commit <= 1'b1;
                 end else begin
                     column <= column + 1'b1;

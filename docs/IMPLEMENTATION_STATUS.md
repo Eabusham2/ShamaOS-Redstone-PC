@@ -1,68 +1,82 @@
-# Implementation Status
+# Implementation and release status
 
-## v1.0.0 release candidate
+**Development and verification in progress; a complete running Minecraft world
+has not been certified or released.** The package version `1.0.0` is not evidence
+that all acceptance gates have passed. [REQUIREMENTS.md](REQUIREMENTS.md) is the
+feature contract; [VALIDATION.md](VALIDATION.md) defines the evidence required.
 
-The agreed ShamaOS Redstone PC implementation is present on `main`. This is no longer the original specification-only foundation.
+## Implemented in code and exercised behaviorally
 
-### Locked physical capacities
+- 32-bit CPU, sixteen registers, complete integer/logic/branch/memory instruction
+  families, bounded 256-entry stacks, defined faults, counters and flush behavior.
+- Native SHA with inspectable state, and independent assembly double-SHA with
+  complete-byte comparison, configurable header/target, counters, stop/resume,
+  nonce exhaustion and 256 × 128-byte persistent history.
+- Native-resolution GPU primitives, complete printable ASCII including lowercase,
+  dirty-row updates, nondestructive cursors, queue/backpressure and fence semantics.
+- Full-source Editor, filesystem-backed Explorer folders and handoff, separate
+  source/binary output, cancelled destructive confirmations, settings persistence,
+  Paint cursor and the shipped Terminal/Calculator/Monitor/Desktop programs.
+- Owned resources, dirty save on app close, memory/cache clearing, orderly paused
+  shutdown, immutable boot-ROM recovery after cache clearing, and boot failure
+  diagnostics under explicit test.
+- ShamaFS canonical paths/directories, handle ownership/transfer/cleanup,
+  copy-on-write data replacement, a replayable metadata journal, bounds checking,
+  full-disk/table errors and interrupted-write recovery.
+- Queued keyboard/controller events with Shift and held-acknowledgement handling.
+- Native Java 1.20.4 world creation, exact block-state saving, independent readback,
+  corruption/collision/resource checks and a small saved-world runtime fixture.
+- Portable ABC option detection and semantic enabled/reset flip-flop lowering.
 
-- CPU datapath: **32 bit**
-- main RAM: **1 MiB physical** — 256 × 4 KiB banks
-- fast/executable cache: **16 KiB physical** — 4 × 4 KiB banks
-- flash: **4 MiB physical** — 1,024 × 4 KiB banks
-- VRAM: **32 KiB physical** — 8 × 4 KiB banks
-- display: **320×180 × 1 bit**, 57,600 redstone lamps
-- display physical pitch: 5×5 blocks, horizontal X/Z panel viewed from above
+The integrated SoC test has completed boot → create/type/save → app cleanup →
+paused shutdown → cache-cleared reboot → Explorer → Editor reopen with the saved
+bytes intact. Its external memory devices are behavioral test models; this is
+not evidence that a complete physical world has performed that flow.
 
-### Implemented hardware
+## Physical fixtures already exercised in the actual engine
 
-- 32-bit CPU and project ISA.
-- Native SHA execution unit inside the CPU, including SHA-256 and Bitcoin double-SHA.
-- Programmable GPU with external physical VRAM.
-- Double-buffered framebuffer and text/pixel/line/rectangle/circle/blit/sprite/scroll/clip/copy/swap/push/fence operations.
-- Locked-repeater cache/RAM/flash/VRAM storage.
-- One-hot bank/row selectors and physical read/write/data backbones.
-- 320×180 latched lamp panel.
-- 8×8 keyboard matrix and controller with D-pad/A/B/Home/Exit/Editor/Files.
-- power/reset hardware and safe power-off clock behavior.
-- raw input clock plus divided computational core clock for long-route settling.
-- partitioned Yosys mapping into real redstone BUF/NOT/NAND/NOR/DFF cells, with a black-boxed top-level shell physically reconnecting the same integrated SoC ports.
-- Yosys clock-enable flip-flops are semantically lowered to feedback-mux NAND/NOT logic plus the validated edge DFF; enables are never discarded or clock-gated as a shortcut.
-- crossing-safe two-plane routing with explicit wire states and repeater-regenerated stairs.
-- direct Amulet chunk/palette writer with missing-chunk creation.
+Generated gates and edge storage, clock startup/shutdown phases, stretched real
+buttons, keyboard/controller isolation, compact preloaded memory, small latched
+display regions, and representative routed/fanout/sequential nets have actual
+MCHPRS behavioral tests. These tests revealed and corrected diode orientation,
+read risers, preload retention, display backfeeding, clipped clock pulses and
+stair/trunk collisions that source inspection alone missed.
 
-### Implemented OS/storage/software
+The compact storage cell preserves all capacities while reducing the corrected
+bank emission from 2,511,744 to 1,991,552 blocks per 4 KiB bank (about 20.7%).
+See [MEMORY.md](MEMORY.md) for exact counts and source-design comparisons.
+Three-dimensional bank packing and generation locality/template reuse are being
+validated separately from the cell design.
 
-- 4 MiB ShamaFS image with boot/kernel/apps/editable assembly sources.
-- hardware ShamaFS mount/create/open/read/write/truncate/rename/delete/stat/list.
-- ShamaFS metadata is streamed from the real physical flash instead of duplicating the complete bitmap/file table in gate-expanded accelerator state.
-- persistent allocation bitmap and file metadata.
-- hardware two-pass Shama Assembly assembler.
-- the assembler streams source line-by-line from RAM while retaining two-pass labels/definitions/syscall resolution, avoiding a second gate-expanded copy of the source/token database.
-- resident kernel + one foreground app loaded from flash into RAM/cache.
-- foreground page allocator with automatic release on app switch.
-- hardware-universal Home/Exit/Editor/File Explorer switching.
-- real RAM/cache/flash usage counters.
-- Desktop, Editor, File Explorer, Bitcoin Miner, System Monitor, Terminal, Calculator, Paint and Settings.
-- persistent miner state plus 256 × 64-byte history records.
+## Canonical capacities remain intact
 
-### Generator
+| Item | Contract |
+|---|---|
+| Main RAM | 1 MiB, 256 banks |
+| Fast memory | 16 KiB, 4 banks |
+| Persistent flash | 4 MiB, 1,024 banks |
+| VRAM | 32 KiB, 8 banks |
+| Screen | 320×180 monochrome lamps, 5×5 physical pixel pitch |
 
-`shamaos generate` emits in one workflow:
+All banks contain 1,024 32-bit words. The capacity validator rejects reduced or
+mislabelled configurations for the full release target. No small fixture is
+advertised as that full machine.
 
-1. literal cache/RAM/flash/VRAM/display/input fabrics;
-2. memory backbones and physical clock;
-3. synthesized SoC logic;
-4. named long-distance interconnect;
-5. generation manifest;
-6. direct writes into an existing disposable Java 1.20.4 world.
+## Open release gates
 
-Python/Yosys are build tools only. Runtime CPU/SHA/GPU/filesystem/OS computation is not delegated back to Python.
+- Full partition mapping/reconnection must pass for the exact candidate commit.
+- Complete physical routing must pass collision, continuity, electrical isolation
+  and timing checks, including dense endpoint escape and global clock skew.
+- Stacked-bank selection/data/return paths must pass actual connected read/write
+  tests before becoming the default.
+- Resource estimates must include logic, backbones, external routing, validation
+  work and runtime loading, not just storage cells.
+- The complete capacity world must actually be generated, loaded, booted and
+  exercised, including in-world editing/assembly, app cleanup and persistent
+  miner/files across power cycles.
+- The verified world and exact source/validation artifacts must be published
+  together with checksums and runtime/loading settings.
 
-## Validation status
-
-The fast release suite is green for Python 3.11/3.12, real Amulet block-state conversion, SHA known answers, CPU/GPU/display/memory/input RTL, app lifecycle, ShamaFS hardware, in-world assembler, GUI kernel and integrated SoC compilation.
-
-The release-candidate SHA is physically synthesis-validated only when CI `full-physical-synthesis` succeeds on that same SHA.
-
-Per-world in-game smoke testing still requires a concrete disposable Minecraft save.
+The recommended increased tick rate or compatible acceleration is documented in
+[RUNNING_AND_ACCELERATION.md](RUNNING_AND_ACCELERATION.md). It improves elapsed
+execution time; it cannot replace any of these correctness gates.

@@ -6,13 +6,17 @@ module sha256_compress (
     input  logic [511:0] block_in,
     output logic         busy,
     output logic         done,
-    output logic [255:0] state_out
+    output logic [255:0] state_out,
+    output logic [5:0]   debug_round,
+    output logic [255:0] debug_state
 );
 
     logic [31:0] w [0:15];
     logic [31:0] a,b,c,d,e,f,g,h;
     logic [31:0] h0,h1,h2,h3,h4,h5,h6,h7;
     logic [6:0] round;
+    assign debug_round = round[5:0];
+    assign debug_state = {a,b,c,d,e,f,g,h};
 
     logic [31:0] wt, new_w;
     logic [31:0] t1, t2, next_a, next_e;

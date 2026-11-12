@@ -10,9 +10,217 @@ from .memory import (
     DUST,
     SUPPORT,
     MemoryFabricSpec,
+    MemoryBankSpec,
     bank_ports,
+    iter_memory_bank,
     repeater,
 )
+
+
+@dataclass(frozen=True)
+class StackedMemoryTileSpec:
+    """Experimental local tile; production keeps the existing ABI until fan-in is proven."""
+
+    bank: MemoryBankSpec = MemoryBankSpec()
+    banks: int = 2
+    layer_pitch: int = 16
+
+    def __post_init__(self) -> None:
+        if not 1 <= self.banks <= 16:
+            raise ValueError("a memory tile must contain 1..16 complete banks")
+        if self.layer_pitch < 16 or self.layer_pitch % 4:
+            raise ValueError("stacked layers need at least 16 blocks and four-block torch polarity alignment")
+
+    @property
+    def bytes(self) -> int:
+        return self.banks * self.bank.bytes
+
+
+@dataclass(frozen=True)
+class StackedMemoryTilePorts:
+    bank_select: tuple[Vec3, ...]
+    row_select: tuple[Vec3, ...]
+    read_enable: Vec3
+    write_enable: Vec3
+    write_data: tuple[Vec3, ...]
+    # Separate, isolated read outputs until an actual-engine-tested shared
+    # return network is attached. Do not pretend these form a single bus.
+    bank_read_data: tuple[tuple[Vec3, ...], ...]
+
+
+def stacked_bank_origin(origin: Vec3, tile: StackedMemoryTileSpec, index: int) -> Vec3:
+    if not 0 <= index < tile.banks:
+        raise IndexError("stacked bank index out of range")
+    return origin.offset(dy=index * tile.layer_pitch)
+
+
+def stacked_tile_ports(origin: Vec3, tile: StackedMemoryTileSpec) -> StackedMemoryTilePorts:
+    return StackedMemoryTilePorts(
+        tuple(stacked_bank_origin(origin, tile, bank).offset(-125, 0, -16) for bank in range(tile.banks)),
+        tuple(origin.offset((-56 if row % 2 == 0 else -88) - 1, 0, 3 + row * tile.bank.word_pitch) for row in range(tile.bank.words)),
+        origin.offset(-115, 4, -4), origin.offset(-115, 0, -10),
+        tuple(origin.offset(bit * tile.bank.bit_pitch - 4, tile.bank.data_y - 3, -4) for bit in range(tile.bank.word_bits)),
+        tuple(bank_ports(stacked_bank_origin(origin, tile, bank), tile.bank).data_out for bank in range(tile.banks)),
+    )
+
+
+def _tower(base: Vec3, top: int, buffered_taps: tuple[int, ...], component: str) -> Iterator[Placement]:
+    """Two inversions per four Y blocks; taps at 3 mod 4 preserve polarity."""
+    yield Placement(base.offset(-1, -1, 0), SUPPORT, component)
+    yield Placement(base.offset(-1, 0, 0), DUST, component)
+    yield Placement(base, BlockState.of("minecraft:target", power="0"), component)
+    for dy in range(1, top + 1):
+        state = SUPPORT if dy % 2 == 0 else BlockState.of("minecraft:redstone_torch", lit="true" if dy % 4 == 1 else "false")
+        yield Placement(base.offset(dy=dy), state, component)
+    for dy in buffered_taps:
+        if dy % 4 != 3:
+            raise ValueError("tower tap would invert its signal")
+        for dx, state in ((1, DUST), (2, repeater("east")), (3, DUST)):
+            yield Placement(base.offset(dx, dy - 1, 0), SUPPORT, component)
+            yield Placement(base.offset(dx, dy, 0), state, component)
+
+
+def _local_x(start: Vec3, end_x: int, component: str) -> Iterator[Placement]:
+    direction = 1 if end_x >= start.x else -1
+    for index, x in enumerate(range(start.x, end_x + direction, direction)):
+        point = Vec3(x, start.y, start.z)
+        state = repeater("east" if direction > 0 else "west") if index and index % 10 == 0 and x != end_x else DUST
+        yield Placement(point.offset(dy=-1), SUPPORT, component)
+        yield Placement(point, state, component)
+
+
+def _inactive_and(origin: Vec3, component: str) -> Iterator[Placement]:
+    """AND gate initialized for A=B=0, avoiding a boot-time write pulse."""
+    from .logic import emit_and
+    for placement in emit_and(Vec3(0, 0, 0), component):
+        properties = dict(placement.block.properties)
+        x, z = placement.pos.x, placement.pos.z
+        if placement.block.name == "minecraft:redstone_wire":
+            power = 0
+            if z == -4 and 0 <= x <= 8:
+                power = 15 - min(x, 8 - x)
+            elif z == -4 and 10 <= x <= 16:
+                power = 25 - x
+            elif x == 16 and -3 <= z <= 0:
+                power = 5 - z
+            elif x == 17 and z == 0:
+                power = 4
+            properties["power"] = str(power)
+        elif placement.block.name == "minecraft:repeater" and (x, z) in ((9, -4), (18, 0)):
+            properties["powered"] = "true"
+        elif placement.block.name == "minecraft:redstone_wall_torch" and (x, z) == (20, 0):
+            properties["lit"] = "false"
+        yield Placement(origin.offset(placement.pos.x, placement.pos.y, placement.pos.z), BlockState.of(placement.block.name, **properties), component)
+
+
+def _mirrored_and(origin: Vec3, component: str) -> Iterator[Placement]:
+    for placement in _inactive_and(Vec3(0, 0, 0), component):
+        properties = dict(placement.block.properties)
+        if "facing" in properties:
+            properties["facing"] = {"north": "south", "south": "north"}.get(properties["facing"], properties["facing"])
+        if placement.block.name == "minecraft:redstone_wire":
+            properties["north"], properties["south"] = properties["south"], properties["north"]
+        yield Placement(origin.offset(placement.pos.x, placement.pos.y, -placement.pos.z), BlockState.of(placement.block.name, **properties), component)
+
+
+def iter_stacked_memory_tile(
+    origin: Vec3,
+    *,
+    tile: StackedMemoryTileSpec,
+    initial: bytes | None = None,
+    component: str = "stacked-memory-tile",
+    interleave_layers: bool = True,
+) -> Iterator[Placement]:
+    """Emit capacity-preserving layered storage and a low-height local decoder.
+
+    Shared write-data/row/global-enable signals use vertical buffered torch
+    columns. Bank selection is local; two gate planes at Y+3/Y+7 qualify each
+    row, instead of the legacy Y+116 control canopy. Read outputs remain
+    separate per bank until the shared return adapter is validated.
+    """
+    from .logic import emit_and
+    if origin.y - 4 < -64 or origin.y + (tile.banks - 1) * tile.layer_pitch + 7 > 319:
+        raise ValueError("stacked memory tile exceeds Java 1.20.4 build height")
+    if initial is not None and len(initial) > tile.bytes:
+        raise ValueError("initial image exceeds the complete stacked bank capacity")
+    spec = tile.bank
+    generators = [iter_memory_bank(
+        stacked_bank_origin(origin, tile, bank), spec=spec,
+        initial=None if initial is None else initial[bank * spec.bytes:(bank + 1) * spec.bytes],
+        component=f"{component}:bank-{bank}",
+    ) for bank in range(tile.banks)]
+    if interleave_layers:
+        # Same X/Z cells across layers stay in one native chunk cache entry.
+        # All literal placements are still emitted and independently read back.
+        while generators:
+            remaining = []
+            for generator in generators:
+                try:
+                    yield next(generator)
+                    remaining.append(generator)
+                except StopIteration:
+                    pass
+            generators = remaining
+    else:
+        for generator in generators:
+            yield from generator
+
+    taps = tuple(3 + bank * tile.layer_pitch for bank in range(tile.banks))
+    for bit in range(spec.word_bits):
+        base = origin.offset(bit * spec.bit_pitch - 3, spec.data_y - 3, -4)
+        yield from _tower(base, taps[-1], taps, component)
+        for bank in range(tile.banks):
+            bo = stacked_bank_origin(origin, tile, bank)
+            yield from _wire_z(bo.x + bit * spec.bit_pitch, bo.y + spec.data_y, bo.z - 4, bo.z - 1, facing="south", component=component)
+
+    # Common row towers directly drive isolated repeaters into the two gate
+    # planes. Alternating gate columns leave room for adjacent row towers.
+    for row in range(spec.words):
+        center = origin.z + 3 + row * spec.word_pitch
+        gate_x = origin.x - (64 if row % 2 == 0 else 96)
+        base = Vec3(gate_x + 8, origin.y, center)
+        yield from _tower(base, 7 + (tile.banks - 1) * tile.layer_pitch, (), component)
+
+    # Shared commit/read-enable spines, tapped once for each complete bank.
+    yield from _tower(origin.offset(-114, 0, -10), taps[-1], taps, component)
+    yield from _tower(origin.offset(-114, 4, -4), taps[-1], taps, component)
+    for bank in range(tile.banks):
+        bo = stacked_bank_origin(origin, tile, bank)
+        bp = bank_ports(bo, spec)
+        yield from _tower(bo.offset(-124, 0, -16), 7, (3, 7), component)
+        for gate_y, global_z in ((3, -10), (7, -4)):
+            yield from _inactive_and(bo.offset(-119, gate_y - 1, -16), component)
+            yield from _local_x(bo.offset(-121, gate_y, -16), bo.x - 119, component)
+            yield from _wire_z(bo.x - 111, bo.y + gate_y, bo.z + global_z, bo.z - 16, facing="north", component=component)
+            yield from _wire_z(bo.x - 98, bo.y + gate_y, bo.z - 16, bo.z + spec.depth, facing="south", component=component)
+
+        for row in range(spec.words):
+            center = bo.z + 3 + row * spec.word_pitch
+            gate_x = bo.x - (64 if row % 2 == 0 else 96)
+            for read, y, z, terminal in (
+                (False, bo.y + 3, center - 2, bp.write_select[row]),
+                (True, bo.y + 7, center + 2, bp.read_select[row]),
+            ):
+                emitter = _mirrored_and if read else _inactive_and
+                yield from emitter(Vec3(gate_x, y - 1, z), component)
+                # A side tap may be ten blocks from the trunk's previous
+                # repeater. Refresh immediately before the long branch.
+                yield Placement(Vec3(bo.x - 97, y - 1, z), SUPPORT, component)
+                yield Placement(Vec3(bo.x - 97, y, z), repeater("east"), component)
+                if gate_x - 2 >= bo.x - 96:
+                    yield from _local_x(Vec3(bo.x - 96, y, z), gate_x - 2, component)
+                yield Placement(Vec3(gate_x - 1, y - 1, z), SUPPORT, component)
+                yield Placement(Vec3(gate_x - 1, y, z), repeater("east"), component)
+                row_driver_z = center + 1 if read else center - 1
+                yield Placement(Vec3(gate_x + 8, y - 1, row_driver_z), SUPPORT, component)
+                yield Placement(Vec3(gate_x + 8, y, row_driver_z), repeater("south" if read else "north"), component)
+                gate_out = Vec3(gate_x + 21, y, z)
+                if read:
+                    stair_start = Vec3(bo.x - 39, y, z)
+                    yield from _local_x(gate_out, stair_start.x, component)
+                    yield from iter_stair(stair_start, terminal, axis="x", signal_forward=True, component=component)
+                else:
+                    yield from _local_x(gate_out, terminal.x, component)
 
 
 WALL_TORCH_E = BlockState.of(

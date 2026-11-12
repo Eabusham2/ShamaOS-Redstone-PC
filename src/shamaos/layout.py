@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import math
 
 from .hardware.display import LampPanelSpec
+from .hardware.controls import CONTROL_SIZE
 from .hardware.memory import MemoryBankSpec, MemoryFabricSpec
 from .model import Box, BuildPlan, ComponentPlan, Vec3
 
@@ -163,9 +164,10 @@ def plan_machine(g: MachineGeometry) -> BuildPlan:
 
     plan.add(ComponentPlan(
         "input",
-        _box_from_size(origins.input, 64, 8, 64),
+        _box_from_size(origins.input, *CONTROL_SIZE),
         "physical-input",
-        metadata={"keyboard": "8x8", "controller": True, "power": True},
+        metadata={"keyboard": "8x8 with Shift", "controller": True, "power": True,
+                  "pause": True, "manual_step": True},
     ))
 
     plan.add(ComponentPlan(

@@ -54,6 +54,8 @@ module shama_kernel_accel(
         SYS_FILE_DELETE     = 12'h027,
         SYS_FILE_STAT       = 12'h028,
         SYS_FILE_LIST       = 12'h029,
+        SYS_FILE_TRANSFER   = 12'h02b,
+        SYS_FS_SYNC         = 12'h02c,
         SYS_FLASH_USAGE     = 12'h02a,
 
         SYS_GPU_SUBMIT      = 12'h040,
@@ -75,6 +77,7 @@ module shama_kernel_accel(
         SYS_MINER_LOG_RESULT = 12'h050,
         SYS_MINER_SAVE_STATE = 12'h051,
         SYS_MINER_LOAD_HISTORY = 12'h052,
+        SYS_MINER_LOAD_STATE = 12'h053,
 
         SYS_ASSEMBLE        = 12'h060;
 
@@ -157,9 +160,13 @@ module shama_kernel_accel(
         ST_GFX_FENCE_READ,
         ST_GFX_FENCE_WAIT,
 
-        ST_UI_CLEAR_CMD,
+        ST_UI_CURSOR_ARG, ST_UI_CURSOR_CMD, ST_UI_CURSOR_SUBMIT,
+        ST_UI_CLEAR_VALUE, ST_UI_CLEAR_CMD,
         ST_UI_CLEAR_SUBMIT,
 
+        ST_UI_ERASE_X, ST_UI_ZERO_CMD, ST_UI_ZERO_SUBMIT, ST_UI_ERASE_Y, ST_UI_ERASE_W, ST_UI_ERASE_H,
+        ST_UI_ERASE_COLOR, ST_UI_ERASE_CMD, ST_UI_ERASE_SUBMIT,
+        ST_UI_ONE_VALUE, ST_UI_ONE_CMD, ST_UI_ONE_SUBMIT,
         ST_UI_TITLE_TEXT,
         ST_UI_TITLE_A0,
         ST_UI_TITLE_A1,
@@ -201,6 +208,8 @@ module shama_kernel_accel(
 
     logic [3:0] current_view;
     logic [7:0] text_index;
+    logic [1:0] status_line;
+    logic status_only;
 
     logic [7:0] gfx_opcode;
     logic [31:0] gfx_a0,gfx_a1,gfx_a2,gfx_a3,gfx_a4;
@@ -225,22 +234,39 @@ module shama_kernel_accel(
                 end
                 VIEW_FILES: begin
                     case(view_args[35:32])
-                        4'd1:title_for=FILES_DELETE;
+                        4'd1:title_for=view_args[64] ? "DELETE > CONFIRM   B CANCEL     " : "DELETE > CANCEL   A SELECT      ";
                         4'd2:title_for=FILES_TEXT;
                         4'd3:title_for=FILES_RENAME;
+                        4'd4:title_for="ERROR - A/B BACK; FILE PRESERVED";
+                        4'd5:title_for="NEW FOLDER - TYPE PATH ENTER    ";
                         default:title_for=TITLE_FILES;
                     endcase
                 end
                 VIEW_EDITOR: begin
                     case(view_args[3:0])
-                        4'd0:title_for=EDIT_MENU;
+                        4'd0:case(view_args[35:32])
+                            0:title_for="EDITOR > NEW TEXT               ";
+                            1:title_for="EDITOR > NEW PROGRAM            ";
+                            default:title_for="EDITOR > OPEN FILE              ";
+                        endcase
                         4'd1:title_for=EDIT_NEW_TXT;
                         4'd2:title_for=EDIT_NEW_ASM;
                         4'd3:title_for=EDIT_EDIT;
-                        4'd4:title_for=EDIT_ACTIONS;
-                        4'd5:title_for=EDIT_DELETE;
+                        4'd4:case(view_args[35:32])
+                            0:title_for="ACTION > SAVE                   ";
+                            1:title_for="ACTION > SAVE AS                ";
+                            2:title_for="ACTION > RENAME                 ";
+                            3:title_for="ACTION > DELETE                 ";
+                            4:title_for="ACTION > ASSEMBLE               ";
+                            5:title_for="ACTION > ASSEMBLE AND RUN       ";
+                            6:title_for="ACTION > NEW TEXT               ";
+                            7:title_for="ACTION > NEW PROGRAM            ";
+                            default:title_for="ACTION > EXIT                   ";
+                        endcase
+                        4'd5:title_for=view_args[32] ? "DELETE > CONFIRM   B CANCEL     " : "DELETE > CANCEL   A SELECT      ";
                         4'd6:title_for=EDIT_RENAME;
                         4'd7:title_for=EDIT_SAVE_AS;
+                        4'd8:title_for="ERROR - A/B BACK; FILE PRESERVED";
                         default:title_for=TITLE_EDITOR;
                     endcase
                 end
@@ -248,7 +274,13 @@ module shama_kernel_accel(
                 VIEW_MONITOR:title_for=TITLE_MONITOR;
                 VIEW_TERMINAL:title_for=TITLE_TERMINAL;
                 VIEW_PAINT:title_for=TITLE_PAINT;
-                VIEW_SETTINGS:title_for=TITLE_SETTINGS;
+                VIEW_SETTINGS:case(view_args[3:0])
+                    0:title_for="SETTINGS > CURSOR VISIBILITY    ";
+                    1:title_for="SETTINGS > CURSOR SHAPE         ";
+                    2:title_for="SETTINGS > SAVE                 ";
+                    3:title_for="SETTINGS > SYSTEM MONITOR       ";
+                    default:title_for="SETTINGS > EXIT                 ";
+                endcase
                 VIEW_CALCULATOR:title_for=TITLE_CALCULATOR;
                 default:title_for=TITLE_GENERIC;
             endcase
@@ -259,13 +291,42 @@ module shama_kernel_accel(
         begin
             case(view)
                 VIEW_DESKTOP:help_for=HELP_DESKTOP;
-                VIEW_FILES:help_for=HELP_FILES;
-                VIEW_EDITOR:help_for=HELP_EDITOR;
+                VIEW_FILES:begin
+                    if(view_args[35:32]==4)
+                        help_for=view_args[103:96]==9 ? "FILE TOO LARGE - NOT MODIFIED   " : "FILE OPERATION FAILED           ";
+                    else if(view_args[35:32]==0) help_for="A OPEN LEFT EDIT RIGHT DELETE  ";
+                    else help_for=HELP_FILES;
+                end
+                VIEW_EDITOR:begin
+                    if(view_args[3:0]==8) begin
+                        case(view_args[71:64])
+                            1:help_for="SOURCE OR OUTPUT RANGE INVALID  ";
+                            2:help_for="INVALID TOKEN OR NUMBER         ";
+                            3:help_for="DUPLICATE LABEL OR SYMBOL LIMIT ";
+                            4:help_for="INVALID OR DUPLICATE DEFINE     ";
+                            5:help_for="UNKNOWN INSTRUCTION             ";
+                            6:help_for="BAD OPERANDS OR UNDEFINED NAME  ";
+                            7:help_for="PROGRAM EXCEEDS EXECUTABLE SPACE";
+                            9:help_for="TEXT CAPACITY REACHED           ";
+                            10:help_for="SAVE A NAMED ASM PROGRAM FIRST  ";
+                            11:help_for="BIN NAME OR TYPE CONFLICT       ";
+                            default:help_for="FILE OPERATION FAILED           ";
+                        endcase
+                    end else help_for=HELP_EDITOR;
+                end
                 VIEW_MINER:help_for=HELP_MINER;
                 VIEW_MONITOR:help_for=HELP_MONITOR;
-                VIEW_TERMINAL:help_for=HELP_TERMINAL;
+                VIEW_TERMINAL:help_for=view_args[0]?"UNKNOWN COMMAND - LS EDIT MEM   ":HELP_TERMINAL;
                 VIEW_PAINT:help_for=HELP_PAINT;
-                VIEW_SETTINGS:help_for=HELP_SETTINGS;
+                VIEW_SETTINGS:begin
+                    if(view_args[64]) help_for="SAVE FAILED - SELECT SAVE RETRY ";
+                    else case(view_args[33:32])
+                        0:help_for="CURSOR OFF CROSS  A TOGGLE      ";
+                        1:help_for="CURSOR ON CROSS   A TOGGLE      ";
+                        2:help_for="CURSOR OFF POINT  A TOGGLE      ";
+                        default:help_for="CURSOR ON POINT   A TOGGLE      ";
+                    endcase
+                end
                 VIEW_CALCULATOR:help_for=HELP_CALCULATOR;
                 default:help_for=HELP_GENERIC;
             endcase
@@ -290,8 +351,8 @@ module shama_kernel_accel(
                 0:monitor_char="C";1:monitor_char="Y";2:monitor_char="C";3:monitor_char=" ";
                 12:monitor_char=" ";13:monitor_char="I";14:monitor_char="N";15:monitor_char="S";
                 16:monitor_char="T";17:monitor_char=" ";
-                26:monitor_char=" ";27:monitor_char="C";28:monitor_char=cpu_halted?"H":"R";
-                29:monitor_char=sha_busy?"B":"I";30:monitor_char="G";31:monitor_char=gpu_busy?"B":"I";
+                26:monitor_char=" ";27:monitor_char="C";28:monitor_char=cpu_halted?    "H":"R";
+                29:monitor_char=sha_busy?"B":"I";30:monitor_char="G";31:monitor_char=gpu_busy?      "B":"I";
                 default:begin
                     if(index>=4 && index<12) begin
                         digit=11-index;
@@ -306,34 +367,30 @@ module shama_kernel_accel(
     endfunction
 
     function automatic [7:0] status_char(input integer index);
-        integer digit;
+        logic [31:0] used,total;
+        logic [63:0] label;
         begin
-            case(index)
-                0:status_char="R";1:status_char="A";2:status_char="M";3:status_char=" ";
-                12:status_char=" ";13:status_char="C";14:status_char="A";15:status_char="C";
-                16:status_char="H";17:status_char="E";18:status_char=" ";27:status_char=" ";
-                28:status_char="F";29:status_char="L";30:status_char="A";31:status_char="S";
-                32:status_char="H";33:status_char=" ";
-                default: begin
-                    if(index>=4 && index<12) begin
-                        digit=11-index;
-                        status_char=hex_char(ram_used_bytes[digit*4 +: 4]);
-                    end else if(index>=19 && index<27) begin
-                        digit=26-index;
-                        status_char=hex_char(cache_used_bytes[digit*4 +: 4]);
-                    end else if(index>=34 && index<42) begin
-                        digit=41-index;
-                        status_char=hex_char(flash_used_bytes[digit*4 +: 4]);
-                    end else status_char=" ";
-                end
+            case(status_line)
+                0:begin used=ram_used_bytes;total=32'h100000;label="RAM     ";end
+                1:begin used=cache_used_bytes;total=32'h4000;label="FAST    ";end
+                default:begin used=flash_used_bytes;total=32'h400000;label="FLASH   ";end
             endcase
+            if(index<8) status_char=label >> ((7-index)*8);
+            else if(index<16) status_char=hex_char(used[(15-index)*4 +: 4]);
+            else if(index==16) status_char="/";
+            else if(index<25) status_char=hex_char(total[(24-index)*4 +: 4]);
+            else if(index==26) status_char="B";
+            else if(index==28) status_char="H";
+            else if(index==29) status_char="E";
+            else if(index==30) status_char="X";
+            else status_char=" ";
         end
     endfunction
 
     function automatic logic is_file_sys(input logic [11:0] id);
         is_file_sys =
-            (id>=SYS_FILE_CREATE && id<=SYS_FLASH_USAGE) ||
-            (id>=SYS_MINER_LOG_RESULT && id<=SYS_MINER_LOAD_HISTORY) ||
+            (id>=SYS_FILE_CREATE && id<=SYS_FS_SYNC) ||
+            (id>=SYS_MINER_LOG_RESULT && id<=SYS_MINER_LOAD_STATE) ||
             (id==SYS_BOOT_MOUNT);
     endfunction
 
@@ -398,8 +455,25 @@ module shama_kernel_accel(
                 gpu_valid=1;gpu_we=0;gpu_addr=12'h030;gpu_wdata=0;
             end
 
-            ST_UI_CLEAR_CMD: begin gpu_valid=1;gpu_addr=12'h004;gpu_wdata=32'h01;end
+            ST_UI_CURSOR_ARG:begin gpu_valid=1;gpu_addr=12'h010;gpu_wdata=0;end
+            ST_UI_CURSOR_CMD:begin gpu_valid=1;gpu_addr=12'h004;gpu_wdata=8'h12;end
+            ST_UI_CURSOR_SUBMIT:begin gpu_valid=1;gpu_addr=12'h028;gpu_wdata=1;end
+            ST_UI_CLEAR_VALUE: begin gpu_valid=1;gpu_addr=12'h008;gpu_wdata=0;end
+            ST_UI_CLEAR_CMD: begin gpu_valid=1;gpu_addr=12'h004;gpu_wdata=status_only?32'h13:32'h01;end
             ST_UI_CLEAR_SUBMIT: begin gpu_valid=1;gpu_addr=12'h028;gpu_wdata=1;end
+
+            ST_UI_ERASE_X: begin gpu_valid=1;gpu_addr=12'h008;gpu_wdata=0;end
+            ST_UI_ZERO_CMD: begin gpu_valid=1;gpu_addr=12'h004;gpu_wdata=8'h11;end
+            ST_UI_ZERO_SUBMIT: begin gpu_valid=1;gpu_addr=12'h028;gpu_wdata=1;end
+            ST_UI_ONE_VALUE: begin gpu_valid=1;gpu_addr=12'h008;gpu_wdata=1;end
+            ST_UI_ONE_CMD: begin gpu_valid=1;gpu_addr=12'h004;gpu_wdata=8'h11;end
+            ST_UI_ONE_SUBMIT: begin gpu_valid=1;gpu_addr=12'h028;gpu_wdata=1;end
+            ST_UI_ERASE_Y: begin gpu_valid=1;gpu_addr=12'h00c;gpu_wdata=140;end
+            ST_UI_ERASE_W: begin gpu_valid=1;gpu_addr=12'h010;gpu_wdata=320;end
+            ST_UI_ERASE_H: begin gpu_valid=1;gpu_addr=12'h014;gpu_wdata=40;end
+            ST_UI_ERASE_COLOR: begin gpu_valid=1;gpu_addr=12'h018;gpu_wdata=0;end
+            ST_UI_ERASE_CMD: begin gpu_valid=1;gpu_addr=12'h004;gpu_wdata=8'h08;end
+            ST_UI_ERASE_SUBMIT: begin gpu_valid=1;gpu_addr=12'h028;gpu_wdata=1;end
 
             ST_UI_TITLE_TEXT: begin
                 gpu_valid=1;gpu_addr=(12'h400+text_index)&12'hffc;
@@ -415,15 +489,15 @@ module shama_kernel_accel(
             ST_UI_TITLE_SUBMIT: begin gpu_valid=1;gpu_addr=12'h028;gpu_wdata=1;end
 
             ST_UI_STATUS_TEXT: begin
-                gpu_valid=1;gpu_addr=(12'h440+text_index)&12'hffc;
+                gpu_valid=1;gpu_addr=(12'h420+{status_line,5'b0}+text_index)&12'hffc;
                 gpu_wstrb=4'b0001 << text_index[1:0];
                 gpu_wdata={24'd0,status_char(text_index)}
                           << (text_index[1:0]*8);
             end
-            ST_UI_STATUS_A0: begin gpu_valid=1;gpu_addr=12'h008;gpu_wdata=64;end
-            ST_UI_STATUS_A1: begin gpu_valid=1;gpu_addr=12'h00c;gpu_wdata=42;end
+            ST_UI_STATUS_A0: begin gpu_valid=1;gpu_addr=12'h008;gpu_wdata=32+{status_line,5'b0};end
+            ST_UI_STATUS_A1: begin gpu_valid=1;gpu_addr=12'h00c;gpu_wdata=32;end
             ST_UI_STATUS_A2: begin gpu_valid=1;gpu_addr=12'h010;gpu_wdata=4;end
-            ST_UI_STATUS_A3: begin gpu_valid=1;gpu_addr=12'h014;gpu_wdata=16;end
+            ST_UI_STATUS_A3: begin gpu_valid=1;gpu_addr=12'h014;gpu_wdata=144+status_line*12;end
             ST_UI_STATUS_CMD: begin gpu_valid=1;gpu_addr=12'h004;gpu_wdata=32'h0c;end
             ST_UI_STATUS_SUBMIT: begin gpu_valid=1;gpu_addr=12'h028;gpu_wdata=1;end
 
@@ -461,7 +535,7 @@ module shama_kernel_accel(
             response<=0;response_jump<=0;response_pc<=0;
             response_load_app<=0;response_app_id<=0;
             current_view<=VIEW_DESKTOP;
-            text_index<=0;
+            text_index<=0;status_line<=0;status_only<=0;
             gfx_opcode<=0;gfx_a0<=0;gfx_a1<=0;gfx_a2<=0;gfx_a3<=0;gfx_a4<=0;
             gfx_fence_target<=0;gfx_wait_fence<=0;
         end else begin
@@ -536,8 +610,9 @@ module shama_kernel_accel(
                         state<=ST_ASM;
                     end else if(is_ui_sys(req_id)) begin
                         current_view<=view_for_sys(req_id,current_view);
+                        status_only<=(req_id==SYS_UI_STATUSBAR);status_line<=0;
                         text_index<=0;
-                        state<=ST_UI_CLEAR_CMD;
+                        state<=(req_id==SYS_UI_STATUSBAR)?ST_UI_CLEAR_VALUE:ST_UI_CURSOR_ARG;
                     end else begin
                         // Low-level GPU convenience calls are intentionally
                         // available, but normal ShamaOS apps use UI views.
@@ -590,8 +665,29 @@ module shama_kernel_accel(
                     state<=ST_RESP;
                 end
 
+                ST_UI_CURSOR_ARG:advance_gpu(ST_UI_CURSOR_CMD);
+                ST_UI_CURSOR_CMD:advance_gpu(ST_UI_CURSOR_SUBMIT);
+                ST_UI_CURSOR_SUBMIT:advance_gpu(ST_UI_CLEAR_VALUE);
+                ST_UI_CLEAR_VALUE: advance_gpu(ST_UI_CLEAR_CMD);
                 ST_UI_CLEAR_CMD: advance_gpu(ST_UI_CLEAR_SUBMIT);
-                ST_UI_CLEAR_SUBMIT: begin if(gpu_ready)begin text_index<=0;state<=ST_UI_TITLE_TEXT;end end
+                ST_UI_CLEAR_SUBMIT: begin
+                    if(gpu_ready) begin
+                        text_index<=0;
+                        state<=status_only?ST_UI_ERASE_X:ST_UI_ONE_VALUE;
+                    end
+                end
+                ST_UI_ERASE_X:advance_gpu(ST_UI_ZERO_CMD);
+                ST_UI_ZERO_CMD:advance_gpu(ST_UI_ZERO_SUBMIT);
+                ST_UI_ZERO_SUBMIT:advance_gpu(ST_UI_ERASE_Y);
+                ST_UI_ERASE_Y:advance_gpu(ST_UI_ERASE_W);
+                ST_UI_ERASE_W:advance_gpu(ST_UI_ERASE_H);
+                ST_UI_ERASE_H:advance_gpu(ST_UI_ERASE_COLOR);
+                ST_UI_ERASE_COLOR:advance_gpu(ST_UI_ERASE_CMD);
+                ST_UI_ERASE_CMD:advance_gpu(ST_UI_ERASE_SUBMIT);
+                ST_UI_ERASE_SUBMIT:advance_gpu(ST_UI_ONE_VALUE);
+                ST_UI_ONE_VALUE:advance_gpu(ST_UI_ONE_CMD);
+                ST_UI_ONE_CMD:advance_gpu(ST_UI_ONE_SUBMIT);
+                ST_UI_ONE_SUBMIT:if(gpu_ready) state<=status_only?ST_UI_STATUS_TEXT:ST_UI_TITLE_TEXT;
 
                 ST_UI_TITLE_TEXT: if(gpu_ready) begin
                     if(text_index==31) begin text_index<=0;state<=ST_UI_TITLE_A0;end
@@ -605,7 +701,7 @@ module shama_kernel_accel(
                 ST_UI_TITLE_SUBMIT: begin if(gpu_ready)begin text_index<=0;state<=ST_UI_STATUS_TEXT;end end
 
                 ST_UI_STATUS_TEXT: if(gpu_ready) begin
-                    if(text_index==41) begin text_index<=0;state<=ST_UI_STATUS_A0;end
+                    if(text_index==31) begin text_index<=0;state<=ST_UI_STATUS_A0;end
                     else text_index<=text_index+1'b1;
                 end
                 ST_UI_STATUS_A0: advance_gpu(ST_UI_STATUS_A1);
@@ -613,7 +709,11 @@ module shama_kernel_accel(
                 ST_UI_STATUS_A2: advance_gpu(ST_UI_STATUS_A3);
                 ST_UI_STATUS_A3: advance_gpu(ST_UI_STATUS_CMD);
                 ST_UI_STATUS_CMD: advance_gpu(ST_UI_STATUS_SUBMIT);
-                ST_UI_STATUS_SUBMIT: begin if(gpu_ready)begin text_index<=0;state<=ST_UI_HELP_TEXT;end end
+                ST_UI_STATUS_SUBMIT: if(gpu_ready) begin
+                    text_index<=0;
+                    if(status_line<2) begin status_line<=status_line+1'b1;state<=ST_UI_STATUS_TEXT;end
+                    else state<=status_only?ST_UI_SWAP_CMD:ST_UI_HELP_TEXT;
+                end
 
                 ST_UI_HELP_TEXT: if(gpu_ready) begin
                     if(text_index==31) begin text_index<=0;state<=ST_UI_HELP_A0;end
@@ -628,7 +728,7 @@ module shama_kernel_accel(
 
                 ST_UI_SWAP_CMD: advance_gpu(ST_UI_SWAP_SUBMIT);
                 ST_UI_SWAP_SUBMIT: begin
-                    if(gpu_ready) begin response<=0;state<=ST_RESP;end
+                    if(gpu_ready) begin response<=0;state<=ST_GFX_FENCE_READ;end
                 end
 
                 ST_RESP: begin end

@@ -1,66 +1,110 @@
+// Generated from shamaos.font5x7.FONT5X7; do not hand-edit glyphs.
 module shama_font5x7(
-    input  logic [7:0] ch_in,
-    input  logic [2:0] row,
+    input logic [7:0] ch_in,
+    input logic [2:0] row,
     output logic [4:0] bits
 );
-    logic [7:0] ch;
+    logic [34:0] glyph;
     always_comb begin
-        ch = (ch_in >= "a" && ch_in <= "z") ? (ch_in - 8'd32) : ch_in;
-        bits = 5'b00000;
-        case (ch)
-            "A": case(row) 0:bits=5'b01110;1:bits=5'b10001;2:bits=5'b10001;3:bits=5'b11111;4:bits=5'b10001;5:bits=5'b10001;6:bits=5'b10001;default:bits=0;endcase
-            "B": case(row) 0:bits=5'b11110;1:bits=5'b10001;2:bits=5'b10001;3:bits=5'b11110;4:bits=5'b10001;5:bits=5'b10001;6:bits=5'b11110;default:bits=0;endcase
-            "C": case(row) 0:bits=5'b01111;1:bits=5'b10000;2:bits=5'b10000;3:bits=5'b10000;4:bits=5'b10000;5:bits=5'b10000;6:bits=5'b01111;default:bits=0;endcase
-            "D": case(row) 0:bits=5'b11110;1:bits=5'b10001;2:bits=5'b10001;3:bits=5'b10001;4:bits=5'b10001;5:bits=5'b10001;6:bits=5'b11110;default:bits=0;endcase
-            "E": case(row) 0:bits=5'b11111;1:bits=5'b10000;2:bits=5'b10000;3:bits=5'b11110;4:bits=5'b10000;5:bits=5'b10000;6:bits=5'b11111;default:bits=0;endcase
-            "F": case(row) 0:bits=5'b11111;1:bits=5'b10000;2:bits=5'b10000;3:bits=5'b11110;4:bits=5'b10000;5:bits=5'b10000;6:bits=5'b10000;default:bits=0;endcase
-            "G": case(row) 0:bits=5'b01111;1:bits=5'b10000;2:bits=5'b10000;3:bits=5'b10111;4:bits=5'b10001;5:bits=5'b10001;6:bits=5'b01111;default:bits=0;endcase
-            "H": case(row) 0:bits=5'b10001;1:bits=5'b10001;2:bits=5'b10001;3:bits=5'b11111;4:bits=5'b10001;5:bits=5'b10001;6:bits=5'b10001;default:bits=0;endcase
-            "I": case(row) 0:bits=5'b11111;1:bits=5'b00100;2:bits=5'b00100;3:bits=5'b00100;4:bits=5'b00100;5:bits=5'b00100;6:bits=5'b11111;default:bits=0;endcase
-            "J": case(row) 0:bits=5'b00111;1:bits=5'b00010;2:bits=5'b00010;3:bits=5'b00010;4:bits=5'b10010;5:bits=5'b10010;6:bits=5'b01100;default:bits=0;endcase
-            "K": case(row) 0:bits=5'b10001;1:bits=5'b10010;2:bits=5'b10100;3:bits=5'b11000;4:bits=5'b10100;5:bits=5'b10010;6:bits=5'b10001;default:bits=0;endcase
-            "L": case(row) 0:bits=5'b10000;1:bits=5'b10000;2:bits=5'b10000;3:bits=5'b10000;4:bits=5'b10000;5:bits=5'b10000;6:bits=5'b11111;default:bits=0;endcase
-            "M": case(row) 0:bits=5'b10001;1:bits=5'b11011;2:bits=5'b10101;3:bits=5'b10101;4:bits=5'b10001;5:bits=5'b10001;6:bits=5'b10001;default:bits=0;endcase
-            "N": case(row) 0:bits=5'b10001;1:bits=5'b11001;2:bits=5'b10101;3:bits=5'b10011;4:bits=5'b10001;5:bits=5'b10001;6:bits=5'b10001;default:bits=0;endcase
-            "O": case(row) 0:bits=5'b01110;1:bits=5'b10001;2:bits=5'b10001;3:bits=5'b10001;4:bits=5'b10001;5:bits=5'b10001;6:bits=5'b01110;default:bits=0;endcase
-            "P": case(row) 0:bits=5'b11110;1:bits=5'b10001;2:bits=5'b10001;3:bits=5'b11110;4:bits=5'b10000;5:bits=5'b10000;6:bits=5'b10000;default:bits=0;endcase
-            "Q": case(row) 0:bits=5'b01110;1:bits=5'b10001;2:bits=5'b10001;3:bits=5'b10001;4:bits=5'b10101;5:bits=5'b10010;6:bits=5'b01101;default:bits=0;endcase
-            "R": case(row) 0:bits=5'b11110;1:bits=5'b10001;2:bits=5'b10001;3:bits=5'b11110;4:bits=5'b10100;5:bits=5'b10010;6:bits=5'b10001;default:bits=0;endcase
-            "S": case(row) 0:bits=5'b01111;1:bits=5'b10000;2:bits=5'b10000;3:bits=5'b01110;4:bits=5'b00001;5:bits=5'b00001;6:bits=5'b11110;default:bits=0;endcase
-            "T": case(row) 0:bits=5'b11111;1:bits=5'b00100;2:bits=5'b00100;3:bits=5'b00100;4:bits=5'b00100;5:bits=5'b00100;6:bits=5'b00100;default:bits=0;endcase
-            "U": case(row) 0:bits=5'b10001;1:bits=5'b10001;2:bits=5'b10001;3:bits=5'b10001;4:bits=5'b10001;5:bits=5'b10001;6:bits=5'b01110;default:bits=0;endcase
-            "V": case(row) 0:bits=5'b10001;1:bits=5'b10001;2:bits=5'b10001;3:bits=5'b10001;4:bits=5'b10001;5:bits=5'b01010;6:bits=5'b00100;default:bits=0;endcase
-            "W": case(row) 0:bits=5'b10001;1:bits=5'b10001;2:bits=5'b10001;3:bits=5'b10101;4:bits=5'b10101;5:bits=5'b10101;6:bits=5'b01010;default:bits=0;endcase
-            "X": case(row) 0:bits=5'b10001;1:bits=5'b10001;2:bits=5'b01010;3:bits=5'b00100;4:bits=5'b01010;5:bits=5'b10001;6:bits=5'b10001;default:bits=0;endcase
-            "Y": case(row) 0:bits=5'b10001;1:bits=5'b10001;2:bits=5'b01010;3:bits=5'b00100;4:bits=5'b00100;5:bits=5'b00100;6:bits=5'b00100;default:bits=0;endcase
-            "Z": case(row) 0:bits=5'b11111;1:bits=5'b00001;2:bits=5'b00010;3:bits=5'b00100;4:bits=5'b01000;5:bits=5'b10000;6:bits=5'b11111;default:bits=0;endcase
-            "0": case(row) 0:bits=5'b01110;1:bits=5'b10001;2:bits=5'b10011;3:bits=5'b10101;4:bits=5'b11001;5:bits=5'b10001;6:bits=5'b01110;default:bits=0;endcase
-            "1": case(row) 0:bits=5'b00100;1:bits=5'b01100;2:bits=5'b00100;3:bits=5'b00100;4:bits=5'b00100;5:bits=5'b00100;6:bits=5'b01110;default:bits=0;endcase
-            "2": case(row) 0:bits=5'b01110;1:bits=5'b10001;2:bits=5'b00001;3:bits=5'b00010;4:bits=5'b00100;5:bits=5'b01000;6:bits=5'b11111;default:bits=0;endcase
-            "3": case(row) 0:bits=5'b11110;1:bits=5'b00001;2:bits=5'b00001;3:bits=5'b01110;4:bits=5'b00001;5:bits=5'b00001;6:bits=5'b11110;default:bits=0;endcase
-            "4": case(row) 0:bits=5'b00010;1:bits=5'b00110;2:bits=5'b01010;3:bits=5'b10010;4:bits=5'b11111;5:bits=5'b00010;6:bits=5'b00010;default:bits=0;endcase
-            "5": case(row) 0:bits=5'b11111;1:bits=5'b10000;2:bits=5'b10000;3:bits=5'b11110;4:bits=5'b00001;5:bits=5'b00001;6:bits=5'b11110;default:bits=0;endcase
-            "6": case(row) 0:bits=5'b01110;1:bits=5'b10000;2:bits=5'b10000;3:bits=5'b11110;4:bits=5'b10001;5:bits=5'b10001;6:bits=5'b01110;default:bits=0;endcase
-            "7": case(row) 0:bits=5'b11111;1:bits=5'b00001;2:bits=5'b00010;3:bits=5'b00100;4:bits=5'b01000;5:bits=5'b01000;6:bits=5'b01000;default:bits=0;endcase
-            "8": case(row) 0:bits=5'b01110;1:bits=5'b10001;2:bits=5'b10001;3:bits=5'b01110;4:bits=5'b10001;5:bits=5'b10001;6:bits=5'b01110;default:bits=0;endcase
-            "9": case(row) 0:bits=5'b01110;1:bits=5'b10001;2:bits=5'b10001;3:bits=5'b01111;4:bits=5'b00001;5:bits=5'b00001;6:bits=5'b01110;default:bits=0;endcase
-            "-": if(row==3) bits=5'b11111;
-            "_": if(row==6) bits=5'b11111;
-            ".": if(row==6) bits=5'b00100;
-            ":": if(row==2 || row==5) bits=5'b00100;
-            "/": case(row) 0:bits=5'b00001;1:bits=5'b00010;2:bits=5'b00010;3:bits=5'b00100;4:bits=5'b01000;5:bits=5'b01000;6:bits=5'b10000;default:bits=0;endcase
-            "<": case(row) 1:bits=5'b00010;2:bits=5'b00100;3:bits=5'b01000;4:bits=5'b00100;5:bits=5'b00010;default:bits=0;endcase
-            ">": case(row) 1:bits=5'b01000;2:bits=5'b00100;3:bits=5'b00010;4:bits=5'b00100;5:bits=5'b01000;default:bits=0;endcase
-            "=": begin if(row==2 || row==4) bits=5'b11111; end
-            "+": begin if(row==3) bits=5'b11111; else if(row>=1 && row<=5) bits=5'b00100; end
-            "*": begin if(row==2 || row==4) bits=5'b10101; else if(row==3) bits=5'b01110; end
-            "(": case(row) 0:bits=5'b00010;1:bits=5'b00100;2:bits=5'b01000;3:bits=5'b01000;4:bits=5'b01000;5:bits=5'b00100;6:bits=5'b00010;default:bits=0;endcase
-            ")": case(row) 0:bits=5'b01000;1:bits=5'b00100;2:bits=5'b00010;3:bits=5'b00010;4:bits=5'b00010;5:bits=5'b00100;6:bits=5'b01000;default:bits=0;endcase
-            "[": case(row) 0:bits=5'b01110;1:bits=5'b01000;2:bits=5'b01000;3:bits=5'b01000;4:bits=5'b01000;5:bits=5'b01000;6:bits=5'b01110;default:bits=0;endcase
-            "]": case(row) 0:bits=5'b01110;1:bits=5'b00010;2:bits=5'b00010;3:bits=5'b00010;4:bits=5'b00010;5:bits=5'b00010;6:bits=5'b01110;default:bits=0;endcase
-            "!": begin if(row<=4) bits=5'b00100; else if(row==6) bits=5'b00100; end
-            "?": case(row) 0:bits=5'b01110;1:bits=5'b10001;2:bits=5'b00001;3:bits=5'b00010;4:bits=5'b00100;6:bits=5'b00100;default:bits=0;endcase
-            default: bits=5'b00000;
+        glyph=35'd0;
+        case(ch_in)
+            8'h20:glyph=35'b00000000000000000000000000000000000;
+            8'h21:glyph=35'b00100001000010000100001000000000100;
+            8'h22:glyph=35'b01010010100101000000000000000000000;
+            8'h23:glyph=35'b01010111110101001010111110101000000;
+            8'h24:glyph=35'b00100011111010001110001011111000100;
+            8'h25:glyph=35'b11000110010001000100010001001100011;
+            8'h26:glyph=35'b01100100101010001000101011001001101;
+            8'h27:glyph=35'b00100001000100000000000000000000000;
+            8'h28:glyph=35'b00010001000100001000010000010000010;
+            8'h29:glyph=35'b01000001000001000010000100010001000;
+            8'h2a:glyph=35'b00000000001010101110101010000000000;
+            8'h2b:glyph=35'b00000001000010011111001000010000000;
+            8'h2c:glyph=35'b00000000000000000000000000010001000;
+            8'h2d:glyph=35'b00000000000000011111000000000000000;
+            8'h2e:glyph=35'b00000000000000000000000000000000100;
+            8'h2f:glyph=35'b00001000100001000100010000100010000;
+            8'h30:glyph=35'b01110100011001110101110011000101110;
+            8'h31:glyph=35'b00100011000010000100001000010001110;
+            8'h32:glyph=35'b01110100010000100010001000100011111;
+            8'h33:glyph=35'b11110000010000101110000010000111110;
+            8'h34:glyph=35'b00010001100101010010111110001000010;
+            8'h35:glyph=35'b11111100001000011110000010000111110;
+            8'h36:glyph=35'b01110100001000011110100011000101110;
+            8'h37:glyph=35'b11111000010001000100010000100001000;
+            8'h38:glyph=35'b01110100011000101110100011000101110;
+            8'h39:glyph=35'b01110100011000101111000010000101110;
+            8'h3a:glyph=35'b00000000000010000000000000010000000;
+            8'h3b:glyph=35'b00000000000010000000000000010001000;
+            8'h3c:glyph=35'b00000000100010001000001000001000000;
+            8'h3d:glyph=35'b00000000001111100000111110000000000;
+            8'h3e:glyph=35'b00000010000010000010001000100000000;
+            8'h3f:glyph=35'b01110100010000100010001000000000100;
+            8'h40:glyph=35'b01110100011011110101101111000001110;
+            8'h41:glyph=35'b01110100011000111111100011000110001;
+            8'h42:glyph=35'b11110100011000111110100011000111110;
+            8'h43:glyph=35'b01111100001000010000100001000001111;
+            8'h44:glyph=35'b11110100011000110001100011000111110;
+            8'h45:glyph=35'b11111100001000011110100001000011111;
+            8'h46:glyph=35'b11111100001000011110100001000010000;
+            8'h47:glyph=35'b01111100001000010111100011000101111;
+            8'h48:glyph=35'b10001100011000111111100011000110001;
+            8'h49:glyph=35'b11111001000010000100001000010011111;
+            8'h4a:glyph=35'b00111000100001000010100101001001100;
+            8'h4b:glyph=35'b10001100101010011000101001001010001;
+            8'h4c:glyph=35'b10000100001000010000100001000011111;
+            8'h4d:glyph=35'b10001110111010110101100011000110001;
+            8'h4e:glyph=35'b10001110011010110011100011000110001;
+            8'h4f:glyph=35'b01110100011000110001100011000101110;
+            8'h50:glyph=35'b11110100011000111110100001000010000;
+            8'h51:glyph=35'b01110100011000110001101011001001101;
+            8'h52:glyph=35'b11110100011000111110101001001010001;
+            8'h53:glyph=35'b01111100001000001110000010000111110;
+            8'h54:glyph=35'b11111001000010000100001000010000100;
+            8'h55:glyph=35'b10001100011000110001100011000101110;
+            8'h56:glyph=35'b10001100011000110001100010101000100;
+            8'h57:glyph=35'b10001100011000110101101011010101010;
+            8'h58:glyph=35'b10001100010101000100010101000110001;
+            8'h59:glyph=35'b10001100010101000100001000010000100;
+            8'h5a:glyph=35'b11111000010001000100010001000011111;
+            8'h5b:glyph=35'b01110010000100001000010000100001110;
+            8'h5c:glyph=35'b10000010000100000100000100001000001;
+            8'h5d:glyph=35'b01110000100001000010000100001001110;
+            8'h5e:glyph=35'b00100010101000100000000000000000000;
+            8'h5f:glyph=35'b00000000000000000000000000000011111;
+            8'h60:glyph=35'b01000001000001000000000000000000000;
+            8'h61:glyph=35'b00000000000111000001011111000101111;
+            8'h62:glyph=35'b10000100001011011001100011000111110;
+            8'h63:glyph=35'b00000000000111010000100001000101110;
+            8'h64:glyph=35'b00001000010110110011100011000101111;
+            8'h65:glyph=35'b00000000000111010001111111000001110;
+            8'h66:glyph=35'b00110010010100011100010000100001000;
+            8'h67:glyph=35'b00000000000111110001011110000101110;
+            8'h68:glyph=35'b10000100001011011001100011000110001;
+            8'h69:glyph=35'b00100000000110000100001000010001110;
+            8'h6a:glyph=35'b00010000000011000010000101001001100;
+            8'h6b:glyph=35'b10000100001001010100110001010010010;
+            8'h6c:glyph=35'b01100001000010000100001000010001110;
+            8'h6d:glyph=35'b00000000001101010101101011000110001;
+            8'h6e:glyph=35'b00000000001011011001100011000110001;
+            8'h6f:glyph=35'b00000000000111010001100011000101110;
+            8'h70:glyph=35'b00000000001111010001111101000010000;
+            8'h71:glyph=35'b00000000000111110001011110000100001;
+            8'h72:glyph=35'b00000000001011011001100001000010000;
+            8'h73:glyph=35'b00000000000111110000011100000111110;
+            8'h74:glyph=35'b01000010001110001000010000100100110;
+            8'h75:glyph=35'b00000000001000110001100011001101101;
+            8'h76:glyph=35'b00000000001000110001100010101000100;
+            8'h77:glyph=35'b00000000001000110001101011010101010;
+            8'h78:glyph=35'b00000000001000101010001000101010001;
+            8'h79:glyph=35'b00000000001000110001011110000101110;
+            8'h7a:glyph=35'b00000000001111100010001000100011111;
+            8'h7b:glyph=35'b00010001000010001000001000010000010;
+            8'h7c:glyph=35'b00100001000010000100001000010000100;
+            8'h7d:glyph=35'b01000001000010000010001000010001000;
+            8'h7e:glyph=35'b00000000000100110110000000000000000;
+            default:glyph=35'd0;
         endcase
+        bits=(row<7)?glyph[(6-row)*5 +: 5]:5'd0;
     end
 endmodule

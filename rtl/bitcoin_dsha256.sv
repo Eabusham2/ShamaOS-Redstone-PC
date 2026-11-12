@@ -5,7 +5,9 @@ module bitcoin_dsha256 (
     input  logic [639:0] header,
     output logic         busy,
     output logic         done,
-    output logic [255:0] digest
+    output logic [255:0] digest,
+    output logic [5:0]   debug_round,
+    output logic [255:0] debug_state
 );
     localparam logic [255:0] IV = {
         32'h6a09e667,32'hbb67ae85,32'h3c6ef372,32'ha54ff53a,
@@ -21,7 +23,8 @@ module bitcoin_dsha256 (
     sha256_compress u_core(
         .clk(clk), .rst(rst), .start(core_start),
         .state_in(core_state_in), .block_in(core_block),
-        .busy(core_busy), .done(core_done), .state_out(core_state_out)
+        .busy(core_busy), .done(core_done), .state_out(core_state_out),
+        .debug_round(debug_round), .debug_state(debug_state)
     );
 
     always_ff @(posedge clk) begin

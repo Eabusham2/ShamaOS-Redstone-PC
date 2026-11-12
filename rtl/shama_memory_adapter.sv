@@ -44,7 +44,9 @@ module shama_memory_adapter #(
         .clk,.rst,.step(row_step),.select(row_select)
     );
 
-    assign read_enable = req_valid && !req_we;
+    // Partial writes merge unselected bytes with the selected old word. The
+    // physical read path must stay enabled for write transactions as well.
+    assign read_enable = req_valid;
 endmodule
 
 

@@ -16,6 +16,7 @@ generated-world/
 *.mca.tmp
 *.schem
 *.litematic
+tests/mchprs_runtime/target/
 
 # Local source worlds are disposable and should not be committed
 world/

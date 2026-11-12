@@ -12,8 +12,10 @@ define GPU_BASE 0x02000000
 define GPU_TEXT 0x02000400
 
 LDI r8 0
+LDI r9 0
 
 .redraw
+MOV r1 r9
 SYS SYS_UI_TERMINAL_VIEW
 CALL .draw_command
 
@@ -58,6 +60,16 @@ BR.GT .redraw
 LDI r14 31
 CMP r8 r14
 BR.GE .redraw
+LDI r14 97
+CMP r13 r14
+BR.LT .append_key
+LDI r14 122
+CMP r13 r14
+BR.GT .append_key
+LDI r14 32
+SUB r13 r13 r14
+.append_key
+LDI r9 0
 LDI r14 TERM_BUF
 ADD r14 r14 r8
 STB r14 r13 0
@@ -71,132 +83,270 @@ DEC r8
 JMP .redraw
 
 .execute
-CMP r8 r0
-BR.EQ .redraw
-
-; LS
 LDI r14 2
 CMP r8 r14
-BR.NE .check_edit
+BR.NE .command_next_0
 LDI r14 TERM_BUF
 LDB r1 r14 0
-LDI r2 0x4c
+LDI r2 76
 CMP r1 r2
-BR.NE .check_rm_mv
+BR.NE .command_next_0
 LDB r1 r14 1
-LDI r2 0x53
+LDI r2 83
 CMP r1 r2
-BR.EQ .files
-
-.check_rm_mv
-; RM or MV -> File Explorer.
+BR.NE .command_next_0
+JMP .files
+.command_next_0
+LDI r14 2
+CMP r8 r14
+BR.NE .command_next_1
 LDI r14 TERM_BUF
 LDB r1 r14 0
-LDI r2 0x52
+LDI r2 82
 CMP r1 r2
-BR.EQ .files
-LDI r2 0x4d
+BR.NE .command_next_1
+LDB r1 r14 1
+LDI r2 77
 CMP r1 r2
-BR.EQ .files
-
-.check_edit
+BR.NE .command_next_1
+JMP .files
+.command_next_1
+LDI r14 2
+CMP r8 r14
+BR.NE .command_next_2
+LDI r14 TERM_BUF
+LDB r1 r14 0
+LDI r2 77
+CMP r1 r2
+BR.NE .command_next_2
+LDB r1 r14 1
+LDI r2 86
+CMP r1 r2
+BR.NE .command_next_2
+JMP .files
+.command_next_2
 LDI r14 4
 CMP r8 r14
-BR.NE .check_mem
+BR.NE .command_next_3
 LDI r14 TERM_BUF
 LDB r1 r14 0
-LDI r2 0x45
+LDI r2 69
 CMP r1 r2
-BR.NE .check_calc
+BR.NE .command_next_3
 LDB r1 r14 1
-LDI r2 0x44
+LDI r2 68
 CMP r1 r2
-BR.NE .check_calc
+BR.NE .command_next_3
 LDB r1 r14 2
-LDI r2 0x49
+LDI r2 73
 CMP r1 r2
-BR.NE .check_calc
+BR.NE .command_next_3
 LDB r1 r14 3
-LDI r2 0x54
+LDI r2 84
 CMP r1 r2
-BR.EQ .editor
-
-.check_calc
+BR.NE .command_next_3
+JMP .editor
+.command_next_3
+LDI r14 4
+CMP r8 r14
+BR.NE .command_next_4
 LDI r14 TERM_BUF
 LDB r1 r14 0
-LDI r2 0x43
+LDI r2 67
 CMP r1 r2
-BR.NE .check_mem
+BR.NE .command_next_4
 LDB r1 r14 1
-LDI r2 0x41
+LDI r2 65
 CMP r1 r2
-BR.NE .check_mem
+BR.NE .command_next_4
 LDB r1 r14 2
-LDI r2 0x4c
+LDI r2 76
 CMP r1 r2
-BR.NE .check_mem
+BR.NE .command_next_4
 LDB r1 r14 3
-LDI r2 0x43
+LDI r2 67
 CMP r1 r2
-BR.EQ .calc
-
-.check_mem
+BR.NE .command_next_4
+JMP .calc
+.command_next_4
 LDI r14 3
 CMP r8 r14
-BR.NE .check_five
+BR.NE .command_next_5
 LDI r14 TERM_BUF
 LDB r1 r14 0
-LDI r2 0x4d
+LDI r2 77
 CMP r1 r2
-BR.EQ .monitor_or_mv
-LDI r2 0x47
-CMP r1 r2
-BR.EQ .monitor
-LDI r2 0x52
-CMP r1 r2
-BR.EQ .files
-LDI r2 0x43
-CMP r1 r2
-BR.EQ .files
-JMP .check_five
-
-.monitor_or_mv
+BR.NE .command_next_5
 LDB r1 r14 1
-LDI r2 0x45
+LDI r2 69
 CMP r1 r2
-BR.EQ .monitor
+BR.NE .command_next_5
+LDB r1 r14 2
+LDI r2 77
+CMP r1 r2
+BR.NE .command_next_5
+JMP .monitor
+.command_next_5
+LDI r14 3
+CMP r8 r14
+BR.NE .command_next_6
+LDI r14 TERM_BUF
+LDB r1 r14 0
+LDI r2 71
+CMP r1 r2
+BR.NE .command_next_6
+LDB r1 r14 1
+LDI r2 80
+CMP r1 r2
+BR.NE .command_next_6
+LDB r1 r14 2
+LDI r2 85
+CMP r1 r2
+BR.NE .command_next_6
+JMP .monitor
+.command_next_6
+LDI r14 3
+CMP r8 r14
+BR.NE .command_next_7
+LDI r14 TERM_BUF
+LDB r1 r14 0
+LDI r2 82
+CMP r1 r2
+BR.NE .command_next_7
+LDB r1 r14 1
+LDI r2 85
+CMP r1 r2
+BR.NE .command_next_7
+LDB r1 r14 2
+LDI r2 78
+CMP r1 r2
+BR.NE .command_next_7
 JMP .files
-
-.check_five
-LDI r14 5
+.command_next_7
+LDI r14 3
 CMP r8 r14
-BR.NE .check_clear
+BR.NE .command_next_8
 LDI r14 TERM_BUF
 LDB r1 r14 0
-LDI r2 0x46
+LDI r2 67
 CMP r1 r2
-BR.EQ .monitor
-LDI r2 0x4d
-CMP r1 r2
-BR.EQ .miner
-LDI r2 0x50
-CMP r1 r2
-BR.EQ .paint
-
-.check_clear
-LDI r14 5
-CMP r8 r14
-BR.NE .clear_input
-LDI r14 TERM_BUF
-LDB r1 r14 0
-LDI r2 0x43
-CMP r1 r2
-BR.NE .clear_input
-; CALC handled above; CLEAR is length 5 and starts C, distinguish L second.
+BR.NE .command_next_8
 LDB r1 r14 1
-LDI r2 0x4c
+LDI r2 65
 CMP r1 r2
-BR.EQ .clear_input
+BR.NE .command_next_8
+LDB r1 r14 2
+LDI r2 84
+CMP r1 r2
+BR.NE .command_next_8
+JMP .files
+.command_next_8
+LDI r14 5
+CMP r8 r14
+BR.NE .command_next_9
+LDI r14 TERM_BUF
+LDB r1 r14 0
+LDI r2 70
+CMP r1 r2
+BR.NE .command_next_9
+LDB r1 r14 1
+LDI r2 76
+CMP r1 r2
+BR.NE .command_next_9
+LDB r1 r14 2
+LDI r2 65
+CMP r1 r2
+BR.NE .command_next_9
+LDB r1 r14 3
+LDI r2 83
+CMP r1 r2
+BR.NE .command_next_9
+LDB r1 r14 4
+LDI r2 72
+CMP r1 r2
+BR.NE .command_next_9
+JMP .monitor
+.command_next_9
+LDI r14 5
+CMP r8 r14
+BR.NE .command_next_10
+LDI r14 TERM_BUF
+LDB r1 r14 0
+LDI r2 77
+CMP r1 r2
+BR.NE .command_next_10
+LDB r1 r14 1
+LDI r2 73
+CMP r1 r2
+BR.NE .command_next_10
+LDB r1 r14 2
+LDI r2 78
+CMP r1 r2
+BR.NE .command_next_10
+LDB r1 r14 3
+LDI r2 69
+CMP r1 r2
+BR.NE .command_next_10
+LDB r1 r14 4
+LDI r2 82
+CMP r1 r2
+BR.NE .command_next_10
+JMP .miner
+.command_next_10
+LDI r14 5
+CMP r8 r14
+BR.NE .command_next_11
+LDI r14 TERM_BUF
+LDB r1 r14 0
+LDI r2 80
+CMP r1 r2
+BR.NE .command_next_11
+LDB r1 r14 1
+LDI r2 65
+CMP r1 r2
+BR.NE .command_next_11
+LDB r1 r14 2
+LDI r2 73
+CMP r1 r2
+BR.NE .command_next_11
+LDB r1 r14 3
+LDI r2 78
+CMP r1 r2
+BR.NE .command_next_11
+LDB r1 r14 4
+LDI r2 84
+CMP r1 r2
+BR.NE .command_next_11
+JMP .paint
+.command_next_11
+LDI r14 5
+CMP r8 r14
+BR.NE .command_next_12
+LDI r14 TERM_BUF
+LDB r1 r14 0
+LDI r2 67
+CMP r1 r2
+BR.NE .command_next_12
+LDB r1 r14 1
+LDI r2 76
+CMP r1 r2
+BR.NE .command_next_12
+LDB r1 r14 2
+LDI r2 69
+CMP r1 r2
+BR.NE .command_next_12
+LDB r1 r14 3
+LDI r2 65
+CMP r1 r2
+BR.NE .command_next_12
+LDB r1 r14 4
+LDI r2 82
+CMP r1 r2
+BR.NE .command_next_12
+JMP .clear_input
+.command_next_12
+LDI r9 1
+JMP .clear_input
 
 .clear_input
 LDI r8 0
@@ -273,6 +423,7 @@ LDI r14 0x14
 STW r12 r14 4
 LDI r14 1
 STW r12 r14 40
+SYS SYS_GPU_FENCE
 .draw_done
 RET
 

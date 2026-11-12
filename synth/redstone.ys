@@ -10,7 +10,8 @@ memory_map
 opt
 techmap
 opt
-async2sync
+# Retain sequential semantics. Python lowers supported synchronous register
+# variants and rejects asynchronous/latch cells instead of changing behavior.
 dffunmap
 opt
 
@@ -18,5 +19,7 @@ dfflibmap -liberty synth/redstone.lib
 # Direct gate-family mapping is functionally equivalent for this redstone
 # technology and avoids the expensive liberty optimization pass on the large
 # ShamaFS/assembler control cones.
-abc -fast -g NAND,NOR
+# Portable across Yosys packages. The Python driver adds -fast only when the
+# installed command advertises support in `help abc`.
+abc -g NAND,NOR
 clean -purge

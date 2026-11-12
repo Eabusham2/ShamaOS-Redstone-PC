@@ -11,7 +11,7 @@ memory_map
 opt
 techmap
 opt
-async2sync
+# Do not silently turn asynchronous resets into synchronous ones.
 dffunmap
 opt
 simplemap

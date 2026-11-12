@@ -35,6 +35,14 @@ class CPUReference:
     halted: bool = False
     call_stack: list[int] = field(default_factory=list)
     data_stack: list[int] = field(default_factory=list)
+    cycle_counter: int = 0
+    retired_counter: int = 0
+    time_counter: int = 0
+    cache_flushes: int = 0
+    sha_round: int = 0
+    cycle_snapshot_hi: int = 0
+    retired_snapshot_hi: int = 0
+    time_snapshot_hi: int = 0
 
     def __post_init__(self) -> None:
         self.memory = bytearray(self.memory_size)
@@ -92,14 +100,29 @@ class CPUReference:
         }[c]
 
     def _read_u32(self, addr: int) -> int:
-        if not 0 <= addr <= len(self.memory) - 4:
-            raise IndexError("memory read out of range")
-        return int.from_bytes(self.memory[addr:addr+4], "little")
+        return self.read_memory(addr, 4)
 
     def _write_u32(self, addr: int, value: int) -> None:
-        if not 0 <= addr <= len(self.memory) - 4:
-            raise IndexError("memory write out of range")
-        self.memory[addr:addr+4] = (value & MASK32).to_bytes(4, "little")
+        self.write_memory(addr, 4, value)
+
+    def read_memory(self, addr: int, size: int) -> int:
+        """Override for a device bus in a firmware execution harness."""
+        self._memory_range(addr, size)
+        return int.from_bytes(self.memory[addr:addr + size], "little")
+
+    def write_memory(self, addr: int, size: int, value: int) -> None:
+        self._memory_range(addr, size)
+        self.memory[addr:addr + size] = (value & ((1 << (size * 8)) - 1)).to_bytes(size, "little")
+
+    def _memory_range(self, addr: int, size: int) -> None:
+        if not 0 <= addr <= len(self.memory) - size:
+            raise IndexError("memory access out of range")
+        if size in (2, 4) and addr % size:
+            raise ValueError("unaligned memory access")
+
+    def syscall(self, syscall_id: int) -> None:
+        """Execution harnesses must implement OS calls instead of ignoring them."""
+        raise NotImplementedError(f"unhandled syscall 0x{syscall_id:03x}")
 
     def step(self) -> None:
         if self.halted:
@@ -119,6 +142,8 @@ class CPUReference:
 
         a, b = self._r(ra), self._r(rb)
         m = spec.mnemonic
+        self.cycle_counter += 1
+        self.retired_counter += 1
 
         if m == "NOP":
             pass
@@ -138,20 +163,25 @@ class CPUReference:
             self._w(rd, self._binary_sub(a, b))
         elif m == "SBC":
             self._w(rd, self._binary_sub(a, b, 0 if self.flags.c else 1))
+        elif m == "ADDI":
+            self._w(rd, self._binary_add(self._r(rd), int(ext)))
+        elif m == "SUBI":
+            self._w(rd, self._binary_sub(self._r(rd), int(ext)))
+        elif m in {"ANDI", "ORI", "XORI"}:
+            value = self._r(rd)
+            out = value & int(ext) if m == "ANDI" else value | int(ext) if m == "ORI" else value ^ int(ext)
+            self._w(rd, out); self._set_zn(out)
         elif m == "MUL":
             out = (a * b) & MASK32
             self._w(rd, out); self._set_zn(out)
         elif m == "DIV":
-            if b == 0: raise ZeroDivisionError("DIV by zero")
-            out = a // b
+            out = a // b if b else MASK32
             self._w(rd, out); self._set_zn(out)
         elif m == "MOD":
-            if b == 0: raise ZeroDivisionError("MOD by zero")
-            out = a % b
+            out = a % b if b else a
             self._w(rd, out); self._set_zn(out)
         elif m == "NEG":
-            out = (-a) & MASK32
-            self._w(rd, out); self._set_zn(out)
+            self._w(rd, self._binary_sub(0, a))
         elif m == "INC":
             out = self._binary_add(self._r(rd), 1)
             self._w(rd, out)
@@ -170,10 +200,10 @@ class CPUReference:
         elif m == "NOT":
             out = (~a) & MASK32
             self._w(rd, out); self._set_zn(out)
-        elif m in {"SHL","SHR","SAR","ROL","ROR"}:
-            n = b & 31
+        elif m in {"SHL","SHR","SAR","ROL","ROR","RSH1"}:
+            n = 1 if m == "RSH1" else b & 31
             if m == "SHL": out = (a << n) & MASK32
-            elif m == "SHR": out = a >> n
+            elif m in {"SHR", "RSH1"}: out = a >> n
             elif m == "SAR":
                 signed = a if a < 0x80000000 else a - (1 << 32)
                 out = (signed >> n) & MASK32
@@ -192,12 +222,14 @@ class CPUReference:
             if self._cond(rd):
                 next_pc = int(ext or 0)
         elif m == "CALL":
+            if len(self.call_stack) == 256: raise OverflowError("call stack overflow")
             self.call_stack.append(next_pc)
             next_pc = int(ext or 0)
-        elif m == "RET":
+        elif m in {"RET", "IRET"}:
             if not self.call_stack: raise RuntimeError("call stack underflow")
             next_pc = self.call_stack.pop()
         elif m == "PUSH":
+            if len(self.data_stack) == 256: raise OverflowError("data stack overflow")
             self.data_stack.append(self._r(rd))
         elif m == "POP":
             if not self.data_stack: raise RuntimeError("data stack underflow")
@@ -205,15 +237,15 @@ class CPUReference:
         elif m in {"LDB","LDH","LDW","LEA"}:
             addr = (a + imm) & MASK32
             if m == "LEA": out = addr
-            elif m == "LDB": out = self.memory[addr]
-            elif m == "LDH": out = int.from_bytes(self.memory[addr:addr+2], "little")
+            elif m == "LDB": out = self.read_memory(addr, 1)
+            elif m == "LDH": out = self.read_memory(addr, 2)
             else: out = self._read_u32(addr)
             self._w(rd, out)
         elif m in {"STB","STH","STW"}:
             addr = (a + imm) & MASK32
             value = self._r(rb)
-            if m == "STB": self.memory[addr] = value & 0xFF
-            elif m == "STH": self.memory[addr:addr+2] = (value & 0xFFFF).to_bytes(2, "little")
+            if m == "STB": self.write_memory(addr, 1, value)
+            elif m == "STH": self.write_memory(addr, 2, value)
             else: self._write_u32(addr, value)
         elif m == "CH":
             self._w(rd, ch(a, b, self._r(imm & 0xF)))
@@ -230,24 +262,53 @@ class CPUReference:
         elif m == "SHA256":
             src = a
             dst = self._r(rd)
+            self._memory_range(src, 4); self._memory_range(dst, 4)
+            self._memory_range(src, 64); self._memory_range(dst, 32)
             self.memory[dst:dst+32] = sha256(bytes(self.memory[src:src+64]))
         elif m == "DSHA256":
             src = a
             dst = self._r(rd)
+            self._memory_range(src, 4); self._memory_range(dst, 4)
+            self._memory_range(src, 80); self._memory_range(dst, 32)
             self.memory[dst:dst+32] = double_sha256(bytes(self.memory[src:src+80]))
         elif m == "HASHCMP":
             hash_ptr = self._r(rd)
             target_ptr = a
+            self._memory_range(hash_ptr, 4); self._memory_range(target_ptr, 4)
+            self._memory_range(hash_ptr, 32); self._memory_range(target_ptr, 32)
             self.flags.valid = hash_meets_target(
                 bytes(self.memory[hash_ptr:hash_ptr+32]),
                 bytes(self.memory[target_ptr:target_ptr+32]),
             )
         elif m == "INCNONCE":
             ptr = self._r(rd) + 76
-            nonce = int.from_bytes(self.memory[ptr:ptr+4], "little")
-            self.memory[ptr:ptr+4] = ((nonce + 1) & MASK32).to_bytes(4, "little")
-        elif m in {"SYS","IRET","FENCE","CFLUSH","RDTIME","RDPMC","SHAROUND"}:
-            # Reference hooks are modeled at OS/timing layers.
+            nonce = self._read_u32(ptr)
+            self._write_u32(ptr, nonce + 1)
+        elif m == "SHAROUND":
+            av,bv,cv,dv,ev,fv,gv,hv = (self._r(i) for i in range(1,9))
+            t1 = (hv + bsig1(ev) + ch(ev,fv,gv) + self._r(9) + self._r(10)) & MASK32
+            t2 = (bsig0(av) + maj(av,bv,cv)) & MASK32
+            for i,v in enumerate(((t1+t2)&MASK32,av,bv,cv,(dv+t1)&MASK32,ev,fv,gv),1): self._w(i,v)
+            self.sha_round = (self.sha_round + 1) & 63
+        elif m == "SYS":
+            self.syscall(word & 0xFFF)
+        elif m == "RDTIME":
+            self._w(rd, self.time_counter)
+            self.time_snapshot_hi = self.time_counter >> 32
+        elif m == "RDPMC":
+            counter = word & 0xFFF
+            values = {0:self.cycle_counter-1,1:self.retired_counter-1,2:(self.cycle_counter-1)>>32,3:(self.retired_counter-1)>>32,32:next_pc,33:word,34:int(self.flags.z)|(int(self.flags.c)<<1)|(int(self.flags.n)<<2)|(int(self.flags.v)<<3)|(int(self.flags.valid)<<4),36:self.sha_round}
+            values.update({2:self.cycle_snapshot_hi,3:self.retired_snapshot_hi,4:self.time_counter,5:self.time_snapshot_hi})
+            if counter == 0: self.cycle_snapshot_hi = (self.cycle_counter-1) >> 32
+            elif counter == 1: self.retired_snapshot_hi = (self.retired_counter-1) >> 32
+            elif counter == 4: self.time_snapshot_hi = self.time_counter >> 32
+            self._w(rd, self._r(counter-16) if 16 <= counter < 32 else values.get(counter,0))
+        elif m == "CFLUSH":
+            # Fast executable memory is explicitly managed/write-through.
+            # CFLUSH is an ordering/accounting barrier, never erases live code.
+            self.cache_flushes += 1
+        elif m == "FENCE":
+            # Reference bus operations are synchronous and have completed here.
             pass
         else:
             raise NotImplementedError(m)

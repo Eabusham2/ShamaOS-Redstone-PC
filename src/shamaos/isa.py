@@ -87,6 +87,8 @@ SPECS: Final[tuple[InstructionSpec, ...]] = (
     _s("NEG", 0x17, Format.RR, flags=True),
     _s("INC", 0x18, Format.R, flags=True),
     _s("DEC", 0x19, Format.R, flags=True),
+    _s("ADDI", 0x1A, Format.RI32, words=2, flags=True),
+    _s("SUBI", 0x1B, Format.RI32, words=2, flags=True),
 
     _s("AND", 0x20, Format.RRR, flags=True),
     _s("OR", 0x21, Format.RRR, flags=True),
@@ -100,6 +102,10 @@ SPECS: Final[tuple[InstructionSpec, ...]] = (
     _s("SAR", 0x29, Format.RRR, flags=True),
     _s("ROL", 0x2A, Format.RRR, flags=True),
     _s("ROR", 0x2B, Format.RRR, flags=True),
+    _s("ANDI", 0x2C, Format.RI32, words=2, flags=True),
+    _s("ORI", 0x2D, Format.RI32, words=2, flags=True),
+    _s("XORI", 0x2E, Format.RI32, words=2, flags=True),
+    _s("RSH1", 0x2F, Format.RR, flags=True, d="Logical right shift by one"),
 
     _s("CMP", 0x30, Format.RR, flags=True),
     _s("TEST", 0x31, Format.RR, flags=True),
@@ -147,7 +153,10 @@ ALIASES: Final[dict[str, str]] = {
     "CAL": "CALL",
     "LOD": "LDW",
     "STR": "STW",
-    "RSH": "SHR",
+    "RSH": "RSH1",
+    "ADI": "ADDI",
+    "LI32": "LDI",
+    "BRH": "BR",
 }
 
 SYSCALLS: Final[dict[str, int]] = {
@@ -161,6 +170,8 @@ SYSCALLS: Final[dict[str, int]] = {
     "SYS_BOOT_MOUNT": 0x008,
     "SYS_BOOT_LOAD_OS": 0x009,
     "SYS_APP_EVENT": 0x00A,
+    "SYS_LIFECYCLE_STATUS": 0x00B,
+    "SYS_SHUTDOWN": 0x00C,
 
     "SYS_ALLOC": 0x010,
     "SYS_FREE": 0x011,
@@ -179,9 +190,12 @@ SYSCALLS: Final[dict[str, int]] = {
     "SYS_FILE_STAT": 0x028,
     "SYS_FILE_LIST": 0x029,
     "SYS_FLASH_USAGE": 0x02A,
+    "SYS_FILE_TRANSFER": 0x02B,
+    "SYS_FS_SYNC": 0x02C,
 
     "SYS_GET_KEY": 0x030,
     "SYS_GET_CONTROLLER": 0x031,
+    "SYS_INPUT_STATUS": 0x032,
 
     "SYS_GPU_SUBMIT": 0x040,
     "SYS_DRAW_TEXT": 0x041,
@@ -205,6 +219,7 @@ SYSCALLS: Final[dict[str, int]] = {
     "SYS_MINER_LOG_RESULT": 0x050,
     "SYS_MINER_SAVE_STATE": 0x051,
     "SYS_MINER_LOAD_HISTORY": 0x052,
+    "SYS_MINER_LOAD_STATE": 0x053,
 }
 
 

@@ -1,122 +1,128 @@
 # ShamaOS Redstone PC
 
-**Development status:** the complete feature contract is being implemented and
-verified. A passing compilation or partial synthesis is not a verified working
-Minecraft world. See [requirements and release gates](docs/REQUIREMENTS.md).
+A programmable Minecraft Java redstone computer, its ShamaOS software, and the
+tools that generate its physical circuitry. Python and Yosys construct the
+machine; the design performs CPU, SHA, graphics, memory and filesystem work in
+redstone after generation.
 
-**ShamaOS Redstone PC** is a programmable Minecraft Java redstone computer and one-shot world generator. Python/Yosys build the machine; after generation, the CPU, SHA unit, GPU, memory, storage, input, filesystem and ShamaOS software execute in the generated redstone hardware rather than calling Python for runtime computation.
+**Status: implementation and validation in progress.** Firmware/RTL execution,
+actual redstone fixtures, saved-world readback, full synthesis, and complete-world
+boot are separate checks. A verified complete ShamaOS Minecraft world has not yet
+been released. See [implementation status](docs/IMPLEMENTATION_STATUS.md) and the
+[requirements and release gates](docs/REQUIREMENTS.md).
 
-## Locked default machine
+## Agreed machine
 
-| Subsystem | Implemented default |
+| Subsystem | Contract |
 |---|---|
-| CPU | 32-bit general-purpose CPU, 16 GPRs, branches/stacks/load-store/syscalls |
-| SHA | Native SHA-256 execution unit inside the CPU; SHA256, DSHA256, HASHCMP, INCNONCE |
-| RAM | **1 MiB physical main RAM** = 256 × 4 KiB banks |
-| Cache | **16 KiB physical fast/executable cache** = 4 × 4 KiB banks |
-| Flash | **4 MiB** physical ShamaFS storage = 1,024 × 4 KiB banks |
-| VRAM | **32 KiB physical VRAM** = 8 × 4 KiB banks |
-| Display | **320×180**, 1-bit, 57,600 redstone lamps |
-| Input | 8×8 keyboard matrix + D-pad/A/B/Home/Exit/Editor/Files + power/reset |
-| OS | ShamaOS boot/kernel + GUI apps stored in flash |
-| Mining | Real Bitcoin-style double-SHA-256 nonce loop and target compare |
+| CPU | 32-bit datapath, sixteen registers, full integer/logic/control-flow ISA, separate 256-entry call and data stacks |
+| SHA | Native SHA-256/double-SHA execution plus programmable primitives and an independent software implementation |
+| Main RAM | **1 MiB physical**, 256 × 4 KiB banks |
+| Fast/executable memory | **16 KiB physical**, 4 × 4 KiB banks |
+| Persistent flash | **4 MiB physical**, 1,024 × 4 KiB banks |
+| VRAM | **32 KiB physical**, 8 × 4 KiB banks |
+| Display | **320×180 monochrome**, double buffered, 57,600 lamps |
+| Input | 8×8 keyboard with Shift, controller, Home/Exit/Editor/Files, power/reset/pause/manual step |
+| OS | Resident kernel, one foreground app, persistent files, in-world assembler/editor |
+| Diagnostics | PC, instruction, registers, flags, CPU/stall state, native SHA state/round, faults and usage counters |
 
-These capacities and the 320×180 resolution are canonical and are not silently reduced.
+The density work preserves these capacities. [Memory design and efficiency](docs/MEMORY.md)
+distinguishes placed-block count, horizontal footprint, touched chunks and world
+file size; stacking improves different costs from making the cell smaller.
+
+## Software
+
+Desktop launches Editor, File Explorer, Bitcoin Miner, System Monitor, Terminal,
+Calculator, Paint and Settings. Editor handles complete source/documents up to
+65,535 bytes, cursor editing, Save As/Rename, confirmed Delete, assembly diagnostics
+and separate `.BIN` output. Explorer traverses real folders and transfers an
+opened source/document into Editor. Paint has a visible nondestructive cursor;
+Settings persists its choices.
+
+ShamaFS has owned handles, bounds/path checks, copy-on-write data replacement,
+a metadata journal, recovery, and explicit full-disk errors. App switching and
+power-off request a save/cleanup sequence. A failed save keeps the foreground
+state available. Reboot works even after the executable cache was cleared.
+
+The [miner](docs/MINER.md) edits the full header and target, displays all digest
+bytes, measures native/software hashing, stops at nonce exhaustion and persists
+256 complete history records. Its performance fields report hardware counter
+units, not an invented wall-clock hash rate.
 
 ## Physical generation
 
-`shamaos generate` writes the complete topology into a disposable Minecraft Java 1.20.4 world:
+The generator emits compact locked-repeater memory, latched display pixels,
+buttons/keyboard/clock/debug lamps, synthesized technology cells, and their
+interconnect. Primitive mapping includes enabled and synchronous-reset flip-flop
+forms; ABC options are detected for the installed Yosys version.
 
-- locked-repeater cache/RAM/flash/VRAM banks;
-- one-hot bank/row memory controllers and physical backbones;
-- partitioned Yosys-synthesized CPU/SHA/GPU/kernel/filesystem/assembler/control logic mapped to redstone technology cells and physically reconnected by the synthesized SoC shell;
-- crossing-safe, strength-refreshed interconnect;
-- the horizontal 320×180 latched lamp panel;
-- physical keyboard/controller, ON/OFF control, reset and clock;
-- a preloaded 4 MiB ShamaFS image containing boot, kernel, apps, source files and persistent miner records.
+The native Java 1.20.4 Anvil backend creates a new world without Amulet, writes
+exact block properties, and reads the saved chunks back independently. An optional
+Amulet path remains available for existing unrelated saves. Conflicting block
+assignments are errors. Full generation also runs a resource/capacity preflight.
+Large-scale routing/timing and a workable full-world loading configuration remain
+release gates; local cell tests cannot establish them by themselves.
 
-The Amulet world writer creates missing far-away chunks and preserves exact repeater/comparator/wire/lamp block states.
+## Start here
 
-## Timing
-
-**Recommended:** increase the game tick rate or use compatible acceleration
-software for practical operation. Java 1.20.4 supports `/tick rate`; MCHPRS is a
-specialized redstone acceleration server. See the [running and acceleration
-guide](docs/RUNNING_AND_ACCELERATION.md) for commands and validation requirements.
-
-The input latch uses the raw physical clock. The computational core uses a heavily divided clock (default divider bit 17) because literal RAM/flash routes can be extremely long. Vanilla operation is intentionally very slow; MCHPRS can accelerate the same circuitry without changing architectural results.
-
-## ShamaOS
-
-ShamaOS boots from flash/cache. The resident kernel stays in RAM; exactly one foreground app is copied into RAM and the 16 KiB executable cache. App switching clears the old foreground RAM/cache state before loading the next program.
-
-Hardware-universal **Home / Exit / Editor / File Explorer** events can seize and replace the foreground app even if it is halted or never polls input.
-
-Preinstalled apps:
-
-- Desktop
-- Editor
-- File Explorer
-- Bitcoin Miner
-- System Monitor
-- Terminal
-- Calculator
-- Paint
-- Settings
-
-Editor supports New Text, New Program, keyboard editing, Save, Save As, Rename, confirmed Delete, in-world assembly, saving compiled `.BIN` files and running staged binaries. File Explorer reads text, edits source through Editor, runs binaries, renames and confirmed-deletes files. Bitcoin Miner has Start/Stop, generation reset, live nonce/attempt/hash/target fields and persistent 256-entry history.
-
-## Quick start
+Linux/macOS Python setup:
 
 ```bash
 git clone https://github.com/Eabusham2/ShamaOS-Redstone-PC.git
 cd ShamaOS-Redstone-PC
-
 python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install --upgrade pip
-pip install -e ".[dev,world]"
-
-pytest
+python -m pip install -e ".[dev]"
+pytest -ra
 shamaos flash-image -o build/shamaos-flash.img
 shamaos plan --config configs/default.toml --manifest build/plan.json
+shamaos generation-preflight --config configs/default.toml --report build/resource-preflight.json
 ```
 
-Create and close a **disposable Minecraft Java 1.20.4 superflat world**, then run:
+Windows PowerShell, without requiring script activation:
+
+```powershell
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -e ".[dev]"
+.\.venv\Scripts\python.exe -m pytest -ra
+.\.venv\Scripts\python.exe -m shamaos.cli flash-image -o build/shamaos-flash.img
+```
+
+Actual RTL/synthesis checks require Icarus Verilog and Yosys on PATH. Actual
+redstone checks require the pinned MCHPRS harness; plain Python tests report
+these checks as skipped if the tools are missing. CI's required behavioral job
+installs the tools and rejects skipped tests.
+
+For a small, independently saved/read-back redstone world:
 
 ```bash
-shamaos generate \
-  --world "/path/to/.minecraft/saves/ShamaOS" \
-  --config configs/default.toml \
-  --manifest build/generated-manifest.json
+shamaos fixture-world --world build/native-runtime-fixture
+shamaos validate-world --world build/native-runtime-fixture
 ```
 
-This build is enormous and can consume substantial CPU, RAM, disk and time.
+This fixture is a mechanism test, not the complete computer. The
+[step-by-step tutorial](docs/TUTORIAL.md) covers tool installation, the real
+runtime harness, new-world creation, preflight and full generation.
 
-## Validation
+## Running speed
 
-Fast CI covers Python 3.11/3.12, the real Amulet backend, SHA vectors, CPU/GPU/display/input/memory RTL, foreground RAM/cache lifecycle, ShamaFS, the in-world assembler, GUI kernel, integrated SoC compile and Yosys→redstone smoke mapping.
-
-Release-candidate commits additionally trigger the heavyweight **full physical SoC synthesis/port-mapping gate**.
-
-A final in-game smoke test is per generated world and requires an actual disposable save path.
+**Increasing the game tick rate or using a compatible acceleration mod/server is
+recommended.** The default physical clock and conservative core divider make
+vanilla operation extremely slow. `/tick rate` changes game tick scheduling;
+`randomTickSpeed` does not accelerate this computer's ordinary redstone logic.
+MCHPRS is a specialized redstone server. See
+[running and acceleration](docs/RUNNING_AND_ACCELERATION.md) for commands and
+scope. Acceleration does not repair wiring errors or unloadable parts of a build.
 
 ## Documentation
 
-- [Complete requirements and acceptance checklist](docs/REQUIREMENTS.md)
-- [Running and acceleration](docs/RUNNING_AND_ACCELERATION.md)
-
-- `docs/INITIAL_SPEC_AND_TRANSCRIPTS.md`
-- `docs/ARCHITECTURE.md`
-- `docs/ISA.md`
-- `docs/GPU.md`
-- `docs/MEMORY.md`
-- `docs/OS.md`
-- `docs/FILESYSTEM.md`
-- `docs/HARDWARE_GENERATION.md`
-- `docs/VALIDATION.md`
-- `docs/IMPLEMENTATION_STATUS.md`
+- [Requirements](docs/REQUIREMENTS.md), [original planning/source notes](docs/INITIAL_SPEC_AND_TRANSCRIPTS.md)
+- [ISA](docs/ISA.md), [GPU](docs/GPU.md), [memory](docs/MEMORY.md), [controls](docs/CONTROLS.md)
+- [ShamaOS](docs/OS.md), [syscalls](docs/SYSCALLS.md), [filesystem](docs/FILESYSTEM.md), [miner](docs/MINER.md)
+- [Tutorial](docs/TUTORIAL.md), [validation](docs/VALIDATION.md), [implementation status](docs/IMPLEMENTATION_STATUS.md)
 
 ## License
 
-MIT.
+MIT for this repository's code. Reference projects/designs are attributed in
+[REFERENCE_VIDEOS.md](docs/REFERENCE_VIDEOS.md); their separate files and licenses
+are not implicitly relicensed by this repository.

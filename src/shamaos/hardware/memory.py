@@ -6,7 +6,7 @@ from typing import Iterable, Iterator
 from ..model import BlockState, Placement, Vec3
 
 
-SUPPORT = BlockState.of("minecraft:smooth_stone")
+SUPPORT = BlockState.of("minecraft:stone")
 
 
 def redstone_wire(
@@ -37,7 +37,9 @@ def redstone_wire(
 # while existing adjacent dust/repeater terminals connect deterministically.
 DUST = redstone_wire()
 TORCH = BlockState.of("minecraft:redstone_torch", lit="true")
+TORCH_OFF = BlockState.of("minecraft:redstone_torch", lit="false")
 WALL_TORCH_E = BlockState.of("minecraft:redstone_wall_torch", facing="east", lit="true")
+_DIODE_INPUT_FACING = {"east": "west", "west": "east", "north": "south", "south": "north"}
 
 
 def repeater(
@@ -47,21 +49,32 @@ def repeater(
     locked: bool = False,
     delay: int = 1,
 ) -> BlockState:
+    """Build a repeater whose signal travels in ``facing`` direction.
+
+    Layouts use the output direction. Java's diode block-state ``facing`` is
+    the *input* direction, so it must be inverted on serialization. Wall
+    torches use a different convention and are not affected by this helper.
+    """
     if not 1 <= delay <= 4:
         raise ValueError("repeater delay must be 1..4")
+    if facing not in _DIODE_INPUT_FACING:
+        raise ValueError(f"invalid repeater output direction {facing!r}")
     return BlockState.of(
         "minecraft:repeater",
         delay=str(delay),
-        facing=facing,
+        facing=_DIODE_INPUT_FACING[facing],
         powered=str(powered).lower(),
         locked=str(locked).lower(),
     )
 
 
 def comparator(facing: str, *, powered: bool = False) -> BlockState:
+    """Build a subtract comparator with the requested signal output direction."""
+    if facing not in _DIODE_INPUT_FACING:
+        raise ValueError(f"invalid comparator output direction {facing!r}")
     return BlockState.of(
         "minecraft:comparator",
-        facing=facing,
+        facing=_DIODE_INPUT_FACING[facing],
         mode="subtract",
         powered=str(powered).lower(),
     )
@@ -71,7 +84,7 @@ def comparator(facing: str, *, powered: bool = False) -> BlockState:
 class MemoryBankSpec:
     words: int = 1024
     word_bits: int = 32
-    bit_pitch: int = 8
+    bit_pitch: int = 5
     word_pitch: int = 6
     data_y: int = 0
     cell_y: int = 3
@@ -111,13 +124,13 @@ def _same_polarity_riser(
 ) -> Iterator[Placement]:
     """Raise a digital signal three blocks using two torch inversions.
 
-    Input is expected to power the lower block from the west.  The torch pair
+    Input must power the lower block through a directed tap. The torch pair
     restores polarity at y+3.
     """
     yield Placement(Vec3(x, y, z), SUPPORT, component)
     yield Placement(Vec3(x, y + 1, z), TORCH, component)
     yield Placement(Vec3(x, y + 2, z), SUPPORT, component)
-    yield Placement(Vec3(x, y + 3, z), TORCH, component)
+    yield Placement(Vec3(x, y + 3, z), TORCH_OFF, component)
 
 
 def _bus_z(
@@ -149,15 +162,29 @@ def _bus_x(
     facing: str,
     component: str,
     repeater_stride: int = 12,
+    initial_powered: bool = False,
+    taps: frozenset[int] = frozenset(),
 ) -> Iterator[Placement]:
     if x1 < x0:
         x0, x1 = x1, x0
-    for idx, x in enumerate(range(x0, x1 + 1)):
+    # A repeater refreshes the row bus but cannot also feed a perpendicular
+    # lock/mask input. Keep every side tap as dust for all supported pitches.
+    refresh = set()
+    previous = x0
+    while x1 - previous > repeater_stride:
+        candidate = previous + repeater_stride
+        while candidate in taps and candidate > previous:
+            candidate -= 1
+        if candidate == previous:
+            raise ValueError("row bus has no refresh position between side taps")
+        refresh.add(candidate)
+        previous = candidate
+    for x in range(x0, x1 + 1):
         yield Placement(Vec3(x, y - 1, z), SUPPORT, component)
-        if idx and idx % repeater_stride == 0:
-            yield Placement(Vec3(x, y, z), repeater(facing), component)
+        if x in refresh:
+            yield Placement(Vec3(x, y, z), repeater(facing, powered=initial_powered), component)
         else:
-            yield Placement(Vec3(x, y, z), DUST, component)
+            yield Placement(Vec3(x, y, z), redstone_wire(power=15) if initial_powered else DUST, component)
 
 
 def _initial_bit(data: bytes | None, word: int, bit: int, word_bits: int) -> int:
@@ -176,7 +203,7 @@ def bank_ports(origin: Vec3, spec: MemoryBankSpec) -> MemoryBankPorts:
     for bit in range(spec.word_bits):
         bx = origin.x + bit * spec.bit_pitch
         data_in.append(Vec3(bx, origin.y + spec.data_y, origin.z - 1))
-        data_out.append(Vec3(bx + 6, origin.y + spec.read_y, origin.z + spec.words * spec.word_pitch + 4))
+        data_out.append(Vec3(bx + 5, origin.y + spec.read_y, origin.z + spec.words * spec.word_pitch + 4))
 
     write_select = []
     read_select = []
@@ -205,7 +232,7 @@ def iter_memory_bank(
       * the row write line powers a side repeater, locking all non-written rows;
       * a subtract-mode comparator gates reads using an independently inverted
         row-select mask;
-      * the selected value rises to a northbound read bus.
+      * the selected value rises to a southbound read bus and rear terminal.
 
     External decode/control logic drives active-high write_select/read_select
     terminals.  Local wall-torch inverters make storage locked/read-masked by
@@ -213,13 +240,17 @@ def iter_memory_bank(
     """
     if spec.words <= 0 or spec.word_bits <= 0 or spec.word_bits % 8:
         raise ValueError("memory bank geometry must be positive and byte aligned")
+    if spec.bit_pitch < 5 or spec.word_pitch < 6:
+        raise ValueError("memory bank pitch must isolate neighboring bits and words")
+    if spec.cell_y != spec.data_y + 3 or spec.read_y != spec.cell_y + 3:
+        raise ValueError("memory bank risers require three blocks between bus planes")
     if initial is not None and len(initial) > spec.bytes:
         raise ValueError("initial image is larger than memory bank")
 
     oy = origin.y
     z_bus_start = origin.z
     z_bus_end = origin.z + spec.words * spec.word_pitch + 4
-    x_end = origin.x + (spec.word_bits - 1) * spec.bit_pitch + 6
+    x_end = origin.x + (spec.word_bits - 1) * spec.bit_pitch + 5
 
     # Long data input and read output trunks.
     for bit in range(spec.word_bits):
@@ -233,11 +264,11 @@ def iter_memory_bank(
             component=component,
         )
         yield from _bus_z(
-            bx + 6,
+            bx + 5,
             oy + spec.read_y,
             z_bus_start - 2,
             z_bus_end,
-            facing="north",
+            facing="south",
             component=component,
         )
 
@@ -258,16 +289,22 @@ def iter_memory_bank(
                 select_z,
                 facing="east",
                 component=component,
+                initial_powered=True,
+                taps=frozenset(origin.x + bit * spec.bit_pitch + tap
+                               for bit in range(spec.word_bits) for tap in (2, 3)),
             )
 
         for bit in range(spec.word_bits):
             bx = origin.x + bit * spec.bit_pitch
             bit_value = bool(_initial_bit(initial, word, bit, spec.word_bits))
 
-            # Data column -> same-polarity vertical riser.
-            yield from _same_polarity_riser(
-                bx + 1, oy + spec.data_y, cz, component=component
-            )
+            # A target makes the N/S data column connect east into this
+            # riser without a separate dust branch. The input remains weak
+            # power, so the torch pair cannot feed back into the data column.
+            yield Placement(Vec3(bx+1,oy+spec.data_y,cz),BlockState.of("minecraft:target",power="0"),component)
+            yield Placement(Vec3(bx+1,oy+spec.data_y+1,cz),TORCH,component)
+            yield Placement(Vec3(bx+1,oy+spec.data_y+2,cz),SUPPORT,component)
+            yield Placement(Vec3(bx+1,oy+spec.data_y+3,cz),TORCH_OFF,component)
 
             # Storage repeater.  It is initialized locked and with the requested
             # powered state so flash/RAM images can be preloaded directly.
@@ -291,7 +328,7 @@ def iter_memory_bank(
             yield Placement(Vec3(bx + 3, oy + spec.cell_y - 1, cz), SUPPORT, component)
             yield Placement(
                 Vec3(bx + 3, oy + spec.cell_y, cz),
-                comparator("east", powered=bit_value),
+                comparator("east"),
                 component,
             )
             yield Placement(Vec3(bx + 3, oy + spec.cell_y - 1, cz + 1), SUPPORT, component)
@@ -301,9 +338,12 @@ def iter_memory_bank(
                 component,
             )
 
-            # Comparator output -> non-inverting riser -> read trunk.
+            # The comparator directly powers the read riser. This directed input
+            # cannot backfeed its rear storage input and avoids two blocks per
+            # bit; the read trunk overlaps the next bit only in X, on a
+            # separate Y plane. Five-block bit pitch preserves isolation from the next data riser.
             yield from _same_polarity_riser(
-                bx + 5, oy + spec.cell_y, cz, component=component
+                bx + 4, oy + spec.cell_y, cz, component=component
             )
 
     # Port marker supports (actual redstone terminal dust is supplied by buses).

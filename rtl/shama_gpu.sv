@@ -1,7 +1,7 @@
 module shama_gpu #(
     parameter integer WIDTH = 320,
     parameter integer HEIGHT = 180,
-    parameter integer QUEUE_DEPTH = 8
+    parameter integer QUEUE_DEPTH = 256
 )(
     input  logic        clk,
     input  logic        rst,
@@ -31,6 +31,12 @@ module shama_gpu #(
     localparam integer PIXELS = WIDTH*HEIGHT;
     localparam integer FRAME_BYTES = (PIXELS+7)/8;
     localparam integer FRAME_WORDS = (FRAME_BYTES+3)/4;
+    // Raster operands are signed coordinates within +/-4096. Primitives are
+    // clipped to the screen; invalid dimensions/resource spans fail atomically.
+    // This bounds all work even when an application submits corrupt arguments.
+    localparam integer COORD_LIMIT = 4096;
+    localparam integer MAX_RADIUS = 512;
+    localparam integer QUEUE_PTR_BITS = (QUEUE_DEPTH>1)?$clog2(QUEUE_DEPTH):1;
 
     // 32 KiB physical VRAM map.
     localparam [14:0]
@@ -68,7 +74,7 @@ module shama_gpu #(
         ST_SCROLL_CLEAR,
         ST_SCROLL_SRC_READ, ST_SCROLL_DST_PIXEL, ST_SCROLL_ADV,
 
-        ST_PUSH_READ, ST_PUSH_BITS
+        ST_PUSH_READ, ST_PUSH_BITS, ST_PUSH_FIND
     } state_t;
 
     localparam [2:0]
@@ -81,6 +87,13 @@ module shama_gpu #(
     logic draw_color;
     logic [7:0] font_id;
     integer cursor_x,cursor_y;
+    logic cursor_enabled;
+    logic cursor_single;
+    // A row bit records any difference between front/back since their last
+    // copy. It must survive a swap: swapping back also changes the display.
+    logic [HEIGHT-1:0] buffer_diff_rows, present_rows;
+    integer push_row;
+    logic [31:0] presented_rows;
     integer clip_x0,clip_y0,clip_x1,clip_y1;
     logic [31:0] readback;
     logic [31:0] fence_count;
@@ -92,7 +105,7 @@ module shama_gpu #(
     logic [7:0] q_op [0:QUEUE_DEPTH-1];
     logic [31:0] q0[0:QUEUE_DEPTH-1],q1[0:QUEUE_DEPTH-1],q2[0:QUEUE_DEPTH-1],q3[0:QUEUE_DEPTH-1];
     logic [31:0] q4[0:QUEUE_DEPTH-1],q5[0:QUEUE_DEPTH-1],q6[0:QUEUE_DEPTH-1],q7[0:QUEUE_DEPTH-1];
-    logic [$clog2(QUEUE_DEPTH)-1:0] q_head,q_tail;
+    logic [QUEUE_PTR_BITS-1:0] q_head,q_tail;
     logic [$clog2(QUEUE_DEPTH+1)-1:0] q_count;
 
     logic [7:0] cur_op;
@@ -117,11 +130,11 @@ module shama_gpu #(
     integer lx,ly,lx1,ly1,ldx,ldy,lsx,lsy,lerr,line_e2;
 
     // Rectangle.
-    integer rx,ry,rw,rh;
+    integer rx,ry,rw,rh,rx_start,rx_last,ry_last;
     logic rect_fill;
 
     // Circle.
-    integer ccx,ccy,cr,cxo,cyo,circle_dist,r2,inner2;
+    integer ccx,ccy,cr,cxo,cyo,circle_dist,r2,inner2,cx_start,cx_last,cy_last;
 
     // Blit/sprite.
     integer bsrc,bx,by,bw,bh,bdx,bdy;
@@ -143,6 +156,7 @@ module shama_gpu #(
     integer push_word_index;
     logic [5:0] push_bit_index;
     logic [31:0] push_word;
+    integer scan_x,scan_y;
 
     logic [7:0] font_char;
     logic [2:0] font_row;
@@ -164,6 +178,18 @@ module shama_gpu #(
 
     function automatic logic in_screen(input integer x,input integer y);
         in_screen=(x>=0 && x<WIDTH && y>=0 && y<HEIGHT);
+    endfunction
+
+    function automatic logic valid_coord(input logic [31:0] value);
+        valid_coord=($signed(value)>=-COORD_LIMIT && $signed(value)<=COORD_LIMIT);
+    endfunction
+
+    function automatic integer min_int(input integer a,input integer b);
+        min_int=(a<b)?a:b;
+    endfunction
+
+    function automatic integer max_int(input integer a,input integer b);
+        max_int=(a>b)?a:b;
     endfunction
 
     function automatic logic in_clip(input integer x,input integer y);
@@ -197,16 +223,18 @@ module shama_gpu #(
     assign busy = (state != ST_IDLE) || (q_count != 0);
 
     wire push_event=mmio_valid && mmio_we && mmio_addr==12'h028 && q_count<QUEUE_DEPTH;
-    wire pop_event=(state==ST_IDLE) && (q_count!=0) && !(
-        mmio_valid && mmio_addr>=12'h400
-    );
+    // A direct text/sprite write waits for queued drawing to finish. It must
+    // not prevent that queue from draining, or the two sides deadlock.
+    wire pop_event=(state==ST_IDLE) && (q_count!=0);
 
     // Direct text/sprite RAM writes are serviced through the physical VRAM
     // interface only while the raster engine is idle and the queue is empty.
     logic direct_vram_access;
     logic [14:0] direct_vram_addr;
+    wire direct_vram_window=(mmio_addr>=12'h400 && mmio_addr<12'h500)
+                          || (mmio_addr>=12'h800 && mmio_addr<12'hc00);
     assign direct_vram_access =
-        mmio_valid && (mmio_addr>=12'h400 && mmio_addr<12'hc00)
+        mmio_valid && direct_vram_window
         && state==ST_IDLE && q_count==0;
     assign direct_vram_addr =
         (mmio_addr<12'h500)
@@ -226,6 +254,8 @@ module shama_gpu #(
         disp_valid=1'b0;
         disp_index=(push_word_index*32+push_bit_index);
         disp_bit=push_word[push_bit_index];
+        scan_x=(push_word_index*32+push_bit_index)%WIDTH;
+        scan_y=(push_word_index*32+push_bit_index)/WIDTH;
 
         font_char=(state==ST_TEXT_PIXEL || state==ST_TEXT_ADV)
             ? text_char : char_code;
@@ -233,10 +263,10 @@ module shama_gpu #(
             ? text_row[2:0] : char_row[2:0];
 
         // Register MMIO.
-        if(mmio_valid && !(mmio_addr>=12'h400 && mmio_addr<12'hc00)) begin
+        if(mmio_valid && !direct_vram_window) begin
             mmio_ready=1'b1;
             case(mmio_addr)
-                12'h000:mmio_rdata={20'd0,queue_error,front_sel,2'd0,q_count[3:0],3'd0,(state!=ST_IDLE)};
+                12'h000:mmio_rdata=(queue_error<<17)|(front_sel<<16)|(q_count<<4)|(state!=ST_IDLE);
                 12'h004:mmio_rdata={24'd0,command_reg};
                 12'h008:mmio_rdata=arg_reg[0];
                 12'h00c:mmio_rdata=arg_reg[1];
@@ -250,8 +280,14 @@ module shama_gpu #(
                 12'h030:mmio_rdata=fence_count;
                 12'h034:mmio_rdata=cursor_x;
                 12'h038:mmio_rdata=cursor_y;
+                12'h03c:mmio_rdata=presented_rows;
+                12'h040:mmio_rdata={30'd0,cursor_single,cursor_enabled};
                 default:mmio_rdata=0;
             endcase
+            // A full queue applies backpressure; a successfully acknowledged
+            // submit is never silently discarded.
+            if(mmio_we && mmio_addr==12'h028 && q_count>=QUEUE_DEPTH)
+                mmio_ready=1'b0;
         end
 
         // Direct VRAM MMIO.
@@ -284,12 +320,12 @@ module shama_gpu #(
                 end
 
                 ST_BLIT_READ: begin
-                    vram_valid=1;vram_we=0;
+                    vram_valid=(bw>0 && bh>0 && bsrc>=0 && bsrc+by*bw+bx<1024);vram_we=0;
                     vram_addr={((SPRITE_BASE+bsrc+by*bw+bx)>>2),2'b00};
                 end
 
                 ST_TEXT_CHAR_READ: begin
-                    vram_valid=1;vram_we=0;
+                    vram_valid=(text_index<text_len && text_start>=0 && text_start+text_index<256);vram_we=0;
                     vram_addr={((TEXT_BASE+text_start+text_index)>>2),2'b00};
                 end
 
@@ -336,6 +372,13 @@ module shama_gpu #(
                 disp_valid=1'b1;
                 disp_index=push_word_index*32+push_bit_index;
                 disp_bit=push_word[push_bit_index];
+                if(cursor_enabled && in_screen(cursor_x,cursor_y) &&
+                   ((cursor_single && scan_y==cursor_y && scan_x==cursor_x) ||
+                    (!cursor_single && ((scan_y==cursor_y &&
+                     (scan_x>=cursor_x-2 && scan_x<=cursor_x+2)) ||
+                    (scan_x==cursor_x &&
+                     (scan_y>=cursor_y-2 && scan_y<=cursor_y+2))))))
+                    disp_bit=~push_word[push_bit_index];
             end
         end
     end
@@ -363,6 +406,8 @@ module shama_gpu #(
             draw_color<=1;
             font_id<=0;
             cursor_x<=0;cursor_y<=0;
+            cursor_enabled<=0;cursor_single<=0;buffer_diff_rows<='1;present_rows<='1;
+            push_row<=0;presented_rows<=0;
             clip_x0<=0;clip_y0<=0;clip_x1<=WIDTH-1;clip_y1<=HEIGHT-1;
             readback<=0;fence_count<=0;queue_error<=0;
             command_reg<=0;
@@ -375,8 +420,9 @@ module shama_gpu #(
 
             work_word<=0;copy_word<=0;clear_value<=0;
             lx<=0;ly<=0;lx1<=0;ly1<=0;ldx<=0;ldy<=0;lsx<=0;lsy<=0;lerr<=0;line_e2<=0;
-            rx<=0;ry<=0;rw<=0;rh<=0;rect_fill<=0;
+            rx<=0;ry<=0;rw<=0;rh<=0;rect_fill<=0;rx_start<=0;rx_last<=0;ry_last<=0;
             ccx<=0;ccy<=0;cr<=0;cxo<=0;cyo<=0;circle_dist<=0;r2<=0;inner2<=0;
+            cx_start<=0;cx_last<=0;cy_last<=0;
             bsrc<=0;bx<=0;by<=0;bw<=0;bh<=0;bdx<=0;bdy<=0;blit_transparent<=0;sprite_value<=0;
             char_code<=0;char_x<=0;char_y<=0;char_row<=0;char_col<=0;
             text_start<=0;text_len<=0;text_index<=0;text_x<=0;text_y<=0;text_row<=0;text_col<=0;text_char<=0;
@@ -384,7 +430,7 @@ module shama_gpu #(
             push_word_index<=0;push_bit_index<=0;push_word<=0;
         end else begin
             // Register MMIO writes.
-            if(mmio_valid && mmio_we && mmio_ready && !(mmio_addr>=12'h400 && mmio_addr<12'hc00)) begin
+            if(mmio_valid && mmio_we && mmio_ready && !direct_vram_window) begin
                 case(mmio_addr)
                     12'h004:command_reg<=mmio_wdata[7:0];
                     12'h008:arg_reg[0]<=mmio_wdata;
@@ -407,14 +453,14 @@ module shama_gpu #(
                 q2[q_tail]<=arg_reg[2];q3[q_tail]<=arg_reg[3];
                 q4[q_tail]<=arg_reg[4];q5[q_tail]<=arg_reg[5];
                 q6[q_tail]<=arg_reg[6];q7[q_tail]<=arg_reg[7];
-                q_tail<=q_tail+1'b1;
+                q_tail<=(q_tail==QUEUE_DEPTH-1)?0:q_tail+1'b1;
             end
 
             if(pop_event) begin
                 cur_op<=q_op[q_head];
                 ca[0]<=q0[q_head];ca[1]<=q1[q_head];ca[2]<=q2[q_head];ca[3]<=q3[q_head];
                 ca[4]<=q4[q_head];ca[5]<=q5[q_head];ca[6]<=q6[q_head];ca[7]<=q7[q_head];
-                q_head<=q_head+1'b1;
+                q_head<=(q_head==QUEUE_DEPTH-1)?0:q_head+1'b1;
                 state<=ST_DISPATCH;
             end
 
@@ -454,43 +500,88 @@ module shama_gpu #(
                         end
 
                         GPU_LINE:begin
-                            lx<=ca[0];ly<=ca[1];lx1<=ca[2];ly1<=ca[3];
-                            ldx<=(ca[2]>=ca[0])?(ca[2]-ca[0]):(ca[0]-ca[2]);
-                            ldy<=-((ca[3]>=ca[1])?(ca[3]-ca[1]):(ca[1]-ca[3]));
-                            lsx<=(ca[0]<ca[2])?1:-1;lsy<=(ca[1]<ca[3])?1:-1;
-                            lerr<=((ca[2]>=ca[0])?(ca[2]-ca[0]):(ca[0]-ca[2]))
-                                  -((ca[3]>=ca[1])?(ca[3]-ca[1]):(ca[1]-ca[3]));
-                            state<=ST_LINE_PIXEL;
+                            if(!valid_coord(ca[0]) || !valid_coord(ca[1]) ||
+                               !valid_coord(ca[2]) || !valid_coord(ca[3])) begin
+                                queue_error<=1;state<=ST_IDLE;
+                            end else begin
+                                lx<=ca[0];ly<=ca[1];lx1<=ca[2];ly1<=ca[3];
+                                ldx<=($signed(ca[2])>=$signed(ca[0]))?(ca[2]-ca[0]):(ca[0]-ca[2]);
+                                ldy<=-(($signed(ca[3])>=$signed(ca[1]))?(ca[3]-ca[1]):(ca[1]-ca[3]));
+                                lsx<=($signed(ca[0])<$signed(ca[2]))?1:-1;
+                                lsy<=($signed(ca[1])<$signed(ca[3]))?1:-1;
+                                lerr<=(($signed(ca[2])>=$signed(ca[0]))?(ca[2]-ca[0]):(ca[0]-ca[2]))
+                                      -(($signed(ca[3])>=$signed(ca[1]))?(ca[3]-ca[1]):(ca[1]-ca[3]));
+                                state<=ST_LINE_PIXEL;
+                            end
                         end
 
                         GPU_RECT,GPU_FILL_RECT:begin
-                            rx<=0;ry<=0;rw<=ca[2];rh<=ca[3];
-                            rect_fill<=(cur_op==GPU_FILL_RECT);
-                            state<=ST_RECT_PIXEL;
+                            if(!valid_coord(ca[0]) || !valid_coord(ca[1]) ||
+                               ca[2]>COORD_LIMIT || ca[3]>COORD_LIMIT) begin
+                                queue_error<=1;state<=ST_IDLE;
+                            end else if(ca[2]==0 || ca[3]==0 || $signed(ca[0])>=WIDTH || $signed(ca[1])>=HEIGHT ||
+                                        $signed(ca[0])+$signed(ca[2])<=0 || $signed(ca[1])+$signed(ca[3])<=0) begin
+                                state<=ST_IDLE;
+                            end else begin
+                                // Iterate only the visible bounding box. Keep the
+                                // original dimensions so clipped outlines remain outlines.
+                                rx<=max_int(0,-$signed(ca[0]));ry<=max_int(0,-$signed(ca[1]));
+                                rx_start<=max_int(0,-$signed(ca[0]));
+                                rx_last<=min_int($signed(ca[2])-1,WIDTH-1-$signed(ca[0]));
+                                ry_last<=min_int($signed(ca[3])-1,HEIGHT-1-$signed(ca[1]));
+                                rw<=ca[2];rh<=ca[3];rect_fill<=(cur_op==GPU_FILL_RECT);
+                                state<=ST_RECT_PIXEL;
+                            end
                         end
 
                         GPU_CIRCLE:begin
-                            ccx<=ca[0];ccy<=ca[1];cr<=ca[2];cxo<=-ca[2];cyo<=-ca[2];
-                            r2<=ca[2]*ca[2];
-                            inner2<=(ca[2]>0)?((ca[2]-1)*(ca[2]-1)):0;
-                            state<=ST_CIRCLE_PIXEL;
+                            if(!valid_coord(ca[0]) || !valid_coord(ca[1]) || ca[2]>MAX_RADIUS) begin
+                                queue_error<=1;state<=ST_IDLE;
+                            end else if($signed(ca[0])-$signed(ca[2])>=WIDTH || $signed(ca[1])-$signed(ca[2])>=HEIGHT ||
+                                        $signed(ca[0])+$signed(ca[2])<0 || $signed(ca[1])+$signed(ca[2])<0) begin
+                                state<=ST_IDLE;
+                            end else begin
+                                ccx<=ca[0];ccy<=ca[1];cr<=ca[2];
+                                cxo<=max_int(-$signed(ca[2]),-$signed(ca[0]));
+                                cyo<=max_int(-$signed(ca[2]),-$signed(ca[1]));
+                                cx_start<=max_int(-$signed(ca[2]),-$signed(ca[0]));
+                                cx_last<=min_int($signed(ca[2]),WIDTH-1-$signed(ca[0]));
+                                cy_last<=min_int($signed(ca[2]),HEIGHT-1-$signed(ca[1]));
+                                r2<=ca[2]*ca[2];
+                                inner2<=(ca[2]>0)?((ca[2]-1)*(ca[2]-1)):0;
+                                state<=ST_CIRCLE_PIXEL;
+                            end
                         end
 
                         GPU_BLIT,GPU_SPRITE:begin
-                            bsrc<=ca[0];bdx<=ca[1];bdy<=ca[2];bw<=ca[3];bh<=ca[4];
-                            bx<=0;by<=0;blit_transparent<=(cur_op==GPU_SPRITE);
-                            state<=ST_BLIT_READ;
+                            if(ca[0]>1024 || ca[3]>1024 || ca[4]>1024 ||
+                               ca[3]*ca[4]>1024-ca[0] || !valid_coord(ca[1]) || !valid_coord(ca[2])) begin
+                                queue_error<=1;state<=ST_IDLE;
+                            end else if(ca[3]==0 || ca[4]==0) state<=ST_IDLE;
+                            else begin
+                                bsrc<=ca[0];bdx<=ca[1];bdy<=ca[2];bw<=ca[3];bh<=ca[4];
+                                bx<=0;by<=0;blit_transparent<=(cur_op==GPU_SPRITE);
+                                state<=ST_BLIT_READ;
+                            end
                         end
 
                         GPU_DRAW_CHAR:begin
-                            char_code<=ca[0][7:0];char_x<=ca[1];char_y<=ca[2];
-                            char_row<=0;char_col<=0;state<=ST_CHAR_PIXEL;
+                            if(!valid_coord(ca[1]) || !valid_coord(ca[2])) begin queue_error<=1;state<=ST_IDLE;end
+                            else begin
+                                char_code<=ca[0][7:0];char_x<=ca[1];char_y<=ca[2];
+                                char_row<=0;char_col<=0;state<=ST_CHAR_PIXEL;
+                            end
                         end
 
                         GPU_DRAW_TEXT:begin
-                            text_start<=ca[0];text_len<=ca[1];text_x<=ca[2];text_y<=ca[3];
-                            text_index<=0;text_row<=0;text_col<=0;
-                            state<=ST_TEXT_CHAR_READ;
+                            if(ca[0]>256 || ca[1]>256-ca[0] || !valid_coord(ca[2]) || !valid_coord(ca[3])) begin
+                                queue_error<=1;state<=ST_IDLE;
+                            end else if(ca[1]==0) state<=ST_IDLE;
+                            else begin
+                                text_start<=ca[0];text_len<=ca[1];text_x<=ca[2];text_y<=ca[3];
+                                text_index<=0;text_row<=0;text_col<=0;
+                                state<=ST_TEXT_CHAR_READ;
+                            end
                         end
 
                         GPU_SCROLL:begin
@@ -504,19 +595,37 @@ module shama_gpu #(
                         GPU_RESET_CLIP:begin
                             clip_x0<=0;clip_y0<=0;clip_x1<=WIDTH-1;clip_y1<=HEIGHT-1;state<=ST_IDLE;
                         end
-                        GPU_SET_FONT:begin font_id<=ca[0][7:0];state<=ST_IDLE;end
+                        GPU_SET_FONT:begin
+                            // Only the resident 5x7 font is installed. Reject
+                            // unsupported IDs instead of pretending to select one.
+                            if(ca[0]!=0) queue_error<=1;
+                            else font_id<=0;
+                            state<=ST_IDLE;
+                        end
                         GPU_SET_COLOR:begin draw_color<=ca[0][0];state<=ST_IDLE;end
-                        GPU_SET_CURSOR:begin cursor_x<=ca[0];cursor_y<=ca[1];state<=ST_IDLE;end
+                        GPU_SET_CURSOR:begin
+                            for(i=0;i<HEIGHT;i=i+1)
+                                if((cursor_enabled && i>=cursor_y-2 && i<=cursor_y+2) ||
+                                   (ca[2][0] && i>=$signed(ca[1])-2 && i<=$signed(ca[1])+2))
+                                    present_rows[i]<=1;
+                            cursor_x<=ca[0];cursor_y<=ca[1];cursor_enabled<=ca[2][0];
+                            cursor_single<=ca[2][1];
+                            state<=ST_IDLE;
+                        end
 
                         GPU_COPY_BUFFER:begin work_word<=0;state<=ST_COPY_READ;end
-                        GPU_SWAP_BUFFER:begin front_sel<=~front_sel;push_word_index<=0;push_bit_index<=0;state<=ST_PUSH_READ;end
-                        GPU_PUSH_DIRTY:begin push_word_index<=0;push_bit_index<=0;state<=ST_PUSH_READ;end
+                        GPU_SWAP_BUFFER:begin
+                            front_sel<=~front_sel;present_rows<=present_rows|buffer_diff_rows;
+                            push_row<=0;presented_rows<=0;state<=ST_PUSH_FIND;
+                        end
+                        GPU_PUSH_DIRTY:begin push_row<=0;presented_rows<=0;state<=ST_PUSH_FIND;end
                         GPU_FENCE:begin fence_count<=fence_count+1'b1;readback<=fence_count+1'b1;state<=ST_IDLE;end
                         default:begin queue_error<=1;state<=ST_IDLE;end
                     endcase
                 end
 
                 ST_CLEAR_WRITE:if(vram_ready) begin
+                    buffer_diff_rows<='1;
                     if(work_word==FRAME_WORDS-1) state<=ST_IDLE;
                     else work_word<=work_word+1;
                 end
@@ -538,7 +647,10 @@ module shama_gpu #(
                         state<=ST_PIXEL_WRITE;
                     end
                 end
-                ST_PIXEL_WRITE:if(vram_ready) state<=pixel_return;
+                ST_PIXEL_WRITE:if(vram_ready) begin
+                    buffer_diff_rows[pix_y]<=1;
+                    state<=pixel_return;
+                end
 
                 ST_LINE_PIXEL:begin
                     if(in_clip(lx,ly))
@@ -568,9 +680,9 @@ module shama_gpu #(
                     end else state<=ST_RECT_ADV;
                 end
                 ST_RECT_ADV:begin
-                    if(rx==rw-1) begin
-                        rx<=0;
-                        if(ry==rh-1) state<=ST_IDLE;
+                    if(rx==rx_last) begin
+                        rx<=rx_start;
+                        if(ry==ry_last) state<=ST_IDLE;
                         else begin ry<=ry+1;state<=ST_RECT_PIXEL;end
                     end else begin rx<=rx+1;state<=ST_RECT_PIXEL;end
                 end
@@ -582,15 +694,17 @@ module shama_gpu #(
                     else state<=ST_CIRCLE_ADV;
                 end
                 ST_CIRCLE_ADV:begin
-                    if(cxo==cr) begin
-                        cxo<=-cr;
-                        if(cyo==cr) state<=ST_IDLE;
+                    if(cxo==cx_last) begin
+                        cxo<=cx_start;
+                        if(cyo==cy_last) state<=ST_IDLE;
                         else begin cyo<=cyo+1;state<=ST_CIRCLE_PIXEL;end
                     end else begin cxo<=cxo+1;state<=ST_CIRCLE_PIXEL;end
                 end
 
                 ST_BLIT_READ:begin
-                    if(bw<=0 || bh<=0 || (bsrc+by*bw+bx)>=1024) state<=ST_IDLE;
+                    if(bw<=0 || bh<=0 || bsrc<0 || (bsrc+by*bw+bx)>=1024) begin
+                        queue_error<=1;state<=ST_IDLE;
+                    end
                     else if(vram_ready) begin
                         sprite_value<=vram_rdata[((SPRITE_BASE+bsrc+by*bw+bx)&3)*8 +: 8];
                         state<=ST_BLIT_PIXEL;
@@ -629,7 +743,10 @@ module shama_gpu #(
                 end
 
                 ST_TEXT_CHAR_READ:begin
-                    if(text_index>=text_len || text_index>=256) state<=ST_IDLE;
+                    if(text_index>=text_len) state<=ST_IDLE;
+                    else if(text_start<0 || text_start+text_index>=256) begin
+                        queue_error<=1;state<=ST_IDLE;
+                    end
                     else if(vram_ready) begin
                         text_char<=vram_rdata[((TEXT_BASE+text_start+text_index)&3)*8 +: 8];
                         text_row<=0;text_col<=0;state<=ST_TEXT_PIXEL;
@@ -655,7 +772,7 @@ module shama_gpu #(
 
                 ST_COPY_READ:if(vram_ready) begin copy_word<=vram_rdata;state<=ST_COPY_WRITE;end
                 ST_COPY_WRITE:if(vram_ready) begin
-                    if(work_word==FRAME_WORDS-1) state<=ST_IDLE;
+                    if(work_word==FRAME_WORDS-1) begin buffer_diff_rows<='0;state<=ST_IDLE;end
                     else begin work_word<=work_word+1;state<=ST_COPY_READ;end
                 end
 
@@ -665,6 +782,7 @@ module shama_gpu #(
                     else begin work_word<=work_word+1;state<=ST_SCROLL_COPY_READ;end
                 end
                 ST_SCROLL_CLEAR:if(vram_ready) begin
+                    buffer_diff_rows<='1;
                     if(work_word==FRAME_WORDS-1) begin scroll_index<=0;state<=ST_SCROLL_ADV;end
                     else work_word<=work_word+1;
                 end
@@ -691,18 +809,26 @@ module shama_gpu #(
                     if(scroll_source_bit) scroll_index<=scroll_index+1;
                 end
 
+                ST_PUSH_FIND:begin
+                    if(push_row>=HEIGHT) state<=ST_IDLE;
+                    else if(!present_rows[push_row]) push_row<=push_row+1;
+                    else begin
+                        push_word_index<=(push_row*WIDTH)/32;
+                        push_bit_index<=(push_row*WIDTH)%32;
+                        presented_rows<=presented_rows+1'b1;
+                        state<=ST_PUSH_READ;
+                    end
+                end
                 ST_PUSH_READ:if(vram_ready) begin
-                    push_word<=vram_rdata;push_bit_index<=0;state<=ST_PUSH_BITS;
+                    push_word<=vram_rdata;state<=ST_PUSH_BITS;
                 end
                 ST_PUSH_BITS:if(disp_ready) begin
-                    if(push_bit_index==31 ||
-                       push_word_index*32+push_bit_index+1>=PIXELS) begin
-                        if(push_word_index==FRAME_WORDS-1) state<=ST_IDLE;
-                        else begin
+                    if(push_word_index*32+push_bit_index+1>=(push_row+1)*WIDTH) begin
+                        present_rows[push_row]<=0;push_row<=push_row+1;state<=ST_PUSH_FIND;
+                    end else if(push_bit_index==31) begin
                             push_word_index<=push_word_index+1;
                             push_bit_index<=0;
                             state<=ST_PUSH_READ;
-                        end
                     end else push_bit_index<=push_bit_index+1'b1;
                 end
 

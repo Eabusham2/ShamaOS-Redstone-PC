@@ -14,6 +14,14 @@ MAX_FILES = 64
 ENTRY_SIZE = 64
 SUPER_FMT = "<8sIIIIIIII"
 ENTRY_FMT = "<BBHIIIIB43s"
+# Single-entry redo journal, stored in the unused tail of superblock 0. Data
+# extents are copy-on-write. The commit marker is written only after payload and
+# checksum; recovery replays it then reconstructs allocation from file entries.
+JOURNAL_OFFSET = 64
+JOURNAL_MAGIC = 0x314E524A  # little-endian JRN1
+JOURNAL_ENTRY_OFFSET = 72
+JOURNAL_CHECKSUM_OFFSET = 136
+JOURNAL_CHECKSUM_SEED = 0x53464A31
 
 
 class FileType(IntEnum):
@@ -24,6 +32,7 @@ class FileType(IntEnum):
     SYS = 4
     LOG = 5
     CFG = 6
+    DIR = 7
 
 
 @dataclass
@@ -54,38 +63,112 @@ class ShamaFS:
         self.generation = 1
         self.clean = True
         self._files: dict[str, FileEntry] = {}
+        self._handles: dict[int, tuple[int, str]] = {}
+        self._next_handle = 1
         self._used = [False] * self.block_count
         for i in range(self.data_start):
             self._used[i] = True
 
     @staticmethod
     def _normalize_name(name: str) -> str:
+        # Names on flash are canonical paths relative to the virtual root.
+        # Accept a single leading slash for callers, never traversal aliases.
         name = name.strip()
+        if name.startswith("/"):
+            name = name[1:]
         encoded = name.encode("utf-8")
         if not name or len(encoded) > 43:
-            raise ValueError("filename must be 1..43 UTF-8 bytes")
-        if "\x00" in name:
-            raise ValueError("filename contains NUL")
+            raise ValueError("path must be 1..43 UTF-8 bytes")
+        if any(ord(c) < 32 for c in name) or "\\" in name:
+            raise ValueError("path contains a control character or backslash")
+        if any(part in ("", ".", "..") for part in name.split("/")):
+            raise ValueError("path contains an empty or traversal component")
         return name
 
-    def list_files(self) -> list[FileEntry]:
-        return sorted(self._files.values(), key=lambda e: e.name.lower())
+    def _check_parent(self, name: str) -> None:
+        parent, sep, _ = name.rpartition("/")
+        if sep:
+            entry = self._files.get(parent)
+            if entry is None:
+                raise FileNotFoundError(parent)
+            if entry.file_type != FileType.DIR:
+                raise NotADirectoryError(parent)
+
+    def list_files(self, directory: str | None = None) -> list[FileEntry]:
+        entries = self._files.values()
+        if directory is not None:
+            prefix = "" if directory in ("", "/") else self._normalize_name(directory)
+            if prefix:
+                if self.stat(prefix).file_type != FileType.DIR:
+                    raise NotADirectoryError(prefix)
+                prefix += "/"
+            entries = (e for e in entries if e.name.startswith(prefix)
+                       and "/" not in e.name[len(prefix):])
+        return [FileEntry(**vars(e)) for e in sorted(entries, key=lambda e: e.name.lower())]
 
     def exists(self, name: str) -> bool:
-        return name in self._files
+        return self._normalize_name(name) in self._files
 
     def read_file(self, name: str) -> bytes:
-        try:
-            return self._files[name].data
-        except KeyError as exc:
-            raise FileNotFoundError(name) from exc
+        entry = self.stat(name)
+        if entry.file_type == FileType.DIR:
+            raise IsADirectoryError(name)
+        return entry.data
 
     def stat(self, name: str) -> FileEntry:
+        name = self._normalize_name(name)
         try:
             e = self._files[name]
         except KeyError as exc:
             raise FileNotFoundError(name) from exc
         return FileEntry(**vars(e))
+
+    def mkdir(self, path: str) -> None:
+        self.create_file(path, file_type=FileType.DIR)
+
+    def open_file(self, name: str, *, owner: int = 0) -> int:
+        name = self._normalize_name(name)
+        self.stat(name)
+        handle = self._next_handle
+        self._next_handle += 1
+        self._handles[handle] = (owner, name)
+        return handle
+
+    def _handle_name(self, handle: int, owner: int) -> str:
+        try:
+            actual_owner, name = self._handles[handle]
+        except KeyError as exc:
+            raise OSError("invalid or closed file handle") from exc
+        if actual_owner != owner:
+            raise PermissionError("file handle belongs to another app")
+        return name
+
+    def close_file(self, handle: int, *, owner: int = 0) -> None:
+        self._handle_name(handle, owner)
+        del self._handles[handle]
+
+    def close_owner(self, owner: int) -> int:
+        handles = [h for h, (o, _) in self._handles.items() if o == owner]
+        for handle in handles:
+            del self._handles[handle]
+        return len(handles)
+
+    def transfer_handle(self, handle: int, new_owner: int, *, owner: int = 0) -> None:
+        self._handles[handle] = (new_owner, self._handle_name(handle, owner))
+
+    def read_handle(self, handle: int, count: int, *, offset: int = 0, owner: int = 0) -> bytes:
+        if count < 0 or offset < 0:
+            raise ValueError("negative file range")
+        return self.read_file(self._handle_name(handle, owner))[offset:offset + count]
+
+    def write_handle(self, handle: int, data: bytes, *, owner: int = 0) -> None:
+        self.write_file(self._handle_name(handle, owner), data)
+
+    def truncate(self, name: str, size: int) -> None:
+        if size < 0 or size > self.flash_bytes:
+            raise ValueError("invalid truncate size")
+        old = self.read_file(name)
+        self.write_file(name, old[:size].ljust(size, b"\x00"))
 
     def _find_extent(self, blocks: int) -> int:
         if blocks == 0:
@@ -113,6 +196,10 @@ class ShamaFS:
 
     def create_file(self, name: str, data: bytes = b"", file_type: FileType = FileType.DATA) -> None:
         name = self._normalize_name(name)
+        self._check_parent(name)
+        file_type = FileType(file_type)
+        if file_type == FileType.DIR and data:
+            raise IsADirectoryError(name)
         if name in self._files:
             raise FileExistsError(name)
         if len(self._files) >= MAX_FILES:
@@ -131,11 +218,14 @@ class ShamaFS:
         )
 
     def write_file(self, name: str, data: bytes, *, file_type: FileType | None = None) -> None:
+        name = self._normalize_name(name)
         if name not in self._files:
-            self.create_file(name, data, file_type or FileType.DATA)
+            self.create_file(name, data, FileType.DATA if file_type is None else file_type)
             return
 
         old = self._files[name]
+        if old.file_type == FileType.DIR or file_type == FileType.DIR:
+            raise IsADirectoryError(name)
         new_blocks = math.ceil(len(data) / self.block_size) if data else 0
 
         # Allocate new extent before freeing old, mirroring a safer save sequence.
@@ -145,7 +235,7 @@ class ShamaFS:
         self.generation += 1
         replacement = FileEntry(
             name=name,
-            file_type=file_type or old.file_type,
+            file_type=old.file_type if file_type is None else FileType(file_type),
             data=bytes(data),
             flags=old.flags,
             start_block=start,
@@ -156,25 +246,35 @@ class ShamaFS:
         self._mark(old.start_block, old.block_count, False)
 
     def rename(self, old: str, new: str) -> None:
-        new = self._normalize_name(new)
+        old, new = self._normalize_name(old), self._normalize_name(new)
+        self._check_parent(new)
+        if old == new:
+            self.stat(old)
+            return
         if new in self._files:
             raise FileExistsError(new)
-        try:
-            entry = self._files.pop(old)
-        except KeyError as exc:
-            raise FileNotFoundError(old) from exc
+        entry = self.stat(old)
+        if entry.file_type == FileType.DIR and any(n.startswith(old + "/") for n in self._files):
+            raise OSError("cannot rename a nonempty directory")
         self.generation += 1
-        entry.name = new
-        entry.generation = self.generation
+        del self._files[old]
+        entry.name, entry.generation = new, self.generation
         self._files[new] = entry
+        for handle, (owner, name) in tuple(self._handles.items()):
+            if name == old:
+                self._handles[handle] = (owner, new)
 
     def delete(self, name: str) -> None:
-        try:
-            entry = self._files.pop(name)
-        except KeyError as exc:
-            raise FileNotFoundError(name) from exc
+        name = self._normalize_name(name)
+        entry = self.stat(name)
+        if entry.file_type == FileType.DIR and any(n.startswith(name + "/") for n in self._files):
+            raise OSError("directory is not empty")
+        del self._files[name]
         self._mark(entry.start_block, entry.block_count, False)
         self.generation += 1
+        for handle, (_, path) in tuple(self._handles.items()):
+            if path == name:
+                del self._handles[handle]
 
     @property
     def used_bytes(self) -> int:
@@ -232,65 +332,92 @@ class ShamaFS:
 
         return bytes(image)
 
+    @staticmethod
+    def journal_checksum(index: int, entry: bytes) -> int:
+        if len(entry) != ENTRY_SIZE:
+            raise ValueError("invalid journal entry length")
+        checksum = JOURNAL_CHECKSUM_SEED ^ index
+        for word in struct.unpack("<16I", entry):
+            checksum ^= word
+        return checksum
+
+    @classmethod
+    def recover_image(cls, image: bytes) -> bytes:
+        """Replay a committed metadata entry and rebuild the allocation bitmap.
+
+        Each acknowledged DMA word is the transaction interruption boundary.
+        The journal checksum detects incomplete/torn payloads; a malformed
+        committed journal fails explicitly instead of inventing file metadata.
+        """
+        fs = cls.deserialize(image)
+        return fs.serialize()
+
     @classmethod
     def deserialize(cls, image: bytes) -> "ShamaFS":
-        if len(image) < struct.calcsize(SUPER_FMT):
+        if len(image) < 256:
             raise ValueError("image too small")
-        (
-            magic,
-            version,
-            block_size,
-            block_count,
-            bitmap_start,
-            table_start,
-            data_start,
-            generation,
-            clean,
-        ) = struct.unpack_from(SUPER_FMT, image, 0)
+        (magic, version, block_size, block_count, bitmap_start, table_start,
+         data_start, generation, clean) = struct.unpack_from(SUPER_FMT, image, 0)
         if magic != MAGIC or version != VERSION:
             raise ValueError("unsupported ShamaFS image")
-        if len(image) != block_size * block_count:
+        if block_size < 256 or len(image) != block_size * block_count:
             raise ValueError("flash image length mismatch")
-
         fs = cls(len(image), block_size)
-        if (fs.bitmap_start, fs.table_start, fs.data_start) != (
-            bitmap_start,
-            table_start,
-            data_start,
-        ):
+        if (fs.bitmap_start, fs.table_start, fs.data_start) != (bitmap_start, table_start, data_start):
             raise ValueError("metadata geometry mismatch")
-        fs.generation = generation
-        fs.clean = bool(clean)
-        fs._files.clear()
-        fs._used = [False] * fs.block_count
+        fs.generation, fs.clean = generation, bool(clean)
+        working = bytearray(image)
+        marker, journal_index = struct.unpack_from("<II", image, JOURNAL_OFFSET)
+        if marker:
+            if marker != JOURNAL_MAGIC or journal_index >= MAX_FILES:
+                raise ValueError("invalid committed journal header")
+            payload = bytes(image[JOURNAL_ENTRY_OFFSET:JOURNAL_ENTRY_OFFSET + ENTRY_SIZE])
+            checksum, = struct.unpack_from("<I", image, JOURNAL_CHECKSUM_OFFSET)
+            if checksum != cls.journal_checksum(journal_index, payload):
+                raise ValueError("committed journal checksum mismatch")
+            off = table_start * block_size + journal_index * ENTRY_SIZE
+            working[off:off + ENTRY_SIZE] = payload
+            fs.clean = True
 
-        bitmap_len = fs.bitmap_blocks * fs.block_size
-        bitmap = image[
-            fs.bitmap_start * fs.block_size :
-            fs.bitmap_start * fs.block_size + bitmap_len
-        ]
-        for i in range(fs.block_count):
-            fs._used[i] = bool(bitmap[i // 8] & (1 << (i % 8)))
-
+        # The bitmap is reconstructible metadata. Never trust leaked allocations
+        # or a half-updated bitmap left by an interrupted copy-on-write operation.
+        fs._used = [i < fs.data_start for i in range(fs.block_count)]
         table_off = fs.table_start * fs.block_size
         for idx in range(MAX_FILES):
-            off = table_off + idx * ENTRY_SIZE
-            fields = struct.unpack_from(ENTRY_FMT, image, off)
+            fields = struct.unpack_from(ENTRY_FMT, working, table_off + idx * ENTRY_SIZE)
             in_use = fields[0]
             if not in_use:
                 continue
+            if in_use != 1:
+                raise ValueError("invalid file-table used flag")
             _, ftype, flags, size, start, count, fgen, name_len, name_raw = fields
-            name = name_raw[:name_len].decode("utf-8")
+            if not 1 <= name_len <= 43:
+                raise ValueError("invalid stored path length")
+            try:
+                name = name_raw[:name_len].decode("utf-8")
+                if cls._normalize_name(name) != name:
+                    raise ValueError("noncanonical stored path")
+                file_type = FileType(ftype)
+            except (UnicodeError, ValueError) as exc:
+                raise ValueError("invalid file metadata") from exc
+            if name in fs._files:
+                raise ValueError("duplicate stored path")
+            if count != math.ceil(size / block_size):
+                raise ValueError("size/extent count mismatch")
+            if count == 0 and start != 0:
+                raise ValueError("empty file has data extent")
+            if count:
+                if start < fs.data_start or start + count > fs.block_count:
+                    raise ValueError("file extent outside data region")
+                if any(fs._used[start:start + count]):
+                    raise ValueError("overlapping file extents")
+                fs._mark(start, count, True)
+            if file_type == FileType.DIR and size:
+                raise ValueError("directory contains data")
             data_off = start * fs.block_size
-            data = bytes(image[data_off : data_off + size]) if count else b""
-            fs._files[name] = FileEntry(
-                name=name,
-                file_type=FileType(ftype),
-                data=data,
-                flags=flags,
-                start_block=start,
-                block_count=count,
-                generation=fgen,
-            )
-
+            data = bytes(working[data_off:data_off + size]) if count else b""
+            fs._files[name] = FileEntry(name, file_type, data, flags, start, count, fgen)
+            fs.generation = max(fs.generation, fgen)
+        for name in fs._files:
+            fs._check_parent(name)
         return fs

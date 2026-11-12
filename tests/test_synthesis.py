@@ -3,6 +3,7 @@ from pathlib import Path
 
 from shamaos.model import Vec3
 from shamaos.synthesis import build_physical_netlist
+from shamaos.hardware.logic import template_for
 
 
 def test_physical_netlist_from_mapped_json(tmp_path: Path):
@@ -88,3 +89,27 @@ def test_enabled_dff_is_lowered_to_supported_physical_cells(tmp_path: Path):
             break
     assert any(p.block.name == "minecraft:repeater" for p in placements)
     assert any("torch" in p.block.name for p in placements)
+
+
+def test_placer_uses_widest_cell_and_actual_footprints_do_not_overlap(tmp_path):
+    cells = {
+        f"a{i}": {
+            "type": "$_AND_", "connections": {"A": [2], "B": [3], "Y": [4+i]},
+        }
+        for i in range(9)
+    }
+    path = tmp_path / "wide.json"
+    path.write_text(json.dumps({"modules": {"wide": {
+        "ports": {
+            "a": {"direction": "input", "bits": [2]},
+            "b": {"direction": "input", "bits": [3]},
+            "q": {"direction": "output", "bits": list(range(4, 13))},
+        }, "cells": cells,
+    }}}))
+    physical = build_physical_netlist(path, top="wide")
+    assert physical.cell_stride >= template_for("$_AND_").width + 8
+    occupied = set()
+    for name, origin in physical.cell_origins.items():
+        positions = {p.pos for p in template_for(physical.cell_types[name]).emitter(origin, name)}
+        assert not occupied.intersection(positions)
+        occupied.update(positions)

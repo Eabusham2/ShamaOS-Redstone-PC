@@ -1,33 +1,26 @@
-# Roadmap / Release State
+# Remaining release work
 
-## Implemented for v1.0.0
+The detailed requirements are [REQUIREMENTS.md](REQUIREMENTS.md). Features
+promised during planning are required before a complete release, including full
+source editing, software/native SHA comparison, dirty display updates, persistent
+settings, clean lifecycle and diagnostics. They are not deferred as optional
+post-release enhancements.
 
-- 32-bit CPU and native SHA unit
-- 1 MiB physical RAM
-- 16 KiB physical executable cache
-- 4 MiB physical flash
-- 32 KiB physical VRAM
-- 320×180 physical lamp display
-- keyboard/controller/power/reset
-- ShamaFS hardware
-- in-world assembler
-- ShamaOS boot/app lifecycle and hardware-universal switching
-- Desktop, Editor, File Explorer, Bitcoin Miner, System Monitor, Terminal, Calculator, Paint, Settings
-- Yosys→redstone logic synthesis
-- physical memory/display fabrics
-- crossing-safe strength-refreshed routing
-- direct Java-world writer
-- fast CI and release-only full physical synthesis gate
+Current priorities are:
 
-## Post-v1.0 improvements
+1. Preserve the behavioral CPU/GPU/OS/filesystem/assembler regressions and finish
+   integrated first-boot/power-cycle/error cases against exact shipped firmware.
+2. Complete physical cell and connected-route validation, including dense
+   sequential nets, endpoint escape, fanout and clock timing.
+3. Validate compact stacked storage and shared local backbones, retaining every
+   advertised byte; reduce chunk/generation overhead with measured emission work.
+4. Run all full-size synthesis partitions and reconnection for the exact candidate.
+5. Generate and verify the complete world with a practical loaded/ticking-chunk
+   configuration; run the full in-world acceptance sequence.
+6. Publish the world, source revision, checksums, exact CI/runtime reports and
+   acceleration/loading instructions together.
 
-Optimizations/extensions only:
-
-- sparse dirty-tile pushes instead of full-frame pushes
-- richer font
-- larger paged Editor source buffer
-- more Terminal commands
-- timing/area compaction after in-game profiling
-- automated capture of generated-world MCHPRS smoke tests
-
-Locked capacities/resolution must not be reduced without explicit owner approval.
+The current compact cell is an implemented density improvement, not the end of
+layout optimization. Capacities/resolution are unchanged. See
+[IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) for the distinction between
+completed behavioral work, local physical fixtures and open full-world gates.

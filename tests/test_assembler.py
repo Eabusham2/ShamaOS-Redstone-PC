@@ -1,5 +1,7 @@
 from shamaos.assembler import assemble
 from shamaos.isa import decode_header
+from shamaos.assembler import AssemblyError
+import pytest
 
 
 def test_labels_and_branch():
@@ -38,3 +40,9 @@ def test_sha_program_assembles():
 def test_aliases():
     result = assemble("CAL .x\n.x HLT\n")
     assert len(result.words) == 3
+
+
+@pytest.mark.parametrize('literal', [r"'\u0041'",r"'\U00000041'",r"'\N{LATIN CAPITAL LETTER A}'",r"'\f'",r"'\400'","'é'"])
+def test_host_rejects_character_forms_missing_from_the_in_world_language(literal):
+    with pytest.raises(AssemblyError,match='line 2'):
+        assemble('NOP\nLDI r1 '+literal+'\n')

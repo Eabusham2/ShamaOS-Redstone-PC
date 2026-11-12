@@ -6,6 +6,7 @@ from shamaos.os_image import (
     BUNDLE_ORDER,
     KERNEL_RAM_BASE,
     build_default_os_image,
+    render_boot_parameters,
 )
 
 
@@ -29,6 +30,9 @@ def _defines() -> dict[str, int]:
 def test_rtl_boot_parameters_match_generated_flash_image():
     d = _defines()
     image = build_default_os_image()
+    assert (ROOT / "rtl/shama_boot_params.svh").read_text() == render_boot_parameters(image)
+    assert d["SHAMA_MINER_HISTORY_ENTRY"] == image.file_entry_indices["miner-history.log"]
+    assert d["SHAMA_MINER_STATE_ENTRY"] == image.file_entry_indices["miner-state.cfg"]
 
     assert d["SHAMA_BUNDLE_FLASH_OFFSET"] == image.bundle_flash_offset
     assert d["SHAMA_SLOT_BYTES"] == APP_SLOT_BYTES

@@ -40,11 +40,22 @@ class AssemblyResult:
         return b"".join(w.to_bytes(4, "little", signed=False) for w in self.words)
 
 
-_COMMENT_RE = re.compile(r"(?://|;).*$")
-
-
 def _strip_comment(line: str) -> str:
-    return _COMMENT_RE.sub("", line).strip()
+    quote = None
+    escaped = False
+    for index, char in enumerate(line):
+        if quote is not None:
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == quote:
+                quote = None
+        elif char in "'\"":
+            quote = char
+        elif char == ";" or line[index:index + 2] == "//":
+            return line[:index].strip()
+    return line.strip()
 
 
 def _reg(token: str) -> int:
@@ -67,21 +78,60 @@ def _int(token: str, symbols: dict[str, int]) -> int:
         return symbols[key]
     if len(t) >= 3 and t[0] in "'\"" and t[-1] == t[0]:
         body = t[1:-1]
-        if len(body) != 1:
-            raise AssemblyError(f"character literal must contain one character: {token!r}")
-        return ord(body)
+        escapes = {"n":10,"r":13,"t":9,"0":0,"'":39,'"':34,"\\":92}
+        if len(body) == 1 and ord(body) < 128 and body != "\\":
+            return ord(body)
+        if body.startswith("\\"):
+            escape = body[1:]
+            if escape in escapes:
+                return escapes[escape]
+            if re.fullmatch(r"x[0-9a-fA-F]{2}",escape):
+                return int(escape[1:],16)
+            if re.fullmatch(r"[0-7]{1,3}",escape) and int(escape,8) <= 255:
+                return int(escape,8)
+        raise AssemblyError(f"invalid byte character literal: {token!r}")
     try:
-        return int(t, 0)
+        # Decimal is decimal even when zero-padded. Reject Python-only numeric
+        # syntax so host and in-world assemblers accept the same language.
+        if not re.fullmatch(r"[+-]?(?:0[xX][0-9a-fA-F]+|0[bB][01]+|[0-9]+)", t):
+            raise ValueError(t)
+        unsigned = t.lstrip("+-")
+        return int(t, 16 if unsigned.lower().startswith("0x") else 2 if unsigned.lower().startswith("0b") else 10)
     except ValueError as exc:
         raise AssemblyError(f"unknown symbol/immediate {token!r}") from exc
 
 
 def _tokenize_instruction(text: str) -> tuple[str, tuple[str, ...]]:
-    text = text.replace(",", " ")
-    parts = tuple(p for p in text.split() if p)
+    # Keep quotes and escapes for the literal parser. shlex(posix=False) ends
+    # a token at an escaped quote, unlike the in-world assembler.
+    parts = []
+    token = []
+    quote = None
+    escaped = False
+    for char in text:
+        if quote is not None:
+            token.append(char)
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == quote:
+                quote = None
+        elif char.isspace() or char == ",":
+            if token:
+                parts.append("".join(token))
+                token = []
+        else:
+            token.append(char)
+            if char in "'\"":
+                quote = char
+    if quote is not None:
+        raise AssemblyError("unterminated character literal")
+    if token:
+        parts.append("".join(token))
     if not parts:
         raise AssemblyError("empty instruction")
-    return parts[0], parts[1:]
+    return parts[0], tuple(parts[1:])
 
 
 def parse_source(source: str) -> tuple[list[SourceLine], dict[str, int]]:
@@ -93,16 +143,32 @@ def parse_source(source: str) -> tuple[list[SourceLine], dict[str, int]]:
         if not text:
             continue
 
-        parts = text.split()
+        try:
+            token, arguments = _tokenize_instruction(text)
+        except AssemblyError as exc:
+            raise AssemblyError(f"line {line_no}: {exc}") from exc
+        parts = (token, *arguments)
         if parts[0].lower() == "define":
             if len(parts) != 3:
                 raise AssemblyError(f"line {line_no}: define syntax is 'define NAME value'")
             name = parts[1].upper()
-            definitions[name] = _int(parts[2], definitions)
+            if name in definitions or name in SYSCALLS:
+                raise AssemblyError(f"line {line_no}: duplicate/reserved definition {name}")
+            try:
+                definitions[name] = _int(parts[2], definitions)
+            except AssemblyError as exc:
+                raise AssemblyError(f"line {line_no}: {exc}") from exc
             continue
 
         label = None
-        if text.startswith("."):
+        colon_label = re.match(r"^([A-Za-z_.][A-Za-z_0-9.]*)\s*:\s*(.*)$", text)
+        if colon_label:
+            label = colon_label.group(1).upper()
+            text = colon_label.group(2)
+            if not text:
+                parsed.append(SourceLine(line_no, raw, label, None, ()))
+                continue
+        elif text.startswith("."):
             first, *rest = text.split(maxsplit=1)
             label = first.upper()
             text = rest[0] if rest else ""
@@ -111,6 +177,14 @@ def parse_source(source: str) -> tuple[list[SourceLine], dict[str, int]]:
                 continue
 
         mnemonic, args = _tokenize_instruction(text)
+        if mnemonic.upper() == "BRH" or (mnemonic.upper() == "BR" and len(args) == 2):
+            if len(args) != 2:
+                raise AssemblyError(f"line {line_no}: BRH requires condition and target")
+            mnemonic, args = "BR." + args[0], (args[1],)
+        elif mnemonic.upper() == "BR" and len(args) == 1:
+            mnemonic = "JMP"
+        elif mnemonic.upper() == "RSH" and len(args) == 3:
+            mnemonic = "SHR"
         parsed.append(SourceLine(line_no, raw, label, mnemonic, args))
 
     return parsed, definitions
@@ -132,7 +206,10 @@ def _resolve_layout(lines: list[SourceLine]) -> dict[str, int]:
                 raise AssemblyError(f"line {line.line_no}: duplicate label {line.label}")
             labels[line.label] = pc
         if line.mnemonic:
-            pc += _instruction_words(line.mnemonic)
+            try:
+                pc += _instruction_words(line.mnemonic)
+            except KeyError as exc:
+                raise AssemblyError(f"line {line.line_no}: unknown instruction {line.mnemonic}") from exc
     return labels
 
 
@@ -154,7 +231,9 @@ def _encode(line: SourceLine, symbols: dict[str, int]) -> list[int]:
         except KeyError as exc:
             raise AssemblyError(f"line {line.line_no}: unknown branch condition {cond_name}") from exc
         _expect(line.args, 1, line)
-        target = _int(line.args[0].upper(), symbols) & 0xFFFFFFFF
+        target = _int(line.args[0], symbols)
+        if not 0 <= target <= 0xFFFFFFFF:
+            raise AssemblyError(f"line {line.line_no}: branch target out of range")
         spec = BY_NAME["BR"]
         return [encode_header(spec.opcode, rd=cond), target]
 
@@ -195,12 +274,17 @@ def _encode(line: SourceLine, symbols: dict[str, int]) -> list[int]:
 
     if spec.fmt == Format.RI32:
         _expect(a, 2, line)
-        value = _int(a[1].upper(), symbols) & 0xFFFFFFFF
+        value = _int(a[1], symbols)
+        if not -(1 << 31) <= value <= 0xFFFFFFFF:
+            raise AssemblyError(f"line {line.line_no}: immediate out of 32-bit range")
+        value &= 0xFFFFFFFF
         return [encode_header(spec.opcode, rd=_reg(a[0])), value]
 
     if spec.fmt == Format.J32:
         _expect(a, 1, line)
-        target = _int(a[0].upper(), symbols) & 0xFFFFFFFF
+        target = _int(a[0], symbols)
+        if not 0 <= target <= 0xFFFFFFFF:
+            raise AssemblyError(f"line {line.line_no}: target out of range")
         return [encode_header(spec.opcode), target]
 
     if spec.fmt == Format.BR32:
@@ -212,7 +296,7 @@ def _encode(line: SourceLine, symbols: dict[str, int]) -> list[int]:
         _expect(a, 3, line)
         r0 = _reg(a[0])
         r1 = _reg(a[1])
-        off = _int(a[2].upper(), symbols)
+        off = _int(a[2], symbols)
         if not -2048 <= off <= 2047:
             raise AssemblyError(f"line {line.line_no}: memory offset out of range")
         # Loads/LEA use rd,base,off. Stores use base,src,off.
@@ -232,7 +316,7 @@ def _encode(line: SourceLine, symbols: dict[str, int]) -> list[int]:
 
     if spec.fmt == Format.R_SYS:
         _expect(a, 2, line)
-        value = _int(a[1].upper(), symbols)
+        value = _int(a[1], symbols)
         if not 0 <= value <= 0xFFF:
             raise AssemblyError(f"line {line.line_no}: counter id out of range")
         return [encode_header(spec.opcode, rd=_reg(a[0]), imm12=value)]
@@ -254,7 +338,7 @@ def assemble(source: str) -> AssemblyResult:
         try:
             emitted = _encode(line, symbols)
         except (AssemblyError, KeyError, ValueError) as exc:
-            if isinstance(exc, AssemblyError):
+            if isinstance(exc, AssemblyError) and str(exc).startswith("line "):
                 raise
             raise AssemblyError(f"line {line.line_no}: {exc}") from exc
         addr = len(words)

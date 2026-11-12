@@ -1,83 +1,95 @@
-# Hardware and World Generation
+# Hardware and world generation
 
-## One-shot pipeline
+## Pipeline
 
-```text
-configs/default.toml
-        |
-        +--> firmware assembler --> 4 MiB ShamaFS image
-        |
-        +--> custom regular fabrics
-        |      cache / RAM / flash / VRAM / display / input
-        |
-        +--> SystemVerilog RTL --> Yosys --> redstone technology cells
-        |
-        +--> 2-D placement + crossing-safe routing
-        |
-        +--> physical memory backbones + system interconnect + clock
-        |
-        v
-     Amulet Java chunks
+```mermaid
+flowchart TD
+    C["Machine configuration"] --> F["Firmware and flash image"]
+    C --> B["Memory, screen and controls"]
+    R["SystemVerilog RTL"] --> S["Synthesis and physical routing"]
+    F --> W["World emission"]
+    B --> W
+    S --> W
+    W --> V["Independent saved-world readback"]
+    V --> T["Runtime acceptance"]
 ```
 
-Target format: Minecraft Java 1.20.4, normally a disposable superflat Overworld.
+Each stage has its own validation. A complete runtime result is not implied by
+successful emission or a mapped netlist. The target is Minecraft Java 1.20.4,
+DataVersion 3700, with all physical computation performed by emitted redstone.
 
-## Regular physical fabrics
+## Regular fabrics
 
-- cache: 4 × 4 KiB banks;
-- RAM: 256 × 4 KiB banks;
-- flash: 1,024 × 4 KiB banks;
-- VRAM: 8 × 4 KiB banks;
-- 320×180 lamp display;
-- keyboard/controller.
+The default image reserves 4 cache, 256 RAM, 1,024 flash and 8 VRAM banks, each
+4 KiB. Flash is initialized from the assembled 4 MiB ShamaFS image. Compact
+memory cells use locked repeaters and isolated read/write buses; see
+[MEMORY.md](MEMORY.md) for counts, stacking work and initialization details.
 
-A default memory bank is 1,024 × 32-bit words = 4 KiB. Flash is initialized directly from the assembled 4 MiB ShamaFS image.
+The display is a horizontal 320×180 X/Z panel, viewed from above, with a locked
+latch per lamp and five-block pixel pitch. Physical keyboard/controller, Shift,
+power/reset/pause/step, clock and architectural debug lamps form the interface.
 
-## Synthesized logic
+## Logic mapping
 
-CPU/native-SHA, GPU, display bridge, input, OS services, GUI kernel, ShamaFS, in-world assembler and each memory adapter are synthesized as independent physical redstone partitions. A small black-boxed `shama_soc` shell is synthesized separately and routed directly to the real partition port terminals. This preserves the exact integrated RTL hierarchy while avoiding one monolithic Yosys flatten/ABC pass. Each partition still maps into BUF/NOT/NAND/NOR/DFF redstone cells and uses the same 2-D physical placer/router.
+CPU/native SHA, GPU, display bridge, input, OS services, GUI kernel, ShamaFS,
+in-world assembler and each memory adapter are separate synthesis partitions.
+The black-boxed `shama_soc` shell is mapped separately and connects their actual
+port positions. This retains the integrated hierarchy while avoiding a single
+monolithic flatten/ABC pass.
 
-## Routing
+The mapper emits the supported BUF/NOT/AND/NAND/NOR/DFF technology cells and
+lowers supported clock enables and synchronous-reset variants with their exact
+polarities/reset/enable priority. It probes installed ABC options and explicitly
+rejects unsupported sequential semantics rather than guessing.
 
-Internal SoC nets and system interconnect use separate routing planes. The router:
+## Routing and timing
 
-- isolates logical nets on distinct tracks;
-- uses branch/trunk planes for crossings;
-- emits explicit redstone-wire states;
-- regenerates long runs with repeaters;
-- uses flat repeater plateaus on rising/falling stair routes.
+Internal nets and system interconnect use separated routing planes. Stair
+transitions require supported dust and legal flat repeater positions before
+signal strength expires. Directed boundary repeaters isolate fanout branches.
+Allocators must account for other wires/supports and component obstacles,
+including the complete pin escape path.
 
-Memory fabrics use local bank/row backbones.
+Actual-engine tests exercise representative nets and placed sequential cells.
+They do not substitute for complete-machine electrical isolation, fanout and
+clock-skew/hold closure. The default divided core clock remains conservative;
+its setting cannot alone prove timing safety. Raw inputs continue through the
+physical clock while the CPU is paused; single-step grants a complete core pulse.
+Power-off requests keep the clock available for save/cleanup before stopping.
 
-## Display
+## Native world backend
 
-The screen remains **320×180**. It is physically horizontal in X/Z and viewed from above so all repeater/dust buses are valid vanilla redstone. Each pixel has a locked-repeater latch and lamp.
+`create-world` makes a new owned Java save. The native backend emits compressed
+Anvil chunks, correct chunk coordinates and exact block properties, with a
+bounded chunk cache and explicit build-height/world-border checks. Conflicting
+block assignments fail. Successful generation with `validate_after_write=true`
+reads the actual files back and compares their saved block-state content.
+Reports include source/version identity and distinguish file fidelity from
+runtime proof.
 
-## Clocking
+An optional Amulet backend handles existing unrelated saves. Native code does
+not discard unknown metadata to pretend it supports arbitrary-world editing.
+No giant setblock script, command-block implementation or runtime Python CPU is
+used.
 
-The input/event latch receives the raw comparator clock. Core logic uses divider bit 17 by default to allow long literal memory routes to settle. During reset, core clock follows the raw clock so state receives reset edges before power-off.
+## Resource accounting
 
-## World writer
+Before full emission, `generation-preflight` checks the fixed capacity contract
+and available disk against a storage-only Anvil lower bound. It reports what is
+excluded, including logic, routes, clock/backbones, display, validation ledger
+and compaction space. Bank layout, generation locality and canonical section
+reuse can materially improve cost, but each needs measured results and exact
+readback before claims are updated.
 
-Amulet Core is used to:
-
-- verify an existing Java world folder;
-- create missing far-away chunks;
-- convert exact Java block states;
-- cache palette IDs;
-- write palette IDs directly;
-- periodically save/unload chunks;
-- reject invalid build-height/world-border placements.
-
-No giant `/setblock` command script is generated.
-
-## Command
+## Commands
 
 ```bash
-shamaos generate \
-  --world "/path/to/.minecraft/saves/ShamaOS" \
-  --config configs/default.toml \
-  --manifest build/generated-manifest.json
+shamaos create-world --world build/ShamaOS --name ShamaOS
+shamaos generation-preflight --config configs/default.toml --world build/ShamaOS --report build/resource-preflight.json
+shamaos generate --world build/ShamaOS --config configs/default.toml --manifest build/generated-manifest.json
+shamaos validate-world --world build/ShamaOS
+shamaos validate-manifest --manifest build/generated-manifest.json
 ```
 
-Minecraft should be closed while writing.
+Use a disposable closed world while writing. The full runtime acceptance and
+release evidence requirements are in [VALIDATION.md](VALIDATION.md).

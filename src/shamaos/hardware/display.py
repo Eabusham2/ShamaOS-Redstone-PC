@@ -4,8 +4,7 @@ from dataclasses import dataclass
 from typing import Iterator
 
 from ..model import BlockState, Placement, Vec3
-from .memory import DUST, SUPPORT, repeater
-from .routing import iter_stair
+from .memory import DUST, SUPPORT, redstone_wire, repeater
 
 
 LAMP_OFF = BlockState.of("minecraft:redstone_lamp", lit="false")
@@ -13,6 +12,8 @@ BLACK = BlockState.of("minecraft:black_concrete")
 WALL_TORCH_E = BlockState.of(
     "minecraft:redstone_wall_torch", facing="east", lit="true"
 )
+TORCH_ON = BlockState.of("minecraft:redstone_torch", lit="true")
+TORCH_OFF = BlockState.of("minecraft:redstone_torch", lit="false")
 
 
 @dataclass(frozen=True)
@@ -59,7 +60,7 @@ def panel_ports(origin: Vec3, spec: LampPanelSpec) -> LampPanelPorts:
         Vec3(
             origin.x - 64,
             row_y,
-            origin.z + row * spec.pixel_pitch_y - 2,
+            origin.z + row * spec.pixel_pitch_y - 4,
         )
         for row in range(spec.height)
     )
@@ -75,6 +76,7 @@ def _wire_x(
     component: str,
     facing: str,
     tap_mod: int = 5,
+    initial_powered: bool = False,
 ) -> Iterator[Placement]:
     step = 1 if x1 >= x0 else -1
     for n, x in enumerate(range(x0, x1 + step, step)):
@@ -83,7 +85,8 @@ def _wire_x(
         use_repeater = n and n % 10 == 3 and n % tap_mod != 0
         yield Placement(
             Vec3(x, y, z),
-            repeater(facing) if use_repeater else DUST,
+            repeater(facing, powered=initial_powered) if use_repeater else
+            (redstone_wire(power=15) if initial_powered else DUST),
             component,
         )
 
@@ -130,8 +133,8 @@ def iter_lamp_panel(
       * the storage repeater strongly powers a block directly below its lamp.
 
     Data buses are at y+1. Row-lock buses are at y-2, crossing underneath them
-    without joining. Short explicit-state stairs rise only at the selected
-    pixel lock taps.
+    without joining. Isolated two-torch risers bring each lock tap to its side
+    repeater without replacing or interrupting the row bus.
     """
     if spec.width <= 0 or spec.height <= 0:
         raise ValueError("invalid panel geometry")
@@ -157,7 +160,7 @@ def iter_lamp_panel(
 
     for row in range(spec.height):
         center_z = origin.z + row * spec.pixel_pitch_y
-        row_bus_z = center_z - 2
+        row_bus_z = center_z - 4
 
         # External active-high select travels to a local inverter.
         yield from _wire_x(
@@ -193,6 +196,7 @@ def iter_lamp_panel(
             component=component,
             facing="east",
             tap_mod=spec.pixel_pitch_x,
+            initial_powered=True,
         )
 
         for col in range(spec.width):
@@ -206,7 +210,7 @@ def iter_lamp_panel(
             )
             yield Placement(
                 Vec3(bx + 1, data_y, center_z),
-                DUST,
+                repeater("east"),
                 component,
             )
             yield Placement(
@@ -214,21 +218,10 @@ def iter_lamp_panel(
                 SUPPORT,
                 component,
             )
-            yield Placement(
-                Vec3(bx + 2, data_y, center_z),
-                repeater("east"),
-                component,
-            )
-
             # Actual pixel memory.
             yield Placement(
-                Vec3(bx + 3, data_y - 1, center_z),
-                SUPPORT,
-                component,
-            )
-            yield Placement(
                 Vec3(
-                    bx + 3,
+                    bx + 2,
                     data_y,
                     center_z,
                 ),
@@ -242,27 +235,30 @@ def iter_lamp_panel(
 
             # Normally-powered side-lock repeater, north of storage.
             yield Placement(
-                Vec3(bx + 3, data_y - 1, center_z - 1),
+                Vec3(bx + 2, data_y - 1, center_z - 1),
                 SUPPORT,
                 component,
             )
             yield Placement(
-                Vec3(bx + 3, data_y, center_z - 1),
+                Vec3(bx + 2, data_y, center_z - 1),
                 repeater("south", powered=True),
                 component,
             )
 
-            # Bring this row's lock level from y-2 to the side repeater input.
-            yield from iter_stair(
-                Vec3(bx, row_y, row_bus_z),
-                Vec3(bx + 3, data_y, center_z - 2),
-                axis="x",
-                signal_forward=True,
-                component=component,
-            )
+            # Branch dust turns the E/W bus toward the solid riser block.
+            # Without this branch, Java normalizes the bus to a straight wire
+            # that does not weakly power the block beside it.
+            yield Placement(Vec3(bx + 2,row_y - 1,center_z - 3),SUPPORT,component)
+            yield Placement(Vec3(bx + 2,row_y,center_z - 3),redstone_wire(power=15),component)
+            # Two inversions preserve the high=locked mask. Its initial high
+            # state prevents spurious writes while the world settles.
+            for dy, block in ((0,SUPPORT),(1,TORCH_OFF),(2,SUPPORT),(3,TORCH_ON)):
+                yield Placement(Vec3(bx + 2,row_y + dy,center_z - 2),block,component)
 
             # Powered block + visible lamp above it.
-            lamp_block = Vec3(bx + 4, data_y, center_z)
+            # Leave an air column before the next pixel's data wire. A
+            # strongly powered block at x+4 would back-power that x+5 wire.
+            lamp_block = Vec3(bx + 3, data_y, center_z)
             yield Placement(lamp_block, SUPPORT, component)
             yield Placement(
                 lamp_block.offset(dy=1),

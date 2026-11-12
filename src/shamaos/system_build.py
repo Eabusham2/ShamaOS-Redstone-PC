@@ -6,6 +6,7 @@ from typing import Iterator
 
 from .hardware.clock import clock_ports, iter_clock
 from .hardware.controls import control_ports
+from .hardware.debug import debug_ports,iter_debug_panel
 from .hardware.display import LampPanelSpec, panel_ports
 from .hardware.external_router import ExternalNet, iter_external_router
 from .hardware.logic import REDSTONE_BLOCK
@@ -300,7 +301,7 @@ def prepare_system(
 
     # ---------- Physical controls / clock ----------
     controls = control_ports(origins.input)
-    clock_origin = origins.input.offset(96, 0, 0)
+    clock_origin = origins.input.offset(180, 0, 0)
     clock = clock_ports(clock_origin)
 
     power_switch = _require_port(inputs, "power_switch", 1)[0]
@@ -316,6 +317,12 @@ def prepare_system(
     )
     nets.append(ExternalNet("reset", controls.reset, (reset_button,)))
     nets.append(ExternalNet("clock", clock.clock, (clk,)))
+    nets.append(ExternalNet("clock_hold", _require_port(outputs,"clock_hold",1)[0],(clock.hold,)))
+    nets.append(ExternalNet("pause",controls.pause,(_require_port(inputs,"pause_switch",1)[0],)))
+    nets.append(ExternalNet("manual_step",controls.step,(_require_port(inputs,"step_button",1)[0],)))
+    diagnostics=debug_ports(origins.input.offset(0,0,-224))
+    for name,pins in diagnostics.items():
+        nets.extend(_vector_nets(name,_require_port(outputs,name,len(pins)),pins))
 
     nets.extend(
         _vector_nets(
@@ -423,7 +430,7 @@ def prepare_system(
         )
     )
 
-    constant_high = origins.input.offset(160, 1, 0)
+    constant_high = origins.input.offset(300, 1, 0)
     nets.append(
         ExternalNet(
             "display_ready",
@@ -437,6 +444,8 @@ def prepare_system(
         "external_net_count": len(nets),
         "clock_origin": vars(clock_origin),
         "constant_high": vars(constant_high),
+        "debug_panel": {name:[vars(pin) for pin in pins] for name,pins in diagnostics.items()},
+        "verification_scope": "partition synthesis and port connectivity; full route timing and Minecraft runtime remain separate gates",
         "memory_backbones": {
             "cache": {
                 "banks": cache_spec.bank_count,
@@ -480,6 +489,7 @@ def iter_system_infrastructure(
     vram_fabric = vram_spec(g)
 
     yield from iter_clock(prepared.clock_origin)
+    yield from iter_debug_panel(origins.input.offset(0,0,-224))
 
     yield Placement(
         prepared.constant_high.offset(dy=-1),

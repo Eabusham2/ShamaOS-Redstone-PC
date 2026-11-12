@@ -1,25 +1,205 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from collections import Counter
+from functools import lru_cache
 import hashlib
 import json
 import math
 from pathlib import Path
+import shutil
+import subprocess
 import tomllib
-from typing import Callable, Iterator
+from typing import Callable, Iterable, Iterator
 
 from .hardware.controls import iter_controls
 from .hardware.display import LampPanelSpec, iter_lamp_panel
-from .hardware.memory import MemoryBankSpec, MemoryFabricSpec, iter_memory_bank
+from .hardware.memory import MemoryBankSpec, MemoryFabricSpec, bank_ports, iter_memory_bank
 from .layout import (
     MachineGeometry,
     default_origins,
     memory_specs,
     plan_machine,
 )
-from .model import BuildPlan, Placement, Vec3
+from .model import BlockState, BuildPlan, Placement, Vec3
 from .os_image import build_default_os_image
-from .worldio import AmuletWorldWriter
+from .worldio import NativeWorldReader, NativeWorldWriter, WorldWriteError
+
+
+REQUIRED_CAPACITY = {
+    "logical_ram_bytes": 1 << 20, "physical_ram_bytes": 1 << 20,
+    "cache_bytes": 16 << 10, "physical_cache_bytes": 16 << 10,
+    "flash_bytes": 4 << 20, "physical_flash_bytes": 4 << 20,
+    "vram_bytes": 32 << 10,
+}
+
+
+def source_provenance() -> dict[str, object]:
+    """Record exact generation sources, including an uncommitted work tree."""
+    root = Path(__file__).resolve().parents[2]
+    files = ["src/shamaos/generator.py", "src/shamaos/worldio.py", "src/shamaos/hardware/logic.py", "src/shamaos/hardware/memory.py"]
+    result: dict[str, object] = {
+        "files_sha256": {name: hashlib.sha256((root / name).read_bytes()).hexdigest() for name in files if (root / name).is_file()},
+    }
+    try:
+        result["base_revision"] = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, stderr=subprocess.DEVNULL, text=True).strip()
+        result["working_tree_dirty"] = bool(subprocess.check_output(["git", "status", "--porcelain"], cwd=root, stderr=subprocess.DEVNULL, text=True))
+    except (OSError, subprocess.SubprocessError):
+        result["base_revision"] = None
+    return result
+
+
+def validate_manifest_capacity(data: dict) -> dict[str, object]:
+    """Check declared capacity against the literal contract, never a rescaled config.
+
+    This verifies manifest claims and arithmetic. It is not evidence that a
+    complete machine was generated or that its redstone works at runtime.
+    """
+    errors = []
+    for key, expected in REQUIRED_CAPACITY.items():
+        if type(data.get(key)) is not int or data[key] != expected:
+            errors.append(f"{key}: expected {expected}, got {data.get(key)!r}")
+    display = data.get("display", {})
+    for key, expected in (("width", 320), ("height", 180), ("bits_per_pixel", 1)):
+        if display.get(key) != expected:
+            errors.append(f"display.{key}: expected {expected}, got {display.get(key)!r}")
+    banks = data.get("memory_banks", {})
+    bank_bytes = banks.get("bytes_per_bank")
+    for name, key in (("cache", "cache_bytes"), ("ram", "logical_ram_bytes"), ("flash", "flash_bytes"), ("vram", "vram_bytes")):
+        count = banks.get(name)
+        if type(count) is not int or type(bank_bytes) is not int or count <= 0 or bank_bytes <= 0 or count * bank_bytes != REQUIRED_CAPACITY[key]:
+            errors.append(f"memory_banks.{name}: count × bytes_per_bank must equal {REQUIRED_CAPACITY[key]}")
+    return {
+        "status": "passed" if not errors else "failed", "scope": "declared-literal-capacity-contract",
+        "errors": errors, "complete_world_runtime_verified": False,
+    }
+
+
+def _capacity_claims(config: dict) -> dict[str, object]:
+    g = geometry_from_config(config)
+    flags = config.get("generator", {})
+    return {
+        "logical_ram_bytes": g.ram_bytes,
+        "physical_ram_bytes": g.ram_bytes if flags.get("physical_ram", True) else 0,
+        "cache_bytes": g.cache_bytes,
+        "physical_cache_bytes": g.cache_bytes if flags.get("physical_cache", True) else 0,
+        "flash_bytes": g.flash_bytes,
+        "physical_flash_bytes": g.flash_bytes if flags.get("physical_flash", True) else 0,
+        "vram_bytes": g.vram_bytes,
+        "display": {"width": g.display_width, "height": g.display_height, "bits_per_pixel": config["display"]["bits_per_pixel"]},
+        "memory_banks": {"bytes_per_bank": g.bank_words * g.bank_word_bits // 8, **{
+            name: size // (g.bank_words * g.bank_word_bits // 8)
+            for name, size in (("cache", g.cache_bytes), ("ram", g.ram_bytes), ("flash", g.flash_bytes), ("vram", g.vram_bytes))
+        }},
+    }
+
+
+@lru_cache(maxsize=8)
+def memory_bank_profile(spec: MemoryBankSpec = MemoryBankSpec()) -> dict[str, object]:
+    """Measure one real bank emitter without allocating the complete machine."""
+    chunks: set[tuple[int, int]] = set()
+    blocks: Counter[str] = Counter()
+    minimum = [10**9] * 3
+    maximum = [-10**9] * 3
+    for placement in iter_memory_bank(Vec3(0, 64, 0), spec=spec):
+        chunks.add((placement.pos.x // 16, placement.pos.z // 16))
+        blocks[placement.block.name] += 1
+        for index, value in enumerate((placement.pos.x, placement.pos.y - 64, placement.pos.z)):
+            minimum[index] = min(minimum[index], value)
+            maximum[index] = max(maximum[index], value)
+    return {
+        "method": "counted-real-memory-bank-emitter", "words": spec.words, "word_bits": spec.word_bits,
+        "bytes": spec.bytes, "placements": sum(blocks.values()), "chunks_at_aligned_origin": len(chunks),
+        "block_types": dict(blocks), "bounds_relative_to_origin": {"min": minimum, "max": maximum},
+    }
+
+
+@lru_cache(maxsize=64)
+def _bank_chunk_footprint(spec: MemoryBankSpec, x_mod: int, z_mod: int) -> frozenset[tuple[int, int]]:
+    """Exact horizontal occupancy of the regular bank geometry, in chunks."""
+    if spec.bit_pitch < 5 or spec.word_pitch < 6:
+        raise WorldWriteError("native resource estimate requires nonoverlapping memory-cell pitches")
+    chunks: set[tuple[int, int]] = set()
+    z_first = (z_mod - 2) // 16
+    z_last = (z_mod + spec.words * spec.word_pitch + 4) // 16
+    ports = bank_ports(Vec3(x_mod, 64, z_mod), spec)
+    for cx in {point.x // 16 for point in (*ports.data_in, *ports.data_out)}:
+        chunks.update((cx, cz) for cz in range(z_first, z_last + 1))
+    x_first = min(point.x for point in ports.write_select) // 16
+    x_last = max(point.x for point in ports.data_out) // 16
+    for word in range(spec.words):
+        z0 = (z_mod + word * spec.word_pitch + 1) // 16
+        z1 = (z_mod + word * spec.word_pitch + 5) // 16
+        chunks.update((cx, cz) for cx in range(x_first, x_last + 1) for cz in range(z0, z1 + 1))
+    return frozenset(chunks)
+
+
+def generation_preflight(config: dict, *, world_path: str | Path | None = None, benchmark_path: str | Path | None = None) -> dict[str, object]:
+    """Report literal capacity, sampled storage cost and unresolved full-world costs."""
+    g = geometry_from_config(config)
+    origins = default_origins(g)
+    cache, ram, flash = memory_specs(g)
+    from .layout import vram_spec
+    fabrics = (("cache", origins.cache, cache), ("ram", origins.ram, ram), ("flash", origins.flash, flash), ("vram", origins.vram, vram_spec(g)))
+    profile = memory_bank_profile(ram.bank)
+    regions: set[tuple[int, int]] = set()
+    total_chunks = 0
+    total_banks = 0
+    fabric_details = {}
+    for name, origin, fabric in fabrics:
+        fabric_chunks = 0
+        for index in range(fabric.bank_count):
+            bank_origin = _bank_origin(origin, fabric, index)
+            footprint = _bank_chunk_footprint(fabric.bank, bank_origin.x & 15, bank_origin.z & 15)
+            fabric_chunks += len(footprint)
+            for cx, cz in footprint:
+                regions.add(((bank_origin.x // 16 + cx) // 32, (bank_origin.z // 16 + cz) // 32))
+        total_banks += fabric.bank_count
+        total_chunks += fabric_chunks
+        fabric_details[name] = {"bytes": fabric.total_bytes, "banks": fabric.bank_count, "chunks": fabric_chunks}
+    # Separated banks have disjoint horizontal chunk footprints with the
+    # default floorplan. The region headers can be shared by nearby banks.
+    minimum_region_bytes = total_chunks * 4096 + len(regions) * 8192
+    disk_path = Path(world_path or ".").resolve()
+    while not disk_path.exists():
+        disk_path = disk_path.parent
+    free = shutil.disk_usage(disk_path).free
+    contract = validate_manifest_capacity(_capacity_claims(config))
+    for flag in ("physical_display", "physical_input", "synthesize_logic"):
+        if not config.get("generator", {}).get(flag, True):
+            contract["errors"].append(f"generator.{flag} must remain enabled for a full machine")
+            contract["status"] = "failed"
+    result: dict[str, object] = {
+        "kind": "full-capacity-generation-preflight", "capacity_contract": contract,
+        "source": source_provenance(), "sample_bank": profile, "storage_fabrics": fabric_details,
+        "storage_bits": sum(fabric.total_bytes for _, _, fabric in fabrics) * 8,
+        "storage_banks": total_banks, "storage_placements": int(profile["placements"]) * total_banks,
+        "storage_chunks": total_chunks, "storage_regions": len(regions),
+        "minimum_storage_region_bytes": minimum_region_bytes, "available_disk_bytes": free,
+        "storage_minimum_fits_available_disk": minimum_region_bytes < free,
+        "estimate_excludes": ["synthesized logic", "interconnect", "clock/backbone routes", "display/input", "validation ledger", "temporary compaction space"],
+        "resident_chunk_memory_scenarios": [
+            {"assumed_bytes_per_chunk": assumption, "total_bytes": total_chunks * assumption}
+            for assumption in (16 << 10, 64 << 10, 256 << 10)
+        ],
+        "resident_memory_note": "Illustrative assumptions, not measured Java heap requirements. Loading all storage would additionally require logic/routes and engine overhead.",
+        "full_world_loading_strategy": "unverified: no proven complete loaded/ticking-chunk plan or routed clock-skew bound",
+        "complete_generation_feasibility": "not-established-until-logic-routes-and-loading-are-validated",
+        "complete_world_runtime_verified": False,
+    }
+    if benchmark_path is not None:
+        benchmark = json.loads(Path(benchmark_path).read_text(encoding="utf-8"))
+        expected_hashes = result["source"]["files_sha256"]
+        geometry_matches = benchmark.get("source_sha256", {}).get("src/shamaos/hardware/memory.py") == expected_hashes.get("src/shamaos/hardware/memory.py") and benchmark.get("placements") == profile["placements"]
+        writer_matches = benchmark.get("source_sha256", {}).get("src/shamaos/worldio.py") == expected_hashes.get("src/shamaos/worldio.py")
+        result["sample_benchmark"] = {
+            "source_matches_current": geometry_matches and writer_matches,
+            "geometry_matches_current": geometry_matches, "writer_matches_current": writer_matches,
+            "measured": benchmark,
+            "estimated_storage_seconds": float(benchmark["total_seconds"]) * total_banks if geometry_matches else None,
+            "estimate_note": "Linear extrapolation using the measured writer revision and one aligned 4 KiB bank; excludes other hardware and system-wide I/O contention. Check writer_matches_current before treating throughput as current.",
+        }
+    return result
 
 
 @dataclass(frozen=True)
@@ -34,6 +214,7 @@ class GenerationResult:
     written_blocks: int
     system_metadata: dict[str, object]
     stage_counts: dict[str, int]
+    world_validation: dict[str, object] = field(default_factory=dict)
 
 
 def load_config(path: str | Path) -> dict:
@@ -251,7 +432,7 @@ def manifest(config: dict, plan: BuildPlan) -> dict:
             "pixel_pitch_x": g.pixel_pitch_x,
             "pixel_pitch_y": g.pixel_pitch_y,
         },
-        "physical_generation_status": "fabrics+rtl-synthesis",
+        "physical_generation_status": "planned-physical-topology",
         "boot": {
             "cache_boot_bytes": len(build_default_os_image(g.flash_bytes).boot_binary),
             "bundle_flash_offset": build_default_os_image(g.flash_bytes).bundle_flash_offset,
@@ -263,6 +444,8 @@ def manifest(config: dict, plan: BuildPlan) -> dict:
             for section in physical_sections(config)
         ],
     })
+    result["capacity_contract"] = validate_manifest_capacity(result)
+    result["source"] = source_provenance()
     return result
 
 
@@ -272,6 +455,95 @@ def write_manifest(path: str | Path, data: dict) -> None:
         json.dumps(data, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
+
+
+def write_placement_stages(
+    world_path: str | Path,
+    stages: Iterable[tuple[str, Iterable[Placement]]],
+    *,
+    save_every: int = 250_000,
+    validate_after_write: bool = True,
+    spawn: Vec3 = Vec3(-16, 64, -16),
+    name: str = "ShamaOS Redstone PC",
+) -> tuple[int, dict[str, int], dict[str, object]]:
+    """Stream placements with collision checks and optional exact disk readback.
+
+    A failed stage leaves a partial, explicitly unverified world. It never
+    silently overwrites another component or produces a success manifest.
+    """
+    count = 0
+    counts: dict[str, int] = {}
+    with NativeWorldWriter(world_path, name=name, spawn=spawn) as writer:
+        for stage_name, placements in stages:
+            if stage_name in counts:
+                raise WorldWriteError(f"duplicate generation stage name: {stage_name}")
+            stage_count = 0
+            for placement in placements:
+                writer.set_block(placement)
+                count += 1
+                stage_count += 1
+                if count % max(1, save_every) == 0:
+                    writer.save()
+            counts[stage_name] = stage_count
+            writer.save()
+        verification = writer.validate() if validate_after_write else {
+            "status": "not-run", "reason": "generator.validate_after_write is false",
+        }
+    return count, counts, verification
+
+
+def create_runtime_fixture_world(world_path: str | Path) -> dict[str, object]:
+    """Create a small playable block fixture, not the complete ShamaOS machine.
+
+    Two physical logic circuits have actual lever inputs and visible redstone
+    outputs. The simulator case is reconstructed from saved Anvil blocks so an
+    optional MCHPRS run exercises the exported states, not generator inputs.
+    """
+    from .hardware.logic import TEMPLATES
+
+    blocks: list[Placement] = []
+    levers: list[Vec3] = []
+    outputs: dict[str, list[int]] = {}
+    for cell, origin in (("BUF", Vec3(32, 64, 32)), ("NOT", Vec3(32, 64, 64))):
+        template = TEMPLATES[cell]
+        blocks.extend(template.emitter(origin, f"fixture-{cell.lower()}"))
+        pin = template.pins["A"]
+        lever = origin.offset(pin.x, pin.y, pin.z + 1)
+        levers.append(lever)
+        blocks.extend([
+            Placement(lever.offset(0, -1, 0), BlockState.of("minecraft:stone"), "fixture-controls"),
+            Placement(lever, BlockState.of("minecraft:lever", face="floor", facing="north", powered="false"), "fixture-controls"),
+        ])
+        pin = template.pins["Y"]
+        outputs[cell] = [origin.x + pin.x, origin.y + pin.y, origin.z + pin.z]
+    count, stages, verification = write_placement_stages(
+        world_path, [("runtime-logic-fixture", blocks)],
+        name="ShamaOS Redstone Runtime Fixture", spawn=Vec3(24, 64, 48), save_every=17,
+    )
+    reader = NativeWorldReader(world_path)
+    positions = sorted({placement.pos for placement in blocks}, key=lambda p: (p.x, p.y, p.z))
+    case = {
+        "blocks": [{
+            "pos": [pos.x, pos.y, pos.z], "name": reader.get_block(pos).name,
+            "properties": dict(reader.get_block(pos).properties),
+        } for pos in positions],
+        "outputs": outputs, "initial_ticks": 32,
+        "steps": [
+            {"ticks": 16, "expect": {"BUF": False, "NOT": True}},
+            {"use_blocks": [[p.x, p.y, p.z] for p in levers], "ticks": 24, "expect": {"BUF": True, "NOT": False}},
+            {"use_blocks": [[p.x, p.y, p.z] for p in levers], "ticks": 24, "expect": {"BUF": False, "NOT": True}},
+        ],
+    }
+    report = {
+        "kind": "small-runtime-fixture", "complete_shamaos_machine": False,
+        "written_placements": count, "stage_counts": stages, "world_validation": verification,
+        "runtime_validation": {"status": "not-run"},
+        "controls": [[p.x, p.y, p.z] for p in levers], "outputs": outputs,
+        "source": source_provenance(),
+    }
+    write_manifest(Path(world_path) / "shamaos" / "runtime_case.json", case)
+    write_manifest(Path(world_path) / "shamaos" / "fixture.json", report)
+    return report
 
 
 def write_available_placements(
@@ -300,62 +572,41 @@ def write_available_placements(
     build_dir = Path(
         config.get("generator", {}).get("build_dir", "build/physical")
     )
+    if config["world"]["minecraft_version"] != "1.20.4" or config["world"]["data_version"] != 3700 or config["world"]["dimension"] != "minecraft:overworld":
+        raise WorldWriteError("native generation requires Java 1.20.4 / DataVersion 3700 / overworld")
+    preflight = generation_preflight(config, world_path=world_path)
+    write_manifest(build_dir / "generation-preflight.json", preflight)
+    if preflight["capacity_contract"]["status"] != "passed":
+        raise WorldWriteError("full generation violates the literal capacity contract: " + "; ".join(preflight["capacity_contract"]["errors"]))
+    if not preflight["storage_minimum_fits_available_disk"]:
+        raise WorldWriteError("insufficient disk even for the storage-only Anvil lower bound; see generation-preflight.json")
     prepared = prepare_system(config, build_dir=build_dir)
 
-    count = 0
-    stage_counts: dict[str, int] = {}
-
-    def emit(
-        writer: AmuletWorldWriter,
-        name: str,
-        placements: Iterator[Placement],
-    ) -> None:
-        nonlocal count
-        stage = 0
-        for placement in placements:
-            writer.set_block(placement)
-            count += 1
-            stage += 1
-            if count % save_every == 0:
-                writer.save()
-        stage_counts[name] = stage
-        writer.save()
-
-    with AmuletWorldWriter(
-        world_path,
-        dimension=config["world"]["dimension"],
-        version=(
-            "java",
-            tuple(
-                int(x)
-                for x in config["world"]["minecraft_version"].split(".")
-            ),
-        ),
-    ) as writer:
-        # Huge regular physical fabrics.
+    def stages() -> Iterator[tuple[str, Iterable[Placement]]]:
         for section in physical_sections(config):
-            emit(writer, section.name, section.factory())
+            yield section.name, section.factory()
+        yield "system-infrastructure", iter_system_infrastructure(config, prepared)
+        yield "synthesized-soc", iter_logic(prepared)
+        # Only identical terminal/support overlaps are allowed. A router that
+        # crosses or replaces another component must fail before publication.
+        yield "system-interconnect", iter_interconnect(prepared)
 
-        # Clock, constants and cache/RAM/4 MiB flash backbones.
-        emit(
-            writer,
-            "system-infrastructure",
-            iter_system_infrastructure(config, prepared),
-        )
-
-        # CPU + native SHA + GPU + kernel + ShamaFS + in-world assembler.
-        emit(writer, "synthesized-soc", iter_logic(prepared))
-
-        # Named long-distance port wiring is last so it lands on every existing
-        # terminal and can safely overlay terminal dust/support blocks.
-        emit(writer, "system-interconnect", iter_interconnect(prepared))
+    count, stage_counts, verification = write_placement_stages(
+        world_path, stages(), save_every=save_every,
+        validate_after_write=config.get("generator", {}).get("validate_after_write", True),
+        spawn=Vec3(config["world"]["origin_x"] - 16, config["world"]["origin_y"], config["world"]["origin_z"] - 16),
+    )
 
     metadata = dict(prepared.metadata)
     metadata["stage_counts"] = dict(stage_counts)
     metadata["written_blocks"] = count
+    metadata["world_validation"] = verification
+    metadata["runtime_validation"] = {"status": "not-run"}
+    metadata["generation_preflight"] = preflight
 
     return GenerationResult(
         written_blocks=count,
         system_metadata=metadata,
         stage_counts=stage_counts,
+        world_validation=verification,
     )

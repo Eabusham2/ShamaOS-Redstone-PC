@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import lru_cache
 import heapq
 import json
+import math
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import tempfile
@@ -68,6 +71,18 @@ class PhysicalNetlist:
             "cell_count": len(self.cell_origins),
             "net_count": len(self.nets),
             "routing_tracks": self.track_count,
+            "cell_timing": {
+                "minimum_clock_half_period_redstone_ticks": max(
+                    (template_for(kind).minimum_clock_half_period for kind in self.cell_types.values()), default=0
+                ),
+                "setup_redstone_ticks": max(
+                    (template_for(kind).setup_ticks for kind in self.cell_types.values()), default=0
+                ),
+                "hold_redstone_ticks": max(
+                    (template_for(kind).hold_ticks for kind in self.cell_types.values()), default=0
+                ),
+                "scope": "local cell pins; external route delays and clock skew require additional validation",
+            },
             "origin": vars(self.origin),
             "input_ports": {
                 name: [vars(p) for p in pins] for name, pins in self.input_ports.items()
@@ -123,6 +138,11 @@ class PhysicalNetlist:
             branch_y=300,
             trunk_y=304,
             track_spacing=4,
+            obstacles=(
+                placement
+                for name, origin in self.cell_origins.items()
+                for placement in template_for(self.cell_types[name]).emitter(origin,f"{comp}:{name}")
+            ),
         )
 
 
@@ -139,6 +159,43 @@ class MacroInstance:
 
 def _quote_yosys(path: str | Path) -> str:
     return '"' + str(Path(path).resolve()).replace('\\', '\\\\').replace('"', '\\"') + '"'
+
+
+@lru_cache(maxsize=16)
+def _abc_supports_fast(yosys: str) -> bool:
+    """Probe the installed command, rather than assuming a Yosys version.
+
+    Some packaged Yosys builds do not implement ``abc -fast``. The checked-in
+    mapping script uses the portable command; this optimization is added only
+    when the *installed executable's* help advertises it. A failed probe leaves
+    the portable mapping in place and does not hide a later synthesis error.
+    """
+    try:
+        result = subprocess.run(
+            [yosys, "-Q", "-T", "-p", "help abc"],
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            timeout=15,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+    return result.returncode == 0 and bool(
+        re.search(r"^\s*-fast(?:\s|$)", result.stdout or "", re.MULTILINE)
+    )
+
+
+def _portable_mapping(mapping: str, *, fast: bool) -> str:
+    """Normalize legacy scripts too; never pass unsupported ``-fast`` blindly."""
+    lines = []
+    for line in mapping.splitlines():
+        if re.match(r"^\s*abc(?:\s|$)", line):
+            line = re.sub(r"\s+-fast(?=\s|$)", "", line)
+            if fast:
+                line = re.sub(r"^(\s*abc)(?=\s|$)", r"\1 -fast", line)
+        lines.append(line)
+    return "\n".join(lines) + "\n"
 
 
 def synthesize_json(
@@ -171,7 +228,10 @@ def synthesize_json(
             f"unknown synthesis mapping mode {mapping_mode!r}; "
             f"expected one of {sorted(mapping_files)}"
         ) from exc
-    mapping = mapping_path.read_text(encoding="utf-8")
+    mapping = _portable_mapping(
+        mapping_path.read_text(encoding="utf-8"),
+        fast=mapping_mode == "abc" and _abc_supports_fast(str(shutil.which(yosys))),
+    )
     output = Path(output_json).resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
 
@@ -245,18 +305,19 @@ def _assign_tracks(intervals: list[tuple[int, int, int]]) -> dict[int, int]:
     return assigned
 
 
-def _expand_clock_enable_cells(module: dict[str, object]) -> None:
-    """Lower Yosys $_DFFE_<clock><enable>_ cells to supported primitives.
+def _expand_sequential_cells(module: dict[str, object]) -> None:
+    """Lower all supported scalar Yosys edge-register variants exactly.
 
-    An enabled edge flip-flop is equivalent to a feedback mux feeding a normal
-    edge DFF.  We implement the mux as NAND logic:
+    Supported families are DFF, DFFE, SDFF, SDFFE and SDFFCE, for both clock
+    edges, either control polarity and reset-to-zero/reset-to-one. In Yosys,
+    SDFFE gives synchronous reset priority over enable; SDFFCE gives enable
+    priority. Those are different functions and deliberately use different mux
+    nesting here. A negative edge is an inverted clock, never a positive-edge
+    alias. No control is discarded and no enable is turned into a gated clock.
 
-        active-high E: Dn = NAND(D,E), Qn = NAND(Q,!E)
-        active-low  E: Dn = NAND(D,!E), Qn = NAND(Q,E)
-        D_next = NAND(Dn,Qn)
-
-    Negative-edge clocks are inverted before the positive-edge DFF.  This
-    preserves clock-enable semantics instead of incorrectly dropping/gating E.
+    Asynchronous reset/set and level-sensitive cells are rejected explicitly.
+    Converting them to synchronous resets would change their architecture.
+    See Yosys ``techlibs/common/simcells.v`` for the source cell semantics.
     """
     cells = module.get("cells", {})
     if not isinstance(cells, dict):
@@ -288,74 +349,119 @@ def _expand_clock_enable_cells(module: dict[str, object]) -> None:
         return bit
 
     expanded: dict[str, object] = {}
+    reserved_names = set(cells)
+    inverses: dict[object, object] = {}
+
+    def add_cell(name: str, cell_type: str, connections: dict[str, object]) -> None:
+        candidate = name
+        index = 1
+        while candidate in reserved_names or candidate in expanded:
+            candidate = f"{name}${index}"
+            index += 1
+        reserved_names.add(candidate)
+        expanded[candidate] = {
+            "type": cell_type,
+            "port_directions": {
+                pin: "output" if pin in {"Y", "Q"} else "input"
+                for pin in connections
+            },
+            "connections": {pin: [bit] for pin, bit in connections.items()},
+        }
+
+    def invert(name: str, bit: object) -> object:
+        if bit in {"0", "1"}:
+            return "1" if bit == "0" else "0"
+        if bit in inverses:
+            return inverses[bit]
+        result = alloc_bit()
+        add_cell(name, "$_NOT_", {"A": bit, "Y": result})
+        inverses[bit] = result
+        inverses[result] = bit
+        return result
+
+    def mux(name: str, select: object, when_zero: object, when_one: object) -> object:
+        # Y = S ? B : A, expressed only in validated NOT/NAND cells.
+        if when_zero == when_one:
+            return when_zero
+        inverse = invert(f"{name}$not", select)
+        n_zero, n_one, result = alloc_bit(), alloc_bit(), alloc_bit()
+        add_cell(f"{name}$zero", "$_NAND_", {"A": when_zero, "B": inverse, "Y": n_zero})
+        add_cell(f"{name}$one", "$_NAND_", {"A": when_one, "B": select, "Y": n_one})
+        add_cell(f"{name}$join", "$_NAND_", {"A": n_zero, "B": n_one, "Y": result})
+        return result
+
     for cell_name, cell_obj in cells.items():
         if not isinstance(cell_obj, dict):
             expanded[cell_name] = cell_obj
             continue
 
         raw_type = str(cell_obj.get("type", "")).lstrip("\\").upper()
-        if not (raw_type.startswith("$_DFFE_") and raw_type.endswith("_")):
+        patterns = (
+            ("DFF", r"\$_DFF_([PN])_"),
+            ("DFFE", r"\$_DFFE_([PN])([PN])_"),
+            ("SDFF", r"\$_SDFF_([PN])([PN])([01])_"),
+            ("SDFFE", r"\$_SDFFE_([PN])([PN])([01])([PN])_"),
+            ("SDFFCE", r"\$_SDFFCE_([PN])([PN])([01])([PN])_"),
+        )
+        match = None
+        family = ""
+        for kind, pattern in patterns:
+            match = re.fullmatch(pattern, raw_type)
+            if match:
+                family = kind
+                break
+        if match is None:
+            if re.match(r"\$_(?:[AS]?DFF|DFFS|DFFE|SDFF|DLATCH|SR)", raw_type):
+                raise SynthesisError(
+                    f"unsupported sequential cell {cell_name!r}: {raw_type}. "
+                    "Asynchronous set/reset and level-sensitive storage cannot "
+                    "be silently replaced by synchronous positive-edge DFFs."
+                )
             expanded[cell_name] = cell_obj
             continue
 
-        suffix = raw_type[len("$_DFFE_"):-1]
-        if len(suffix) != 2 or suffix[0] not in "PN" or suffix[1] not in "PN":
-            raise SynthesisError(f"unsupported DFFE polarity encoding {raw_type!r}")
-
         conns = cell_obj.get("connections", {})
-        try:
-            c_bit = conns["C"][0]
-            d_bit = conns["D"][0]
-            e_bit = conns["E"][0]
-            q_bit = conns["Q"][0]
-        except (KeyError, IndexError, TypeError) as exc:
-            raise SynthesisError(f"malformed DFFE cell {cell_name!r}") from exc
 
-        en_not = alloc_bit()
-        d_nand = alloc_bit()
-        q_nand = alloc_bit()
-        d_next = alloc_bit()
+        def scalar(pin: str) -> object:
+            bits = conns.get(pin)
+            if not isinstance(bits, list) or len(bits) != 1:
+                raise SynthesisError(f"malformed {raw_type} cell {cell_name!r}: {pin} must be scalar")
+            return bits[0]
 
-        expanded[f"{cell_name}$en_not"] = {
-            "type": "$_NOT_",
-            "port_directions": {"A": "input", "Y": "output"},
-            "connections": {"A": [e_bit], "Y": [en_not]},
-        }
+        c_bit, d_bit, q_bit = scalar("C"), scalar("D"), scalar("Q")
+        suffix = match.groups()
+        c_active = c_bit if suffix[0] == "P" else invert(f"{cell_name}$clock_not", c_bit)
 
-        enable_active = e_bit if suffix[1] == "P" else en_not
-        enable_hold = en_not if suffix[1] == "P" else e_bit
+        reset_active = None
+        reset_value = None
+        if family.startswith("SDFF"):
+            r_bit = scalar("R")
+            reset_active = r_bit if suffix[1] == "P" else invert(f"{cell_name}$reset_not", r_bit)
+            reset_value = suffix[2]
 
-        expanded[f"{cell_name}$d_gate"] = {
-            "type": "$_NAND_",
-            "port_directions": {"A": "input", "B": "input", "Y": "output"},
-            "connections": {"A": [d_bit], "B": [enable_active], "Y": [d_nand]},
-        }
-        expanded[f"{cell_name}$q_gate"] = {
-            "type": "$_NAND_",
-            "port_directions": {"A": "input", "B": "input", "Y": "output"},
-            "connections": {"A": [q_bit], "B": [enable_hold], "Y": [q_nand]},
-        }
-        expanded[f"{cell_name}$mux"] = {
-            "type": "$_NAND_",
-            "port_directions": {"A": "input", "B": "input", "Y": "output"},
-            "connections": {"A": [d_nand], "B": [q_nand], "Y": [d_next]},
-        }
+        enable_active = None
+        if family in {"DFFE", "SDFFE", "SDFFCE"}:
+            e_bit = scalar("E")
+            enable_polarity = suffix[1] if family == "DFFE" else suffix[3]
+            enable_active = e_bit if enable_polarity == "P" else invert(f"{cell_name}$enable_not", e_bit)
 
-        dff_clock = c_bit
-        if suffix[0] == "N":
-            clock_not = alloc_bit()
-            expanded[f"{cell_name}$clock_not"] = {
-                "type": "$_NOT_",
-                "port_directions": {"A": "input", "Y": "output"},
-                "connections": {"A": [c_bit], "Y": [clock_not]},
-            }
-            dff_clock = clock_not
+        d_next = d_bit
+        if family == "SDFFCE":
+            # Enable priority: disabled means hold, even while reset is active.
+            d_next = mux(f"{cell_name}$reset_mux", reset_active, d_bit, reset_value)
+            d_next = mux(f"{cell_name}$enable_mux", enable_active, q_bit, d_next)
+        else:
+            if enable_active is not None:
+                d_next = mux(f"{cell_name}$enable_mux", enable_active, q_bit, d_next)
+            if reset_active is not None:
+                # SDFFE reset priority: reset overrides a disabled enable.
+                d_next = mux(f"{cell_name}$reset_mux", reset_active, d_next, reset_value)
 
-        expanded[f"{cell_name}$dff"] = {
-            "type": "$_DFF_P_",
-            "port_directions": {"C": "input", "D": "input", "Q": "output"},
-            "connections": {"C": [dff_clock], "D": [d_next], "Q": [q_bit]},
-        }
+        # Preserve a plain positive-edge DFF instead of gratuitously renaming it.
+        if family == "DFF" and suffix[0] == "P":
+            expanded[cell_name] = cell_obj
+        else:
+            add_cell(f"{cell_name}$dff", "$_DFF_P_", {"C": c_active, "D": d_next, "Q": q_bit})
 
     module["cells"] = expanded
 
@@ -374,7 +480,7 @@ def build_physical_netlist(
     except KeyError as exc:
         raise SynthesisError(f"top module {top!r} not found in Yosys JSON") from exc
 
-    _expand_clock_enable_cells(module)
+    _expand_sequential_cells(module)
 
     cell_origins: dict[str, Vec3] = {}
     cell_types: dict[str, str] = {}
@@ -415,9 +521,18 @@ def build_physical_netlist(
     # Gate cells are placed on a 2-D grid instead of a single multi-million
     # block line. Rows extend toward negative Z; routing tracks live on the
     # positive-Z side of the origin, so the two regions cannot collide.
-    cells_per_row = 1024
-    cell_row_pitch = 32
-    cell_grid_x0 = max(x_cursor + 64, origin.x + 32768)
+    primitive_types = [
+        str(cell["type"])
+        for name, cell in module.get("cells", {}).items()
+        if name not in macro_instances and name.lstrip("\\") not in macro_instances
+    ]
+    templates = [template_for(kind) for kind in primitive_types]
+    # Use one common stride derived from the widest template. The old code
+    # computed a per-cell `stride` but ignored it, overlapping wider cells.
+    grid_stride = max(cell_stride, *(t.width + 8 for t in templates), 24)
+    cell_row_pitch = max(32, *(t.depth + 16 for t in templates))
+    cells_per_row = min(1024, max(1, math.isqrt(len(templates) - 1) + 1)) if templates else 1
+    cell_grid_x0 = x_cursor + 64
 
     primitive_index = 0
     for _cell_index, cell_name in enumerate(sorted(module.get("cells", {}))):
@@ -483,11 +598,8 @@ def build_physical_netlist(
         primitive_index += 1
         col = cell_index % cells_per_row
         row = cell_index // cells_per_row
-        stride = max(cell_stride, template.width + 6)
-        # Use the configured maximum stride grid. Individual cell widths are
-        # still validated, while all rows stay aligned for deterministic routing.
         base = Vec3(
-            cell_grid_x0 + col * max(cell_stride, 24),
+            cell_grid_x0 + col * grid_stride,
             origin.y,
             origin.z - row * cell_row_pitch,
         )
@@ -512,10 +624,7 @@ def build_physical_netlist(
 
     # Top output terminals have their own fixed strip; they no longer move
     # farther away as cell count grows.
-    x_cursor = max(
-        cell_grid_x0 + cells_per_row * max(cell_stride, 24) + 64,
-        origin.x + 65536,
-    )
+    x_cursor = cell_grid_x0 + cells_per_row * grid_stride + 64
     for port_name in sorted(module.get("ports", {})):
         port = module["ports"][port_name]
         if port["direction"] != "output":
@@ -562,7 +671,7 @@ def build_physical_netlist(
         output_ports=output_ports,
         nets=routed,
         constant_high=tuple(const_high),
-        cell_stride=cell_stride,
+        cell_stride=grid_stride,
     )
 
 
