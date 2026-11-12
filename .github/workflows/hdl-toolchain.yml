@@ -65,3 +65,19 @@ jobs:
           path: hdl-tools-linux-x86_64.tar.gz
           retention-days: 7
           if-no-files-found: error
+
+  redstone-runtime:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build pinned MCHPRS block-level test harness
+        run: cargo build --release --manifest-path tests/mchprs_runtime/Cargo.toml
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mchprs-redstone-runtime-linux-x86_64
+          path: |
+            tests/mchprs_runtime/target/release/shama-redstone-check
+            tests/mchprs_runtime/Cargo.lock
+          retention-days: 7
+          if-no-files-found: error
