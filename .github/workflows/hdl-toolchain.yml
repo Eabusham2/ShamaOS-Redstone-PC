@@ -1,0 +1,67 @@
+name: Export Linux HDL test tools
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [.github/workflows/hdl-toolchain.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Install distribution HDL tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y iverilog yosys
+      - name: Package tools for local regression runs without administrator access
+        run: |
+          python3 - <<'PY'
+          import pathlib
+          import shutil
+          import subprocess
+          root = pathlib.Path('hdl-tools')
+          paths = [pathlib.Path('/usr/bin') / name for name in ('iverilog', 'vvp', 'yosys', 'yosys-abc', 'berkeley-abc')]
+          paths += [pathlib.Path('/usr/share/yosys')]
+          paths += list(pathlib.Path('/usr/lib').glob('*/ivl'))
+          for path in paths:
+              if not path.exists():
+                  continue
+              target = root / path.relative_to('/')
+              target.parent.mkdir(parents=True, exist_ok=True)
+              if path.is_dir():
+                  shutil.copytree(path, target, dirs_exist_ok=True)
+              else:
+                  shutil.copy2(path.resolve(), target)
+          # Include non-glibc shared libraries used by all executables/plugins.
+          # The host retains its own loader and libc; this archive targets Linux
+          # x86_64 with glibc 2.39 or later, as used by Ubuntu 24.04.
+          for path in list(root.rglob('*')):
+              if not path.is_file():
+                  continue
+              result = subprocess.run(['ldd', str(path)], capture_output=True, text=True)
+              for line in result.stdout.splitlines():
+                  fields = line.split()
+                  if len(fields) < 3 or fields[1] != '=>' or not fields[2].startswith('/'):
+                      continue
+                  library = pathlib.Path(fields[2])
+                  if library.name.startswith(('libc.so', 'libm.so', 'libpthread.so', 'libdl.so', 'librt.so', 'ld-linux')):
+                      continue
+                  target = root / 'lib' / library.name
+                  target.parent.mkdir(parents=True, exist_ok=True)
+                  shutil.copy2(library.resolve(), target)
+          (root / 'VERSIONS.txt').write_text(
+              subprocess.check_output(['yosys', '-V'], text=True) +
+              subprocess.check_output(['iverilog', '-V'], text=True, stderr=subprocess.DEVNULL)
+          )
+          PY
+          tar -czf hdl-tools-linux-x86_64.tar.gz hdl-tools
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hdl-tools-linux-x86_64
+          path: hdl-tools-linux-x86_64.tar.gz
+          retention-days: 7
+          if-no-files-found: error
