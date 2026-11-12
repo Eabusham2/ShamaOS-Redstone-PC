@@ -4,7 +4,7 @@ from shamaos.hardware.display import LampPanelSpec, iter_lamp_panel, iter_panel_
 from shamaos.hardware.external_router import ExternalNet, iter_external_router
 from shamaos.hardware.external_router import _plan_escapes
 from shamaos.hardware.debug import debug_ports, iter_debug_panel
-from shamaos.hardware.controls import iter_controls
+from shamaos.hardware.controls import control_bounds, control_route_access, iter_controls
 from shamaos.hardware.clock import iter_clock
 from shamaos.hardware.interfaces import system_routing_interfaces
 from shamaos.layout import MachineGeometry, default_origins, memory_specs
@@ -36,12 +36,24 @@ def test_interface_contracts_are_derived_from_surface_and_native_tiles(surface):
     assert all(interfaces.access[pin]==("west",) for pin in (*pins.bank_select,*pins.row_select,pins.read_enable,pins.write_enable))
     assert all(interfaces.access[pin]==("north",) for pin in pins.write_data)
     assert all(interfaces.access[pin]==("south",) for pin in pins.selected_word)
-    assert len(interfaces.obstacle_bounds)==5  # Four small tiles plus the lamp panel.
+    assert len(interfaces.obstacle_bounds)==6  # Four small tiles, console, and lamp panel.
 
 
 def test_router_rejects_any_terminal_support_at_or_below_protected_grass():
     with pytest.raises(ValueError,match="support would violate build height"):
         list(iter_external_router([ExternalNet("bad",Vec3(0,64,0),(Vec3(20,65,0),))],minimum_y=64))
+
+
+def test_complete_console_export_clears_its_stacked_backend():
+    origin=Vec3(64,32,5000)
+    access=control_route_access(origin)
+    bounds=control_bounds(origin)
+    escapes=_plan_escapes(access,96,iter_controls(origin),access=access,
+        endpoint_bounds=dict.fromkeys(access,bounds),obstacle_bounds=(bounds,))
+    assert len(escapes)==30
+    for pin,escape in escapes.items():
+        if access[pin]==("wall-south",):
+            assert escape.branch_x>=bounds.max.x+3
 
 
 def test_complete_debug_wall_escape_geometry_clears_console_and_clock():

@@ -5,7 +5,7 @@ from typing import Mapping
 from ..layout import MachineGeometry, default_origins, memory_specs, vram_spec
 from ..model import Box, Placement, Vec3
 from .clock import clock_ports, iter_clock
-from .controls import control_ports, iter_controls
+from .controls import control_bounds, control_route_access, iter_controls
 from .debug import debug_ports, iter_debug_panel
 from .display import LampPanelSpec, iter_panel_terminal_keepouts, panel_bounds, panel_ports
 from .memory import DUST
@@ -38,10 +38,8 @@ def system_routing_interfaces(
     """
     origins=default_origins(geometry)
     access={pin:("south",) for ports in (inputs,outputs) for pins in ports.values() for pin in pins}
-    controls=control_ports(origins.input)
-    for pin in (*controls.controller,*controls.keyboard_rows,*controls.keyboard_cols,
-                controls.power,controls.reset,controls.pause,controls.step):
-        access[pin]=("south",)
+    control_access=control_route_access(origins.input)
+    access.update(control_access)
     clock=clock_ports(clock_origin)
     for pin in (clock.enable,clock.hold,clock.clock):
         access[pin]=("south",)
@@ -54,8 +52,9 @@ def system_routing_interfaces(
                *iter_debug_panel(origins.input.offset(0,0,-224)),
                Placement(constant_high.offset(dy=-1),REDSTONE_BLOCK,"constant"),
                Placement(constant_high,DUST,"constant")]
-    endpoint_bounds={}
-    obstacle_bounds=[]
+    control_envelope=control_bounds(origins.input)
+    endpoint_bounds=dict.fromkeys(control_access,control_envelope)
+    obstacle_bounds=[control_envelope]
     fabrics=(*memory_specs(geometry),vram_spec(geometry))
     for origin,fabric in zip((origins.cache,origins.ram,origins.flash,origins.vram),fabrics):
         for group,pins in enumerate(fabric_tile_ports(origin,fabric)):

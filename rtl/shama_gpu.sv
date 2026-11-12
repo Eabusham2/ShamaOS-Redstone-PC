@@ -39,6 +39,8 @@ module shama_gpu #(
     localparam integer COORD_LIMIT = 4096;
     localparam integer MAX_RADIUS = 512;
     localparam integer QUEUE_PTR_BITS = (QUEUE_DEPTH>1)?$clog2(QUEUE_DEPTH):1;
+    localparam integer NOTICE_X=(WIDTH>=320)?24:0;
+    localparam integer NOTICE_Y=(HEIGHT>=120)?48:0;
 
     // Word-aligned packed VRAM: two frames, text, then sprites. Scrolling
     // moves the back buffer in overlap-safe order and needs no third frame.
@@ -56,7 +58,8 @@ module shama_gpu #(
         GPU_DRAW_TEXT=8'h0c, GPU_SCROLL=8'h0d, GPU_SET_CLIP=8'h0e,
         GPU_RESET_CLIP=8'h0f, GPU_SET_FONT=8'h10, GPU_SET_COLOR=8'h11,
         GPU_SET_CURSOR=8'h12, GPU_COPY_BUFFER=8'h13, GPU_SWAP_BUFFER=8'h14,
-        GPU_PUSH_DIRTY=8'h15, GPU_FENCE=8'h16, GPU_CIRCLE=8'h17;
+        GPU_PUSH_DIRTY=8'h15, GPU_FENCE=8'h16, GPU_CIRCLE=8'h17,
+        GPU_NOTICE=8'h18;
 
     typedef enum logic [5:0] {
         ST_IDLE, ST_DISPATCH,
@@ -99,6 +102,13 @@ module shama_gpu #(
     logic [31:0] readback;
     logic [31:0] fence_count;
     logic queue_error;
+    logic [7:0] notice_code;
+    logic [8:0] notice_text_x;
+    logic [7:0] notice_text_y;
+    logic [4:0] notice_character;
+    logic [2:0] notice_column;
+    logic notice_glyph;
+    logic [255:0] notice_line;
 
     logic [7:0] command_reg;
     logic [31:0] arg_reg [0:7];
@@ -210,6 +220,26 @@ module shama_gpu #(
         end
     endfunction
 
+    function automatic [255:0] notice_message(input [7:0] code,input [1:0] line_number);
+        begin
+            case(line_number)
+                0:case(code[6:0])
+                    1:notice_message="FLASH WRITES PAUSED AT 95%      ";
+                    2:notice_message="RAM LIMIT - OS RESTARTED        ";
+                    3:notice_message="CODE LIMIT - OS RESTARTED       ";
+                    4:notice_message="VRAM LIMIT - OS RESTARTED       ";
+                    default:notice_message="APP FAULT - OS RESTARTED        ";
+                endcase
+                1:begin
+                    if(code[6:0]==1) notice_message="DELETE FILES TO RESTORE WRITING ";
+                    else if(code[7]) notice_message="UNSAVED EDITS COULD NOT BE SAVED";
+                    else notice_message="PREVIOUS SAVED FILES PRESERVED  ";
+                end
+                default:notice_message="PRESS A / ENTER TO CONTINUE     ";
+            endcase
+        end
+    endfunction
+
     function automatic logic in_clip(input integer x,input integer y);
         in_clip=in_screen(x,y) && x>=clip_x0 && x<=clip_x1 && y>=clip_y0 && y<=clip_y1;
     endfunction
@@ -279,6 +309,20 @@ module shama_gpu #(
             ? text_char : char_code;
         font_row=(state==ST_TEXT_PIXEL || state==ST_TEXT_ADV)
             ? text_row[2:0] : char_row[2:0];
+        // The system notice is a scanout overlay, like the cursor. It cannot
+        // overwrite an app's unpresented frame, text/sprites or drawing state.
+        notice_text_x=scan_x-(NOTICE_X+8);
+        notice_text_y=scan_y-(NOTICE_Y+8);
+        notice_character=notice_text_x/9'd6;
+        notice_column=notice_text_x%9'd6;
+        notice_glyph=notice_code!=0 && scan_x>=NOTICE_X+8 && scan_x<NOTICE_X+8+192 &&
+                     scan_y>=NOTICE_Y+8 && scan_y<NOTICE_Y+8+48 &&
+                     notice_text_y[3:0]<7 && notice_column<5;
+        notice_line=notice_message(notice_code,notice_text_y[5:4]);
+        if(state==ST_PUSH_BITS && notice_glyph) begin
+            font_char=notice_line[(31-notice_character)*8 +:8];
+            font_row=notice_text_y[2:0];
+        end
 
         // Register MMIO.
         if(mmio_valid && !direct_vram_window) begin
@@ -300,6 +344,13 @@ module shama_gpu #(
                 12'h038:mmio_rdata=cursor_y;
                 12'h03c:mmio_rdata=presented_rows;
                 12'h040:mmio_rdata={30'd0,cursor_single,cursor_enabled};
+                12'h044:mmio_rdata=clip_x0;
+                12'h048:mmio_rdata=clip_y0;
+                12'h04c:mmio_rdata=clip_x1;
+                12'h050:mmio_rdata=clip_y1;
+                12'h054:mmio_rdata={24'd0,font_id};
+                12'h058:mmio_rdata={31'd0,draw_color};
+                12'h05c:mmio_rdata={24'd0,notice_code};
                 default:mmio_rdata=0;
             endcase
             // A full queue applies backpressure; a successfully acknowledged
@@ -396,6 +447,9 @@ module shama_gpu #(
                     (scan_x==cursor_x &&
                      (scan_y>=cursor_y-2 && scan_y<=cursor_y+2))))))
                     disp_bit=~push_word[push_bit_index];
+                if(notice_code!=0 && scan_x>=NOTICE_X && scan_x<NOTICE_X+272 &&
+                   scan_y>=NOTICE_Y && scan_y<NOTICE_Y+72)
+                    disp_bit=notice_glyph?font_bits[4-notice_column]:1'b0;
             end
         end
     end
@@ -436,7 +490,7 @@ module shama_gpu #(
             cursor_enabled<=0;cursor_single<=0;buffer_diff_rows<='1;present_rows<='1;
             push_row<=0;presented_rows<=0;
             clip_x0<=0;clip_y0<=0;clip_x1<=WIDTH-1;clip_y1<=HEIGHT-1;
-            readback<=0;fence_count<=0;queue_error<=0;capacity_fault<=0;
+            readback<=0;fence_count<=0;queue_error<=0;capacity_fault<=0;notice_code<=0;
             command_reg<=0;
             for(i=0;i<8;i=i+1) begin arg_reg[i]<=0;ca[i]<=0;end
             q_head<=0;q_tail<=0;q_count<=0;cur_op<=0;
@@ -668,6 +722,14 @@ module shama_gpu #(
                             push_row<=0;presented_rows<=0;state<=ST_PUSH_FIND;
                         end
                         GPU_PUSH_DIRTY:begin push_row<=0;presented_rows<=0;state<=ST_PUSH_FIND;end
+                        GPU_NOTICE:begin
+                            notice_code<=ca[0][7:0];
+                            // Overlay changes affect only these rows. Retain
+                            // pending cursor rows outside the warning as well.
+                            for(i=0;i<HEIGHT;i=i+1)
+                                if(i>=NOTICE_Y && i<NOTICE_Y+72) present_rows[i]<=1;
+                            push_row<=0;presented_rows<=0;state<=ST_PUSH_FIND;
+                        end
                         GPU_FENCE:begin fence_count<=fence_count+1'b1;readback<=fence_count+1'b1;state<=ST_IDLE;end
                         default:begin queue_error<=1;state<=ST_IDLE;end
                     endcase

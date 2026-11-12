@@ -4,6 +4,8 @@
 ; D cycles difficulty, T edits full target64hex, H edits header160hex.
 ; Enter commits exact-length hexadecimal input; Escape cancels unchanged.
 ; Immutable record ABI is documented in docs/MINER.md.
+; Outside private SHA routines r15 is RECORD; use signed LEA offsets for
+; workspace pointers without extra literal words or changes to flags.
 define EVT_UP 0x10
 define EVT_DOWN 0x11
 define EVT_LEFT 0x12
@@ -37,19 +39,19 @@ LDW r1 r15 28
 CMP r1 r2
 BR.GT .initialize
 ; Reload the saved header/target/hash, always paused after app reopening.
-LDI r1 RECORD
+LEA r1 r15 0 ; RECORD
 ADDI r1 128
-LDI r2 HEADER
+LEA r2 r15 -512 ; HEADER
 LEA r3 r0 80
 CALL .copy_bytes
-LDI r1 RECORD
+LEA r1 r15 0 ; RECORD
 ADDI r1 80
-LDI r2 TARGET
+LEA r2 r15 -192 ; TARGET
 LEA r3 r0 32
 CALL .copy_bytes
-LDI r1 RECORD
+LEA r1 r15 0 ; RECORD
 ADDI r1 48
-LDI r2 HASHBUF
+LEA r2 r15 -256 ; HASHBUF
 LEA r3 r0 32
 CALL .copy_bytes
 STW r15 r0 24
@@ -65,7 +67,7 @@ STW r15 r0 220
 STW r15 r0 252
 JMP .redraw
 .initialize
-LDI r1 HEADER
+LEA r1 r15 -512 ; HEADER
 LEA r2 r0 1024
 .init_clear
 STB r1 r0 0
@@ -143,9 +145,9 @@ CALL .begin_update
 LDW r1 r15 244
 CMP r1 r0
 BR.EQ .start_ready
-LDI r1 HEADER
+LEA r1 r15 -512 ; HEADER
 LDW r2 r1 76
-LDI r3 0xffffffff
+LEA r3 r0 -1
 CMP r2 r3
 BR.EQ .start_exhausted
 INCNONCE r1
@@ -190,9 +192,9 @@ STW r15 r0 120
 STW r15 r0 124
 STW r15 r0 220
 STW r15 r0 244
-LDI r1 HEADER
+LEA r1 r15 -512 ; HEADER
 STW r1 r0 76
-LDI r1 HASHBUF
+LEA r1 r15 -256 ; HASHBUF
 LEA r2 r0 8
 .new_clear_hash
 STW r1 r0 0
@@ -220,10 +222,10 @@ ANDI r1 255
 .history_load
 STW r15 r1 216
 STW r15 r0 24
-LDI r2 HISTORY
+LEA r2 r15 512 ; HISTORY
 LEA r3 r0 128
 SYS SYS_MINER_LOAD_HISTORY
-LDI r2 HISTORY
+LEA r2 r15 512 ; HISTORY
 LDW r3 r2 0
 LDI r4 0x31524d53
 CMP r3 r4
@@ -293,19 +295,19 @@ CALL .save_state
 JMP .redraw
 .edit_target
 LEA r1 r0 1
-LDI r2 TARGET
+LEA r2 r15 -192 ; TARGET
 LEA r3 r0 32
 JMP .edit_begin
 .edit_header
 LEA r1 r0 2
-LDI r2 HEADER
+LEA r2 r15 -512 ; HEADER
 LEA r3 r0 80
 .edit_begin
 STW r15 r0 24
 STW r15 r0 220
 STW r15 r1 208
 STW r15 r0 212
-LDI r4 CONFIG_BUF
+LEA r4 r15 1024 ; CONFIG_BUF
 LEA r5 r0 80
 .clear_config
 STB r4 r0 0
@@ -313,7 +315,7 @@ INC r4
 DEC r5
 BR.NE .clear_config
 MOV r1 r2
-LDI r2 CONFIG_BUF
+LEA r2 r15 1024 ; CONFIG_BUF
 CALL .copy_bytes
 JMP .redraw
 .config_key
@@ -359,7 +361,7 @@ SUBI r12 48
 .config_nibble
 MOV r4 r3
 RSH r4 r4
-LDI r5 CONFIG_BUF
+LEA r5 r15 1024 ; CONFIG_BUF
 ADD r5 r5 r4
 LDB r6 r5 0
 MOV r4 r3
@@ -398,8 +400,8 @@ LEA r2 r0 64
 CMP r4 r2
 BR.NE .loop
 CALL .begin_update
-LDI r1 CONFIG_BUF
-LDI r2 TARGET
+LEA r1 r15 1024 ; CONFIG_BUF
+LEA r2 r15 -192 ; TARGET
 LEA r3 r0 32
 CALL .copy_bytes
 CALL .count_difficulty
@@ -409,8 +411,8 @@ LEA r2 r0 160
 CMP r4 r2
 BR.NE .loop
 CALL .begin_update
-LDI r1 CONFIG_BUF
-LDI r2 HEADER
+LEA r1 r15 1024 ; CONFIG_BUF
+LEA r2 r15 -512 ; HEADER
 LEA r3 r0 80
 CALL .copy_bytes
 .commit_done
@@ -423,7 +425,7 @@ JMP .redraw
 .hash_once
 CALL .begin_update
 LDI r15 RECORD
-LDI r1 HEADER
+LEA r1 r15 -512 ; HEADER
 LDW r2 r1 76
 STW r15 r2 12
 RDPMC r2 0
@@ -437,11 +439,11 @@ STW r15 r2 44
 LDW r2 r15 28
 CMP r2 r0
 BR.NE .hash_software
-LDI r2 HASHBUF
+LEA r2 r15 -256 ; HASHBUF
 DSHA256 r2 r1
 JMP .hash_computed
 .hash_software
-LDI r3 HASHBUF
+LEA r3 r15 -256 ; HASHBUF
 CALL .soft_dsha256
 .hash_computed
 LDI r15 RECORD
@@ -486,18 +488,17 @@ LDW r3 r15 20
 ADC r3 r3 r0
 STW r15 r2 16
 STW r15 r3 20
-LDI r1 HASHBUF
-LDI r2 TARGET
+LEA r1 r15 -256 ; HASHBUF
+LEA r2 r15 -192 ; TARGET
 HASHCMP r1 r2
 BR.VALID .hash_found
-LDI r1 HEADER
+LEA r1 r15 -512 ; HEADER
 LDW r2 r1 76
-LDI r3 0xffffffff
+LEA r3 r0 -1
 CMP r2 r3
 BR.EQ .hash_exhausted
 INCNONCE r1
-CALL .snapshot
-RET
+JMP .snapshot
 .hash_found
 LEA r1 r0 2
 STW r15 r1 24
@@ -505,8 +506,7 @@ LEA r1 r0 1
 STW r15 r1 244
 CALL .snapshot
 CALL .log_record
-CALL .save_state
-RET
+JMP .save_state
 .hash_exhausted
 LEA r1 r0 3
 STW r15 r1 24
@@ -514,27 +514,26 @@ LEA r1 r0 2
 STW r15 r1 244
 CALL .snapshot
 CALL .log_record
-CALL .save_state
-RET
+JMP .save_state
 
 .benchmark
 CALL .begin_update
 STW r15 r0 24
-LDI r1 HEADER
-LDI r3 HASHBUF
+LEA r1 r15 -512 ; HEADER
+LEA r3 r15 -256 ; HASHBUF
 RDPMC r4 0
 DSHA256 r3 r1
 RDPMC r5 0
 SUB r5 r5 r4
 STW r15 r5 112
-LDI r3 COMPARE_HASH
+LEA r3 r15 -128 ; COMPARE_HASH
 RDPMC r4 0
 CALL .soft_dsha256
 RDPMC r5 0
 SUB r5 r5 r4
 STW r15 r5 116
-LDI r1 HASHBUF
-LDI r2 COMPARE_HASH
+LEA r1 r15 -256 ; HASHBUF
+LEA r2 r15 -128 ; COMPARE_HASH
 LEA r3 r0 8
 LEA r6 r0 1
 .compare_loop
@@ -567,18 +566,18 @@ RET
 PUSH r1
 PUSH r2
 PUSH r3
-LDI r1 HASHBUF
-LDI r2 RECORD
+LEA r1 r15 -256 ; HASHBUF
+LEA r2 r15 0 ; RECORD
 ADDI r2 48
 LEA r3 r0 32
 CALL .copy_bytes
-LDI r1 TARGET
-LDI r2 RECORD
+LEA r1 r15 -192 ; TARGET
+LEA r2 r15 0 ; RECORD
 ADDI r2 80
 LEA r3 r0 32
 CALL .copy_bytes
-LDI r1 HEADER
-LDI r2 RECORD
+LEA r1 r15 -512 ; HEADER
+LEA r2 r15 0 ; RECORD
 ADDI r2 128
 LEA r3 r0 80
 CALL .copy_bytes
@@ -608,7 +607,7 @@ RET
 PUSH r1
 PUSH r2
 PUSH r3
-LDI r1 RECORD
+LEA r1 r15 0 ; RECORD
 LEA r2 r0 128
 LDW r3 r15 8
 ANDI r3 255
@@ -621,7 +620,7 @@ RET
 .save_state
 PUSH r1
 PUSH r2
-LDI r1 RECORD
+LEA r1 r15 0 ; RECORD
 LEA r2 r0 256
 SYS SYS_MINER_SAVE_STATE
 LEA r2 r0 256
@@ -636,7 +635,7 @@ POP r2
 POP r1
 RET
 .make_target
-LDI r1 TARGET
+LEA r1 r15 -192 ; TARGET
 LDW r2 r15 40
 LEA r3 r0 32
 .make_target_loop
@@ -657,7 +656,7 @@ DEC r3
 BR.NE .make_target_loop
 RET
 .count_difficulty
-LDI r1 TARGET
+LEA r1 r15 -192 ; TARGET
 MOV r2 r0
 LEA r3 r0 32
 .count_target_bytes
@@ -706,14 +705,14 @@ CALL .gpu_cmd
 LDW r1 r15 208
 CMP r1 r0
 BR.NE .draw_config
-LDI r11 RECORD
+LEA r11 r15 0 ; RECORD
 LDW r1 r15 220
 CMP r1 r0
 BR.EQ .draw_record
 LEA r2 r0 2
 CMP r1 r2
 BR.EQ .draw_empty_history
-LDI r11 HISTORY
+LEA r11 r15 512 ; HISTORY
 .draw_record
 CALL .line_clear
 LEA r1 r0 'G'
@@ -855,7 +854,7 @@ JMP .draw_rate
 MOV r1 r0
 JMP .draw_rate
 .draw_rate_unknown
-LDI r1 0xffffffff
+LEA r1 r0 -1
 .draw_rate
 LEA r2 r0 21
 CALL .line_hex32
@@ -933,7 +932,7 @@ LEA r1 r0 18
 LEA r2 r0 48
 CALL .line_submit
 CALL .line_clear
-LDI r1 CONFIG_BUF
+LEA r1 r15 1024 ; CONFIG_BUF
 ADDI r1 0
 LEA r2 r0 20
 MOV r3 r0
@@ -942,7 +941,7 @@ LEA r1 r0 40
 LEA r2 r0 64
 CALL .line_submit
 CALL .line_clear
-LDI r1 CONFIG_BUF
+LEA r1 r15 1024 ; CONFIG_BUF
 ADDI r1 20
 LEA r2 r0 20
 MOV r3 r0
@@ -951,7 +950,7 @@ LEA r1 r0 40
 LEA r2 r0 80
 CALL .line_submit
 CALL .line_clear
-LDI r1 CONFIG_BUF
+LEA r1 r15 1024 ; CONFIG_BUF
 ADDI r1 40
 LEA r2 r0 20
 MOV r3 r0
@@ -960,7 +959,7 @@ LEA r1 r0 40
 LEA r2 r0 96
 CALL .line_submit
 CALL .line_clear
-LDI r1 CONFIG_BUF
+LEA r1 r15 1024 ; CONFIG_BUF
 ADDI r1 60
 LEA r2 r0 20
 MOV r3 r0
@@ -1003,15 +1002,15 @@ PUSH r1
 PUSH r2
 PUSH r3
 LDI r1 GPU_TEXT
-LEA r2 r0 53
-LEA r3 r0 0x20
+LEA r2 r0 13
+LDI r3 0x20202020
 .line_clear_loop
-CMP r2 r0
-BR.EQ .line_clear_done
-STB r1 r3 0
-INC r1
+STW r1 r3 0
+ADDI r1 4
 DEC r2
-JMP .line_clear_loop
+BR.NE .line_clear_loop
+; The final byte preserves the following text staging lanes.
+STB r1 r3 0
 .line_clear_done
 POP r3
 POP r2
@@ -1176,7 +1175,6 @@ define SOFT_MSG 0x0002e100
 define SOFT_W 0x0002e200
 define SOFT_K 0x0002e300
 define SOFT_TMP 0x0002e400
-
 .soft_constants
 PUSH r1
 PUSH r2

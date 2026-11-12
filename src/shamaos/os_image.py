@@ -183,6 +183,7 @@ def render_boot_parameters(image: OSImage | None = None) -> str:
         "FS_TABLE_FLASH_OFFSET": fs.table_start * fs.block_size,
         "FS_DATA_START_BLOCK": fs.data_start,
         "BUNDLE_FLASH_OFFSET": image.bundle_flash_offset,
+        "BUNDLE_BYTES": image.bundle_bytes,
         "SLOT_BYTES": APP_SLOT_BYTES,
         "SLOT_DATA_OFFSET": 4,
         **{f"{name.upper()}_FLASH":address for name,address in image.slot_flash_offsets.items()},

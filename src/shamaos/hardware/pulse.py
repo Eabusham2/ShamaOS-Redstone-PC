@@ -45,7 +45,7 @@ def iter_pulse_stretcher(origin: Vec3, *, quarter_turns: int = 0, taps: int = PU
 
     A delay-four repeater separates each tap. An isolated repeater joins every
     tap to a regenerated return bus. Twenty taps extend a single physical
-    press beyond two periods of the raw oscillator; this is hardware, not a
+    press beyond one period of the raw oscillator; this is hardware, not a
     synthetic software event. The matrix remains single-key-at-a-time: release
     all stretched lines before the next key when running at vanilla speed.
     """

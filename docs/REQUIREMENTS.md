@@ -75,7 +75,7 @@ successful compile, a manifest capacity, or an opcode name is not behavioral pro
 | O15 | Preinstalled Desktop, Editor, File Explorer, Bitcoin Miner, System Monitor, Terminal, Calculator, Paint and Settings are usable apps. Settings changes persist; Paint exposes a visible cursor and usable canvas controls. |
 | O16 | Detect RAM, executable-cache and VRAM capacity faults before an invalid transfer; show the cause and gracefully recover/reboot the OS. Drain or recover storage transactions, preserve committed files, and never silently save partial/corrupt state or deadlock on an interrupted app snapshot. |
 | O17 | At 95% allocated flash usage, disable new data/metadata writes and show an OS popup. Refuse a save whose temporary copy-on-write reservation would exceed that threshold before mutating flash. Permit explicit DELETE/zero-TRUNCATE reclamation and journal/mount recovery so protection is recoverable. Enforce the guard for direct CPU flash writes too. |
-| O18 | Reduce File Explorer memory/code costs where possible without limiting full-file viewing, folders, editing handoff, navigation or executable launch. Recompute and document per-app RAM/cache/shared-VRAM percentages after changes. |
+| O18 | Reduce Editor and File Explorer RAM/code costs, Miner executable-cache use and GPU VRAM needs where possible without reducing source limits, file viewing, folders, editing handoff, navigation, assembly, executable launch, complete hashes or screen functionality. Recompute and document per-app RAM/cache/shared-VRAM percentages after changes. |
 
 ## Bitcoin Miner acceptance checklist
 

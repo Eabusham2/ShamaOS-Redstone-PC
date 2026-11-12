@@ -1096,8 +1096,7 @@ LDI r1 0x20454d41
 STW r12 r1 24
 LEA r4 r0 27
 LEA r5 r0 108
-CALL .draw_static
-RET
+JMP .draw_static
 
 .draw_static
 ; Text is already staged; r4 length, r5 y. Every reuse is fenced.

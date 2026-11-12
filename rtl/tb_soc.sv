@@ -31,7 +31,8 @@ module tb_soc;
             $display("SOC progress cycles=%0d app=%0d pc=%h cpu=%0d svc=%0d fs=%0d gpu=%0d",cycles,debug_app,debug_pc,
                 dut.u_cpu.state,dut.u_services.state,dut.u_fs.state,dut.u_gpu.state);
         if(cycles>30000000) $fatal(1,"SoC watchdog app%0d pc%h cpu%0d svc%0d fs%0d gpu%0d owner%0d",debug_app,debug_pc,dut.u_cpu.state,dut.u_services.state,dut.u_fs.state,dut.u_gpu.state,dut.bus_owner);
-        if(!reset_button && debug_fault!=0) $fatal(1,"CPU fault%0d pc%h",debug_fault,debug_pc);
+        if(!reset_button && debug_fault!=0 && !$test$plusargs("recovery_flow"))
+            $fatal(1,"CPU fault%0d pc%h",debug_fault,debug_pc);
     end
     task automatic settle;
         begin
@@ -123,6 +124,47 @@ module tb_soc;
             $display("SOC PROGRAM ASSEMBLE RUN HOME PASS cycles=%0d",cycles);
         end
     endtask
+    task automatic dismiss_notice(input integer expected_code);
+        begin
+            wait(dut.notice_ready);
+            if(dut.notice_code!=expected_code || !dut.svc_cpu_hold)
+                $fatal(1,"modal resource notice missing code=%0d expected=%0d",dut.notice_code,expected_code);
+            raw_control(4);
+            wait(dut.notice_code==0 && !dut.notice_busy);
+        end
+    endtask
+    task automatic recover_resource_fault;
+        integer expected_notice,unused;
+        logic [31:0] old_flash_word;
+        begin
+            unused=$value$plusargs("expected_notice=%d",expected_notice);
+            if(!unused) $fatal(1,"missing expected resource notice");
+            control(9);wait(debug_app==2);settle();
+            key(3,1); // Z selects the uniquely named ZFAULT.BIN.
+            if(dut.u_ram.model.memory[32'h2c000>>2]!==32'h5541465a)
+                $fatal(1,"fault fixture was not selected in Explorer");
+            old_flash_word=dut.u_flash.model.memory[`SHAMA_FLASH_BYTES/4-1];
+            raw_control(4); // Run the actual BIN; it intentionally does not poll.
+            wait(dut.notice_ready);
+            if(dut.notice_code!=expected_notice)
+                $fatal(1,"wrong recovery reason code=%0d expected=%0d",dut.notice_code,expected_notice);
+            if($test$plusargs("protected_flash")) begin
+                if(debug_app!=15 || dut.u_flash.model.memory[`SHAMA_FLASH_BYTES/4-1]!==old_flash_word)
+                    $fatal(1,"protected CPU flash store changed storage or discarded its app");
+            end else if(debug_app!=0 || debug_fault!=0 || dut.gpu_capacity_fault)
+                $fatal(1,"recovery did not reset app/fault state app=%0d cpu=%0d gpu=%b",debug_app,debug_fault,dut.gpu_capacity_fault);
+            dismiss_notice(expected_notice);
+            if($test$plusargs("protected_flash")) begin
+                wait(halted);
+                raw_control(6);wait(debug_app==0);
+            end
+            settle();
+            if(dut.u_ram.model.memory[32'h18000>>2]!=0 ||
+               dut.u_ram.model.memory[32'h28000>>2]!=0 || input_overflow)
+                $fatal(1,"resource recovery did not clear staging or preserve input");
+            $display("SOC RESOURCE RECOVERY PASS cause=%0d cycles=%0d",expected_notice,cycles);
+        end
+    endtask
     initial begin
         repeat(4) @(negedge clk);
         power_switch=1;reset_button=0;
@@ -142,8 +184,16 @@ module tb_soc;
             $display("SOC BOOT FAILURE PASS error=%0d cycles=%0d",expected_error,cycles);
             $finish;
         end
-        wait(dut.os_loaded && debug_app==0);settle();
+        wait(dut.os_loaded && debug_app==0);
+        // A pre-existing full volume displays its protection notice before the
+        // first app gets to poll input. Acknowledge that real boot-time popup.
+        if($test$plusargs("protected_flash")) dismiss_notice(1);
+        settle();
         $display("SOC BOOT desktop PASS cycles=%0d",cycles);
+        if($test$plusargs("recovery_flow")) begin
+            recover_resource_fault();
+            $finish;
+        end
         if($test$plusargs("program_flow")) begin
             create_assemble_run();
             $finish;

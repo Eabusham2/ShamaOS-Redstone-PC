@@ -11,7 +11,9 @@
 // committed journal and rebuilds the allocation bitmap from validated extents.
 // Reset may interrupt between acknowledged DMA words without losing either the
 // old or the complete new file. Corrupt metadata fails mount explicitly.
-module shama_fs_accel(
+module shama_fs_accel #(
+    parameter integer REQUIRE_BOOT_BUNDLE=1
+)(
     input logic clk,rst,
     input logic req_valid,
     input logic [11:0] req_id,
@@ -54,7 +56,8 @@ module shama_fs_accel(
         E_RANGE=64'hfffffffffffffffe, E_FULL=64'hfffffffffffffffd,
         E_EXISTS=64'hfffffffffffffffc, E_IO=64'hfffffffffffffffb,
         E_PATH=64'hfffffffffffffffa, E_BUSY=64'hfffffffffffffff9,
-        E_PROTECTED=64'hfffffffffffffff8;
+        E_PROTECTED=64'hfffffffffffffff8,
+        E_READONLY=64'hfffffffffffffff7;
 
     typedef enum logic [6:0] {
         ST_IDLE, ST_SUPER, ST_JCHECK, ST_JINDEX_READ, ST_JPAYLOAD_READ,
@@ -109,6 +112,7 @@ module shama_fs_accel(
     logic [7:0] list_name_index;
     logic [31:0] journal_checksum;
     logic recovering;
+    logic boot_bundle_seen;
     logic [31:0] copy_read_address;
     logic copy_read_flash,copy_zero;
     logic [7:0] selected_byte;
@@ -130,6 +134,13 @@ module shama_fs_accel(
                    entry_start<BLOCK_COUNT && entry_blocks<=BLOCK_COUNT-entry_start)) &&
                  (entry_type!=7 || entry_size==0));
         end
+    endfunction
+    function automatic logic is_boot_bundle(input logic live);
+        is_boot_bundle=entry_used && entry_name_len==11 &&
+            entry_name[0]=="b" && entry_name[1]=="o" && entry_name[2]=="o" &&
+            entry_name[3]=="t" && entry_name[4]=="." && entry_name[5]=="b" &&
+            entry_name[6]=="u" && entry_name[7]=="n" && entry_name[8]=="d" &&
+            entry_name[9]=="l" && entry_name[10]=="e";
     endfunction
     function automatic logic names_equal(input logic live);
         logic ok;
@@ -393,7 +404,7 @@ module shama_fs_accel(
             alloc_word_cache<=0;alloc_run_start<=0;alloc_run_len<=0;alloc_start<=0;alloc_mark_offset<=0;
             bitmap_modify_word<=0;bitmap_modify_bit<=0;
             free_start<=0;free_count<=0;free_offset<=0;list_name_index<=0;
-            journal_checksum<=0;recovering<=0;
+            journal_checksum<=0;recovering<=0;boot_bundle_seen<=0;
             clear_entry();
             for(i=0;i<NAME_BYTES;i=i+1) query_name[i]<=0;
             for(i=0;i<MAX_FILES;i=i+1) handle_owners[i]<=0;
@@ -407,7 +418,7 @@ module shama_fs_accel(
                         a1<=req_args[31:0];a2<=req_args[63:32];a3<=req_args[95:64];
                         owner<=req_owner;response<=0;copy_commit<=0;copy_overlay_mode<=0;
                         if(req_id==SYS_BOOT_MOUNT) begin
-                            mounted<=0;super_word<=0;state<=ST_SUPER;
+                            mounted<=0;super_word<=0;boot_bundle_seen<=0;state<=ST_SUPER;
                             for(i=0;i<MAX_FILES;i=i+1) handle_owners[i]<=0;
                         end else if(!mounted) begin response<=E_IO;state<=ST_ERROR;end
                         else case(req_id)
@@ -501,8 +512,12 @@ module shama_fs_accel(
                 end
                 ST_REBUILD_CHECK:begin
                     if(!valid_entry(1'b1)) begin response<=E_IO;state<=ST_ERROR;end
+                    else if(REQUIRE_BOOT_BUNDLE && is_boot_bundle(1'b1) &&
+                            (entry_type!=4 || entry_start*BLOCK_SIZE!=`SHAMA_BUNDLE_FLASH_OFFSET ||
+                             entry_size!=`SHAMA_BUNDLE_BYTES)) begin response<=E_IO;state<=ST_ERROR;end
                     else if(entry_used && entry_blocks!=0) begin free_offset<=0;state<=ST_REBUILD_MARK_READ;end
                     else next_rebuild_entry();
+                    if(is_boot_bundle(1'b1)) boot_bundle_seen<=1;
                 end
                 ST_REBUILD_MARK_READ:if(dma_ready) begin
                     if(dma_rdata[(entry_start+free_offset)&31]) begin response<=E_IO;state<=ST_ERROR;end
@@ -548,7 +563,10 @@ module shama_fs_accel(
                         end else begin entry_index<=entry_index+1'b1;entry_word<=0;state<=ST_NS_SCAN;end
                     end
                 end
-                ST_MOUNT_DONE:begin mounted<=1;response<=used_blocks<<8;state<=ST_DONE;end
+                ST_MOUNT_DONE:begin
+                    if(REQUIRE_BOOT_BUNDLE && !boot_bundle_seen) begin response<=E_IO;state<=ST_ERROR;end
+                    else begin mounted<=1;response<=used_blocks<<8;state<=ST_DONE;end
+                end
                 ST_NAME_READ:begin
                     if(!ram_range(query_ptr+query_len,1)) begin response<=E_RANGE;state<=ST_ERROR;end
                     else if(dma_ready) begin
@@ -605,6 +623,11 @@ module shama_fs_accel(
                     if(!valid_entry(1'b1)) begin response<=E_IO;state<=ST_ERROR;end
                     else if(!entry_used && action==ACT_LIST) begin response<=0;state<=ST_DONE;end
                     else if(!entry_used) begin response<=E_HANDLE;state<=ST_ERROR;end
+                    else if(is_boot_bundle(1'b1) &&
+                            (action==ACT_WRITE || action==ACT_TRUNCATE || action==ACT_RENAME ||
+                             action==ACT_DELETE || action==ACT_MINER_SAVE || action==ACT_MINER_LOG)) begin
+                        response<=E_READONLY;state<=ST_ERROR;
+                    end
                     else if(action==ACT_RENAME && used_blocks>=WRITE_LIMIT_BLOCKS) begin
                         response<=E_PROTECTED;state<=ST_ERROR;
                     end

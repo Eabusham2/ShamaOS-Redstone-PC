@@ -81,8 +81,12 @@ an odd sequence-protected edit: recovery preserves the previous committed file,
 discards the incomplete working state, and explicitly warns that unsaved edits
 could not be saved. Ordinary user-requested close failures still preserve the
 live app. Recovery messages and storage-protection messages pause the app until
-A/B acknowledgement; the popup restores the original display before execution
-resumes. Boot corruption before the OS is loaded remains a diagnostic halt.
+A/B acknowledgement. The notice is a scanout-only overlay: it preserves both
+framebuffers (including an unfinished back frame), text/sprite staging, clip,
+font, drawing color and cursor settings. Dismissal re-presents the original
+front and completes a GPU fence before execution resumes. No extra RAM or VRAM
+framebuffer is reserved. Boot corruption before the OS is loaded remains a
+diagnostic halt.
 
 ## Filesystem
 
@@ -133,6 +137,7 @@ Filesystem errors return `r2=0xFFFFFFFF` and the signed code in r1:
 | -6 | Invalid path or missing/non-directory parent |
 | -7 | Busy/nonempty directory |
 | -8 | Flash write protection at the 95% allocation limit |
+| -9 | Attempt to mutate the private immutable `boot.bundle` loader image |
 
 At 1,900 allocated blocks (486,400 bytes), new mutations are refused with `-8`
 and an OS popup. Copy-on-write reservations are checked before writes begin;
@@ -140,6 +145,12 @@ an admitted transaction may finish at the limit. DELETE and truncation to zero
 remain available to free space, and journal recovery remains available at mount.
 Direct CPU flash stores are also blocked at the limit, while the filesystem's
 admitted/recovery transactions keep their normal DMA path.
+
+The packed loader records in `boot.bundle` have generated physical addresses.
+WRITE, TRUNCATE, DELETE and RENAME of that exact private file therefore return
+`-9` before changing flash. The editable ASM sources and separate BIN/SYS files
+retain their ordinary file operations. Production mount also validates the
+bundle's name, type, extent and length before allowing boot to continue.
 
 For STAT/LIST, a nonzero r2 is normally the size, not an error. Check specifically
 for `0xFFFFFFFF`. File contents and metadata remain intact on rejected operations.

@@ -30,6 +30,7 @@ class GPUOp(IntEnum):
     PUSH_DIRTY = 0x15
     FENCE = 0x16
     CIRCLE = 0x17
+    NOTICE = 0x18
 
 
 @dataclass(frozen=True)
@@ -161,6 +162,7 @@ class GPUReference:
         self.fence_count = 0
         self.readback = 0
         self.error = False
+        self.notice_code = 0
 
     @property
     def dirty(self) -> bool:
@@ -228,9 +230,32 @@ class GPUReference:
                         or x == cx and abs(y - cy) <= 2
                     )
                     bit ^= int(on_cursor)
+                if self.notice_code:
+                    nx = 24 if self.front.width >= 320 else 0
+                    ny = 48 if self.front.height >= 120 else 0
+                    if nx <= x < nx + 272 and ny <= y < ny + 72:
+                        bit = 0
+                        tx, ty = x - nx - 8, y - ny - 8
+                        if 0 <= tx < 192 and 0 <= ty < 48 and ty % 16 < 7 and tx % 6 < 5:
+                            message = self._notice_message(ty // 16).ljust(32)
+                            bit = (glyph_rows(ord(message[tx // 6]))[ty % 16] >> (4 - tx % 6)) & 1
                 self.display.set(x, y, bit)
                 self.last_updates.append((y * self.front.width + x, bit))
         self.present_rows.clear()
+
+    def _notice_message(self, line: int) -> str:
+        code = self.notice_code & 0x7f
+        if line == 0:
+            return {1: 'FLASH WRITES PAUSED AT 95%', 2: 'RAM LIMIT - OS RESTARTED',
+                    3: 'CODE LIMIT - OS RESTARTED', 4: 'VRAM LIMIT - OS RESTARTED'}.get(
+                        code, 'APP FAULT - OS RESTARTED')
+        if line == 1:
+            if code == 1:
+                return 'DELETE FILES TO RESTORE WRITING'
+            if self.notice_code & 0x80:
+                return 'UNSAVED EDITS COULD NOT BE SAVED'
+            return 'PREVIOUS SAVED FILES PRESERVED'
+        return 'PRESS A / ENTER TO CONTINUE'
 
     def execute(self, cmd: GPUCommand) -> int | None:
         if len(cmd.args) > 8:
@@ -328,6 +353,11 @@ class GPUReference:
             self.present_rows.update(self.buffer_diff_rows)
             self._present()
         elif cmd.op == GPUOp.PUSH_DIRTY:
+            self._present()
+        elif cmd.op == GPUOp.NOTICE:
+            self.notice_code = a[0] & 0xff
+            notice_y = 48 if self.front.height >= 120 else 0
+            self.present_rows.update(range(notice_y, min(notice_y + 72, self.front.height)))
             self._present()
         elif cmd.op == GPUOp.FENCE:
             self.fence_count = (self.fence_count + 1) & 0xffffffff

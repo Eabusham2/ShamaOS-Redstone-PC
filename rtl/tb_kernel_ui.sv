@@ -26,8 +26,9 @@ module tb_kernel_ui;
     reg [7:0] textmem[0:255];
     reg [31:0] a[0:7];
     reg [7:0] command;
-    reg [255:0] title,help,ramline,cacheline,flashline,popup_title,popup_body,popup_help;
-    integer i,k,j,cycles,clears=0,copies=0,clears_before;
+    reg [255:0] title,help,ramline,cacheline,flashline;
+    reg [7:0] overlay_code=0;
+    integer i,k,j,cycles,clears=0,copies=0,clears_before,copies_before,overlay_commands=0;
     always #5 clk=~clk;
     shama_kernel_accel dut(.*);
     always @(posedge clk) if(gpu_valid && gpu_we) begin
@@ -40,6 +41,7 @@ module tb_kernel_ui;
             if(command==8'h16) fence<=fence+1;
             if(command==1) clears<=clears+1;
             if(command==8'h13) copies<=copies+1;
+            if(command==8'h18) begin overlay_code<=a[0][7:0];overlay_commands<=overlay_commands+1;end
             if(command==12) begin
                 for(j=0;j<32;j=j+1) begin
                     if(a[3]==4) title[(31-j)*8 +: 8]<=textmem[a[0]+j];
@@ -47,9 +49,6 @@ module tb_kernel_ui;
                     if(a[3]==144) ramline[(31-j)*8 +: 8]<=textmem[a[0]+j];
                     if(a[3]==156) cacheline[(31-j)*8 +: 8]<=textmem[a[0]+j];
                     if(a[3]==168) flashline[(31-j)*8 +: 8]<=textmem[a[0]+j];
-                    if(a[3]==56) popup_title[(31-j)*8 +: 8]<=textmem[a[0]+j];
-                    if(a[3]==72) popup_body[(31-j)*8 +: 8]<=textmem[a[0]+j];
-                    if(a[3]==88) popup_help[(31-j)*8 +: 8]<=textmem[a[0]+j];
                 end
             end
         end
@@ -100,19 +99,21 @@ module tb_kernel_ui;
             $fatal(1,"calculator zero error invisible: %s / %s",title,help);
         view(12'h04e,1,32'h2a,2);
         if(help!=="OVERFLOW - BACKSPACE OR B CLEAR ") $fatal(1,"calculator overflow invisible: %s",help);
-        notice_code=1;
+        clears_before=clears;copies_before=copies;notice_code=1;
         wait(notice_ready);
-        if(!notice_busy || req_ready || popup_title!=="FLASH WRITES PAUSED AT 95%      " ||
-           popup_body!=="DELETE FILES TO RESTORE WRITING " || popup_help!=="A/B CLOSE THIS MESSAGE          ")
+        if(!notice_busy || req_ready || overlay_code!=1 || overlay_commands!=1)
             $fatal(1,"asynchronous storage popup missing/wrong");
         notice_code=0;
         wait(!notice_busy);
+        if(overlay_code!=0 || overlay_commands!=2) $fatal(1,"popup overlay was not dismissed");
         notice_code=8'h82;
         wait(notice_ready);
-        if(popup_title!=="RAM LIMIT - OS RESTARTED        " || popup_body!=="UNSAVED EDITS COULD NOT BE SAVED")
+        if(overlay_code!=8'h82 || overlay_commands!=3)
             $fatal(1,"recovery popup hid unsaved-data failure");
         notice_code=0;
         wait(!notice_busy);
+        if(overlay_code!=0 || overlay_commands!=4 || copies!=copies_before || clears!=clears_before)
+            $fatal(1,"modal overlay modified app buffers");
         $display("KERNEL UI BEHAVIOR PASS");$finish;
     end
 endmodule

@@ -210,6 +210,14 @@ the last valid file and return an error; the GUI retains unsaved source.
 
 ## Source, executables and persistent app data
 
+`boot.bundle` is private loader data at an image-derived fixed flash address.
+WRITE, TRUNCATE (including zero length), RENAME and DELETE return
+**`E_READONLY = -9`** before any mutation. Boot requires this exact name, SYS type, generated
+extent start and byte length; missing or relocated bundle metadata fails mount
+explicitly. The separate installed `.ASM`, `.BIN` and `.SYS` copies remain
+ordinary editable files. This preserves user source editing without relocating
+the bundle that the boot loader reads by its generated offsets.
+
 ASM and BIN are separate files. Editor saves source before assembly and replaces
 a BIN only after successful assembly. Diagnostic failures and destination-type
 collisions preserve the previous executable. Editor can hold 65,535 content

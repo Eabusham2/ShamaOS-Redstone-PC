@@ -41,6 +41,10 @@ class FlashWriteProtectedError(OSError):
     """The owner's flash reserve would be consumed by a mutation."""
 
 
+class BootBundleReadOnlyError(PermissionError):
+    """The private loader bundle must retain its generated location and bytes."""
+
+
 @dataclass
 class FileEntry:
     name: str
@@ -176,6 +180,7 @@ class ShamaFS:
         if size < 0 or size > self.flash_bytes:
             raise ValueError("invalid truncate size")
         old = self.read_file(name)
+        self._check_mutable(self._normalize_name(name))
         if size == 0:
             # Explicit reclamation remains possible in protected mode. Like
             # DELETE, this needs only the metadata transaction, not new data.
@@ -204,6 +209,11 @@ class ShamaFS:
                 "flash 95% write protection: delete files or truncate to zero to free space; "
                 "copy-on-write saves also need temporary space below the limit"
             )
+
+    @staticmethod
+    def _check_mutable(name: str) -> None:
+        if name == "boot.bundle":
+            raise BootBundleReadOnlyError("boot.bundle is private loader data and cannot be changed")
 
     def _find_extent(self, blocks: int) -> int:
         if blocks == 0:
@@ -260,6 +270,7 @@ class ShamaFS:
             return
 
         old = self._files[name]
+        self._check_mutable(name)
         if old.file_type == FileType.DIR or file_type == FileType.DIR:
             raise IsADirectoryError(name)
         new_blocks = math.ceil(len(data) / self.block_size) if data else 0
@@ -284,6 +295,7 @@ class ShamaFS:
 
     def rename(self, old: str, new: str) -> None:
         old, new = self._normalize_name(old), self._normalize_name(new)
+        self._check_mutable(old)
         self._check_parent(new)
         if old == new:
             self.stat(old)
@@ -305,6 +317,7 @@ class ShamaFS:
     def delete(self, name: str) -> None:
         name = self._normalize_name(name)
         entry = self.stat(name)
+        self._check_mutable(name)
         if entry.file_type == FileType.DIR and any(n.startswith(name + "/") for n in self._files):
             raise OSError("directory is not empty")
         del self._files[name]

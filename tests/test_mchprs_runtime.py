@@ -15,7 +15,8 @@ import pytest
 from shamaos.hardware.logic import TEMPLATES
 from shamaos.hardware.clock import CLOCK_HALF_PERIOD, clock_ports, iter_clock
 from shamaos.hardware.controls import (
-    BUTTON_FLOOR, CONTROLLER_NAMES, control_ports, controller_buttons,
+    BUTTON_FLOOR, CONTROLLER_NAMES, control_actuators, control_bounds,
+    control_ports, control_route_access, control_switches, controller_buttons,
     iter_controls, keyboard_buttons,
 )
 from shamaos.hardware.display import LampPanelSpec, iter_lamp_panel, panel_ports
@@ -206,8 +207,8 @@ def test_actual_controller_buttons_and_maintained_switches_are_independent():
             {"use_blocks":[coordinates(button)],"ticks":24,"expect":{out:out == name for out in outputs}},
             {"ticks":128,"expect":dict.fromkeys(outputs,False)},
         ]
-    for name,x in (("POWER",90),("PAUSE",100)):
-        switch = coordinates(origin.offset(x,1,46))
+    for name,position in control_switches(origin).items():
+        switch = coordinates(position)
         steps += [
             {"use_blocks":[switch],"ticks":24,"expect":{out:out == name for out in outputs}},
             {"ticks":128,"expect":{out:out == name for out in outputs},"continuous":True},
@@ -230,6 +231,49 @@ def test_actual_keyboard_every_key_decodes_only_its_row_and_column():
                 {"ticks":128,"expect":dict.fromkeys(outputs,False)},
             ]
     run_case(iter_controls(origin),{},outputs,steps)
+
+
+def compact_console_case(origin):
+    """Shared literal/saved-world fixture, including every physical actuator."""
+    pins=control_ports(origin)
+    outputs=dict(zip(CONTROLLER_NAMES,pins.controller)) | {
+        "RESET":pins.reset,"STEP":pins.step,"POWER":pins.power,"PAUSE":pins.pause,
+    } | {f"R{i}":pin for i,pin in enumerate(pins.keyboard_rows)} | {
+        f"C{i}":pin for i,pin in enumerate(pins.keyboard_cols)}
+    buttons=keyboard_buttons(origin)
+    selected=[({f"R{row}",f"C{col}"},buttons[row][col],119)
+              for row in range(8) for col in range(8)]
+    selected += [({name},position,94) for name,position in controller_buttons(origin).items()]
+    selected += [({"R7","C7"},control_actuators(origin)["SHIFT"],119)]
+    steps=[{"use_blocks":[coordinates(position)],"ticks":300,"expect":dict.fromkeys(outputs,False)}
+           for _,position,_ in selected]
+    for name,position in control_switches(origin).items():
+        steps += [
+            {"use_blocks":[coordinates(position)],"ticks":100,"expect":{out:out==name for out in outputs}},
+            {"use_blocks":[coordinates(position)],"ticks":100,"expect":dict.fromkeys(outputs,False)},
+        ]
+    return outputs,steps,selected
+
+
+def assert_compact_console_trace(result,selected):
+    minimum=2*CLOCK_HALF_PERIOD+TEMPLATES["DFF"].setup_ticks+TEMPLATES["DFF"].hold_ticks
+    overlaps=[]
+    for index,(signals,_,width) in enumerate(selected):
+        traces={name:trace[index*300:(index+1)*300] for name,trace in result["traces"].items()}
+        assert all(high_runs(trace)==([width] if name in signals else []) for name,trace in traces.items()),signals
+        if len(signals)==2:
+            first,second=sorted(signals)
+            overlap=sum(a and b for a,b in zip(traces[first],traces[second]))
+            assert overlap>=minimum,(signals,overlap)
+            overlaps.append(overlap)
+    assert min(overlaps)==101
+
+
+def test_actual_compact_console_all_79_actuators_preserve_pulses_and_isolation():
+    origin=Vec3(96,32,5000)
+    outputs,steps,selected=compact_console_case(origin)
+    result=run_case(iter_controls(origin),{},outputs,steps,initial_ticks=128,capture_trace=True)
+    assert_compact_console_trace(result,selected)
 
 
 def west_driver(pin):
@@ -504,27 +548,38 @@ def test_actual_debug_wall_and_routed_inputs_are_independent():
     ])
 
 
-def test_actual_routed_keyboard_preserves_row_column_overlap_and_isolation():
-    origin=Vec3(64,32,5000)
+def test_actual_routed_console_preserves_row_column_overlap_and_all_output_isolation():
+    origin=Vec3(2064,32,5000)
     pins=control_ports(origin)
     cell=list(iter_controls(origin))
     sources={f"R{i}":pin for i,pin in enumerate(pins.keyboard_rows)} | {f"C{i}":pin for i,pin in enumerate(pins.keyboard_cols)}
-    outputs={name:Vec3(400+i*8,33,5200) for i,name in enumerate(sources)}
+    sources |= dict(zip(CONTROLLER_NAMES,pins.controller)) | {
+        "RESET":pins.reset,"STEP":pins.step,"POWER":pins.power,"PAUSE":pins.pause,
+    }
+    outputs={name:Vec3(2400+i*8,33,5200) for i,name in enumerate(sources)}
     nets=[ExternalNet(name,pin,(outputs[name],)) for name,pin in sources.items()]
-    blocks=cell+list(iter_external_router(nets,branch_y=96,trunk_y=100,obstacles=cell))
-    keys=((0,0),(0,7),(7,0),(7,7),(3,4),(4,3))
-    buttons=keyboard_buttons(origin)
-    result=run_case(blocks,{},outputs,[
-        {"use_blocks":[coordinates(buttons[row][col])],"ticks":1500,"expect":dict.fromkeys(outputs,False)}
-        for row,col in keys
-    ],capture_trace=True)
+    bounds=control_bounds(origin)
+    blocks=cell+list(iter_external_router(nets,branch_y=96,trunk_y=100,obstacles=cell,
+        access=control_route_access(origin),endpoint_bounds=dict.fromkeys(sources.values(),bounds),
+        obstacle_bounds=(bounds,)))
+    _,_,all_selected=compact_console_case(origin)
+    selected=[all_selected[index] for index in (0,7,56,63,28,35,*range(64,77))]
+    steps=[{"use_blocks":[coordinates(button)],"ticks":1500,"expect":dict.fromkeys(outputs,False)}
+           for _,button,_ in selected]
+    for name,position in control_switches(origin).items():
+        steps += [
+            {"use_blocks":[coordinates(position)],"ticks":1500,"expect":{out:out==name for out in outputs}},
+            {"use_blocks":[coordinates(position)],"ticks":1500,"expect":dict.fromkeys(outputs,False)},
+        ]
+    result=run_case(blocks,{},outputs,steps,capture_trace=True)
     minimum=2*CLOCK_HALF_PERIOD+TEMPLATES["DFF"].setup_ticks+TEMPLATES["DFF"].hold_ticks
-    for index,(row,col) in enumerate(keys):
+    for index,(signals,_,width) in enumerate(selected):
         traces={name:trace[index*1500:(index+1)*1500] for name,trace in result["traces"].items()}
-        selected={f"R{row}",f"C{col}"}
-        assert all(high_runs(trace) == ([119] if name in selected else []) for name,trace in traces.items())
-        overlap=sum(a and b for a,b in zip(traces[f"R{row}"],traces[f"C{col}"]))
-        assert overlap >= minimum,(row,col,overlap)
+        assert all(high_runs(trace)==([width] if name in signals else []) for name,trace in traces.items()),signals
+        if len(signals)==2:
+            first,second=sorted(signals)
+            overlap=sum(a and b for a,b in zip(traces[first],traces[second]))
+            assert overlap>=minimum,(signals,overlap)
 
 
 def test_actual_routed_display_uses_clear_front_and_side_approaches():

@@ -45,6 +45,10 @@ def source_provenance() -> dict[str, object]:
     files = ["src/shamaos/generator.py", "src/shamaos/worldio.py", "src/shamaos/layout.py",
              "src/shamaos/hardware/logic.py", "src/shamaos/hardware/memory.py",
              "src/shamaos/hardware/memory_backbone.py", "src/shamaos/hardware/memory_streaming.py",
+             "src/shamaos/hardware/binary_row_decoder.py", "src/shamaos/hardware/vertical_wiring.py",
+             "src/shamaos/hardware/memory_interfaces.py", "src/shamaos/hardware/interfaces.py",
+             "src/shamaos/hardware/controls.py", "src/shamaos/hardware/display.py",
+             "src/shamaos/hardware/debug.py", "src/shamaos/hardware/clock.py", "src/shamaos/hardware/routing.py",
              "src/shamaos/hardware/external_router.py", "src/shamaos/system_build.py",
              "src/shamaos/memory_fixture.py", "src/shamaos/physical_resources.py",
              "src/shamaos/resource_accounting.py", "src/shamaos/machine_spec.py", "configs/default.toml"]
@@ -485,6 +489,9 @@ def manifest(config: dict, plan: BuildPlan) -> dict:
     from .layout import vram_spec
     vram_fabric = vram_spec(g)
     result = plan.manifest()
+    from .hardware.controls import control_bounds, control_interaction_descriptor
+    console_origin = default_origins(g).input
+    console_box = control_bounds(console_origin)
     result.update({
         "config_sha256": hashlib.sha256(normalized).hexdigest(),
         "minecraft_version": config["world"]["minecraft_version"],
@@ -523,6 +530,10 @@ def manifest(config: dict, plan: BuildPlan) -> dict:
             "bits_per_pixel": config["display"]["bits_per_pixel"],
             "pixel_pitch_x": g.pixel_pitch_x,
             "pixel_pitch_y": g.pixel_pitch_y,
+        },
+        "player_console": {
+            **control_interaction_descriptor(console_origin),
+            "backend_bounds": {"min": vars(console_box.min), "max": vars(console_box.max)},
         },
         "physical_generation_status": "planned-physical-topology",
         "boot": {

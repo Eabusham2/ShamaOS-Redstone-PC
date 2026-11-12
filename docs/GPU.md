@@ -25,6 +25,9 @@ submission, so later register writes do not change a queued command.
 | `0x034`, `0x038` | Cursor X and Y |
 | `0x03C` | Rows emitted by the most recent presentation |
 | `0x040` | Cursor flags: enable bit 0, single-pixel style bit 1 |
+| `0x044`, `0x048`, `0x04C`, `0x050` | Current clip X0, Y0, X1, Y1; read only |
+| `0x054`, `0x058` | Current font ID and monochrome drawing color; read only |
+| `0x05C` | Current system notice code, or zero when hidden; read only |
 | `0x400`–`0x4FF` | Direct access to 256-byte text staging RAM |
 | `0x800`–`0xBFF` | Direct access to 1024-byte sprite staging RAM |
 
@@ -71,6 +74,7 @@ clipped. Invalid resource spans are rejected before any drawing.
 | `15` | PUSH_DIRTY | Present pending rows of current front, including cursor changes |
 | `16` | FENCE | Increment completed counter after earlier queued work |
 | `17` | CIRCLE | Center X, center Y, radius; ring approximation |
+| `18` | NOTICE | Low eight bits select a system warning; zero dismisses it and restores the front image |
 
 Pixel writes, shapes, text, and sprites obey the clip. READ_PIXEL ignores the
 clip. CLEAR, SCROLL, and COPY_BUFFER operate on the whole buffer. Empty
@@ -113,6 +117,37 @@ For incremental drawing, use COPY_BUFFER, draw, then SWAP_BUFFER. For cursor-onl
 movement use SET_CURSOR then PUSH_DIRTY. Wait for completion before reusing
 staging memory referenced by queued text or sprite commands.
 
+### System warning overlay
+
+NOTICE presents the current front buffer with a fixed system warning over it.
+It uses the resident font during scanout and performs **no VRAM writes**. Showing
+or dismissing it preserves both framebuffers, unfinished back-buffer edits, text
+and sprite staging, the front selector, clip, font, color, cursor and the set of
+front/back differences. It reserves no additional VRAM. Each NOTICE command
+refreshes the warning's 72 rows plus any already-pending cursor rows; a following
+FENCE waits for that presentation to finish. With no pending rows elsewhere,
+this takes 720 VRAM word reads and 23,040 pixel updates, 60% fewer than a full
+native-screen presentation. These are transfer counts, not measured wall time.
+
+| Low seven bits of code | Warning |
+|---|---|
+| `1` | Flash writes paused at 95%; delete files to restore writing |
+| `2` | RAM limit; OS restarted |
+| `3` | Executable-cache limit; OS restarted |
+| `4` | VRAM limit; OS restarted |
+| Other nonzero code | App fault; OS restarted |
+
+For recovery warnings, bit 7 reports that unsaved edits could not be saved;
+otherwise the message confirms preservation of previously saved files. The
+kernel controls modal input and dismisses with NOTICE 0 after A or Enter. The GPU
+only renders the notice; it does not perform the recovery or consume input.
+
+On the native screen the warning occupies X=24..295, Y=48..119. It overrides the
+cursor inside that rectangle while preserving the cursor state. Dismissal
+restores the exact front image and cursor without exposing the unfinished back
+buffer. Notices use white text on black independently of an app's drawing color
+or clip, so a restrictive custom clip cannot hide a capacity warning.
+
 ## Physical VRAM layout
 
 | Byte offset | Use |
@@ -148,4 +183,8 @@ checks every front/back/display pixel, readback, fences, errors, queue behavior,
 and dirty rows. Cases include every command and printable glyph, randomized
 signed-coordinate lines, transparency, scrolling, edge cursors, malformed
 requests, queue depths 1/4/256, and native 320×180 presentation of the final pixel.
+Notice tests additionally compare every VRAM word and both visible images across
+show/dismiss, restrictive clips, black drawing color, active cursors and pending
+back-buffer edits. Kernel/GPU integration verifies the modal input and retained
+application state through the actual warning path.
 RTL tests alone do not establish the generated world's redstone timing.

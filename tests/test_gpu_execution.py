@@ -27,7 +27,7 @@ class Scenario:
         self.gpu.execute(GPUCommand(op, args))
         if op == G.SWAP_BUFFER:
             self.front_sel ^= 1
-        if op in (G.SWAP_BUFFER, G.PUSH_DIRTY):
+        if op in (G.SWAP_BUFFER, G.PUSH_DIRTY, G.NOTICE):
             self.updates += len(self.gpu.last_updates)
         return self
 
@@ -231,6 +231,47 @@ def test_resource_fault_discards_queued_app_work_and_allows_recovery(gpu_binary,
     s.check().capacity_status(True, acknowledge=True)
     s.command(G.CLEAR_PIXEL, 4, 5).command(G.SWAP_BUFFER).command(G.FENCE).check()
     s.capacity_status(False)
+    run(gpu_binary, tmp_path, s)
+
+
+@pytest.mark.parametrize('code', [1, 2, 3, 4, 5, 0x82, 0x84])
+def test_notice_overlay_preserves_both_frames_resources_and_drawing_state(gpu_binary, tmp_path, code):
+    s = Scenario(320, 180).seed_back(611)
+    s.command(G.SWAP_BUFFER).check().seed_back(622)
+    s.resource(0, bytes(range(256))).resource(0, bytes(range(256)) * 4, sprite=True)
+    s.command(G.SET_CLIP, 1, 1, 2, 2).command(G.SET_COLOR, 0)
+    s.command(G.SET_CURSOR, 42, 61, 1).command(G.PUSH_DIRTY)
+    original_front = tuple(s.gpu.front._rows)
+    original_back = tuple(s.gpu.back._rows)
+    original_display = tuple(s.gpu.display._rows)
+    s.mark_traffic().command(G.NOTICE, code).command(G.FENCE).check()
+    s.traffic_at_most(720).read(0x3c, 72)
+    assert tuple(s.gpu.display._rows) != original_display
+    assert tuple(s.gpu.front._rows) == original_front
+    assert tuple(s.gpu.back._rows) == original_back
+    s.read(0x44, 1).read(0x48, 1).read(0x4c, 2).read(0x50, 2)
+    s.read(0x54, 0).read(0x58, 0).read(0x5c, code)
+    s.read(0x400, 0x03020100).read(0x4fc, 0xfffefdfc)
+    s.read(0x800, 0x03020100).read(0xbfc, 0xfffefdfc)
+    s.mark_traffic().command(G.NOTICE, 0).command(G.FENCE).check().read(0x5c, 0)
+    s.traffic_at_most(720).read(0x3c, 72)
+    assert tuple(s.gpu.display._rows) == original_display
+    assert tuple(s.gpu.front._rows) == original_front
+    assert tuple(s.gpu.back._rows) == original_back
+    run(gpu_binary, tmp_path, s)
+
+
+def test_notice_presentation_retains_pending_cursor_rows_outside_warning(gpu_binary, tmp_path):
+    s = Scenario(320, 180).seed_back(811)
+    s.command(G.SWAP_BUFFER).command(G.SET_CURSOR, 21, 12, 3).command(G.PUSH_DIRTY).check()
+    s.command(G.SET_CURSOR, 26, 160, 3)
+    # The old and new cursor each mark five rows. Both lie outside the 72-row
+    # warning, and neither cursor change has reached the display yet.
+    s.mark_traffic().command(G.NOTICE, 1).command(G.FENCE).check()
+    s.traffic_at_most(820).read(0x3c, 82)
+    assert s.gpu.display.get(21, 12) == s.gpu.front.get(21, 12)
+    assert s.gpu.display.get(26, 160) != s.gpu.front.get(26, 160)
+    s.command(G.NOTICE, 0).command(G.FENCE).check().read(0x3c, 72)
     run(gpu_binary, tmp_path, s)
 
 

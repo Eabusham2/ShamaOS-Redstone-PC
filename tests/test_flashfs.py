@@ -223,3 +223,30 @@ def test_full_imported_flash_mounts_protected_and_retains_last_physical_byte():
     assert loaded.serialize() == before
     loaded.delete("full.bin")
     assert not loaded.write_protected
+
+
+def test_private_boot_bundle_is_immutable_but_installed_sources_remain_editable():
+    import pytest
+    from shamaos.flashfs import BootBundleReadOnlyError
+    from shamaos.os_image import build_default_os_image
+
+    image = build_default_os_image()
+    fs = ShamaFS.deserialize(image.image)
+    original = fs.serialize()
+    original_bundle = fs.stat('boot.bundle')
+    operations = (
+        lambda: fs.write_file('boot.bundle', b'replacement'),
+        lambda: fs.truncate('boot.bundle', 0),
+        lambda: fs.rename('boot.bundle', 'renamed.bundle'),
+        lambda: fs.delete('boot.bundle'),
+    )
+    for mutate in operations:
+        with pytest.raises(BootBundleReadOnlyError):
+            mutate()
+        assert fs.serialize() == original
+    source = fs.read_file('editor.asm') + b'\n; user edit\n'
+    fs.write_file('editor.asm', source)
+    fs.write_file('editor.bin', b'\0' * 4)
+    assert fs.read_file('editor.asm') == source
+    assert fs.read_file('editor.bin') == b'\0' * 4
+    assert fs.stat('boot.bundle') == original_bundle

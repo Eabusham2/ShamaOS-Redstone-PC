@@ -58,6 +58,28 @@ def configure(machine,key,data):
     machine.type(key+data.hex()+'\n')
 
 
+def test_miner_line_clear_packs_writes_and_preserves_following_text_bytes():
+    source=(ROOT/'src/shamaos/firmware/miner.asm').read_text()
+    routine=source.split('\n.line_clear\n',1)[1].split('\n.line_char\n',1)[0]
+    program=assemble('define GPU_TEXT 0x02000400\nCALL .line_clear\nHLT\n.line_clear\n'+routine)
+    machine=MinerMachine();machine.load_program(program.words)
+    machine.gpu[0x400:0x500]=bytes([0xa5])*256
+    machine.regs[1:4]=[0x1111,0x2222,0x3333]
+    writes=[];original_write=machine.write_memory
+    def count_write(address,size,value):
+        if 0x02000400<=address<0x02000500:writes.append((address,size))
+        original_write(address,size,value)
+    machine.write_memory=count_write
+    for _ in range(1000):
+        if machine.halted:break
+        machine.step()
+    assert machine.halted
+    assert machine.gpu[0x400:0x435]==b' '*53
+    assert machine.gpu[0x435:0x500]==bytes([0xa5])*203
+    assert machine.regs[1:4]==[0x1111,0x2222,0x3333]
+    assert len(writes)==14 and [size for _,size in writes]==[4]*13+[1]
+
+
 def test_first_boot_full_width_record_and_found_attempt_count():
     m=MinerMachine();m.settle()
     assert m.word(BASE)==0x31524d53 and m.word(BASE+4)==1 and m.word(BASE+24)==0

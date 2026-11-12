@@ -108,13 +108,30 @@ A real stone-button press lasts 10 redstone ticks. Physical delay lines stretch
 controller/reset/step signals to **94 ticks** and keyboard row/column signals to
 **119 ticks**. Wait for the stretched release before another key. The longer
 keyboard pulse allows the two independently routed matrix lines to overlap at
-the sampling clock; the representative routed corner-key tests measure at least
-95 ticks of overlap. Full-system routes must preserve that margin too. Tick-rate
+the sampling clock. All 64 native keys and the dedicated Shift button have at
+least **101 ticks** of simultaneous row/column high. The representative routed
+console test requires at least 80 ticks: one raw period plus the DFF's eight-tick
+setup and two-tick hold budget. Full-system routes must preserve that margin too. Tick-rate
 acceleration advances these same circuits; it does not bypass the input FIFO.
 
-The control assembly reserves **156×10×144 blocks**. Column outputs and the step
-output rise above nearby matrix wiring so external escapes cannot join those
-buses. The debug lamps form a vertical north-facing wall, with four-block column
+All **79 actuators fit within a 16×16 walking area**: 64 matrix keys, ten
+controller buttons, Reset, Step, Power, Pause, and a dedicated Shift button.
+The dedicated Shift duplicates matrix key R7/C7; it does not remove any key.
+A connected deck and four ordinary steps provide access from the grass, with
+two blocks of player headroom. The physical pulse circuits are stacked behind
+and above the controls. Their exact bounds relative to the input origin are
+`(2,-4,0)` through `(126,39,128)` (**125×44×129**); the lowest support is one block
+above the selected grass surface. This backend emits 10,902 placements and
+occupies 33 X/Z chunks at the production alignment, separately from the small
+player activation area. Exports use explicit open faces and climb outside the
+backend envelope; input-tower and pulse-output clearance is tested.
+
+This establishes walking access to the controls. The unchanged **320×180 lamp
+display**, currently 1600×900 blocks at five-block pixel pitch, has not been
+demonstrated readable from this console. A coherent screen view remains a
+separate operating-station requirement.
+
+The debug lamps form a vertical north-facing wall, with four-block column
 and row pitch and input terminals facing south. Its relative bounds are
 `(0,0,-3)` through `(124,153,0)`; at the classic-flat origin Y=-56, its top is
 Y=97. Each lamp is isolated by a repeater and a strong driver block. The complete
@@ -127,8 +144,9 @@ target, so the wall's native bounds do not describe its complete wire footprint.
 
 These local and routed properties are exercised by
 `tests/test_mchprs_runtime.py` in the actual MCHPRS engine, including cold-clock
-startup, every clock start/stop phase, real button operation, all 64 matrix keys,
-and independently driven debug lamps. Saved-world OS execution remains a
+startup, every clock start/stop phase, all 79 console actuators, and independently
+driven debug lamps. `tests/test_compact_controls.py` checks the connected deck,
+player clearance, exact bounds and grass protection. Saved-world OS execution remains a
 separate release requirement.
 
 ## Desktop and Editor

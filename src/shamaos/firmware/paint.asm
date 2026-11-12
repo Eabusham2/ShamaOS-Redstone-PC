@@ -166,8 +166,7 @@ STW r12 r1 4
 LEA r1 r0 1
 STW r12 r1 40
 SYS SYS_GPU_FENCE
-CALL .cursor
-RET
+JMP .cursor
 .cursor
 LDI r12 GPU
 STW r12 r8 8

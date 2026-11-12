@@ -50,10 +50,12 @@ redstone updates, and rejects conflicting block placements before simulation:
   70 possible power-change offsets. A cold disabled clock stays low, including
   after its signal travels through a long external route. Hold keeps cleanup
   clocked after the power request is removed.
-- Real stone buttons produce continuous 94-tick controller pulses. Keyboard
-  row/column delay lines produce 119-tick pulses; the representative 16-net
-  routed matrix has at least 95 ticks of simultaneous high for the tested
-  corner/middle keys, exceeding one raw period plus the local setup/hold budget.
+- All 79 compact-console actuators are operated in the engine. Real stone
+  buttons produce continuous 94-tick controller pulses; all 64 matrix keys and
+  the dedicated Shift produce 119-tick row/column pulses with at least 101 ticks
+  of native overlap. The representative 30-output routed console checks every
+  controller/switch plus corner/middle keys and requires at least 80 ticks of
+  simultaneous row/column high: one raw period plus local setup/hold.
 - Four nearby independent routes, three-way fanout across different heights,
   and forced west-side escapes preserve their signals. A placed/routed DFF and
   a lowered five-cell enabled register capture, hold and overwrite correctly
@@ -81,12 +83,20 @@ netlist routing supplies the emitted cell geometry. Dense placement that cannot
 be isolated fails explicitly instead of accepting overlapping wires.
 
 Global interconnect now supplies each peripheral's intended access face,
-small exact terminal neighborhoods, complete memory-tile/display envelopes,
+small exact terminal neighborhoods, complete memory-tile/display/console envelopes,
 and the selected grass surface's minimum build Y. A stair must leave its native
 envelope before rising and cannot enter another tile. These checks operate on
 terminal count and tile bounds, without materializing storage billions of times.
 The complete 993-signal diagnostic wall has a separate bounded-lead geometry
 regression; full-wall electrical behavior is not inferred from that geometry.
+
+The console's 79 activation positions occupy 16×16 X/Z blocks. A separate
+literal-geometry test proves a connected player deck, two-block headroom and
+four ordinary steps from above-grass supports. The backend bounds are
+`origin+(2,-4,0)..origin+(126,39,128)`, with 10,902 emitted placements and 33
+occupied chunks at the production alignment. The walking proof does not prove
+screen readability: the 320×180 lamp panel still spans 1600×900 physical blocks,
+and viewing it coherently from the console remains an explicit release gap.
 
 These are fixture contracts, not a measured full-SoC frequency. The enabled
 register fixture deliberately waits thousands of ticks for its long routes.

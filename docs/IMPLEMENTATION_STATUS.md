@@ -61,14 +61,14 @@ checked independently.
 The owner finalized main RAM at 192 KiB and flash at 500 KiB on 2026-11-12.
 The revised 179-bank storage emits 356,487,808 placements and occupies 39,750
 X/Z chunks. Including every local selector/shared return raises memory to
-60,805 chunks; screen, controls, debug and clock add 6,430, giving **67,235
-regular-component chunks**. Their current envelope is 6,552×9,842 blocks;
+60,805 chunks; screen, controls, debug and clock add 6,387, giving **67,192
+regular-component chunks**. Their current envelope is 6,952×6,850 blocks;
 synthesized logic and its routes are additional. The Editor retains its full
 source buffer after relocation, and metadata/boot offsets follow the image.
 
 The packed boot bundle removes unused fixed-record padding while retaining all
 editable sources, binaries and persistent records. The latest image allocates
-159.75 KiB / 31.95% of flash. Editor normal RAM use is 36.03% (44.36% with
+160 KiB / 32.00% of flash. Editor normal RAM use is 36.02% (44.36% with
 large-source assembly staging); Explorer uses 36.34%. Both retain the full
 65,535-byte source limit. `software-usage` regenerates per-app values.
 
@@ -76,28 +76,51 @@ large-source assembly staging); Explorer uses 36.34%. Both retain the full
 
 The owner subsequently halved cache to 8 KiB and VRAM to 16 KiB. GPU frames and
 staging now occupy 15,680 bytes; overlap-safe word scrolling replaces its full
-7,200-byte scratch frame. Forty-eight pixel-differential GPU cases pass with
+7,200-byte scratch frame. Pixel-differential GPU cases pass with
 stalled buses, resource-fault queue discard and native-resolution traffic
 bounds. A one-pixel horizontal scroll needs 5,399 acknowledged VRAM transactions;
 a one-row scroll needs 3,590. This is bus traffic, not elapsed Minecraft speed.
 
-All shipped binaries fit 8 KiB. Editor and Explorer reuse their source buffer for
+All shipped binaries fit 8 KiB. Miner is now 7,308 bytes (89.21%), down from
+8,508 bytes before compaction; its complete hashing and persistence behavior is
+retained. Editor and Explorer reuse their source buffer for
 assembly/launch when possible; the peak accounting retains dedicated staging
 for larger Editor documents. Host firmware/assembler/image/filesystem tests
-pass 155 cases at the new capacities. Physical 8 KiB cache and 16 KiB VRAM adapter
-variants have also passed; full integrated SoC reruns for the latest recovery
-changes are in progress.
+pass 166 cases at the new capacities. The GPU/model/kernel suite passes 61
+cases, including overlay preservation and changed-row presentation. Physical
+8 KiB cache and 16 KiB VRAM adapter variants have also passed. Eleven integrated
+SoC checks pass at these capacities, including boot/lifecycle, typed assembly
+and RAM/heap/cache/VRAM/protected-flash recovery. Five additional malformed
+boot-bundle cases stop with the original diagnostics. These use real CPU/OS RTL
+with modeled external memory; complete-world acceptance remains separate.
 
 The filesystem 95% guard rejects unsafe copy-on-write reservations before any
 mutation, preserves the last good file, and permits explicit reclamation and
 journal recovery. Service/kernel tests cover the visible storage warning,
 RAM/cache/VRAM recovery, failed autosave and interrupted odd-version snapshots.
 Committed files survive recovery; incomplete edits are never advertised as saved.
+Warnings now use a scanout-only GPU overlay: show/dismiss performs no VRAM
+writes and preserves unfinished app frames and drawing state. The private
+`boot.bundle` cannot be changed through normal file APIs; mount validates its
+image-derived location and size before boot. Separate editable app sources and
+binaries remain writable.
 
-A compact 64-key prototype has passed physical engine isolation/release checks
-at a 15×15-block button span. Its complete controller/power/clock backend and
-walkable access are being verified before replacing the current controls.
-Screen viewing and full-machine routing remain open gates.
+The complete compact console has passed physical-engine isolation/release checks
+for all 64 keys and 15 perimeter controls. Its 16×16 activation area has connected
+walkable access, and its backend occupies 33 chunks at the default alignment.
+The smaller console and relocated screen reduce the regular-component envelope
+from 252,560 to 186,615 chunks (26.11%). A saved console world was independently reopened and every actuator replayed
+from its serialized block states: 81 actual-engine steps / 23,628 redstone ticks.
+All 10,654 unique circuit blocks survived readback, and grass at Y=-61 remained
+intact with the lowest circuit support at Y=-60. Screen viewing and full-machine
+routing remain open gates.
+
+A prototype tile-local row decoder has checked every one of its 1,024 outputs
+for all 1,024 binary addresses in the actual engine. Compact vertical risers
+have also passed full-height and adjacent-channel isolation checks. Neither
+prototype alone establishes the complete memory-to-controller interface;
+mixed-bank integration and the ten-address-wire connection are being audited
+before replacing the production one-hot interface.
 
 ## Canonical capacities remain intact
 
@@ -113,6 +136,17 @@ All banks contain 1,024 32-bit words. The capacity validator rejects reduced or
 mislabelled configurations for the full release target. No small fixture is
 advertised as that full machine.
 
+## Exact-commit CI checkpoint
+
+[Commit `a600a9c`](https://github.com/Eabusham2/ShamaOS-Redstone-PC/commit/a600a9c5a0621fd9b72bf10e496bc0e997bbf448)
+passed [CI run 43306021794](https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/43306021794):
+Linux/Windows on Python 3.11/3.12, RTL, all 531 behavioral/redstone tests
+with no failures or skips, the saved-world
+backend, all twelve full physical synthesis partitions and their reconnection.
+This verifies that checkpoint. Subsequent improvements require their own
+exact-commit run; passing synthesis does not establish complete-world routing
+or in-game boot.
+
 ## Open release gates
 
 - Full partition mapping/reconnection must pass for the exact candidate commit.
@@ -121,10 +155,11 @@ advertised as that full machine.
 - Resource estimates must include logic, backbones, external routing, validation
   work and runtime loading, not just storage cells.
 - The current global-track routing topology has a prohibitive measured analytical
-  lower bound. In the mapped assembler partition alone, 737,749 nets imply at
-  least 31,239,260,074 X/Z chunks / 128,205,923,344,384 Anvil bytes, excluding
-  trunks and stairs. This applies to that recorded mapping and router, not to a
-  redesigned local router. Generation now rejects a proven insufficient disk
+  lower bound. In the mapped assembler partition alone, 738,056 nets imply at
+  least 31,252,056,139 X/Z chunks / 128,258,438,402,048 Anvil bytes, excluding
+  trunks and stairs. These are the measured lower bounds from the green `a600a9c`
+  assembler mapping with the existing global-track router; a redesigned local
+  router must be measured separately. Generation now rejects a proven insufficient disk
   budget before creating world blocks; local/tiled routing is being developed.
 - The complete capacity world must actually be generated, loaded, booted and
   exercised, including in-world editing/assembly, app cleanup and persistent

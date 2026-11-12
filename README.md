@@ -29,7 +29,7 @@ been released. See [implementation status](docs/IMPLEMENTATION_STATUS.md) and th
 The owner finalized **192 KiB RAM, 500 KiB flash, 8 KiB cache and 16 KiB
 VRAM** on 2026-11-12, superseding earlier sizing proposals. Normal Editor/Explorer
 RAM use is now about 36%; Editor temporarily needs 44.36% when assembling its
-largest source files. The initial flash allocates **159.75 KiB (31.95%)**.
+largest source files. The initial flash allocates **160 KiB (32.00%)**.
 All source files and binaries remain, and packed boot records remove unused
 padding. Two full screen buffers plus text/sprites fit in **15,680 bytes**;
 scrolling no longer reserves a third frame.
@@ -53,26 +53,30 @@ read-return wiring. They describe occupied horizontal X/Z chunks.
 | Flash and local wiring | 500 KiB | 125 | 34,055 |
 | VRAM and local wiring | 16 KiB | 4 | 6,588 |
 | Screen | 320×180 pixels | — | 6,328 |
-| Keyboard / controller circuitry | — | — | 76 |
+| Keyboard / controller circuitry | — | — | 33 |
 | Debug panel | — | — | 9 |
 | Clock | — | — | 17 |
-| **Measured regular-component subtotal** | **716 KiB memory** | **179** | **67,235** |
+| **Measured regular-component subtotal** | **716 KiB memory** | **179** | **67,192** |
 | Synthesized CPU/GPU/assembler/OS logic and connecting routes | — | — | **Not yet established** |
 
-This snapshot's regular-component envelope is **6,552×9,842 blocks**, or
-**410×616 chunks**; only 67,235 of the 252,560 envelope chunks are occupied.
+This snapshot's regular-component envelope is **6,952×6,850 blocks**, or
+**435×429 chunks**; only 67,192 of the 186,615 envelope chunks are occupied.
 The rectangular area includes gaps. It is not the complete computer's footprint.
 Storage cells alone occupy 39,750 chunks stacked versus 793,786 laid flat at the
-same capacities (94.99% fewer). All listed components together emit 444,729,391
+same capacities (94.99% fewer). All listed components together emit 444,728,976
 placement operations; synthesized logic and external routes are additional.
 
-The current controls are still a backend layout, with a 35×35-block key surface
-and controller buttons spread over 110 blocks. **This does not meet the owner's
-compact operating-station requirement.** The player-facing keyboard, controller,
-power/reset/pause/step and screen view must be usable from one nearby walkable
-station without flying. Its revised geometry, perimeter compaction and full
-logic routing remain in progress. `generation-preflight` regenerates the current
-footprint report; [memory usage](docs/MEMORY.md) lists every app's allocation.
+All 64 keys and 15 perimeter controls now fit a **16×16-block interaction
+area**, with a connected walkable deck and stairs above grass. The complete
+control backend occupies 33 chunks, down from 76; it fits inside the existing
+console reservation. Actual redstone-engine checks exercise every actuator,
+release and keyboard row/column overlap. Readable viewing of the full screen
+from the operating station remains a release gate.
+
+The new regular-component envelope is **26.11% smaller** than the previous
+252,560-chunk rectangle. Full logic routing remains in progress.
+`generation-preflight` regenerates the current footprint report;
+[memory usage](docs/MEMORY.md) lists every app's allocation.
 
 ### Capacity protections required for release
 

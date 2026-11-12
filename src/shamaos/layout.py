@@ -6,7 +6,7 @@ import math
 from .hardware.display import LampPanelSpec, panel_bounds
 from .hardware.clock import CLOCK_BOUNDS
 from .hardware.debug import DEBUG_BOUNDS
-from .hardware.controls import CONTROL_SIZE
+from .hardware.controls import control_bounds, control_interaction_descriptor
 from .hardware.memory import MemoryBankSpec, MemoryFabricSpec, bank_ports
 from .hardware.memory_backbone import StackedMemoryFabricSpec
 from .machine_spec import VRAM_BYTES
@@ -38,6 +38,8 @@ class MachineGeometry:
             raise ValueError("surface_y leaves no valid above-ground Java build area")
         if self.origin.y - 3 < self.minimum_build_y:
             raise ValueError("component origin would place display supports below the grass surface")
+        if self.origin.y - 4 < self.minimum_build_y:
+            raise ValueError("component origin would place console stair supports below the grass surface")
         if self.origin.y + DEBUG_BOUNDS[1][1] > 319:
             raise ValueError("component origin would place the debug wall above Java build height")
         if self.memory_layer_pitch < 12 or self.memory_layer_pitch % 4:
@@ -133,7 +135,9 @@ def default_origins(g: MachineGeometry) -> PhysicalOrigins:
     memory_origins: dict[str, Vec3] = {}
     # Adjacent fabrics share a compact horizontal district. Keep a real 512
     # block routing corridor between exact local-control/return envelopes.
-    left = ox + 2_000
+    # The screen ends at X+1599; X+2400 reserves an 800-block clear approach
+    # before the first memory envelope. The console sits in the north gap.
+    left = ox + 2_400
     for name, fabric in (("cache", cache), ("vram", vram_spec(g)), ("ram", ram), ("flash", flash)):
         base = Vec3(left + 125, g.storage_origin_y, oz)
         box = fabric.bounds(base)
@@ -147,8 +151,8 @@ def default_origins(g: MachineGeometry) -> PhysicalOrigins:
         ram=memory_origins["ram"],
         flash=memory_origins["flash"],
         vram=memory_origins["vram"],
-        input=Vec3(ox + 900, oy, oz - 3_000),
-        display=Vec3(ox, oy, oz - 2_000),
+        input=Vec3(ox + 900, oy, oz - 8),
+        display=Vec3(ox, oy, oz + 400),
     )
 
 
@@ -248,10 +252,11 @@ def plan_machine(g: MachineGeometry, *, origins: PhysicalOrigins | None = None) 
 
     plan.add(ComponentPlan(
         "input",
-        _box_from_size(origins.input, *CONTROL_SIZE),
+        control_bounds(origins.input),
         "physical-input",
         metadata={"keyboard": "8x8 with Shift", "controller": True, "power": True,
-                  "pause": True, "manual_step": True},
+                  "pause": True, "manual_step": True,
+                  "player_interaction": control_interaction_descriptor(origins.input)},
     ))
 
     plan.add(ComponentPlan(

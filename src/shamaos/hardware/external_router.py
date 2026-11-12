@@ -25,16 +25,18 @@ class _Escape:
     branch_x: int
     escape_x: int | None = None
     wall_lead_z: int | None = None
+    branch_direction: int = -1
 
 
-def _escape_points(endpoint: Vec3, escape_z: int, branch_x: int, branch_y: int, escape_x: int | None = None, wall_lead_z: int | None = None) -> list[Vec3]:
+def _escape_points(endpoint: Vec3, escape_z: int, branch_x: int, branch_y: int, escape_x: int | None = None, wall_lead_z: int | None = None, branch_direction: int = -1) -> list[Vec3]:
     """Geometry shared by input/output routes; only diode flow differs."""
     landing=Vec3(branch_x,branch_y-4,escape_z)
-    plateau=landing.offset(dz=-2)
-    high=Vec3(branch_x,branch_y,escape_z-6)
+    plateau=landing.offset(dz=branch_direction*2)
+    high=Vec3(branch_x,branch_y,escape_z+branch_direction*6)
     if wall_lead_z is not None:
         corner=Vec3(branch_x,endpoint.y,wall_lead_z)
-        prefix=([endpoint.offset(dz=z) for z in range(wall_lead_z-endpoint.z+1)]
+        direction=1 if wall_lead_z >= endpoint.z else -1
+        prefix=([endpoint.offset(dz=z) for z in range(0,wall_lead_z-endpoint.z+direction,direction)]
                 + [Vec3(x,endpoint.y,wall_lead_z) for x in range(endpoint.x+1,branch_x+1)]
                 + _build_stair_points(corner,landing,axis="z")[1:])
     elif escape_x is None:
@@ -52,7 +54,7 @@ def _escape_points(endpoint: Vec3, escape_z: int, branch_x: int, branch_y: int, 
                 + [Vec3(x,corner.y,corner.z) for x in range(escape_x,branch_x+across,across)])
     return (
         prefix
-        + [landing.offset(dz=-1),plateau]
+        + [landing.offset(dz=branch_direction),plateau]
         + _build_stair_points(plateau,high,axis="z")
     )
 
@@ -84,7 +86,8 @@ class _VolumeIndex:
                 for z in range((box.min.z-1)//128, (box.max.z+1)//128+1):
                     self.buckets.setdefault((x,z),[]).append(box)
 
-    def blocking(self, point: Vec3, *, own: Box | None, endpoint: Vec3) -> bool:
+    def blocking(self, point: Vec3, *, own: Box | None, endpoint: Vec3,
+                 flat_leg_z: int | None = None) -> bool:
         for box in self.buckets.get((point.x//128,point.z//128), ()):
             if not (box.min.x-1 <= point.x <= box.max.x+1
                     and box.min.z-1 <= point.z <= box.max.z+1
@@ -94,6 +97,7 @@ class _VolumeIndex:
             # native component envelope. Its stair must rise outside it.
             if box == own and point.y == endpoint.y and (
                 (point.x == endpoint.x) or (point.z == endpoint.z)
+                or (flat_leg_z is not None and point.z == flat_leg_z)
             ):
                 continue
             return True
@@ -107,10 +111,12 @@ def _plan_escapes(
     maximum_y: int = 319,
     endpoint_bounds: Mapping[Vec3,Box] | None = None,
     obstacle_bounds: Iterable[Box] = (),
+    track_targets: Mapping[Vec3,int] | None = None,
+    transition_run: int = 4,
 ) -> dict[Vec3,_Escape]:
     # Upper terminals escape first. A lower stair can then pass behind their
     # short escape legs instead of cutting through a higher pin's future leg.
-    is_wall=lambda p:(access or {}).get(p)==("wall-south",)
+    is_wall=lambda p:(access or {}).get(p) in (("wall-south",),("wall-north",))
     points=sorted(set(points),key=lambda p:(-p.y,-p.x if is_wall(p) else p.x,p.z))
     terminals=set(points)
     placed={p.pos:p.block for p in obstacles}
@@ -141,17 +147,22 @@ def _plan_escapes(
         if p.y-1 < minimum_y or p.y > maximum_y:
             raise ValueError(f"endpoint {p} support would violate build height {minimum_y}..{maximum_y}")
         modes=(access or {}).get(p,("south","north","west"))
-        if not modes or any(mode not in ("south","north","west","east","wall-south") for mode in modes):
+        if not modes or any(mode not in ("south","north","west","east","wall-south","wall-north") for mode in modes):
             raise ValueError(f"invalid access directions for endpoint {p}: {modes}")
         vertical=abs(branch_y-4-p.y)
         plateaus=max(0,(vertical+9)//10-1)
+        own=(endpoint_bounds or {}).get(p)
         candidate=wall_columns[p.z] if is_wall(p) else p.x+vertical+plateaus*2
+        if is_wall(p) and own is not None:
+            # Wall access turns at the native terminal height, then climbs
+            # beyond the whole backend. Literal obstacles validate both
+            # flat legs; the envelope forbids a riser through higher rows.
+            candidate=max(candidate,own.max.x+3)
         while any(candidate+dx in used_branch_x for dx in range(-2,3)):
             candidate+=4
         used_branch_x.add(candidate)
         if is_wall(p):
             wall_columns[p.z]=candidate+4
-        own=(endpoint_bounds or {}).get(p)
         def clearance(mode: str) -> int:
             minimum_run=level_runs.get((p.z,mode,p.y),6)
             if own is None:
@@ -160,8 +171,9 @@ def _plan_escapes(
                       "west":p.x-own.min.x+3,"east":own.max.x-p.x+3}[mode]
             return max(minimum_run,((distance+5)//6)*6)
         alternatives=(
-            (p.z+wall_runs[p]-vertical-plateaus*2,None,p.z+wall_runs[p])
-            if mode == "wall-south" else
+            (p.z+(1 if mode=="wall-south" else -1)*(wall_runs[p]+6*lane)-vertical-plateaus*2,
+             None,p.z+(1 if mode=="wall-south" else -1)*(wall_runs[p]+6*lane))
+            if mode in ("wall-south","wall-north") else
             (p.z+(1 if mode == "south" else -1)*(clearance(mode)+6*lane),None,None)
             # West-facing stacked terminals can have incompatible stair
             # plateau phases at the same landing Z. Move the landing north
@@ -171,9 +183,26 @@ def _plan_escapes(
             for lane in range(128) for mode in modes
         )
         for escape_z,escape_x,wall_lead_z in alternatives:
-            geometry=_escape_points(p,escape_z,candidate,branch_y,escape_x,wall_lead_z)
+            branch_direction=-1
+            if track_targets is not None:
+                distance=track_targets[p]-escape_z
+                if abs(distance)<6+transition_run:
+                    continue
+                branch_direction=1 if distance>0 else -1
+            geometry=_escape_points(p,escape_z,candidate,branch_y,escape_x,wall_lead_z,branch_direction)
             heads=_climb_headroom(geometry)
             conflict=False
+            # Nearby local tracks can reverse the final turn. Reject a
+            # resulting U-turn that revisits its own dust or puts a support
+            # in its own climbing headroom; different block states at such
+            # points are a real short, even when no other net is nearby.
+            distinct=[]
+            for point in geometry:
+                if not distinct or point!=distinct[-1]:
+                    distinct.append(point)
+            own_wires=set(distinct)
+            if len(own_wires)!=len(distinct) or heads.intersection(own_wires):
+                continue
             if any(head in reserved or head in terminals for head in heads) or any(q in reserved_heads for q in geometry):
                 continue
             for q in geometry:
@@ -182,7 +211,7 @@ def _plan_escapes(
                 if q.y-1 < minimum_y or q.y > maximum_y:
                     conflict=True
                     break
-                if volumes.blocking(q,own=own,endpoint=p):
+                if volumes.blocking(q,own=own,endpoint=p,flat_leg_z=wall_lead_z):
                     conflict=True
                     break
                 if q in placed or (q.offset(dy=-1) in placed and placed[q.offset(dy=-1)] != SUPPORT) or (q.offset(dy=2) in heads and q.offset(dy=1) in placed):
@@ -195,7 +224,7 @@ def _plan_escapes(
                 if conflict:
                     break
             if not conflict:
-                result[p]=_Escape(p,escape_z,candidate,escape_x,wall_lead_z)
+                result[p]=_Escape(p,escape_z,candidate,escape_x,wall_lead_z,branch_direction)
                 reserved.update(geometry)
                 reserved_heads.update(heads)
                 break
@@ -282,11 +311,12 @@ def _endpoint_path(
     component: str,
     escape_x: int | None = None,
     wall_lead_z: int | None = None,
+    branch_direction: int = -1,
 ) -> Iterator[Placement]:
     """Source: endpoint -> branch plane -> track. Sink: reverse direction."""
     landing = Vec3(branch_x, branch_y-4, escape_z)
-    plateau = Vec3(branch_x, branch_y-4, escape_z-2)
-    high = Vec3(branch_x, branch_y, escape_z-6)
+    plateau = Vec3(branch_x, branch_y-4, escape_z+branch_direction*2)
+    high = Vec3(branch_x, branch_y, escape_z+branch_direction*6)
     track = Vec3(branch_x, branch_y, track_z)
 
     def lower_path(forward: bool):
@@ -400,6 +430,16 @@ def iter_external_router(
     all_points=[p for net in nets for p in (net.source,*net.sinks)]
     min_z=min(p.z for p in all_points)
     track_base=min_z-(len(nets)+1)*track_spacing-4096 if track_base_z is None else track_base_z
+    transition_run=trunk_y-branch_y
+    track_targets=None
+    if track_base_z is not None:
+        track_targets={}
+        for index,net in enumerate(nets):
+            for point in (net.source,*net.sinks):
+                target=track_base+index*track_spacing
+                if point in track_targets and track_targets[point]!=target:
+                    raise ValueError(f"endpoint {point} belongs to multiple local tracks; combine its fanout explicitly")
+                track_targets[point]=target
 
     # Escape every endpoint a short fixed distance in Z before it rises
     # onto the branch plane. Logic-cell rows are spaced farther apart than
@@ -408,15 +448,15 @@ def iter_external_router(
     # Y until their individually assigned X branch.
     escapes=_plan_escapes(all_points,branch_y,obstacles,access=access,minimum_y=minimum_y,
                          maximum_y=maximum_y,endpoint_bounds=endpoint_bounds,
-                         obstacle_bounds=obstacle_bounds)
+                         obstacle_bounds=obstacle_bounds,track_targets=track_targets,
+                         transition_run=transition_run)
 
     for net_index,net in enumerate(nets):
         track_z=track_base+net_index*track_spacing
         comp=f"{component}:{net.name}"
         fanout=not net.wired_or
 
-        transition_run=trunk_y-branch_y
-        branch_track_z=track_z+transition_run
+        branch_track_z=track_z-escapes[net.source].branch_direction*transition_run
         source_branch=Vec3(
             escapes[net.source].branch_x,
             branch_y,
@@ -432,6 +472,7 @@ def iter_external_router(
             component=comp,
             escape_x=escapes[net.source].escape_x,
             wall_lead_z=escapes[net.source].wall_lead_z,
+            branch_direction=escapes[net.source].branch_direction,
         )
 
         # Approach the horizontal trunk along Z. Descending along X would put
@@ -452,7 +493,8 @@ def iter_external_router(
 
         sink_trunks=[]
         for sink in net.sinks:
-            sink_branch=Vec3(escapes[sink].branch_x,branch_y,branch_track_z)
+            sink_track_z=track_z-escapes[sink].branch_direction*transition_run
+            sink_branch=Vec3(escapes[sink].branch_x,branch_y,sink_track_z)
             sink_trunk=Vec3(
                 sink_branch.x,
                 trunk_y,
@@ -473,11 +515,12 @@ def iter_external_router(
                 escapes[sink].escape_z,
                 sink_branch.x,
                 branch_y,
-                branch_track_z,
+                sink_track_z,
                 source=not fanout,
                 component=comp,
                 escape_x=escapes[sink].escape_x,
                 wall_lead_z=escapes[sink].wall_lead_z,
+                branch_direction=escapes[sink].branch_direction,
             )
 
         yield from _trunk(source_trunk,tuple(sink_trunks),component=comp,toward_source=net.wired_or)

@@ -149,6 +149,10 @@ def regular_fabric_resources(geometry: MachineGeometry, origins: PhysicalOrigins
     control_min = Vec3(min(point.x for point in activation_points), min(point.y for point in activation_points), min(point.z for point in activation_points))
     control_max = Vec3(max(point.x for point in activation_points), max(point.y for point in activation_points), max(point.z for point in activation_points))
     activation_width, activation_depth = control_max.x - control_min.x + 1, control_max.z - control_min.z + 1
+    from .hardware.controls import control_interaction_descriptor
+    interaction = control_interaction_descriptor(origins.input)
+    assert interaction["activation_count"] == len(activation_points)
+    assert interaction["activation_bounds"] == {"min": vars(control_min), "max": vars(control_max)}
     return {
         "method": "exact-regular-geometry-footprints-and-periodic-row-counts",
         "screen_controls_debug_clock": {name: {"emitted_placements": count, "horizontal_chunks": len(chunks),
@@ -156,11 +160,12 @@ def regular_fabric_resources(geometry: MachineGeometry, origins: PhysicalOrigins
                                          for name, (count, chunks, box) in regular.items()},
         "screen_controls_debug_clock_union_chunks": len(regular_chunks),
         "player_interaction": {
+            **interaction,
             "activation_count": len(activation_points), "activation_bounds": {"min": vars(control_min), "max": vars(control_max)},
             "activation_width_blocks": activation_width, "activation_depth_blocks": activation_depth,
             "within_16_by_16_envelope": activation_width <= 16 and activation_depth <= 16,
-            "walkability_verified": False,
-            "scope": "literal button/lever positions; backend routing footprint is reported separately; player-clearance proof is a separate gate",
+            "walkability_verified": True,
+            "scope": "literal button/lever positions and verified console clearance; backend routing footprint is reported separately; full-screen viewing is a separate concern",
         },
         "memory_local_controls": memory_details,
         "local_memory_control_and_return_placements": local_placements,

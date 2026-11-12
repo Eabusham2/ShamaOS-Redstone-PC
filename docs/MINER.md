@@ -7,6 +7,14 @@ operations. The software path does not call a native SHA opcode or a host hash
 function. Python `hashlib` is an independent test oracle, not a Minecraft runtime
 service.
 
+The current executable is **7,308 bytes / 89.2090% of the 8 KiB executable
+cache**, down from 8,508 bytes before compaction (14.10% smaller). Relative
+workspace addressing, short immediates and tail calls preserve the native and independent
+software SHA paths. Clearing a 53-character display line uses thirteen word
+stores and one byte store instead of 53 byte stores; bytes beyond that line are
+unchanged. The [memory report](MEMORY.md) includes the complete 5,376-byte
+workspace and executable RAM backing.
+
 ## Controls
 
 | Control | Action |

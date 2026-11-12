@@ -89,22 +89,25 @@ The same final capacities laid flat touch 793,786 storage chunks: the
 above-ground stack cuts that horizontal storage count by **94.99%**. The
 126 storage regions have a 163,848,192-byte Anvil sector/header lower bound,
 not a predicted final world file size. Local memory selection and shared return
-circuits add 88,445,042 placement operations beyond the 356,487,808 storage-cell
+circuits add 85,626,782 placement operations beyond the 356,487,808 storage-cell
 and bank-bus operations.
 
-The complete screen adds 6,328 occupied chunks, controls 76, debug wall 9 and
-clock 17. Their union is 6,430 chunks, disjoint from the memory district, so the
-**regular-component union is 67,235 chunks** and emits **444,729,391 placement
-operations**. The current regular-component envelope is X=-64..6487 and
-Z=-3227..6614: **6,552×9,842 blocks**, or **410×616 envelope chunks**. Its
-252,560 envelope chunks include gaps; only 67,235 are occupied by these
-components. The perimeter of that rectangle is 32,788 blocks.
+The complete screen adds 6,328 occupied chunks, controls 33, debug wall 9 and
+clock 17. Their union is 6,387 chunks, disjoint from the memory district, so the
+**regular-component union is 67,192 chunks** and emits **444,728,976 placement
+operations**. The current regular-component envelope is X=-64..6887 and
+Z=-235..6614: **6,952×6,850 blocks**, or **435×429 envelope chunks**. Its
+186,615 envelope chunks include gaps; only 67,192 are occupied by these
+components. The perimeter of that rectangle is 27,604 blocks. Moving the screen
+into unused space and compacting the console reduces the previous 252,560-chunk
+envelope by 26.11%, without reducing the memory or display capacities.
 
 These exact geometric counts exclude synthesized CPU/GPU/assembler/OS logic
 and all internal/global logic routing. A complete-machine total has not yet
 been established. They also do not establish that every chunk can be loaded
-and timed as a working machine. Layout compaction and a compact player-facing
-operating station are in progress; regenerate the report after either changes.
+and timed as a working machine. The console's 79 actuators now fit a connected,
+walkable 16×16 area; full-screen viewing from that station remains a release
+gate. Regenerate the report after any geometry changes.
 
 Production layout changes require all of the following: valid world-height
 bounds, no block collisions or unintended electrical joins, isolated writes and
@@ -176,17 +179,17 @@ speed require a running workload. Flash capacity is the owner's final explicit
 
 | Resource | Allocated payload | Capacity | Used |
 |---|---:|---:|---:|
-| Initial flash, including metadata and block rounding | 163,584 bytes (159.75 KiB) | 512,000 bytes (500 KiB) | 31.9500% |
+| Initial flash, including metadata and block rounding | 163,840 bytes (160 KiB) | 512,000 bytes (500 KiB) | 32.0000% |
 | Flash file/directory entries | 32 (27 files, 5 directories) | 64 entries | 50.0000% |
 | Front and back framebuffer pixels | 14,400 bytes | 16,384 bytes VRAM | 87.8906% |
 | Frames, text and sprite staging; no scroll scratch | 15,680 bytes | 16,384 bytes VRAM | 95.7031% |
 
-Initial flash leaves **348,416 bytes (340.25 KiB)** unallocated,
-and **322,816 bytes** before the 475 KiB write-protection
-threshold. Its used count includes the **23,276-byte packed boot/app
+Initial flash leaves **348,160 bytes (340 KiB)** unallocated,
+and **322,560 bytes** before the 475 KiB write-protection
+threshold. Its used count includes the **23,044-byte packed boot/app
 bundle**, all editable sources and separate executables, the full 32 KiB miner
 history file, state, documents and 4,608 bytes of filesystem metadata. Packing
-removes 140,564 bytes of former 16 KiB record padding.
+removes 140,796 bytes of former 16 KiB record padding.
 Records retain length prefixes and word alignment. Shipped executables must fit
 the 8 KiB fast memory. The assembler can still produce and save up to 16,380
 bytes; attempting to execute more than 8,192 bytes invokes capacity recovery.
@@ -204,13 +207,13 @@ of lit pixels.
 | Foreground app | RAM bytes | Of 192 KiB RAM | Fast-memory bytes | Of 8 KiB fast memory | Peak RAM without heap |
 |---|---:|---:|---:|---:|---:|
 | Desktop | 244 | 0.1241% | 232 | 2.8320% | 0.1241% |
-| Editor | 70,832 | 36.0270% | 4,704 | 57.4219% | 44.3604% |
-| File Explorer | 71,452 | 36.3424% | 5,324 | 64.9902% | 36.3424% |
-| Miner | 12,912 | 6.5674% | 7,524 | 91.8457% | 6.5674% |
+| Editor | 70,824 | 36.0229% | 4,696 | 57.3242% | 44.3563% |
+| File Explorer | 71,448 | 36.3403% | 5,320 | 64.9414% | 36.3403% |
+| Miner | 12,696 | 6.4575% | 7,308 | 89.2090% | 6.4575% |
 | System Monitor | 64 | 0.0326% | 52 | 0.6348% | 0.0326% |
 | Terminal | 2,956 | 1.5035% | 1,920 | 23.4375% | 1.5035% |
 | Calculator | 1,836 | 0.9338% | 1,824 | 22.2656% | 0.9338% |
-| Paint | 1,156 | 0.5880% | 872 | 10.6445% | 0.5880% |
+| Paint | 1,152 | 0.5859% | 868 | 10.5957% | 0.5859% |
 | Settings | 1,056 | 0.5371% | 772 | 9.4238% | 0.5371% |
 
 Editor and Explorer reserve a complete 65,536-byte source buffer, 512-byte name
@@ -226,7 +229,7 @@ The resident kernel executable is a 12-byte entry loop. OS services, filesystem,
 assembler and UI also use dedicated physical logic whose registers are not
 charged to main RAM. The four memory pools total **716 KiB**. With Explorer
 active, initial flash and shared VRAM included, the counted allocation is
-**256,040 bytes / 34.9217%**. These
+**256,288 bytes / 34.9555%**. These
 physically separate pools are not interchangeable. This is allocation
 accounting, not overall hardware utilization or project completion.
 

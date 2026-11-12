@@ -26,7 +26,7 @@ module tb_fs_accel;
     logic [31:0] edge_handle;
     string edge_name;
     always #5 clk=~clk;
-    shama_fs_accel dut(.*);
+    shama_fs_accel #(.REQUIRE_BOOT_BUNDLE(0)) dut(.*);
     // Clocked read agent avoids artificial combinational dependence on every
     // byte of storage, while each DMA request still waits for an acknowledgement.
     always @(negedge clk) begin
@@ -209,6 +209,26 @@ module tb_fs_accel;
         call4(12'h021,32'h100,0,0,0);ok();x_handle=req_ret[31:0];
         call4(12'h022,x_handle,0,0,0);ok();
         call4(12'h028,x_handle,0,0,0);error_expected();
+
+        // Loader offsets are generated once: the private bundle must never be
+        // relocated by COW, truncated, renamed or deleted through normal APIs.
+        @(negedge clk);rst=1;req_valid=0;
+        entry(60,"boot.bundle",4,`SHAMA_FS_BLOCK_COUNT-1,32);
+        flash[(`SHAMA_FLASH_BYTES-256)/4]=32'hcafe1234;
+        ram_string(32'hc00,"boot.bundle");
+        reset_and_mount();
+        call4(12'h021,32'hc00,0,0,0);ok();edge_handle=req_ret[31:0];
+        writes_before=flash_writes;
+        call4(12'h024,edge_handle,32'h200,5,0);error_expected();
+        if(req_ret!=64'hfffffffffffffff7 || flash_writes!=writes_before) $fatal(1,"bundle WRITE was not immutable");
+        call4(12'h025,edge_handle,0,0,0);error_expected();
+        if(req_ret!=64'hfffffffffffffff7 || flash_writes!=writes_before) $fatal(1,"bundle zero TRUNCATE bypassed immutability");
+        call4(12'h026,edge_handle,32'h1c0,0,0);error_expected();
+        if(req_ret!=64'hfffffffffffffff7 || flash_writes!=writes_before) $fatal(1,"bundle RENAME was not immutable");
+        call4(12'h027,edge_handle,0,0,0);error_expected();
+        if(req_ret!=64'hfffffffffffffff7 || flash_writes!=writes_before) $fatal(1,"bundle DELETE was not immutable");
+        call4(12'h023,edge_handle,32'hd00,4,0);ok();
+        if(ram[32'hd00/4]!=32'hcafe1234) $fatal(1,"immutable bundle bytes changed");
 
         // A full persistent table rejects CREATE without reusing the last slot.
         @(negedge clk);rst=1;req_valid=0;

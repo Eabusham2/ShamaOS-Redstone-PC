@@ -631,8 +631,7 @@ RET
 LEA r1 r0 1
 LDI r14 CTX
 STW r14 r1 20
-CALL .sync
-RET
+JMP .sync
 .save
 LDI r14 CTX
 LDW r1 r14 20
@@ -718,8 +717,7 @@ BR.EQ .commit_done
 DEC r3
 JMP .commit_loop
 .commit_done
-CALL .sync
-RET
+JMP .sync
 .save_binary
 ; Only reached after a successful complete assembly. Last good BIN is retained
 ; if compilation or replacement write fails. Name length excludes its NUL.

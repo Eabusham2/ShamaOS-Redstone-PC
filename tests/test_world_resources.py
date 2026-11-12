@@ -67,9 +67,9 @@ def test_full_storage_cost_is_reported_without_generating_billions_of_blocks(tmp
     assert report["storage_fabrics"]["flash"]["banks_in_final_tile"] == 5
     regular = report["regular_fabrics"]
     assert regular["storage_and_local_control_union_chunks"] == 60_805
-    assert regular["regular_fabric_union_chunks"] == 67_235
+    assert regular["regular_fabric_union_chunks"] == 67_192
     assert regular["local_memory_control_and_return_placements"] == 85_626_782
-    assert regular["regular_fabric_envelope"]["envelope_chunks"] == 252_560
+    assert regular["regular_fabric_envelope"]["envelope_chunks"] == 186_615
     assert report["complete_world_runtime_verified"] is False
     assert "unverified" in report["full_world_loading_strategy"]
     assert "interconnect" in report["estimate_excludes"]
