@@ -18,9 +18,16 @@ module shama_services #(
     input logic [7:0] event_code,key_code,
     input logic [9:0] controller_latched,
     output logic event_ack,
+    output logic [25:0] event_ack_data,
     input logic input_overflow,
     input logic [7:0] input_queued_count,
     input logic keyboard_shift,
+    input logic [7:0] cpu_fault_code,
+    input logic gpu_capacity_fault,
+    output logic clear_gpu_capacity_fault,
+    input logic flash_write_protected,raw_flash_write_blocked,
+    output logic [7:0] notice_code,
+    input logic notice_busy,notice_ready,
     input logic shutdown_request,
     output logic shutdown_ready,
     output logic [31:0] lifecycle_error,
@@ -60,15 +67,18 @@ module shama_services #(
         SYS_GET_CONTROLLER=12'h031,SYS_INPUT_STATUS=12'h032,
         SYS_RUN_BUFFER=12'h061;
     localparam [7:0] EVT_HOME=8'h16,EVT_EXIT=8'h17,EVT_EDITOR=8'h18,EVT_FILES=8'h19;
-    localparam integer HEAP_BASE=32'h00010000,HEAP_PAGE_BYTES=4096,HEAP_PAGES=160,MAX_ALLOCS=16;
-    localparam [31:0] EDIT_CTX=32'h000b1000,EDIT_BUF=32'h000c0000,MINER_RECORD=32'h000b2200;
+    localparam integer HEAP_BASE=32'h0000c000,HEAP_PAGE_BYTES=4096,HEAP_PAGES=12,MAX_ALLOCS=16;
+    localparam [31:0] EDIT_CTX=32'h0002c200,EDIT_BUF=32'h00018000,MINER_RECORD=32'h0002d200;
+    localparam [31:0] RUN_STAGING=32'h00028000;
+    localparam integer FAST_BYTES=(APP_SLOT_BYTES<`SHAMA_CACHE_BYTES)?APP_SLOT_BYTES:`SHAMA_CACHE_BYTES;
     typedef enum logic [5:0] {
         ST_IDLE,ST_SLOT_LENGTH,ST_COPY_READ,ST_COPY_RAM_WRITE,ST_COPY_CACHE_WRITE,
         ST_APP_CLEAR_RAM,ST_APP_CLEAR_CACHE,ST_EXT,ST_RESP,
         ST_CLOSE_BEGIN,ST_CLOSE_EDITOR_HANDLE,ST_CLOSE_EDITOR_LENGTH,
         ST_CLOSE_EDITOR_DIRTY,ST_CLOSE_MINER_STOP,ST_CLOSE_SAVE,ST_CLOSE_SAVE_DROP,
         ST_CLOSE_HANDLES,ST_HEAP_NEXT,ST_HEAP_CLEAR,ST_HEAP_INIT,ST_WORK_NEXT,ST_WORK_CLEAR,
-        ST_FLUSH_READ,ST_FLUSH_WRITE,ST_SHUTDOWN_DONE,ST_SNAPSHOT_READ,ST_SNAPSHOT_DELAY
+        ST_FLUSH_READ,ST_FLUSH_WRITE,ST_SHUTDOWN_DONE,ST_SNAPSHOT_READ,ST_SNAPSHOT_DELAY,
+        ST_RUN_CLEAR
     } state_t;
     state_t state;
     logic [11:0] latched_id;
@@ -77,7 +87,11 @@ module shama_services #(
     logic copy_source_flash,copy_to_cache,copy_is_kernel,boot_after_kernel;
     logic [3:0] target_app;
     logic run_staged;
+    logic staged_from_text;
     logic [31:0] staged_source_ptr,staged_bytes;
+    logic [31:0] editor_extra_staging_bytes;
+    logic recovering_app,recovery_writer_stopped,flash_notice_latched,raw_flash_block_previous;
+    logic [7:0] recovery_reason;
     logic [31:0] kernel_loaded_bytes,app_loaded_bytes,heap_used_bytes;
     logic heap_bitmap [0:HEAP_PAGES-1];
     logic alloc_used [0:MAX_ALLOCS-1];
@@ -115,6 +129,21 @@ module shama_services #(
 
     function automatic logic valid_app(input logic [31:0] app_id);
         valid_app = app_id <= 8;
+    endfunction
+
+    function automatic [31:0] app_binary_limit(input logic [3:0] app_id);
+        case(app_id)
+            0:app_binary_limit=`SHAMA_DESKTOP_BINARY_BYTES;
+            1:app_binary_limit=`SHAMA_EDITOR_BINARY_BYTES;
+            2:app_binary_limit=`SHAMA_FILES_BINARY_BYTES;
+            3:app_binary_limit=`SHAMA_MINER_BINARY_BYTES;
+            4:app_binary_limit=`SHAMA_MONITOR_BINARY_BYTES;
+            5:app_binary_limit=`SHAMA_TERMINAL_BINARY_BYTES;
+            6:app_binary_limit=`SHAMA_CALCULATOR_BINARY_BYTES;
+            7:app_binary_limit=`SHAMA_PAINT_BINARY_BYTES;
+            8:app_binary_limit=`SHAMA_SETTINGS_BINARY_BYTES;
+            default:app_binary_limit=0;
+        endcase
     endfunction
 
     function automatic logic universal_event(input logic [7:0] code);
@@ -171,24 +200,24 @@ module shama_services #(
 
     function automatic [31:0] workspace_bytes(input logic [3:0] app_id);
         case(app_id)
-            1,2:workspace_bytes=32'd66112+APP_SLOT_BYTES;
+            1:workspace_bytes=32'd66116+editor_extra_staging_bytes;
+            2:workspace_bytes=32'd66116;
             3:workspace_bytes=5376;
             5:workspace_bytes=1024;
             7,8:workspace_bytes=272; // config record plus filename staging at +0x100
-            15:workspace_bytes=APP_SLOT_BYTES;
             default:workspace_bytes=0;
         endcase
     endfunction
     function automatic [31:0] workspace_base(input logic [3:0] idx);
         case(idx)
-            0:workspace_base=32'h000b0000;
-            1:workspace_base=32'h000b1000;
-            2:workspace_base=32'h000c0000;
-            3:workspace_base=32'h000e0000;
-            4:workspace_base=32'h000b2000;
-            5:workspace_base=32'h000b3000;
-            6:workspace_base=32'h000b4000;
-            7:workspace_base=32'h000b5000;
+            0:workspace_base=32'h0002c000;
+            1:workspace_base=EDIT_CTX;
+            2:workspace_base=EDIT_BUF;
+            3:workspace_base=RUN_STAGING;
+            4:workspace_base=32'h0002d000;
+            5:workspace_base=32'h0002e000;
+            6:workspace_base=32'h0002f000;
+            7:workspace_base=32'h0002f200;
             default:workspace_base=0;
         endcase
     endfunction
@@ -199,9 +228,9 @@ module shama_services #(
             workspace_size=0;
             case(idx)
                 0:if((foreground_app==1 || foreground_app==2) && !handoff) workspace_size=512;
-                1:if((foreground_app==1 || foreground_app==2) && !handoff) workspace_size=64;
-                2:if((foreground_app==1 || foreground_app==2) && !handoff) workspace_size=65536;
-                3:if((foreground_app==1 || foreground_app==2 || foreground_app==15) && !run_staged) workspace_size=APP_SLOT_BYTES;
+                1:if((foreground_app==1 || foreground_app==2) && !handoff) workspace_size=68;
+                2:if((foreground_app==1 || foreground_app==2) && !handoff && !(run_staged && staged_from_text)) workspace_size=65536;
+                3:if(foreground_app==1 && !(run_staged && !staged_from_text)) workspace_size=APP_SLOT_BYTES;
                 4:if(foreground_app==3) workspace_size=4096;
                 5:if(foreground_app==3) workspace_size=1280;
                   else if(foreground_app==5) workspace_size=1024;
@@ -228,12 +257,39 @@ module shama_services #(
             force_discard<=0;copy_offset<=0;lifecycle_error<=0;state<=ST_CLOSE_BEGIN;
         end
     endtask
+    task automatic finish_app_copy;
+        begin
+            app_loaded_bytes<=copy_bytes;foreground_app<=target_app;os_loaded<=1;
+            run_staged<=0;staged_from_text<=0;editor_extra_staging_bytes<=0;
+            if(recovering_app) begin
+                notice_code<=recovery_reason;recovering_app<=0;recovery_writer_stopped<=0;
+            end
+            if(async_switch) begin force_jump_pulse<=1;async_switch<=0;state<=ST_IDLE;end
+            else begin response<=copy_bytes;response_jump<=1;response_pc<=`SHAMA_PC_APP;state<=ST_RESP;end
+        end
+    endtask
+    task automatic begin_recovery(input logic [7:0] reason,input logic writer_stopped);
+        begin
+            recovering_app<=1;recovery_reason<=reason;recovery_writer_stopped<=writer_stopped;
+            async_switch<=1;target_app<=0;run_staged<=0;close_shutdown<=0;force_discard<=0;
+            lifecycle_error<=32'hfffffff6;clear_gpu_capacity_fault<=gpu_capacity_fault;
+            state<=(foreground_app==1 || foreground_app==3)?ST_SNAPSHOT_READ:ST_CLOSE_BEGIN;
+        end
+    endtask
     task automatic refuse_close(input logic [31:0] error_code);
         begin
             lifecycle_error<=error_code;response<={32'hffffffff,error_code};
-            close_shutdown<=0;shutdown_pending<=0;run_staged<=0;
-            if(async_switch) begin async_switch<=0;state<=ST_IDLE;end
-            else state<=ST_RESP;
+            if(recovering_app) begin
+                // Recovery may not wait on a writer that has already stopped.
+                // Keep the prior committed file and explicitly report the
+                // unsaved edits when persistence cannot complete safely.
+                recovery_reason[7]<=1;force_discard<=1;state<=ST_CLOSE_SAVE_DROP;
+            end else begin
+                close_shutdown<=0;shutdown_pending<=0;run_staged<=0;
+                if(error_code==32'hfffffff8) begin notice_code<=1;flash_notice_latched<=1;end
+                if(async_switch) begin async_switch<=0;state<=ST_IDLE;end
+                else state<=ST_RESP;
+            end
         end
     endtask
     task automatic finish_heap_clear;
@@ -253,7 +309,7 @@ module shama_services #(
     always_comb begin
         sys_ready=state==ST_RESP;sys_ret=response;
         sys_jump_valid=state==ST_RESP && response_jump;sys_jump_pc=response_pc;
-        cpu_hold=(async_switch && state!=ST_SNAPSHOT_READ && state!=ST_SNAPSHOT_DELAY) || shutdown_ready;
+        cpu_hold=(async_switch && state!=ST_SNAPSHOT_READ && state!=ST_SNAPSHOT_DELAY) || shutdown_ready || notice_code!=0 || notice_busy;
         cpu_force_jump=force_jump_pulse;cpu_force_pc=`SHAMA_PC_APP;
         ext_valid=state==ST_EXT || state==ST_CLOSE_SAVE;
         ext_id=latched_id;ext_args=latched_args;
@@ -276,7 +332,7 @@ module shama_services #(
             ST_CLOSE_EDITOR_LENGTH:begin dma_valid=1;dma_addr=EDIT_CTX+8;end
             ST_CLOSE_EDITOR_DIRTY:begin dma_valid=1;dma_addr=EDIT_CTX+20;end
             ST_CLOSE_MINER_STOP:begin dma_valid=1;dma_we=1;dma_addr=MINER_RECORD+24;dma_wdata=0;end
-            ST_HEAP_CLEAR,ST_HEAP_INIT,ST_WORK_CLEAR:begin dma_valid=1;dma_we=1;dma_addr=clear_base+copy_offset;dma_wdata=0;end
+            ST_HEAP_CLEAR,ST_HEAP_INIT,ST_WORK_CLEAR,ST_RUN_CLEAR:begin dma_valid=1;dma_we=1;dma_addr=clear_base+copy_offset;dma_wdata=0;end
             ST_FLUSH_READ:begin dma_valid=1;dma_cache=1;dma_addr=copy_offset;end
             ST_FLUSH_WRITE:begin dma_valid=1;dma_we=1;dma_addr=`SHAMA_APP_RAM_BASE+copy_offset;end
             default:begin end
@@ -288,31 +344,52 @@ module shama_services #(
             state<=ST_IDLE;latched_id<=0;latched_args<=0;
             copy_offset<=0;copy_word<=0;copy_source_base<=0;copy_ram_base<=0;copy_bytes<=0;
             copy_source_flash<=1;copy_to_cache<=0;copy_is_kernel<=0;boot_after_kernel<=0;
-            target_app<=0;run_staged<=0;staged_source_ptr<=0;staged_bytes<=0;
+            target_app<=0;run_staged<=0;staged_from_text<=0;staged_source_ptr<=0;staged_bytes<=0;editor_extra_staging_bytes<=0;
+            recovering_app<=0;recovery_writer_stopped<=0;recovery_reason<=0;
+            notice_code<=0;clear_gpu_capacity_fault<=0;flash_notice_latched<=0;raw_flash_block_previous<=0;
             kernel_loaded_bytes<=0;app_loaded_bytes<=0;heap_used_bytes<=0;
             for(i=0;i<HEAP_PAGES;i=i+1) heap_bitmap[i]<=0;
             for(i=0;i<MAX_ALLOCS;i=i+1) begin alloc_used[i]<=0;alloc_ptr[i]<=0;alloc_pages[i]<=0;end
             response<=0;response_jump<=0;response_pc<=0;async_switch<=0;force_jump_pulse<=0;
-            event_ack<=0;os_loaded<=0;foreground_app<=0;
+            event_ack<=0;event_ack_data<=0;os_loaded<=0;foreground_app<=0;
             close_shutdown<=0;force_discard<=0;shutdown_pending<=0;shutdown_prev<=0;shutdown_ready<=0;
             lifecycle_error<=0;close_handle<=0;close_length<=0;clear_slot<=0;free_one<=0;
             workspace_index<=0;clear_base<=0;clear_bytes<=0;snapshot_delay<=0;
         end else begin
-            event_ack<=0;force_jump_pulse<=0;shutdown_prev<=shutdown_request;
+            event_ack<=0;force_jump_pulse<=0;shutdown_prev<=shutdown_request;clear_gpu_capacity_fault<=0;
+            raw_flash_block_previous<=raw_flash_write_blocked;
+            if(!flash_write_protected) flash_notice_latched<=0;
+            if(os_loaded && raw_flash_write_blocked && !raw_flash_block_previous && !recovering_app) begin
+                notice_code<=1;flash_notice_latched<=1;
+            end
+            if(notice_code!=0 && notice_ready && event_valid &&
+               (event_code==8'h14 || event_code==8'h15 || universal_event(event_code))) begin
+                notice_code<=0;event_ack<=1;event_ack_data<={controller_latched,key_code,event_code};
+            end
             if(shutdown_request && !shutdown_prev && !shutdown_ready) shutdown_pending<=1;
             if(!shutdown_request && !close_shutdown) shutdown_ready<=0;
             if(state==ST_RESP && !sys_valid) begin state<=ST_IDLE;response_jump<=0;end
             case(state)
                 ST_IDLE:begin
-                    if(shutdown_pending) begin
+                    if(notice_code!=0 || notice_busy) begin end
+                    else if(os_loaded && cpu_fault_code!=0) begin_recovery(cpu_fault_code==8?8'd2:8'd5,1);
+                    else if(os_loaded && gpu_capacity_fault) begin_recovery(8'd4,0);
+                    else if(os_loaded && flash_write_protected && !flash_notice_latched) begin
+                        notice_code<=1;flash_notice_latched<=1;
+                    end else if(shutdown_pending) begin
                         async_switch<=1;close_shutdown<=1;force_discard<=0;run_staged<=0;target_app<=0;
                         lifecycle_error<=0;state<=(foreground_app==1 || foreground_app==3)?ST_SNAPSHOT_READ:ST_CLOSE_BEGIN;
                     end else if(event_valid && universal_event(event_code)) begin
-                        event_ack<=1;async_switch<=1;target_app<=universal_app(event_code);
+                        event_ack<=1;event_ack_data<={controller_latched,key_code,event_code};
+                        async_switch<=1;target_app<=universal_app(event_code);
                         close_shutdown<=0;force_discard<=0;run_staged<=0;lifecycle_error<=0;state<=(foreground_app==1 || foreground_app==3)?ST_SNAPSHOT_READ:ST_CLOSE_BEGIN;
                     end else if(sys_valid) begin
                         latched_id<=sys_id;latched_args<=sys_args;response<=0;response_jump<=0;response_pc<=0;
-                        if(!is_local(sys_id)) state<=ST_EXT;
+                        if(!is_local(sys_id)) begin
+                            if(sys_id==12'h060 && foreground_app==1)
+                                editor_extra_staging_bytes<=(sys_args[95:64]>=RUN_STAGING && sys_args[95:64]<RUN_STAGING+APP_SLOT_BYTES)?APP_SLOT_BYTES:0;
+                            state<=ST_EXT;
+                        end
                         else case(sys_id)
                             SYS_EXIT,SYS_APP_EXIT_FOREGROUND:begin_app_replace(0);
                             SYS_YIELD:state<=ST_RESP;
@@ -331,21 +408,32 @@ module shama_services #(
                                 else begin response<=64'hffffffffffffffff;state<=ST_RESP;end
                             end
                             SYS_RUN_BUFFER:begin
-                                if(sys_args[63:32]==0 || sys_args[63:32]>APP_SLOT_BYTES-4 ||
-                                   sys_args[31:0]<32'h000e0000 || sys_args[31:0]>32'h000e0000+APP_SLOT_BYTES-sys_args[63:32] ||
+                                if(sys_args[63:32]>FAST_BYTES) begin_recovery(8'd3,1);
+                                else if(sys_args[31:0]>=`SHAMA_RAM_BYTES || sys_args[63:32]>`SHAMA_RAM_BYTES-sys_args[31:0]) begin_recovery(8'd2,1);
+                                else if(sys_args[63:32]==0 ||
+                                   !((sys_args[31:0]>=RUN_STAGING && sys_args[31:0]<=RUN_STAGING+APP_SLOT_BYTES-sys_args[63:32]) ||
+                                     ((foreground_app==1 || foreground_app==2) && sys_args[31:0]>=EDIT_BUF && sys_args[31:0]<=EDIT_BUF+65536-sys_args[63:32])) ||
                                    sys_args[1:0]!=0 || sys_args[33:32]!=0) begin
                                     response<=64'hfffffffffffffffa;state<=ST_RESP;
                                 end else begin
                                     target_app<=15;async_switch<=0;run_staged<=1;close_shutdown<=0;force_discard<=0;
-                                    staged_source_ptr<=sys_args[31:0];staged_bytes<=sys_args[63:32];lifecycle_error<=0;state<=ST_CLOSE_BEGIN;
+                                    staged_source_ptr<=sys_args[31:0];staged_bytes<=sys_args[63:32];
+                                    staged_from_text<=sys_args[31:0]>=EDIT_BUF && sys_args[31:0]<EDIT_BUF+65536;
+                                    lifecycle_error<=0;state<=ST_CLOSE_BEGIN;
                                 end
                             end
                             SYS_GET_EVENT:begin
-                                if(event_valid) begin response<={28'd0,controller_latched,key_code,event_code,10'd0};event_ack<=1;end
+                                if(event_valid) begin
+                                    response<={28'd0,controller_latched,key_code,event_code,10'd0};
+                                    event_ack<=1;event_ack_data<={controller_latched,key_code,event_code};
+                                end
                                 state<=ST_RESP;
                             end
                             SYS_GET_KEY:begin
-                                if(event_valid && event_code==8'h01) begin response<={56'd0,key_code};event_ack<=1;end
+                                if(event_valid && event_code==8'h01) begin
+                                    response<={56'd0,key_code};event_ack<=1;
+                                    event_ack_data<={controller_latched,key_code,event_code};
+                                end
                                 state<=ST_RESP;
                             end
                             SYS_GET_CONTROLLER:begin response<={54'd0,controller_latched};state<=ST_RESP;end
@@ -355,8 +443,9 @@ module shama_services #(
                                 integer needed_pages,run_start,slot;
                                 needed_pages=(sys_args[31:0]+HEAP_PAGE_BYTES-1)/HEAP_PAGE_BYTES;
                                 run_start=find_heap_run(needed_pages);slot=find_free_alloc_slot();
-                                if(sys_args[31:0]==0 || sys_args[31:0]>HEAP_PAGES*HEAP_PAGE_BYTES ||
-                                   needed_pages<=0 || run_start<0 || slot<0) response<=64'hffffffffffffffff;
+                                if(sys_args[31:0]==0) begin response<=64'hffffffffffffffff;state<=ST_RESP;end
+                                else if(sys_args[31:0]>HEAP_PAGES*HEAP_PAGE_BYTES || needed_pages<=0 || run_start<0 || slot<0)
+                                    begin_recovery(8'd2,1);
                                 else begin
                                     for(i=0;i<HEAP_PAGES;i=i+1) if(i>=run_start && i<run_start+needed_pages) heap_bitmap[i]<=1;
                                     alloc_used[slot]<=1;alloc_ptr[slot]<=HEAP_BASE+run_start*HEAP_PAGE_BYTES;alloc_pages[slot]<=needed_pages;
@@ -364,8 +453,6 @@ module shama_services #(
                                     clear_base<=HEAP_BASE+run_start*HEAP_PAGE_BYTES;clear_bytes<=needed_pages*HEAP_PAGE_BYTES;
                                     copy_offset<=0;state<=ST_HEAP_INIT;
                                 end
-                                if(sys_args[31:0]==0 || sys_args[31:0]>HEAP_PAGES*HEAP_PAGE_BYTES ||
-                                   needed_pages<=0 || run_start<0 || slot<0) state<=ST_RESP;
                             end
                             SYS_FREE:begin : release_allocation
                                 integer slot;
@@ -376,9 +463,9 @@ module shama_services #(
                                     copy_offset<=0;state<=ST_HEAP_CLEAR;
                                 end
                             end
-                            SYS_RAM_USAGE:begin response<={32'd1048576,ram_used_bytes};state<=ST_RESP;end
-                            SYS_CACHE_USAGE:begin response<={32'd16384,cache_used_bytes};state<=ST_RESP;end
-                            SYS_FLASH_USAGE:begin response<={32'd4194304,flash_used_bytes};state<=ST_RESP;end
+                            SYS_RAM_USAGE:begin response<={`SHAMA_RAM_BYTES,ram_used_bytes};state<=ST_RESP;end
+                            SYS_CACHE_USAGE:begin response<={`SHAMA_CACHE_BYTES,cache_used_bytes};state<=ST_RESP;end
+                            SYS_FLASH_USAGE:begin response<={`SHAMA_FLASH_BYTES,flash_used_bytes};state<=ST_RESP;end
                             SYS_CACHE_FLUSH_APP:begin copy_offset<=0;if(app_loaded_bytes==0) state<=ST_RESP;else state<=ST_FLUSH_READ;end
                             default:state<=ST_RESP;
                         endcase
@@ -386,6 +473,9 @@ module shama_services #(
                 end
                 ST_SNAPSHOT_READ:if(dma_ready) begin
                     if(!dma_rdata[0]) state<=ST_CLOSE_BEGIN;
+                    else if(recovering_app && (recovery_writer_stopped || cpu_fault_code!=0)) begin
+                        recovery_reason[7]<=1;force_discard<=1;state<=ST_CLOSE_HANDLES;
+                    end
                     else begin snapshot_delay<=15;state<=ST_SNAPSHOT_DELAY;end
                 end
                 ST_SNAPSHOT_DELAY:begin
@@ -446,7 +536,7 @@ module shama_services #(
                     else copy_offset<=copy_offset+4;
                 end
                 ST_APP_CLEAR_CACHE:if(dma_ready) begin
-                    if(copy_offset+4>=APP_SLOT_BYTES) begin
+                    if(copy_offset+4>=FAST_BYTES) begin
                         copy_offset<=0;app_loaded_bytes<=0;
                         if(close_shutdown) begin os_loaded<=0;state<=ST_SHUTDOWN_DONE;end
                         else if(run_staged) begin
@@ -459,9 +549,13 @@ module shama_services #(
                     end else copy_offset<=copy_offset+4;
                 end
                 ST_SLOT_LENGTH:if(dma_ready) begin
-                    if(dma_rdata==0 || dma_rdata>APP_SLOT_BYTES-4 || dma_rdata[1:0]!=0) begin
+                    if(dma_rdata==0 || dma_rdata>APP_SLOT_BYTES-4 || (copy_to_cache && dma_rdata>FAST_BYTES) || dma_rdata[1:0]!=0 ||
+                       dma_rdata>(copy_is_kernel?`SHAMA_KERNEL_BINARY_BYTES:app_binary_limit(target_app))) begin
                         response<=64'hfffffffffffffff9;lifecycle_error<=32'hfffffff9;
-                        if(async_switch) begin async_switch<=0;state<=ST_IDLE;end else state<=ST_RESP;
+                        if(os_loaded && !copy_is_kernel && target_app!=0) begin
+                            recovering_app<=1;recovery_reason<=3;async_switch<=1;target_app<=0;
+                            copy_source_base<=`SHAMA_DESKTOP_FLASH;copy_offset<=0;state<=ST_SLOT_LENGTH;
+                        end else if(async_switch) begin async_switch<=0;state<=ST_IDLE;end else state<=ST_RESP;
                     end else begin copy_bytes<=dma_rdata;copy_source_base<=copy_source_base+`SHAMA_SLOT_DATA_OFFSET;copy_offset<=0;state<=ST_COPY_READ;end
                 end
                 ST_COPY_READ:if(dma_ready) begin copy_word<=dma_rdata;state<=ST_COPY_RAM_WRITE;end
@@ -476,10 +570,18 @@ module shama_services #(
                 end
                 ST_COPY_CACHE_WRITE:if(dma_ready) begin
                     if(copy_offset+4>=copy_bytes) begin
-                        app_loaded_bytes<=copy_bytes;foreground_app<=target_app;os_loaded<=1;run_staged<=0;
-                        if(async_switch) begin force_jump_pulse<=1;async_switch<=0;state<=ST_IDLE;end
-                        else begin response<=copy_bytes;response_jump<=1;response_pc<=`SHAMA_PC_APP;state<=ST_RESP;end
+                        if(run_staged) begin
+                            // Source remains live until every executable word
+                            // has reached both RAM backing and fast memory.
+                            clear_base<=staged_from_text?EDIT_BUF:RUN_STAGING;
+                            clear_bytes<=staged_from_text?65536:APP_SLOT_BYTES;
+                            copy_offset<=0;state<=ST_RUN_CLEAR;
+                        end else finish_app_copy();
                     end else begin copy_offset<=copy_offset+4;state<=ST_COPY_READ;end
+                end
+                ST_RUN_CLEAR:if(dma_ready) begin
+                    if(copy_offset+4>=clear_bytes) finish_app_copy();
+                    else copy_offset<=copy_offset+4;
                 end
                 ST_FLUSH_READ:if(dma_ready) begin copy_word<=dma_rdata;state<=ST_FLUSH_WRITE;end
                 ST_FLUSH_WRITE:if(dma_ready) begin
@@ -487,6 +589,7 @@ module shama_services #(
                     else begin copy_offset<=copy_offset+4;state<=ST_FLUSH_READ;end
                 end
                 ST_EXT:if(ext_ready) begin
+                    if(ext_ret==64'hfffffffffffffff8 && !recovering_app) begin notice_code<=1;flash_notice_latched<=1;end
                     if(ext_load_app) begin
                         if(valid_app(ext_app_id)) begin_app_replace(ext_app_id);
                         else begin response<=64'hffffffffffffffff;state<=ST_RESP;end

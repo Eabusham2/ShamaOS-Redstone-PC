@@ -9,9 +9,12 @@ from .hardware.controls import control_ports
 from .hardware.debug import debug_ports,iter_debug_panel
 from .hardware.display import LampPanelSpec, panel_ports
 from .hardware.external_router import ExternalNet, iter_external_router
+from .hardware.interfaces import RoutingInterfaces, system_routing_interfaces
 from .hardware.logic import REDSTONE_BLOCK
-from .hardware.memory_backbone import backbone_ports, iter_memory_backbone
-from .layout import MachineGeometry, default_origins, memory_specs, vram_spec
+from .hardware.memory import MemoryFabricSpec
+from .hardware.memory import DUST
+from .hardware.memory_backbone import fabric_tile_ports, iter_memory_backbone
+from .layout import MachineGeometry, default_origins, memory_placement_options, memory_specs, vram_spec
 from .model import BlockState, Placement, Vec3
 from .synthesis import (
     MacroInstance,
@@ -129,6 +132,7 @@ class PreparedSystem:
     clock_origin: Vec3
     constant_high: Vec3
     metadata: dict[str, object]
+    routing: RoutingInterfaces
 
 
 def _geometry_from_config(config: dict) -> MachineGeometry:
@@ -146,6 +150,7 @@ def _geometry_from_config(config: dict) -> MachineGeometry:
         bank_words=m.get("bank_words", 1024),
         bank_word_bits=m.get("bank_word_bits", 32),
         banks_per_row=m.get("banks_per_row", 16),
+        **memory_placement_options(config),
         pixel_pitch_x=d.get("pixel_pitch_x", 5),
         pixel_pitch_y=d.get("pixel_pitch_y", 5),
     )
@@ -185,6 +190,36 @@ def _vector_nets(
         yield ExternalNet(f"{prefix}[{bit}]", source, (sink,))
 
 
+def memory_fabric_nets(
+    name: str,
+    origin: Vec3,
+    fabric: MemoryFabricSpec,
+    *,
+    inputs: dict[str, tuple[Vec3, ...]],
+    outputs: dict[str, tuple[Vec3, ...]],
+) -> Iterator[ExternalNet]:
+    """Join the unchanged controller ABI to every actual physical tile.
+
+    Bank selectors remain one-to-one in increasing logical bank order. Rows,
+    write data and global enables broadcast to all tiles. Isolated return
+    trunks OR each tile's selected word into the controller read-data input.
+    """
+    tiles = fabric_tile_ports(origin, fabric)
+    bank_pins = tuple(pin for tile in tiles for pin in tile.bank_select)
+    if len(bank_pins) != fabric.bank_count:
+        raise ValueError("physical tile selectors do not match literal bank capacity")
+    yield from _vector_nets(f"{name}_bank_select", _require_port(outputs, f"{name}_bank_select", fabric.bank_count), bank_pins)
+    for field, width in (("row_select", fabric.bank.words), ("write_data", fabric.bank.word_bits)):
+        for bit, source in enumerate(_require_port(outputs, f"{name}_{field}", width)):
+            yield ExternalNet(f"{name}_{field}[{bit}]", source, tuple(getattr(tile, field)[bit] for tile in tiles))
+    for port_name, tile_field in (("read_enable", "read_enable"), ("write_commit", "write_enable")):
+        yield ExternalNet(f"{name}_{port_name}", _require_port(outputs, f"{name}_{port_name}", 1)[0],
+                          tuple(getattr(tile, tile_field) for tile in tiles))
+    for bit, central_sink in enumerate(_require_port(inputs, f"{name}_selected_word", fabric.bank.word_bits)):
+        leaves = tuple(tile.selected_word[bit] for tile in tiles)
+        yield ExternalNet(f"{name}_selected_word[{bit}]", central_sink, leaves, wired_or=True)
+
+
 def _partition_origin(base: Vec3, index: int) -> Vec3:
     # Four-column physical grid. Each partition owns a generous independent
     # redstone-routing region, while remaining far inside the Java world border.
@@ -203,6 +238,7 @@ def _prepare_partitioned_logic(
     build: Path,
     base_origin: Vec3,
     yosys: str,
+    minimum_build_y: int = -64,
 ) -> PartitionedLogic:
     rtl_files = [root / p for p in SOC_RTL_FILES]
 
@@ -224,6 +260,7 @@ def _prepare_partitioned_logic(
             output,
             top=module_type,
             origin=_partition_origin(base_origin, index),
+            minimum_build_y=minimum_build_y,
         )
         pm = physical.manifest()
         print(
@@ -258,6 +295,9 @@ def _prepare_partitioned_logic(
             base_origin.z - 1_750_000,
         ),
         macro_instances=macro_bindings,
+        routing_branch_y=300,
+        routing_trunk_y=304,
+        minimum_build_y=minimum_build_y,
     )
     sm = shell.manifest()
     print(
@@ -292,6 +332,7 @@ def prepare_system(
         build=build,
         base_origin=origins.control,
         yosys=yosys,
+        minimum_build_y=g.minimum_build_y,
     )
 
     inputs = logic.input_ports
@@ -353,58 +394,7 @@ def prepare_system(
         ("flash", origins.flash, flash_spec),
         ("vram", origins.vram, vram_fabric),
     ):
-        physical = backbone_ports(origin, fabric)
-
-        nets.extend(
-            _vector_nets(
-                f"{name}_bank_select",
-                _require_port(
-                    outputs,
-                    f"{name}_bank_select",
-                    len(physical.bank_select),
-                ),
-                physical.bank_select,
-            )
-        )
-        nets.extend(
-            _vector_nets(
-                f"{name}_row_select",
-                _require_port(
-                    outputs,
-                    f"{name}_row_select",
-                    len(physical.row_select),
-                ),
-                physical.row_select,
-            )
-        )
-        nets.append(
-            ExternalNet(
-                f"{name}_read_enable",
-                _require_port(outputs, f"{name}_read_enable", 1)[0],
-                (physical.read_enable,),
-            )
-        )
-        nets.append(
-            ExternalNet(
-                f"{name}_write_commit",
-                _require_port(outputs, f"{name}_write_commit", 1)[0],
-                (physical.write_enable,),
-            )
-        )
-        nets.extend(
-            _vector_nets(
-                f"{name}_write_data",
-                _require_port(outputs, f"{name}_write_data", 32),
-                physical.write_data,
-            )
-        )
-        nets.extend(
-            _vector_nets(
-                f"{name}_selected_word",
-                physical.selected_word,
-                _require_port(inputs, f"{name}_selected_word", 32),
-            )
-        )
+        nets.extend(memory_fabric_nets(name, origin, fabric, inputs=inputs, outputs=outputs))
 
     # ---------- 320x180 physical lamp display ----------
     panel = LampPanelSpec(
@@ -476,6 +466,7 @@ def prepare_system(
         clock_origin=clock_origin,
         constant_high=constant_high,
         metadata=metadata,
+        routing=system_routing_interfaces(g,inputs,outputs,clock_origin=clock_origin,constant_high=constant_high),
     )
 
 
@@ -498,7 +489,7 @@ def iter_system_infrastructure(
     )
     yield Placement(
         prepared.constant_high,
-        BlockState.of("minecraft:redstone_wire"),
+        DUST,
         "system-constant-high",
     )
 
@@ -532,4 +523,9 @@ def iter_interconnect(prepared: PreparedSystem) -> Iterator[Placement]:
     yield from iter_external_router(
         prepared.nets,
         component="system-interconnect",
+        access=prepared.routing.access,
+        obstacles=prepared.routing.obstacles,
+        endpoint_bounds=prepared.routing.endpoint_bounds,
+        obstacle_bounds=prepared.routing.obstacle_bounds,
+        minimum_y=prepared.routing.minimum_y,
     )

@@ -9,7 +9,7 @@ define EVT_LEFT 0x12
 define EVT_RIGHT 0x13
 define EVT_A 0x14
 
-LDI r8 1
+LEA r8 r0 1
 
 .redraw
 MOV r1 r8
@@ -23,24 +23,24 @@ BR.EQ .idle
 
 ; Extract event code: (r1 >> 10) & 0xff.
 MOV r9 r1
-LDI r10 10
+LEA r10 r0 10
 SHR r9 r9 r10
-LDI r10 0xff
+LEA r10 r0 0xff
 AND r9 r9 r10
 
-LDI r10 EVT_UP
+LEA r10 r0 EVT_UP
 CMP r9 r10
 BR.EQ .prev
-LDI r10 EVT_LEFT
+LEA r10 r0 EVT_LEFT
 CMP r9 r10
 BR.EQ .prev
-LDI r10 EVT_DOWN
+LEA r10 r0 EVT_DOWN
 CMP r9 r10
 BR.EQ .next
-LDI r10 EVT_RIGHT
+LEA r10 r0 EVT_RIGHT
 CMP r9 r10
 BR.EQ .next
-LDI r10 EVT_A
+LEA r10 r0 EVT_A
 CMP r9 r10
 BR.EQ .open
 
@@ -49,14 +49,14 @@ SYS SYS_APP_EVENT
 JMP .redraw
 
 .prev
-LDI r10 1
+LEA r10 r0 1
 CMP r8 r10
 BR.LE .redraw
 DEC r8
 JMP .redraw
 
 .next
-LDI r10 8
+LEA r10 r0 8
 CMP r8 r10
 BR.GE .redraw
 INC r8

@@ -20,10 +20,17 @@ DataVersion 3700, with all physical computation performed by emitted redstone.
 
 ## Regular fabrics
 
-The default image reserves 4 cache, 256 RAM, 1,024 flash and 8 VRAM banks, each
-4 KiB. Flash is initialized from the assembled 4 MiB ShamaFS image. Compact
+The default image reserves 4 cache, 48 RAM, 125 flash and 8 VRAM banks, each
+4 KiB. Flash is initialized from the assembled 500 KiB ShamaFS image. Compact
 memory cells use locked repeaters and isolated read/write buses; see
 [MEMORY.md](MEMORY.md) for counts, stacking work and initialization details.
+
+The superflat grass surface is a protected lower boundary. Storage begins with
+its lowest support one block above grass, and automatic stacking reserves the
+upper routing canopy. The default four-layer grass world fits 30 layers at
+12-block spacing; a Y=63 grass preset fits 20. Fewer layers create more
+horizontal groups without changing capacity. All component and route supports
+must pass the same above-ground check as the memory cells.
 
 The display is a horizontal 320×180 X/Z panel, viewed from above, with a locked
 latch per lamp and five-block pixel pitch. Physical keyboard/controller, Shift,
@@ -59,7 +66,10 @@ Power-off requests keep the clock available for save/cleanup before stopping.
 
 ## Native world backend
 
-`create-world` makes a new owned Java save. The native backend emits compressed
+`create-world` makes a new owned grass superflat Java save. Every touched chunk
+retains complete bedrock/dirt/grass terrain, and writes at or below the grass
+are rejected. Existing flat-layer settings determine the grass datum. The
+native backend emits compressed
 Anvil chunks, correct chunk coordinates and exact block properties, with a
 bounded chunk cache and explicit build-height/world-border checks. Conflicting
 block assignments fail. Successful generation with `validate_after_write=true`

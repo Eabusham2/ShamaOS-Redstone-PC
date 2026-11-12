@@ -1,17 +1,22 @@
 `include "shama_boot_params.svh"
 module tb_services;
     localparam integer TEST_SLOT=256;
-    localparam [31:0] EDIT_CTX=32'hb1000,EDIT_BUF=32'hc0000,STAGE=32'he0000,RECORD=32'hb2200;
+    localparam [31:0] EDIT_CTX=32'h2c200,EDIT_BUF=32'h18000,STAGE=32'h28000,RECORD=32'h2d200;
     logic clk=0,rst=1,sys_valid=0,sys_ready,sys_jump_valid;
     logic [11:0] sys_id=0;
     logic [191:0] sys_args=0;
     logic [63:0] sys_ret;
     logic [31:0] sys_jump_pc;
     logic event_valid=0,event_ack;
+    logic [25:0] event_ack_data;
     logic [7:0] event_code=0,key_code=0;
     logic [9:0] controller_latched=0;
     logic input_overflow=0;
     logic keyboard_shift=0;
+    logic [7:0] cpu_fault_code=0,notice_code;
+    logic gpu_capacity_fault=0,clear_gpu_capacity_fault;
+    logic flash_write_protected=0,raw_flash_write_blocked=0;
+    logic notice_busy=0,notice_ready=1;
     logic [7:0] input_queued_count=0;
     logic shutdown_request=0,shutdown_ready;
     logic [31:0] lifecycle_error;
@@ -32,7 +37,7 @@ module tb_services;
     logic os_loaded,cpu_hold,cpu_force_jump;
     logic [3:0] foreground_app;
     logic [31:0] cpu_force_pc;
-    logic [31:0] ram [0:262143];
+    logic [31:0] ram [0:`SHAMA_RAM_BYTES/4-1];
     logic [31:0] cache_mem [0:TEST_SLOT/4-1];
     logic [31:0] saved_editor [0:3];
     logic [31:0] saved_miner [0:63];
@@ -67,7 +72,7 @@ module tb_services;
                 dma_rdata<=cache_mem[dma_addr>>2];
             end else if(dma_flash) dma_rdata<=flash_word(dma_addr);
             else begin
-                if(dma_addr>=32'h100000) $fatal(1,"RAM address overflow %h",dma_addr);
+                if(dma_addr>=`SHAMA_RAM_BYTES) $fatal(1,"RAM address overflow %h",dma_addr);
                 dma_rdata<=ram[dma_addr>>2];
             end
         end
@@ -128,12 +133,35 @@ module tb_services;
             ram[EDIT_BUF>>2]=32'h6c6c6568;ram[(EDIT_BUF+4)>>2]=32'h0000006f;
         end
     endtask
+    task automatic acknowledge_notice(input [7:0] expected);
+        begin
+            @(negedge clk);
+            if(notice_code!==expected || !cpu_hold) $fatal(1,"missing modal recovery notice %h expected%h",notice_code,expected);
+            @(negedge clk);event_valid=1;event_code=8'h14;
+            wait(event_ack);
+            @(negedge clk);event_valid=0;event_code=0;
+            repeat(3) @(negedge clk);
+            if(notice_code!=0 || cpu_hold) $fatal(1,"acknowledgement failed to release app");
+        end
+    endtask
+    task automatic recovering_call(input [11:0] id,input [31:0] a1,a2,input [7:0] expected);
+        begin
+            @(negedge clk);sys_id=id;sys_args={128'd0,a2,a1};sys_valid=1;
+            watchdog=0;
+            while(!cpu_force_jump && watchdog<300000) begin @(negedge clk);watchdog=watchdog+1;end
+            if(!cpu_force_jump || foreground_app!=0) $fatal(1,"resource fault did not restart Desktop");
+            sys_valid=0;
+            acknowledge_notice(expected);
+        end
+    endtask
     task automatic universal(input [7:0] code);
         begin
             @(negedge clk);event_code=code;event_valid=1;
             watchdog=0;
             while(!event_ack && watchdog<300000) begin @(posedge clk);watchdog=watchdog+1;end
             if(!event_ack) $fatal(1,"universal event not acknowledged");
+            if(event_ack_data!=={controller_latched,key_code,event_code})
+                $fatal(1,"universal acknowledgement lost its event snapshot");
             @(negedge clk);event_valid=0;
         end
     endtask
@@ -146,23 +174,53 @@ module tb_services;
         end
     endtask
     initial begin
-        for(i=0;i<262144;i=i+1) ram[i]=0;
+        for(i=0;i<`SHAMA_RAM_BYTES/4;i=i+1) ram[i]=0;
         for(i=0;i<TEST_SLOT/4;i=i+1) cache_mem[i]=0;
         repeat(3) @(negedge clk);rst=0;
+        event_valid=1;event_code=1;key_code="A";controller_latched=10'h2a5;
+        call2(12'h003,0,0);
+        if(sys_ret!=={28'd0,10'h2a5,8'h41,8'h01,10'd0} || event_ack_data!=={10'h2a5,8'h41,8'h01})
+            $fatal(1,"event response/acknowledgement snapshots disagree");
+        key_code="B";call2(12'h030,0,0);
+        if(sys_ret!==64'h42 || event_ack_data!=={10'h2a5,8'h42,8'h01})
+            $fatal(1,"key acknowledgement lost its presented event");
+        event_valid=0;event_code=0;key_code=0;controller_latched=0;
         call2(12'h009,0,0);
         if(!os_loaded || foreground_app!=0 || cache_mem[0]!=32'h22222222 || ram[`SHAMA_KERNEL_RAM_BASE>>2]!=32'h11111111)
             $fatal(1,"boot did not load real RAM/cache");
         if(!last_jump) $fatal(1,"boot did not redirect CPU");
-        ram[32'h10000>>2]=32'haaaaaaaa;ram[32'h11ffc>>2]=32'hbbbbbbbb;
+        call2(12'h012,0,0);
+        if(sys_ret!=={`SHAMA_RAM_BYTES,32'd8}) $fatal(1,"RAM total does not match physical capacity");
+        call2(12'h02a,0,0);
+        if(sys_ret!=={`SHAMA_FLASH_BYTES,flash_used_bytes}) $fatal(1,"flash total does not match physical capacity");
+        // The reduced map exposes exactly12 heap pages; reject the next byte
+        // without allocating or clearing the Editor source immediately above.
+        ram[EDIT_BUF>>2]=32'hcafef00d;
+        recovering_call(12'h010,12*4096+1,0,2);
+        if(ram_used_bytes!=8 || ram[EDIT_BUF>>2]!=32'hcafef00d)
+            $fatal(1,"heap exceeded its map or changed Editor source");
+        call2(12'h010,12*4096,0);
+        if(sys_ret!=32'h0c000 || ram_used_bytes!=12*4096+8 || ram[EDIT_BUF>>2]!=32'hcafef00d)
+            $fatal(1,"last heap page allocation crossed source boundary");
+        ram[32'h17ffc>>2]=32'h12345678;
+        call2(12'h011,32'h0c000,0);
+        if(ram[32'h17ffc>>2]!=0 || ram_used_bytes!=8 || ram[EDIT_BUF>>2]!=32'hcafef00d)
+            $fatal(1,"free did not clear last heap page or damaged source");
+        ram[EDIT_BUF>>2]=0;
+        call2(12'h010,12*4096,0);
+        ram[32'h17ffc>>2]=32'hdeadbeef;
+        recovering_call(12'h010,1,0,2);
+        if(ram[32'h17ffc>>2]!=0 || ram_used_bytes!=8) $fatal(1,"exhausted heap was not cleared on recovery");
+        ram[32'h0c000>>2]=32'haaaaaaaa;ram[32'h0dffc>>2]=32'hbbbbbbbb;
         call2(12'h010,5000,0);
-        if(ram[32'h10000>>2]!=0 || ram[32'h11ffc>>2]!=0) $fatal(1,"new allocation leaks stale data");
-        if(sys_ret!=32'h10000 || ram_used_bytes!=8200) $fatal(1,"allocation/accounting");
-        ram[32'h10000>>2]=32'hdeadbeef;ram[32'h11ffc>>2]=32'habcdef01;
-        call2(12'h011,32'h10000,0);
-        if(ram[32'h10000>>2]!=0 || ram[32'h11ffc>>2]!=0 || ram_used_bytes!=8) $fatal(1,"free must zero and release allocation");
-        call2(12'h010,4096,0);ram[32'h10000>>2]=32'hdeadbeef;
+        if(ram[32'h0c000>>2]!=0 || ram[32'h0dffc>>2]!=0) $fatal(1,"new allocation leaks stale data");
+        if(sys_ret!=32'h0c000 || ram_used_bytes!=8200) $fatal(1,"allocation/accounting");
+        ram[32'h0c000>>2]=32'hdeadbeef;ram[32'h0dffc>>2]=32'habcdef01;
+        call2(12'h011,32'h0c000,0);
+        if(ram[32'h0c000>>2]!=0 || ram[32'h0dffc>>2]!=0 || ram_used_bytes!=8) $fatal(1,"free must zero and release allocation");
+        call2(12'h010,4096,0);ram[32'h0c000>>2]=32'hdeadbeef;
         call2(12'h006,1,0);
-        if(foreground_app!=1 || ram[32'h10000>>2]!=0 || cache_mem[0]!=32'h33333333) $fatal(1,"launch cleanup");
+        if(foreground_app!=1 || ram[32'h0c000>>2]!=0 || cache_mem[0]!=32'h33333333) $fatal(1,"launch cleanup");
 
         // Dirty named file saves before resources/memory are reclaimed.
         editor_context(7,5,1,2);
@@ -208,9 +266,64 @@ module tb_services;
         if(foreground_app!=0 || save_count!=2) $fatal(1,"snapshot close failed");
 
         // Staged programs survive cleanup and load into executable fast memory.
+        recovering_call(12'h061,32'he0000,4,2);
+        recovering_call(12'h061,STAGE,TEST_SLOT+4,3);
         ram[STAGE>>2]=32'h99999999;
         call2(12'h061,STAGE,4);
-        if(foreground_app!=15 || cache_mem[0]!=32'h99999999) $fatal(1,"staged run");
+        if(foreground_app!=15 || cache_mem[0]!=32'h99999999 || ram[STAGE>>2]!=0 || ram_used_bytes!=8)
+            $fatal(1,"staged run/copy-before-clear/accounting");
+
+        // Files borrows its text buffer for binaries. Editor can assemble in
+        // its unused source tail; both must copy before clearing the64KiB span.
+        call2(12'h006,2,0);
+        if(ram_used_bytes!=66124) $fatal(1,"Files still reserves duplicate run workspace");
+        ram[EDIT_BUF>>2]=32'haaaa1234;ram[(EDIT_BUF+65532)>>2]=32'hdeadbeef;
+        call2(12'h061,EDIT_BUF,4);
+        if(cache_mem[0]!=32'haaaa1234 || ram[EDIT_BUF>>2]!=0 || ram[(EDIT_BUF+65532)>>2]!=0 || ram_used_bytes!=8)
+            $fatal(1,"Files borrowed source was erased before copy or retained after run");
+        call2(12'h006,1,0);editor_context(7,0,0,2);
+        ram[(EDIT_BUF+4096)>>2]=32'hbbbb5678;ram[(EDIT_CTX+64)>>2]=EDIT_BUF+4096;
+        call2(12'h061,EDIT_BUF+4096,4);
+        if(cache_mem[0]!=32'hbbbb5678 || ram[(EDIT_BUF+4096)>>2]!=0 || ram[(EDIT_CTX+64)>>2]!=0)
+            $fatal(1,"Editor tail staging/context did not survive copy then clear");
+
+        // A faulted writer cannot finish an odd snapshot. Recovery must not
+        // deadlock or persist a half-edit; the notice names the unsaved data.
+        call2(12'h006,1,0);editor_context(7,5,1,3);
+        begin
+            integer old_saves;
+            old_saves=save_count;
+            @(negedge clk);cpu_fault_code=8;
+            wait(cpu_force_jump);
+            cpu_fault_code=0;
+            if(save_count!=old_saves || ram[EDIT_BUF>>2]!=0 || foreground_app!=0)
+                $fatal(1,"faulted odd snapshot was saved or not reclaimed");
+            acknowledge_notice(8'h82);
+        end
+        // An even snapshot is saved normally; a storage refusal still keeps
+        // the previous committed file and completes a visible recovery.
+        call2(12'h006,1,0);editor_context(7,5,1,4);fail_save=1;
+        @(negedge clk);cpu_fault_code=8;
+        wait(cpu_force_jump);cpu_fault_code=0;fail_save=0;
+        acknowledge_notice(8'h82);
+        call2(12'h006,7,0);
+        @(negedge clk);gpu_capacity_fault=1;
+        wait(clear_gpu_capacity_fault);
+        @(negedge clk);gpu_capacity_fault=0;
+        wait(cpu_force_jump);
+        acknowledge_notice(4);
+
+        // Storage protection is a modal warning, not a forced app discard.
+        // Keep acknowledging a held raw-store rejection from reopening it.
+        @(negedge clk);flash_write_protected=1;
+        wait(notice_code==1);acknowledge_notice(1);
+        repeat(5) @(negedge clk);
+        if(notice_code!=0) $fatal(1,"stable protection reopened an acknowledged notice");
+        raw_flash_write_blocked=1;
+        wait(notice_code==1);acknowledge_notice(1);
+        repeat(5) @(negedge clk);
+        if(notice_code!=0) $fatal(1,"held rejected CPU store reopened its notice");
+        raw_flash_write_blocked=0;flash_write_protected=0;
 
         input_overflow=1;input_queued_count=12;
         call2(12'h032,0,0);
@@ -223,13 +336,13 @@ module tb_services;
         // the config record. Cleanup clears the reserved span and its accounting.
         call2(12'h006,8,0);
         if(ram_used_bytes!=280) $fatal(1,"Settings workspace accounting");
-        ram[32'hb4000>>2]=32'h12345678;ram[32'hb4100>>2]=32'h74746573;ram[32'hb410c>>2]=32'hffffffff;
+        ram[32'h2f000>>2]=32'h12345678;ram[32'h2f100>>2]=32'h74746573;ram[32'h2f10c>>2]=32'hffffffff;
         call2(12'h006,7,0);
-        if(ram[32'hb4000>>2]!=0 || ram[32'hb4100>>2]!=0 || ram[32'hb410c>>2]!=0 || ram_used_bytes!=280)
+        if(ram[32'h2f000>>2]!=0 || ram[32'h2f100>>2]!=0 || ram[32'h2f10c>>2]!=0 || ram_used_bytes!=280)
             $fatal(1,"Settings filename workspace leaked");
-        ram[32'hb5000>>2]=32'h12345678;ram[32'hb5100>>2]=32'h74746573;ram[32'hb510c>>2]=32'hffffffff;
+        ram[32'h2f200>>2]=32'h12345678;ram[32'h2f300>>2]=32'h74746573;ram[32'h2f30c>>2]=32'hffffffff;
         call2(12'h006,0,0);
-        if(ram[32'hb5000>>2]!=0 || ram[32'hb5100>>2]!=0 || ram[32'hb510c>>2]!=0 || ram_used_bytes!=8)
+        if(ram[32'h2f200>>2]!=0 || ram[32'h2f300>>2]!=0 || ram[32'h2f30c>>2]!=0 || ram_used_bytes!=8)
             $fatal(1,"Paint filename workspace leaked");
 
         // Shutdown saves the complete miner state and waits for storage/cleanup

@@ -57,13 +57,29 @@ class PhysicalNetlist:
     nets: tuple[RoutedNet, ...]
     constant_high: tuple[Vec3, ...]
     cell_stride: int = 24
-    route_z0: int = 32
     track_pitch: int = 4
-    trunk_height: int = 7
+    routing_branch_y: int = 286
+    routing_trunk_y: int = 290
+    minimum_build_y: int = -64
+    north_constant_high: tuple[Vec3, ...] = ()
 
     @property
     def track_count(self) -> int:
-        return 0 if not self.nets else 1 + max(n.track for n in self.nets)
+        # The physical router currently gives each net its own Z track. The
+        # interval-coloring estimate in RoutedNet.track is not emitted reuse.
+        return len(self.nets)
+
+    @property
+    def trunk_track_bounds(self) -> tuple[int, int] | None:
+        if not self.nets:
+            return None
+        minimum_endpoint_z = min(
+            endpoint.pos.z
+            for net in self.nets
+            for endpoint in (net.source, *net.sinks)
+        )
+        first = minimum_endpoint_z - (self.track_count + 1) * self.track_pitch - 4096
+        return first, first + (self.track_count - 1) * self.track_pitch
 
     def manifest(self) -> dict[str, object]:
         return {
@@ -71,6 +87,13 @@ class PhysicalNetlist:
             "cell_count": len(self.cell_origins),
             "net_count": len(self.nets),
             "routing_tracks": self.track_count,
+            "routing_planes": {
+                "branch_y": self.routing_branch_y,
+                "trunk_y": self.routing_trunk_y,
+                "minimum_build_y": self.minimum_build_y,
+            },
+            "trunk_track_bounds": self.trunk_track_bounds,
+            "routing_bounds_scope": "trunk Z tracks only; cell and endpoint escape bounds are separate",
             "cell_timing": {
                 "minimum_clock_half_period_redstone_ticks": max(
                     (template_for(kind).minimum_clock_half_period for kind in self.cell_types.values()), default=0
@@ -94,12 +117,11 @@ class PhysicalNetlist:
                 [self.origin.x, *(p.x for pins in self.output_ports.values() for p in pins),
                  *(o.x + template_for(self.cell_types[n]).width for n, o in self.cell_origins.items())]
             ),
-            "max_route_z": self.origin.z + self.route_z0 + max(0, self.track_count - 1) * self.track_pitch,
+            "min_route_z": None if self.trunk_track_bounds is None else self.trunk_track_bounds[0],
+            "max_route_z": None if self.trunk_track_bounds is None else self.trunk_track_bounds[1],
         }
 
-    def iter_placements(self, *, component: str | None = None) -> Iterator[Placement]:
-        comp = component or f"logic-{self.top}"
-
+    def _iter_local_placements(self, comp: str) -> Iterator[Placement]:
         # Top-level terminals.
         for pins in self.input_ports.values():
             for p in pins:
@@ -117,13 +139,22 @@ class PhysicalNetlist:
             yield from template.emitter(origin, f"{comp}:{name}")
 
         # Constant-one sinks get a local redstone block. Constant zero is just
-        # an unpowered input terminal.
+        # an unpowered input terminal. A top port's south side is reserved for
+        # the enclosing route, so its local tie must use the north side.
+        north_constants = set(self.north_constant_high)
         for p in self.constant_high:
-            yield Placement(p.offset(dz=1), REDSTONE_BLOCK, comp)
+            yield Placement(p.offset(dz=-1 if p in north_constants else 1), REDSTONE_BLOCK, comp)
+
+    def iter_placements(self, *, component: str | None = None) -> Iterator[Placement]:
+        comp = component or f"logic-{self.top}"
+        yield from self._iter_local_placements(comp)
 
         # Routed nets use the same crossing-safe two-plane router as the
-        # system interconnect. Internal logic uses lower planes (Y=300/304)
-        # so global SoC-to-fabric wiring can use Y=314/318 independently.
+        # system interconnect. Partitions use Y=286/290, the shell Y=300/304,
+        # and global wiring Y=314/318. At shared macro terminals the internal
+        # route owns the north face and the enclosing route owns the south.
+        # The latter climbs beyond the starts of lower-tier northbound Z
+        # branches, instead of passing through those wires on its way up.
         physical_nets = tuple(
             ExternalNet(
                 f"logic-bit-{net.bit}",
@@ -132,17 +163,21 @@ class PhysicalNetlist:
             )
             for net in self.nets
         )
+        access = {
+            endpoint.pos: ("south",) if endpoint.name.startswith("macro:") else ("north",)
+            for net in self.nets
+            for endpoint in (net.source, *net.sinks)
+            if endpoint.name.startswith(("port:", "macro:"))
+        }
         yield from iter_external_router(
             physical_nets,
             component=f"{comp}:internal",
-            branch_y=300,
-            trunk_y=304,
-            track_spacing=4,
-            obstacles=(
-                placement
-                for name, origin in self.cell_origins.items()
-                for placement in template_for(self.cell_types[name]).emitter(origin,f"{comp}:{name}")
-            ),
+            branch_y=self.routing_branch_y,
+            trunk_y=self.routing_trunk_y,
+            track_spacing=self.track_pitch,
+            obstacles=self._iter_local_placements(comp),
+            access=access,
+            minimum_y=self.minimum_build_y,
         )
 
 
@@ -265,6 +300,7 @@ def synthesize_json(
     finally:
         script_path.unlink(missing_ok=True)
 
+    output.with_suffix(".yosys.log").write_text(proc.stdout or "", encoding="utf-8")
     if proc.returncode != 0:
         raise SynthesisError(f"Yosys synthesis failed:\n{proc.stdout}")
     if not output.exists():
@@ -473,6 +509,9 @@ def build_physical_netlist(
     origin: Vec3 = Vec3(0, 64, 0),
     cell_stride: int = 24,
     macro_instances: dict[str, MacroInstance] | None = None,
+    routing_branch_y: int = 286,
+    routing_trunk_y: int = 290,
+    minimum_build_y: int = -64,
 ) -> PhysicalNetlist:
     raw = json.loads(Path(netlist_json).read_text(encoding="utf-8"))
     try:
@@ -487,6 +526,7 @@ def build_physical_netlist(
     macro_instances = macro_instances or {}
     endpoints: dict[int, list[Endpoint]] = {}
     const_high: list[Vec3] = []
+    north_const_high: list[Vec3] = []
 
     def add_endpoint(bit: object, endpoint: Endpoint) -> None:
         if isinstance(bit, int):
@@ -494,6 +534,8 @@ def build_physical_netlist(
         elif str(bit) == "1":
             if not endpoint.is_source:
                 const_high.append(endpoint.pos)
+                if endpoint.name.startswith("port:"):
+                    north_const_high.append(endpoint.pos)
         elif str(bit) in {"0", "x", "z"}:
             pass
         else:
@@ -519,8 +561,8 @@ def build_physical_netlist(
     x_cursor += 16
 
     # Gate cells are placed on a 2-D grid instead of a single multi-million
-    # block line. Rows extend toward negative Z; routing tracks live on the
-    # positive-Z side of the origin, so the two regions cannot collide.
+    # block line. Rows extend toward negative Z; routing tracks are above the
+    # cell grid, with endpoint escapes checked against the actual cell blocks.
     primitive_types = [
         str(cell["type"])
         for name, cell in module.get("cells", {}).items()
@@ -530,7 +572,7 @@ def build_physical_netlist(
     # Use one common stride derived from the widest template. The old code
     # computed a per-cell `stride` but ignored it, overlapping wider cells.
     grid_stride = max(cell_stride, *(t.width + 8 for t in templates), 24)
-    cell_row_pitch = max(32, *(t.depth + 16 for t in templates))
+    cell_row_pitch = max([32, *(t.depth + 16 for t in templates)])
     cells_per_row = min(1024, max(1, math.isqrt(len(templates) - 1) + 1)) if templates else 1
     cell_grid_x0 = x_cursor + 64
 
@@ -646,8 +688,17 @@ def build_physical_netlist(
         if not sinks:
             continue
         if len(sources) != 1:
+            aliases = [
+                f"{name}[{index}]"
+                for name, net in module.get("netnames", {}).items()
+                for index, value in enumerate(net.get("bits", ()))
+                if value == bit
+            ]
+            details = ", ".join(aliases[:6]) or "unnamed"
+            consumers = ", ".join(f"{e.name}:{e.pin}" for e in sinks[:6])
             raise SynthesisError(
-                f"net bit {bit} has {len(sources)} drivers; exactly one is required"
+                f"net bit {bit} ({details}) has {len(sources)} drivers; "
+                f"exactly one is required; sinks: {consumers}"
             )
         source = sources[0]
         sink_tuple = tuple(sorted(sinks, key=lambda e: (e.pos.x, e.name, e.pin)))
@@ -672,6 +723,10 @@ def build_physical_netlist(
         nets=routed,
         constant_high=tuple(const_high),
         cell_stride=grid_stride,
+        routing_branch_y=routing_branch_y,
+        routing_trunk_y=routing_trunk_y,
+        minimum_build_y=minimum_build_y,
+        north_constant_high=tuple(north_const_high),
     )
 
 

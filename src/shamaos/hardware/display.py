@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Iterator
 
-from ..model import BlockState, Placement, Vec3
+from ..model import BlockState, Box, Placement, Vec3
 from .memory import DUST, SUPPORT, redstone_wire, repeater
 
 
@@ -65,6 +65,20 @@ def panel_ports(origin: Vec3, spec: LampPanelSpec) -> LampPanelPorts:
         for row in range(spec.height)
     )
     return LampPanelPorts(data, rows)
+
+
+def panel_bounds(origin: Vec3, spec: LampPanelSpec) -> Box:
+    return Box(origin.offset(-64,-3,-64),origin.offset(
+        (spec.width-1)*spec.pixel_pitch_x+4,2,(spec.height-1)*spec.pixel_pitch_y+2))
+
+
+def iter_panel_terminal_keepouts(origin: Vec3, spec: LampPanelSpec) -> Iterator[Placement]:
+    """Exact first four native cells, independent of the pixel count."""
+    ports=panel_ports(origin,spec)
+    for pin in ports.data_in:
+        yield from _wire_z(pin.x,pin.y,pin.z,pin.z+3,component="display-terminal",facing="south",tap_mod=spec.pixel_pitch_y)
+    for pin in ports.row_select:
+        yield from _wire_x(pin.x,pin.x+3,pin.y,pin.z,component="display-terminal",facing="east")
 
 
 def _wire_x(

@@ -15,8 +15,9 @@ KEY = BlockState.of("minecraft:smooth_quartz")
 TORCH = BlockState.of("minecraft:redstone_torch", lit="true")
 TORCH_OFF = BlockState.of("minecraft:redstone_torch", lit="false")
 CONTROLLER_NAMES = ("UP","DOWN","LEFT","RIGHT","A","B","HOME","EXIT","EDITOR","FILES")
-CONTROL_SIZE = (156, 6, 144)
+CONTROL_SIZE = (156, 10, 144)
 KEYBOARD_OFFSET = Vec3(112, 0, 100)
+KEYBOARD_PULSE_TAPS = 26
 
 
 @dataclass(frozen=True)
@@ -65,7 +66,7 @@ def iter_controller_panel(origin: Vec3, *, component: str = "controller") -> Ite
         yield Placement(button.offset(dy=-1,dz=-1),SUPPORT,component)
         yield Placement(button.offset(dz=-1),repeater("north"),component)
         pulse_origin = button.offset(dy=-1,dz=-2)
-        yield from iter_pulse_stretcher(pulse_origin,component=f"{component}:{name}")
+        yield from iter_pulse_stretcher(pulse_origin,output_inversions=4 if name == "STEP" else 0,component=f"{component}:{name}")
 
     # Maintained raw power and pause requests, independently isolated.
     for x,name in ((90,"power"),(100,"pause")):
@@ -91,7 +92,7 @@ def iter_keyboard_matrix(origin: Vec3, *, component: str = "keyboard") -> Iterat
         for x in range(start_x,42):
             yield from _wire(origin,x,1,z,repeater("west") if x % 10 == 3 else DUST,component=component)
         pulse_origin = origin.offset(start_x,0,z)
-        yield from iter_pulse_stretcher(pulse_origin,quarter_turns=3,component=f"{component}:row-{row}")
+        yield from iter_pulse_stretcher(pulse_origin,quarter_turns=3,taps=KEYBOARD_PULSE_TAPS,component=f"{component}:row-{row}")
         _,out = pulse_ports(pulse_origin,quarter_turns=3)
         yield from _rise_three(out.offset(dy=-1),component=component)
 
@@ -101,7 +102,7 @@ def iter_keyboard_matrix(origin: Vec3, *, component: str = "keyboard") -> Iterat
         x = col*5+3
         for z in range(-20,42):
             yield from _wire(origin,x,4,z,repeater("north") if z % 10 == 3 else DUST,component=component)
-        yield from iter_pulse_stretcher(origin.offset(x,3,-20),component=f"{component}:col-{col}")
+        yield from iter_pulse_stretcher(origin.offset(x,3,-20),taps=KEYBOARD_PULSE_TAPS,output_inversions=2,component=f"{component}:col-{col}")
 
     for row in range(8):
         for col in range(8):
@@ -119,14 +120,14 @@ def iter_keyboard_matrix(origin: Vec3, *, component: str = "keyboard") -> Iterat
 
 def control_ports(origin: Vec3) -> ControlPorts:
     buttons=controller_buttons(origin)
-    ports={name:pulse_ports(button.offset(dy=-1,dz=-2))[1] for name,button in buttons.items()}
+    ports={name:pulse_ports(button.offset(dy=-1,dz=-2),output_inversions=4 if name == "STEP" else 0)[1] for name,button in buttons.items()}
     kb=origin.offset(KEYBOARD_OFFSET.x,KEYBOARD_OFFSET.y,KEYBOARD_OFFSET.z)
     rows=[]
     for row in range(8):
         pulse_origin=kb.offset(-18-row*6,0,row*5+2)
         _,out=pulse_ports(pulse_origin,quarter_turns=3)
         rows.append(out.offset(3,3,0))
-    cols=tuple(pulse_ports(kb.offset(col*5+3,3,-20))[1] for col in range(8))
+    cols=tuple(pulse_ports(kb.offset(col*5+3,3,-20),output_inversions=2)[1] for col in range(8))
     return ControlPorts(
         tuple(ports[name] for name in CONTROLLER_NAMES), tuple(rows), cols,
         origin.offset(93,1,47),ports["RESET"],origin.offset(103,1,47),ports["STEP"],

@@ -1,12 +1,12 @@
 ; Settings are persisted before the updated state is presented. Paint reads the
 ; same versioned record on launch. Flags: bit0 cursor enabled, bit1 single pixel.
-define CONFIG 0x000b4000
-define CONFIG_NAME 0x000b4100
+define CONFIG 0x0002f000
+define CONFIG_NAME 0x0002f100
 define GPU 0x02000000
-LDI r8 0
-LDI r9 0
-LDI r10 0
-LDI r11 1
+MOV r8 r0
+MOV r9 r0
+MOV r10 r0
+LEA r11 r0 1
 LDI r12 CONFIG_NAME
 LDI r13 0x74746573
 STW r12 r13 0
@@ -21,9 +21,12 @@ CMP r2 r0
 BR.NE .create
 MOV r10 r1
 LDI r2 CONFIG
-LDI r3 16
+LEA r3 r0 16
 SYS SYS_FILE_READ
 CMP r2 r0
+BR.NE .defaults
+LEA r12 r0 16
+CMP r1 r12
 BR.NE .defaults
 LDI r12 CONFIG
 LDW r1 r12 0
@@ -31,16 +34,16 @@ LDI r2 0x53434647
 CMP r1 r2
 BR.NE .defaults
 LDW r1 r12 8
-LDI r2 1
+LEA r2 r0 1
 CMP r1 r2
 BR.NE .defaults
 LDW r11 r12 4
-LDI r1 3
+LEA r1 r0 3
 AND r11 r11 r1
 JMP .redraw
 .create
 LDI r1 CONFIG_NAME
-LDI r2 6
+LEA r2 r0 6
 SYS SYS_FILE_CREATE
 CMP r2 r0
 BR.NE .failed
@@ -49,15 +52,15 @@ MOV r10 r1
 LDI r12 CONFIG
 LDI r1 0x53434647
 STW r12 r1 0
-LDI r11 1
+LEA r11 r0 1
 STW r12 r11 4
-LDI r1 1
+LEA r1 r0 1
 STW r12 r1 8
 STW r12 r0 12
 CALL .save
 JMP .redraw
 .failed
-LDI r9 1
+LEA r9 r0 1
 .redraw
 MOV r1 r8
 MOV r2 r11
@@ -69,31 +72,31 @@ SYS SYS_GET_EVENT
 CMP r1 r0
 BR.EQ .idle
 MOV r12 r1
-LDI r14 10
+LEA r14 r0 10
 SHR r12 r12 r14
-LDI r14 255
+LEA r14 r0 255
 AND r12 r12 r14
-LDI r14 0x10
+LEA r14 r0 0x10
 CMP r12 r14
 BR.EQ .up
-LDI r14 0x11
+LEA r14 r0 0x11
 CMP r12 r14
 BR.EQ .down
-LDI r14 0x15
+LEA r14 r0 0x15
 CMP r12 r14
 BR.EQ .exit
-LDI r14 0x14
+LEA r14 r0 0x14
 CMP r12 r14
 BR.NE .universal
 CMP r8 r0
 BR.EQ .toggle_enabled
-LDI r14 1
+LEA r14 r0 1
 CMP r8 r14
 BR.EQ .toggle_shape
-LDI r14 2
+LEA r14 r0 2
 CMP r8 r14
 BR.EQ .save_action
-LDI r14 3
+LEA r14 r0 3
 CMP r8 r14
 BR.EQ .monitor
 JMP .exit
@@ -103,17 +106,17 @@ BR.EQ .redraw
 DEC r8
 JMP .redraw
 .down
-LDI r14 4
+LEA r14 r0 4
 CMP r8 r14
 BR.GE .redraw
 INC r8
 JMP .redraw
 .toggle_enabled
-LDI r14 1
+LEA r14 r0 1
 XOR r11 r11 r14
 JMP .save_action
 .toggle_shape
-LDI r14 2
+LEA r14 r0 2
 XOR r11 r11 r14
 .save_action
 LDI r12 CONFIG
@@ -125,34 +128,34 @@ JMP .redraw
 .preview
 ; Show the chosen cursor immediately; subsequent Paint launches restore it.
 LDI r12 GPU
-LDI r1 160
+LEA r1 r0 160
 STW r12 r1 8
-LDI r1 90
+LEA r1 r0 90
 STW r12 r1 12
 STW r12 r11 16
-LDI r1 0x12
+LEA r1 r0 0x12
 STW r12 r1 4
-LDI r1 1
+LEA r1 r0 1
 STW r12 r1 40
-LDI r1 0x15
+LEA r1 r0 0x15
 STW r12 r1 4
-LDI r1 1
+LEA r1 r0 1
 STW r12 r1 40
 SYS SYS_GPU_FENCE
 RET
 .save
 MOV r1 r10
 LDI r2 CONFIG
-LDI r3 16
+LEA r3 r0 16
 SYS SYS_FILE_WRITE
-LDI r9 0
+MOV r9 r0
 CMP r2 r0
 BR.EQ .save_return
-LDI r9 1
+LEA r9 r0 1
 .save_return
 RET
 .monitor
-LDI r1 4
+LEA r1 r0 4
 SYS SYS_APP_LAUNCH
 JMP .loop
 .exit

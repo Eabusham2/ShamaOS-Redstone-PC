@@ -28,28 +28,28 @@ module shama_soc #(
     input  logic [9:0]   controller,
 
     input  logic [31:0]  cache_selected_word,
-    output logic [3:0]   cache_bank_select,
+    output logic [`SHAMA_CACHE_BANKS-1:0] cache_bank_select,
     output logic [1023:0] cache_row_select,
     output logic         cache_read_enable,
     output logic         cache_write_commit,
     output logic [31:0]  cache_write_data,
 
     input  logic [31:0]  ram_selected_word,
-    output logic [255:0] ram_bank_select,
+    output logic [`SHAMA_RAM_BANKS-1:0] ram_bank_select,
     output logic [1023:0] ram_row_select,
     output logic         ram_read_enable,
     output logic         ram_write_commit,
     output logic [31:0]  ram_write_data,
 
     input  logic [31:0]  flash_selected_word,
-    output logic [1023:0] flash_bank_select,
+    output logic [`SHAMA_FLASH_BANKS-1:0] flash_bank_select,
     output logic [1023:0] flash_row_select,
     output logic         flash_read_enable,
     output logic         flash_write_commit,
     output logic [31:0]  flash_write_data,
 
     input  logic [31:0]  vram_selected_word,
-    output logic [7:0]   vram_bank_select,
+    output logic [`SHAMA_VRAM_BANKS-1:0] vram_bank_select,
     output logic [1023:0] vram_row_select,
     output logic         vram_read_enable,
     output logic         vram_write_commit,
@@ -64,10 +64,10 @@ module shama_soc #(
     output logic         halted
 );
     localparam [31:0]
-        CACHE_END  = 32'h00003fff,
-        RAM_END    = 32'h000fffff,
+        CACHE_END  = `SHAMA_CACHE_BYTES-1,
+        RAM_END    = `SHAMA_RAM_BYTES-1,
         FLASH_BASE = 32'h01000000,
-        FLASH_END  = 32'h013fffff,
+        FLASH_END  = 32'h01000000+`SHAMA_FLASH_BYTES-1,
         GPU_BASE   = 32'h02000000,
         GPU_END    = 32'h02000fff,
         INPUT_BASE = 32'h02001000,
@@ -160,6 +160,7 @@ module shama_soc #(
 
     // ---------------- Physical input ----------------
     logic event_valid,event_ack;
+    logic [25:0] event_ack_data;
     logic [7:0] event_code,key_code;
     logic [9:0] controller_latched;
     logic [7:0] input_queued_count;
@@ -167,7 +168,7 @@ module shama_soc #(
 
     shama_input u_input(
         .clk,.rst,.kb_rows,.kb_cols,.controller,
-        .event_valid,.event_code,.key_code,.controller_latched,.event_ack,
+        .event_valid,.event_code,.key_code,.controller_latched,.event_ack,.event_ack_data,
         .input_overflow,.queued_count(input_queued_count),.keyboard_shift
     );
 
@@ -179,6 +180,9 @@ module shama_soc #(
     logic gpu_disp_valid,gpu_disp_bit,gpu_disp_ready;
     logic [15:0] gpu_disp_index;
     logic gpu_busy;
+    logic gpu_capacity_fault,clear_gpu_capacity_fault;
+    logic [7:0] notice_code;
+    logic notice_busy,notice_ready,flash_write_protected,raw_flash_write_blocked;
     logic gpu_vram_valid,gpu_vram_we,gpu_vram_ready;
     logic [14:0] gpu_vram_addr;
     logic [31:0] gpu_vram_wdata,gpu_vram_rdata;
@@ -193,7 +197,8 @@ module shama_soc #(
         .vram_wdata(gpu_vram_wdata),.vram_wstrb(gpu_vram_wstrb),
         .vram_ready(gpu_vram_ready),.vram_rdata(gpu_vram_rdata),
         .disp_valid(gpu_disp_valid),.disp_index(gpu_disp_index),
-        .disp_bit(gpu_disp_bit),.disp_ready(gpu_disp_ready),.busy(gpu_busy)
+        .disp_bit(gpu_disp_bit),.disp_ready(gpu_disp_ready),.busy(gpu_busy),
+        .capacity_fault(gpu_capacity_fault),.clear_capacity_fault(clear_gpu_capacity_fault)
     );
 
     shama_display_bridge u_display_bridge(
@@ -215,7 +220,7 @@ module shama_soc #(
             display_row_select[display_row_index] = 1'b1;
     end
 
-    // ---------------- Dedicated physical 32 KiB VRAM ----------------
+    // ---------------- Dedicated physical 16 KiB VRAM ----------------
     shama_vram_adapter u_vram(
         .clk(core_clk),.rst,
         .req_valid(gpu_vram_valid),.req_we(gpu_vram_we),
@@ -251,8 +256,10 @@ module shama_soc #(
     shama_services u_services(
         .clk(core_clk),.rst,
         .sys_valid,.sys_id,.sys_args,.sys_ready,.sys_ret,.sys_jump_valid,.sys_jump_pc,
-        .event_valid,.event_code,.key_code,.controller_latched,.event_ack,
+        .event_valid,.event_code,.key_code,.controller_latched,.event_ack,.event_ack_data,
         .input_overflow,.input_queued_count,.keyboard_shift,.shutdown_request(!power_switch),
+        .cpu_fault_code(debug_fault),.gpu_capacity_fault,.clear_gpu_capacity_fault,
+        .flash_write_protected,.raw_flash_write_blocked,.notice_code,.notice_busy,.notice_ready,
         .shutdown_ready,.lifecycle_error(debug_lifecycle),
         .fs_cleanup_valid,.fs_cleanup_owner,.fs_cleanup_ready,
         .flash_used_bytes,.time_counter,.ram_used_bytes,.cache_used_bytes,
@@ -290,6 +297,7 @@ module shama_soc #(
         .req_load_app(ext_load_app),.req_app_id(ext_app_id),
         .ram_used_bytes,.cache_used_bytes,.flash_used_bytes,
         .cpu_halted(halted),.sha_busy,.gpu_busy,
+        .gpu_capacity_fault,.notice_code,.notice_busy,.notice_ready,
         .gpu_valid(k_gpu_valid),.gpu_we(k_gpu_we),.gpu_addr(k_gpu_addr),
         .gpu_wdata(k_gpu_wdata),.gpu_wstrb(k_gpu_wstrb),.gpu_ready(k_gpu_ready),.gpu_rdata(k_gpu_rdata),
         .fs_valid(fs_call_valid),.fs_id(fs_call_id),.fs_args(fs_call_args),
@@ -313,7 +321,7 @@ module shama_soc #(
         .dma_valid(fs_dma_valid),.dma_we(fs_dma_we),.dma_flash(fs_dma_flash),
         .dma_addr(fs_dma_addr),.dma_wdata(fs_dma_wdata),.dma_wstrb(fs_dma_wstrb),
         .dma_ready(fs_dma_ready),.dma_rdata(fs_dma_rdata),
-        .flash_used_bytes,.mounted(fs_mounted)
+        .flash_used_bytes,.mounted(fs_mounted),.flash_write_protected
     );
 
     // The assembler accelerator is connected here. Until its request is
@@ -441,6 +449,10 @@ module shama_soc #(
     wire cpu_flash_address=cpu_mem_addr>=FLASH_BASE && cpu_mem_addr<=FLASH_END;
     wire cpu_gpu_address=cpu_mem_addr>=GPU_BASE && cpu_mem_addr<=GPU_END;
     wire cpu_input_address=cpu_mem_addr>=INPUT_BASE && cpu_mem_addr<=INPUT_END;
+    // Protection gates admission, never an already accepted memory word.
+    // Filesystem DMA remains available for recovery, deletion and admitted COW.
+    assign raw_flash_write_blocked=cpu_bus_selected && cpu_flash_address && cpu_mem_we &&
+                                   flash_write_protected && bus_owner!=3'd4;
     logic [31:0] input_read_data;
 
     // Requests depend only on master requests/registered ownership. In
@@ -486,7 +498,7 @@ module shama_soc #(
                 ram_req_valid=1;ram_req_we=cpu_mem_we;ram_req_addr=cpu_mem_addr;
                 ram_req_wdata=cpu_mem_wdata;ram_req_wstrb=cpu_mem_wstrb;
             end else if(cpu_flash_address) begin
-                flash_req_valid=1;flash_req_we=cpu_mem_we;
+                flash_req_valid=!raw_flash_write_blocked;flash_req_we=cpu_mem_we;
                 flash_req_addr=cpu_mem_addr-FLASH_BASE;
                 flash_req_wdata=cpu_mem_wdata;flash_req_wstrb=cpu_mem_wstrb;
             end
@@ -531,10 +543,10 @@ module shama_soc #(
     assign asm_dma_rdata=bus_choice==3 ? (asm_dma_flash?flash_req_rdata:ram_req_rdata):0;
     assign cpu_mem_ready=cpu_bus_selected && (cpu_boot_read?1'b1:
                          cpu_cache_address?cache_req_ready:cpu_ram_address?ram_req_ready:
-                         cpu_flash_address?flash_req_ready:cpu_gpu_address?(!gpu_kernel_owner && gpu_mmio_ready):1'b1);
+                         cpu_flash_address?(raw_flash_write_blocked || flash_req_ready):cpu_gpu_address?(!gpu_kernel_owner && gpu_mmio_ready):1'b1);
     assign cpu_mem_rdata=!cpu_bus_selected?0:cpu_boot_read?boot_word(cpu_mem_addr):
                          cpu_cache_address?cache_req_rdata:cpu_ram_address?ram_req_rdata:
-                         cpu_flash_address?flash_req_rdata:cpu_gpu_address?gpu_mmio_rdata:
+                         cpu_flash_address?(raw_flash_write_blocked?32'd0:flash_req_rdata):cpu_gpu_address?gpu_mmio_rdata:
                          cpu_input_address?input_read_data:0;
 
 endmodule

@@ -6,6 +6,7 @@ from typing import Literal
 
 from .assembler import AssemblyError, assemble
 from .flashfs import FileEntry, FileType, ShamaFS
+from .machine_spec import RAM_BYTES, CACHE_BYTES
 from .sha256 import MiningState
 
 
@@ -52,9 +53,9 @@ class Allocation:
 
 
 class MemoryManager:
-    """First-fit allocation model used as the OS/reference contract."""
+    """Abstract owner-allocation policy model, not the RTL workspace map."""
 
-    def __init__(self, total: int = 1 << 20, reserved: int = 96 << 10) -> None:
+    def __init__(self, total: int = RAM_BYTES, reserved: int = 96 << 10) -> None:
         if not 0 <= reserved < total:
             raise ValueError("invalid RAM reservation")
         self.total = total
@@ -151,17 +152,18 @@ class MinerRuntime:
 class ShamaOSRuntime:
     """Executable reference contract for the in-world ShamaOS behavior.
 
-    This is a test oracle and OS-behavior model. The generated Minecraft
-    machine must reproduce these state transitions; Python is not the runtime
-    used by the final redstone world.
+    This is an app-behavior test model, not the runtime used by the generated
+    world. Its APP_DEFAULT_RAM owner budgets and cache replacement policy are
+    deliberately abstract; use software_resources and the real services RTL
+    for physical code/workspace occupancy and capacity-recovery measurements.
     """
 
     def __init__(
         self,
         fs: ShamaFS,
         *,
-        ram_bytes: int = 1 << 20,
-        cache_bytes: int = 16 << 10,
+        ram_bytes: int = RAM_BYTES,
+        cache_bytes: int = CACHE_BYTES,
     ) -> None:
         self.fs = fs
         self.ram = MemoryManager(ram_bytes)

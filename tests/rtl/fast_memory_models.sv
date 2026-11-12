@@ -1,3 +1,5 @@
+`include "shama_boot_params.svh"
+
 // Memory-device models only. All CPU, OS, filesystem, assembler, GPU,
 // input and SoC arbitration RTL are real in this integration test.
 // Physical ring adapters and generated storage cells have separate tests.
@@ -52,14 +54,14 @@ module shama_cache_adapter(
  input logic [3:0] req_wstrb,
  output logic req_ready,
  output logic [31:0] req_rdata,
- output logic [3:0] bank_select,
+ output logic [`SHAMA_CACHE_BANKS-1:0] bank_select,
  output logic [1023:0] row_select,
  output logic read_enable,write_commit,
  output logic [31:0] write_data,
  input logic [31:0] selected_word
 );
  assign bank_select=0;assign row_select=0;assign read_enable=0;assign write_commit=0;assign write_data=0;
- shama_test_memory #(.WORDS(4096),.FLASH(0)) model(.clk,.rst,.req_valid,.req_we,.req_addr,.req_wdata,.req_wstrb,.req_ready,.req_rdata);
+ shama_test_memory #(.WORDS(`SHAMA_CACHE_BYTES/4),.FLASH(0)) model(.clk,.rst,.req_valid,.req_we,.req_addr,.req_wdata,.req_wstrb,.req_ready,.req_rdata);
 endmodule
 module shama_ram_adapter(
  input logic clk,rst,req_valid,req_we,
@@ -67,14 +69,14 @@ module shama_ram_adapter(
  input logic [3:0] req_wstrb,
  output logic req_ready,
  output logic [31:0] req_rdata,
- output logic [255:0] bank_select,
+ output logic [`SHAMA_RAM_BANKS-1:0] bank_select,
  output logic [1023:0] row_select,
  output logic read_enable,write_commit,
  output logic [31:0] write_data,
  input logic [31:0] selected_word
 );
  assign bank_select=0;assign row_select=0;assign read_enable=0;assign write_commit=0;assign write_data=0;
- shama_test_memory #(.WORDS(262144),.FLASH(0)) model(.clk,.rst,.req_valid,.req_we,.req_addr,.req_wdata,.req_wstrb,.req_ready,.req_rdata);
+ shama_test_memory #(.WORDS(`SHAMA_RAM_BYTES/4),.FLASH(0)) model(.clk,.rst,.req_valid,.req_we,.req_addr,.req_wdata,.req_wstrb,.req_ready,.req_rdata);
 endmodule
 module shama_flash_adapter(
  input logic clk,rst,req_valid,req_we,
@@ -82,14 +84,14 @@ module shama_flash_adapter(
  input logic [3:0] req_wstrb,
  output logic req_ready,
  output logic [31:0] req_rdata,
- output logic [1023:0] bank_select,
+ output logic [`SHAMA_FLASH_BANKS-1:0] bank_select,
  output logic [1023:0] row_select,
  output logic read_enable,write_commit,
  output logic [31:0] write_data,
  input logic [31:0] selected_word
 );
  assign bank_select=0;assign row_select=0;assign read_enable=0;assign write_commit=0;assign write_data=0;
- shama_test_memory #(.WORDS(1048576),.FLASH(1)) model(.clk,.rst,.req_valid,.req_we,.req_addr,.req_wdata,.req_wstrb,.req_ready,.req_rdata);
+ shama_test_memory #(.WORDS(`SHAMA_FLASH_BYTES/4),.FLASH(1)) model(.clk,.rst,.req_valid,.req_we,.req_addr,.req_wdata,.req_wstrb,.req_ready,.req_rdata);
 endmodule
 module shama_vram_adapter(
  input logic clk,rst,req_valid,req_we,
@@ -97,12 +99,12 @@ module shama_vram_adapter(
  input logic [3:0] req_wstrb,
  output logic req_ready,
  output logic [31:0] req_rdata,
- output logic [7:0] bank_select,
+ output logic [`SHAMA_VRAM_BANKS-1:0] bank_select,
  output logic [1023:0] row_select,
  output logic read_enable,write_commit,
  output logic [31:0] write_data,
  input logic [31:0] selected_word
 );
  assign bank_select=0;assign row_select=0;assign read_enable=0;assign write_commit=0;assign write_data=0;
- shama_test_memory #(.WORDS(8192),.FLASH(0)) model(.clk,.rst,.req_valid,.req_we,.req_addr,.req_wdata,.req_wstrb,.req_ready,.req_rdata);
+ shama_test_memory #(.WORDS(`SHAMA_VRAM_BYTES/4),.FLASH(0)) model(.clk,.rst,.req_valid,.req_we,.req_addr,.req_wdata,.req_wstrb,.req_ready,.req_rdata);
 endmodule

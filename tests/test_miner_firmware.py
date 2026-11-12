@@ -8,10 +8,10 @@ from shamaos.flashfs import FileType,ShamaFS
 from shamaos.isa import SYSCALLS
 from shamaos.simulator import CPUReference
 
-BASE=0xB2200
-HEADER=0xB2000
-HASH=0xB2100
-TARGET=0xB2140
+BASE=0x2d200
+HEADER=0x2d000
+HASH=0x2d100
+TARGET=0x2d140
 ROOT=Path(__file__).resolve().parents[1]
 
 class MinerMachine(FirmwareMachine):
@@ -179,8 +179,8 @@ def test_shipped_software_sha_padding_boundaries(size):
     # Use the shipped routine, including its constants, rather than a second
     # test implementation of the algorithm.
     library=source[source.index('; CPU-only SHA-256.'):]
-    program=assemble(f'CALL .soft_constants\nLDI r1 0x90000\nLDI r2 {size}\nLDI r3 0x90100\nCALL .soft_sha256\nHLT\n'+library)
+    program=assemble(f'CALL .soft_constants\nLDI r1 0x10000\nLDI r2 {size}\nLDI r3 0x10100\nCALL .soft_sha256\nHLT\n'+library)
     data=bytes((i*137+19)&255 for i in range(size))
-    cpu=CPUReference();cpu.load_program(program.words);cpu.memory[0x90000:0x90000+size]=data
+    cpu=CPUReference();cpu.load_program(program.words);cpu.memory[0x10000:0x10000+size]=data
     cpu.run(30000)
-    assert bytes(cpu.memory[0x90100:0x90120])==hashlib.sha256(data).digest()
+    assert bytes(cpu.memory[0x10100:0x10120])==hashlib.sha256(data).digest()

@@ -51,6 +51,28 @@ class Scenario:
         self.records.append([3, address, value, *([0] * 7)])
         return self
 
+    def seed_back(self, seed):
+        """Seed dense packed pixels so scroll checks cover every bit position."""
+        rng = random.Random(seed)
+        width, height = self.gpu.back.width, self.gpu.back.height
+        self.gpu.back._rows[:] = [rng.getrandbits(width) for _ in range(height)]
+        bits = sum(row << (width * y) for y, row in enumerate(self.gpu.back._rows))
+        for word in range((width * height + 31) // 32):
+            self.records.append([7, word, (bits >> (word * 32)) & 0xffffffff, *([0] * 7)])
+        return self
+
+    def capacity_status(self, expected, acknowledge=False):
+        self.records.append([4, int(expected), int(acknowledge), *([0] * 7)])
+        return self
+
+    def mark_traffic(self):
+        self.records.append([5] + [0] * 9)
+        return self
+
+    def traffic_at_most(self, transactions):
+        self.records.append([6, transactions] + [0] * 8)
+        return self
+
     def check(self):
         gpu = self.gpu
         self.records.append([2] + [0] * 9)
@@ -102,6 +124,7 @@ def run(gpu_binary, tmp_path, scenario, depth=4, queue_stall=False, direct_stall
     ], capture_output=True, text=True, timeout=45)
     assert result.returncode == 0, result.stdout + result.stderr
     assert 'GPU DIFFERENTIAL PASS' in result.stdout
+    return result.stdout
 
 
 def test_pixels_lines_rectangles_circles_and_clip_match_reference(gpu_binary, tmp_path):
@@ -172,6 +195,45 @@ def test_scroll_preserves_bits_and_clears_exposed_area(gpu_binary, tmp_path, off
     run(gpu_binary, tmp_path, s)
 
 
+@pytest.mark.parametrize('offset', [
+    (0, 0), (1, 0), (-1, 0), (31, 0), (-31, 0), (32, 0), (-32, 0),
+    (33, -3), (-33, 3), (0, 1), (0, -1), (1, -1), (-1, 1),
+    (319, 179), (-319, -179), (0, 179), (320, 0),
+    (0, 0x80000000),
+])
+def test_native_scroll_moves_in_place_with_bounded_word_traffic(gpu_binary, tmp_path, record_property, offset):
+    s = Scenario(320, 180).seed_back(0x5100)
+    s.resource(0, b'TEXT SURVIVES').resource(0, bytes(range(256)) * 4, sprite=True)
+    s.check().mark_traffic()
+    s.command(G.SET_CLIP, 10, 10, 10, 10).command(G.SCROLL, *offset).check()
+    # At most two source reads and one destination write per 32 pixels;
+    # no snapshot pass, front-buffer writes or third framebuffer is allowed.
+    s.traffic_at_most(0 if offset == (0, 0) else 3 * 1800)
+    s.read(0x400, int.from_bytes(b'TEXT', 'little'))
+    s.read(0x800, 0x03020100).read(0xbfc, 0xfffefdfc)
+    s.command(G.SWAP_BUFFER).check()
+    output = run(gpu_binary, tmp_path, s)
+    assert 'GPU VRAM TRANSACTIONS' in output
+    actual = int(output.split('GPU VRAM TRANSACTIONS actual=')[1].split()[0])
+    record_property('scroll_vram_transactions', actual)
+    record_property('scroll_offset', str(offset))
+
+
+def test_resource_fault_discards_queued_app_work_and_allows_recovery(gpu_binary, tmp_path):
+    s = Scenario().seed_back(120)
+    s.command(G.SWAP_BUFFER).check()
+    s.command(G.FILL_RECT, 0, 0, 37, 23)
+    s.command(G.DRAW_TEXT, 255, 2, 0, 0)
+    # These enter the queue behind the resource violation while the rectangle
+    # is still drawing. Recovery must discard both before either can execute.
+    s.records.append([0, int(G.CLEAR), 0] + [0] * 7)
+    s.records.append([0, int(G.FENCE)] + [0] * 8)
+    s.check().capacity_status(True, acknowledge=True)
+    s.command(G.CLEAR_PIXEL, 4, 5).command(G.SWAP_BUFFER).command(G.FENCE).check()
+    s.capacity_status(False)
+    run(gpu_binary, tmp_path, s)
+
+
 def test_dirty_rows_swaps_and_cursor_are_visible_without_changing_vram(gpu_binary, tmp_path):
     s = Scenario()
     s.command(G.CLEAR, 0).command(G.SWAP_BUFFER).command(G.COPY_BUFFER).check()
@@ -231,6 +293,8 @@ def test_malformed_commands_fail_atomically_and_leave_queue_live(gpu_binary, tmp
     s.command(G.SET_PIXEL, 2, 2).check()
     s.command(op, *args).check()
     assert s.gpu.error
+    resource_fault = op in (G.BLIT, G.SPRITE, G.DRAW_TEXT)
+    s.capacity_status(resource_fault, acknowledge=resource_fault)
     s.command(G.SET_PIXEL, 3, 3).command(G.SWAP_BUFFER).command(G.FENCE).check()
     run(gpu_binary, tmp_path, s)
 

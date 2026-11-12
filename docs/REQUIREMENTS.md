@@ -18,10 +18,17 @@ successful compile, a manifest capacity, or an opcode name is not behavioral pro
   physical redstone. Python/Yosys construct and verify the machine; they do not
   secretly perform its runtime computation. Command blocks must not compute the
   program or hashes on behalf of decorative circuits.
-- Preserve the locked default capacities: 32-bit CPU, 16 architectural registers,
-  1 MiB RAM, 16 KiB cache/fast scratch, 4 MiB flash, 32 KiB VRAM, and a readable
+- Preserve the owner-amended default capacities (2026-11-12): 32-bit CPU, 16
+  architectural registers, 192 KiB RAM, 8 KiB cache/fast scratch,
+  500 KiB flash, 16 KiB VRAM, and a readable
   320x180 one-bit lamp display. Banked layout is allowed; document physical
   capacity, access latency, and the actual cache/scratchpad semantics accurately.
+- This explicit amendment replaces the earlier 1 MiB RAM / 4 MiB flash target.
+  It removes 208 RAM banks and 899 flash banks, with no padded or inaccessible
+  substitute banks. The screen, assembler, controls, all supporting circuits and
+  every software feature remain required. Seek further size and speed improvements,
+  including parallel buses in unused space inside the perimeter, and validate the
+  actual resulting behavior before claiming an improvement.
 - Normal Java redstone semantics are the correctness baseline. Faster tick rates,
   a compatible acceleration mod, or MCHPRS are recommended for practical use;
   see [Running and acceleration](RUNNING_AND_ACCELERATION.md).
@@ -44,6 +51,8 @@ successful compile, a manifest capacity, or an opcode name is not behavioral pro
 | H09 | Physical keyboard and D-pad, Confirm, Back, Home, Exit, Editor and Files controls; queued input preserves short presses within a documented queue capacity and reports overflow. |
 | H10 | Power, reset, pause/manual stepping and debugging controls. Expose PC/opcode/registers/flags, CPU/stall state, SHA round/state and memory/cache information for inspection. |
 | H11 | Valid physical logic cells, isolated routes, regenerated long wires, correct repeater/torch timing, defined reset state, build-height/world-border bounds and a workable loaded/ticking-chunk strategy. |
+| H12 | Build entirely above the superflat grass surface. Preserve every grass, dirt and bedrock block; supports, selectors, buses and other wiring must obey the same lower bound. Choose the maximum safe stack height above that surface while reserving the upper routing space. Fewer vertical layers must be compensated by more horizontal groups, without reducing any memory capacity. |
+| H13 | Put all keyboard keys, Shift, controller/navigation and power/reset/pause/step in a compact walkable operating station with a readable screen view. The player must not fly around the machine to use controls. Backend circuits may be larger but must be clearly separated from the interaction footprint and stay above grass. |
 
 ## OS, files and app acceptance checklist
 
@@ -64,6 +73,9 @@ successful compile, a manifest capacity, or an opcode name is not behavioral pro
 | O13 | Preserve the planned folder/file organization. A flat file table is an intermediate implementation, not evidence that the earlier folder commitment was completed. |
 | O14 | Memory and UI syscalls implement allocation/free/usage, cache status/flush, app exit, input, drawing/text/dialogs, timers/counters and miner persistence. |
 | O15 | Preinstalled Desktop, Editor, File Explorer, Bitcoin Miner, System Monitor, Terminal, Calculator, Paint and Settings are usable apps. Settings changes persist; Paint exposes a visible cursor and usable canvas controls. |
+| O16 | Detect RAM, executable-cache and VRAM capacity faults before an invalid transfer; show the cause and gracefully recover/reboot the OS. Drain or recover storage transactions, preserve committed files, and never silently save partial/corrupt state or deadlock on an interrupted app snapshot. |
+| O17 | At 95% allocated flash usage, disable new data/metadata writes and show an OS popup. Refuse a save whose temporary copy-on-write reservation would exceed that threshold before mutating flash. Permit explicit DELETE/zero-TRUNCATE reclamation and journal/mount recovery so protection is recoverable. Enforce the guard for direct CPU flash writes too. |
+| O18 | Reduce File Explorer memory/code costs where possible without limiting full-file viewing, folders, editing handoff, navigation or executable launch. Recompute and document per-app RAM/cache/shared-VRAM percentages after changes. |
 
 ## Bitcoin Miner acceptance checklist
 

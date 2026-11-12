@@ -28,6 +28,7 @@ module shama_fs_accel(
     input logic dma_ready,
     input logic [31:0] dma_rdata,
     output logic [31:0] flash_used_bytes,
+    output logic flash_write_protected,
     output logic mounted
 );
     localparam [11:0]
@@ -40,18 +41,20 @@ module shama_fs_accel(
         SYS_FILE_TRANSFER=12'h02b, SYS_FS_SYNC=12'h02c,
         SYS_MINER_LOG_RESULT=12'h050, SYS_MINER_SAVE_STATE=12'h051,
         SYS_MINER_LOAD_HISTORY=12'h052, SYS_MINER_LOAD_STATE=12'h053;
-    localparam integer BLOCK_SIZE=256, BLOCK_COUNT=16384, BITMAP_WORDS=512;
-    localparam integer MAX_FILES=64, NAME_BYTES=43, DATA_START_BLOCK=25;
+    localparam integer BLOCK_SIZE=256, BLOCK_COUNT=`SHAMA_FS_BLOCK_COUNT, BITMAP_WORDS=`SHAMA_FS_BITMAP_WORDS;
+    localparam integer WRITE_LIMIT_BLOCKS=`SHAMA_FS_WRITE_LIMIT_BLOCKS;
+    localparam integer MAX_FILES=64, NAME_BYTES=43, DATA_START_BLOCK=`SHAMA_FS_DATA_START_BLOCK;
     // A power-of-two backing array gives every synthesized read-mux leaf a
     // defined source. The public on-disk/path limit remains exactly 43 bytes;
     // spare leaves are zeroed and are never accepted by the range checks.
     localparam integer NAME_STORAGE_BYTES=64;
-    localparam integer BITMAP_FLASH_OFFSET=256, TABLE_FLASH_OFFSET=2304;
+    localparam integer BITMAP_FLASH_OFFSET=256, TABLE_FLASH_OFFSET=`SHAMA_FS_TABLE_FLASH_OFFSET;
     localparam [31:0] JOURNAL_MAGIC=32'h314e524a, JOURNAL_SEED=32'h53464a31;
     localparam [63:0] E_HANDLE=64'hffffffffffffffff,
         E_RANGE=64'hfffffffffffffffe, E_FULL=64'hfffffffffffffffd,
         E_EXISTS=64'hfffffffffffffffc, E_IO=64'hfffffffffffffffb,
-        E_PATH=64'hfffffffffffffffa, E_BUSY=64'hfffffffffffffff9;
+        E_PATH=64'hfffffffffffffffa, E_BUSY=64'hfffffffffffffff9,
+        E_PROTECTED=64'hfffffffffffffff8;
 
     typedef enum logic [6:0] {
         ST_IDLE, ST_SUPER, ST_JCHECK, ST_JINDEX_READ, ST_JPAYLOAD_READ,
@@ -114,13 +117,13 @@ module shama_fs_accel(
     integer i;
 
     function automatic logic ram_range(input logic [31:0] ptr,count);
-        ram_range=(ptr<=32'h100000 && count<=32'h100000-ptr);
+        ram_range=(ptr<=`SHAMA_RAM_BYTES && count<=`SHAMA_RAM_BYTES-ptr);
     endfunction
     function automatic logic valid_entry(input logic live);
         begin
             valid_entry = !entry_used ||
                 (entry_type<=7 && entry_name_len>0 && entry_name_len<=NAME_BYTES &&
-                 entry_size<=32'h400000 &&
+                 entry_size<=`SHAMA_FLASH_BYTES &&
                  entry_blocks==((entry_size+255)>>8) &&
                  ((entry_blocks==0 && entry_start==0) ||
                   (entry_blocks!=0 && entry_start>=DATA_START_BLOCK &&
@@ -255,7 +258,14 @@ module shama_fs_accel(
             new_size<=bytes_to_write;alloc_needed<=(bytes_to_write+255)>>8;
             alloc_word_index<=DATA_START_BLOCK>>5;alloc_bit_index<=DATA_START_BLOCK&31;
             alloc_run_start<=0;alloc_run_len<=0;alloc_start<=0;alloc_mark_offset<=0;
-            if(bytes_to_write==0) begin
+            // Check the entire temporary COW reservation before any bitmap,
+            // payload or journal write. Existing transactions may complete;
+            // explicit deletion/zero-truncate remains a recovery path.
+            if((used_blocks>=WRITE_LIMIT_BLOCKS ||
+                ((bytes_to_write+255)>>8)>WRITE_LIMIT_BLOCKS-used_blocks) &&
+               !(action==ACT_TRUNCATE && bytes_to_write==0)) begin
+                response<=E_PROTECTED;state<=ST_ERROR;
+            end else if(bytes_to_write==0) begin
                 entry_size<=0;entry_start<=0;entry_blocks<=0;
                 entry_generation<=entry_generation+1'b1;
                 begin_journal(action);
@@ -274,6 +284,7 @@ module shama_fs_accel(
         req_ret=response;
         cleanup_ready=(state==ST_IDLE);
         flash_used_bytes=used_blocks<<8;
+        flash_write_protected=mounted && used_blocks>=WRITE_LIMIT_BLOCKS;
         parent_len=0;
         for(integer k=0;k<NAME_BYTES;k=k+1)
             if(k<query_len && query_name[k]=="/") parent_len=k;
@@ -301,7 +312,12 @@ module shama_fs_accel(
             ST_JCHECKSUM_READ:begin dma_valid=1;dma_flash=1;dma_addr=136;end
             ST_REBUILD_CLEAR:begin
                 dma_valid=1;dma_we=1;dma_flash=1;dma_addr=BITMAP_FLASH_OFFSET+(bitmap_index<<2);
-                dma_wdata=(bitmap_index==0)?32'h01ffffff:0;
+                // Reserve exactly the current geometry's metadata blocks.
+                // Mark unused tail bits unavailable without counting them as
+                // capacity. The final500KiB image ends halfway through a word.
+                dma_wdata=0;
+                for(integer b=0;b<32;b=b+1)
+                    if(bitmap_index*32+b<DATA_START_BLOCK || bitmap_index*32+b>=BLOCK_COUNT) dma_wdata[b]=1;
             end
             ST_REBUILD_LOAD,ST_SEARCH_LOAD,ST_ENTRY_LOAD,ST_NS_LOAD,ST_NS_SCAN:begin
                 dma_valid=1;dma_flash=1;dma_addr=TABLE_FLASH_OFFSET+(entry_index<<6)+(entry_word<<2);
@@ -395,7 +411,7 @@ module shama_fs_accel(
                             for(i=0;i<MAX_FILES;i=i+1) handle_owners[i]<=0;
                         end else if(!mounted) begin response<=E_IO;state<=ST_ERROR;end
                         else case(req_id)
-                            SYS_FLASH_USAGE:begin response<={32'd4194304,flash_used_bytes};state<=ST_DONE;end
+                            SYS_FLASH_USAGE:begin response<={`SHAMA_FLASH_BYTES,flash_used_bytes};state<=ST_DONE;end
                             SYS_FS_SYNC:state<=ST_DONE;
                             SYS_FILE_CLOSE,SYS_FILE_TRANSFER:begin
                                 if(req_args[31:0]==0 || req_args[31:0]>MAX_FILES ||
@@ -447,7 +463,7 @@ module shama_fs_accel(
                        (super_word==3 && dma_rdata!=256) ||
                        (super_word==4 && dma_rdata!=BLOCK_COUNT) ||
                        (super_word==5 && dma_rdata!=1) ||
-                       (super_word==6 && dma_rdata!=9) ||
+                       (super_word==6 && dma_rdata!=TABLE_FLASH_OFFSET/BLOCK_SIZE) ||
                        (super_word==7 && dma_rdata!=DATA_START_BLOCK)) begin response<=E_IO;state<=ST_ERROR;end
                     else if(super_word==9) state<=ST_JCHECK;
                     else super_word<=super_word+1'b1;
@@ -573,9 +589,12 @@ module shama_fs_accel(
                     end
                 end
                 ST_CREATE_PREP:begin
+                    if(used_blocks>=WRITE_LIMIT_BLOCKS) begin response<=E_PROTECTED;state<=ST_ERROR;end
+                    else begin
                     clear_entry();entry_used<=1;entry_type<=a2[7:0];entry_generation<=1;entry_name_len<=query_len;
                     for(i=0;i<NAME_BYTES;i=i+1) entry_name[i]<=query_name[i];
                     begin_journal(ACT_CREATE);
+                    end
                 end
                 ST_ENTRY_LOAD:if(dma_ready) begin
                     decode_entry_word(entry_word,dma_rdata);
@@ -586,6 +605,9 @@ module shama_fs_accel(
                     if(!valid_entry(1'b1)) begin response<=E_IO;state<=ST_ERROR;end
                     else if(!entry_used && action==ACT_LIST) begin response<=0;state<=ST_DONE;end
                     else if(!entry_used) begin response<=E_HANDLE;state<=ST_ERROR;end
+                    else if(action==ACT_RENAME && used_blocks>=WRITE_LIMIT_BLOCKS) begin
+                        response<=E_PROTECTED;state<=ST_ERROR;
+                    end
                     else case(action)
                         ACT_READ:begin
                             // FILE_READ is the original three-argument ABI.
@@ -601,11 +623,11 @@ module shama_fs_accel(
                             end
                         end
                         ACT_WRITE:begin
-                            if(entry_type==7 || !ram_range(a2,a3) || a3>32'h400000) begin response<=E_RANGE;state<=ST_ERROR;end
+                            if(entry_type==7 || !ram_range(a2,a3) || a3>`SHAMA_FLASH_BYTES) begin response<=E_RANGE;state<=ST_ERROR;end
                             else start_allocation(a3);
                         end
                         ACT_TRUNCATE:begin
-                            if(entry_type==7 || a2>32'h400000) begin response<=E_RANGE;state<=ST_ERROR;end
+                            if(entry_type==7 || a2>`SHAMA_FLASH_BYTES) begin response<=E_RANGE;state<=ST_ERROR;end
                             else start_allocation(a2);
                         end
                         ACT_RENAME,ACT_DELETE:begin

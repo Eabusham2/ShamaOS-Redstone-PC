@@ -14,6 +14,7 @@ module shama_input #(
     output logic [7:0] key_code,
     output logic [9:0] controller_latched,
     input  logic       event_ack,
+    input  logic [25:0] event_ack_data,
     output logic       input_overflow,
     output logic [7:0] queued_count,
     output logic       keyboard_shift
@@ -129,6 +130,7 @@ module shama_input #(
         integer next_write;
         integer ctl;
         integer evict;
+        integer ack_index;
         logic overflow_urgent_added;
         if(rst) begin
             count<=0;input_overflow<=0;keyboard_shift<=0;
@@ -138,11 +140,18 @@ module shama_input #(
             if(shift_edge) keyboard_shift<=!keyboard_shift;
             available_count=count;
             overflow_urgent_added=0;
+            ack_index=-1;
+            // The consumer snapshots the presented record with its slow-clock
+            // acknowledgement. A new universal event can change selection
+            // before the next raw edge; remove the consumed record, not that
+            // newly selected event. Identical records match oldest first.
+            for(integer k=FIFO_DEPTH-1;k>=0;k=k-1)
+                if(k<count && fifo[k]==event_ack_data) ack_index=k;
             // The consumer runs on the divided core clock. A single slow
             // acknowledgement can span many raw clocks and must pop once.
-            if(event_ack && !prev_event_ack && count!=0) begin
+            if(event_ack && !prev_event_ack && ack_index>=0) begin
                 for(integer k=0;k<FIFO_DEPTH-1;k=k+1)
-                    if(k>=selected_index) fifo[k]<=fifo[k+1];
+                    if(k>=ack_index) fifo[k]<=fifo[k+1];
                 fifo[FIFO_DEPTH-1]<=0;
                 available_count=available_count-1;
             end

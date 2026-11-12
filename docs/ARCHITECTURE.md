@@ -2,25 +2,17 @@
 
 ShamaOS is a 32-bit redstone computer generated as one synthesized SoC plus large regular memory/display/input fabrics.
 
-```text
-keyboard/controller --raw clock--> event latch
-                              |
-                              v
-                        ShamaOS services
-                              |
-      +-----------------------+-----------------------+
-      |                       |                       |
-      v                       v                       v
-  32-bit CPU              Shama GPU              ShamaFS
-  + native SHA               |                       |
-      |                       v                       v
-      |                  32 KiB VRAM             4 MiB flash
-      |
-      +---- 16 KiB executable cache
-      +---- 1 MiB main RAM
-                              |
-                              v
-                    320×180 lamp panel
+```mermaid
+flowchart TD
+    I["Keyboard and controller"] --> E["Queued input"]
+    E --> C["32-bit CPU and native SHA"]
+    C <--> R["192 KiB RAM and 8 KiB fast memory"]
+    C <--> O["OS services, filesystem and assembler"]
+    O <--> F["500 KiB persistent flash"]
+    C --> G["Independent GPU"]
+    O --> G
+    G <--> V["16 KiB VRAM"]
+    G --> D["320×180 lamp panel"]
 ```
 
 ## CPU
@@ -31,16 +23,27 @@ keyboard/controller --raw clock--> event latch
 
 A fast raw clock feeds input/event capture. Core divider bit 17 is the default for CPU/GPU/services/filesystem/assembler/memory controllers. On reset, core clock follows raw clock.
 
+The physical raw clock has a 70-redstone-tick period. Bit 17 divides by
+262,144, so the current default core period is 18,350,080 redstone ticks
+(about 21.24 days at normal 10 redstone ticks per second). This is an extremely
+slow provisional setting, not a measured usable machine speed or proof of
+safe timing. Reducing it requires actual route-delay, clock-skew and hold-time
+validation. Local routing and memory-controller work target those costs; a
+faster file exporter does not make a running CPU instruction faster.
+
 ## Memory
 
 Literal default capacities:
 
-- cache 16 KiB / 4 banks;
-- RAM 1 MiB / 256 banks;
-- flash 4 MiB / 1,024 banks;
-- VRAM 32 KiB / 8 banks.
+- cache 8 KiB / 2 banks;
+- RAM 192 KiB / 48 banks;
+- flash 500 KiB / 125 banks;
+- VRAM 16 KiB / 4 banks.
 
 Each bank is 4 KiB (1,024 × 32-bit words).
+The owner approved the RAM/flash reduction on 2026-11-12. No screen, input,
+assembler, compute or OS functionality was removed with it. Bank selection wraps
+at the exact physical bank count, including the non-power-of-two RAM/flash counts.
 
 ## GPU/display
 
@@ -48,7 +51,7 @@ Large GPU state is external VRAM. The 320×180 panel is a horizontal X/Z latch m
 
 ## OS/storage
 
-ShamaFS is hardware. The in-world assembler is a hardware two-pass assembler. Boot loads resident kernel RAM plus one foreground app mirrored into the 16 KiB fast cache.
+ShamaFS is hardware. The in-world assembler is a hardware two-pass assembler. Boot loads resident kernel RAM plus one foreground app mirrored into the 8 KiB fast cache.
 
 ## Physical synthesis
 

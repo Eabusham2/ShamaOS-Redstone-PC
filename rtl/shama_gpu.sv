@@ -26,7 +26,9 @@ module shama_gpu #(
     output logic [15:0] disp_index,
     output logic        disp_bit,
     input  logic        disp_ready,
-    output logic        busy
+    output logic        busy,
+    output logic        capacity_fault,
+    input  logic        clear_capacity_fault
 );
     localparam integer PIXELS = WIDTH*HEIGHT;
     localparam integer FRAME_BYTES = (PIXELS+7)/8;
@@ -38,13 +40,13 @@ module shama_gpu #(
     localparam integer MAX_RADIUS = 512;
     localparam integer QUEUE_PTR_BITS = (QUEUE_DEPTH>1)?$clog2(QUEUE_DEPTH):1;
 
-    // 32 KiB physical VRAM map.
+    // Word-aligned packed VRAM: two frames, text, then sprites. Scrolling
+    // moves the back buffer in overlap-safe order and needs no third frame.
     localparam [14:0]
         FB0_BASE     = 15'h0000,
-        FB1_BASE     = 15'h2000,
-        TEXT_BASE    = 15'h4000,
-        SPRITE_BASE  = 15'h4100,
-        SCRATCH_BASE = 15'h5000;
+        FB1_BASE     = FRAME_WORDS*4,
+        TEXT_BASE    = FRAME_WORDS*8,
+        SPRITE_BASE  = FRAME_WORDS*8+256;
 
     localparam [7:0]
         GPU_NOP=8'h00, GPU_CLEAR=8'h01, GPU_SET_PIXEL=8'h02,
@@ -70,9 +72,8 @@ module shama_gpu #(
         ST_TEXT_CHAR_READ, ST_TEXT_PIXEL, ST_TEXT_ADV,
 
         ST_COPY_READ, ST_COPY_WRITE,
-        ST_SCROLL_COPY_READ, ST_SCROLL_COPY_WRITE,
-        ST_SCROLL_CLEAR,
-        ST_SCROLL_SRC_READ, ST_SCROLL_DST_PIXEL, ST_SCROLL_ADV,
+        ST_SCROLL_WORD_PREP, ST_SCROLL_WORD_LO, ST_SCROLL_WORD_HI, ST_SCROLL_WORD_WRITE,
+        ST_SCROLL_SRC_READ, ST_SCROLL_DST_PIXEL, ST_SCROLL_ADV, ST_SCROLL_STEP,
 
         ST_PUSH_READ, ST_PUSH_BITS, ST_PUSH_FIND
     } state_t;
@@ -151,6 +152,12 @@ module shama_gpu #(
     integer scroll_dx,scroll_dy;
     integer scroll_index,scroll_sx,scroll_sy;
     logic scroll_source_bit;
+    integer scroll_delta,scroll_row,scroll_column,scroll_source_word;
+    logic scroll_descending;
+    logic [4:0] scroll_shift;
+    logic [31:0] scroll_high_word,scroll_word_mask;
+    integer next_scroll_source;
+    logic [31:0] next_scroll_mask;
 
     // Display push.
     integer push_word_index;
@@ -190,6 +197,17 @@ module shama_gpu #(
 
     function automatic integer max_int(input integer a,input integer b);
         max_int=(a>b)?a:b;
+    endfunction
+
+    function automatic [31:0] scroll_mask(input integer row,input integer column);
+        integer left_clear,right_clear;
+        begin
+            left_clear=max_int(scroll_dx-column,0);
+            right_clear=max_int(column+32-(WIDTH+scroll_dx),0);
+            if(row-scroll_dy<0 || row-scroll_dy>=HEIGHT || left_clear>=32 || right_clear>=32)
+                scroll_mask=0;
+            else scroll_mask=(32'hffffffff<<left_clear)&(32'hffffffff>>right_clear);
+        end
     endfunction
 
     function automatic logic in_clip(input integer x,input integer y);
@@ -266,7 +284,7 @@ module shama_gpu #(
         if(mmio_valid && !direct_vram_window) begin
             mmio_ready=1'b1;
             case(mmio_addr)
-                12'h000:mmio_rdata=(queue_error<<17)|(front_sel<<16)|(q_count<<4)|(state!=ST_IDLE);
+                12'h000:mmio_rdata=(capacity_fault<<18)|(queue_error<<17)|(front_sel<<16)|(q_count<<4)|(state!=ST_IDLE);
                 12'h004:mmio_rdata={24'd0,command_reg};
                 12'h008:mmio_rdata=arg_reg[0];
                 12'h00c:mmio_rdata=arg_reg[1];
@@ -339,23 +357,22 @@ module shama_gpu #(
                     vram_wdata=copy_word;
                 end
 
-                ST_SCROLL_COPY_READ: begin
+                ST_SCROLL_WORD_LO: begin
                     vram_valid=1;vram_we=0;
-                    vram_addr=back_base()+(work_word<<2);
+                    vram_addr=back_base()+(scroll_source_word<<2);
                 end
-                ST_SCROLL_COPY_WRITE: begin
-                    vram_valid=1;vram_we=1;
-                    vram_addr=SCRATCH_BASE+(work_word<<2);
-                    vram_wdata=copy_word;
+                ST_SCROLL_WORD_HI: begin
+                    vram_valid=1;vram_we=0;
+                    vram_addr=back_base()+((scroll_source_word+1)<<2);
                 end
-                ST_SCROLL_CLEAR: begin
+                ST_SCROLL_WORD_WRITE: begin
                     vram_valid=1;vram_we=1;
                     vram_addr=back_base()+(work_word<<2);
-                    vram_wdata=32'd0;
+                    vram_wdata=({scroll_high_word,copy_word}>>scroll_shift)&scroll_word_mask;
                 end
                 ST_SCROLL_SRC_READ: begin
                     vram_valid=1;vram_we=0;
-                    vram_addr=packed_word_addr(SCRATCH_BASE,scroll_sx,scroll_sy);
+                    vram_addr=packed_word_addr(back_base(),scroll_sx,scroll_sy);
                 end
 
                 ST_PUSH_READ: begin
@@ -398,6 +415,16 @@ module shama_gpu #(
         end
     endtask
 
+    // Resource rejection happens before a DMA request. Any already queued app
+    // drawing is discarded at this safe boundary; the OS can acknowledge the
+    // sticky cause and submit its recovery screen without resetting VRAM.
+    task automatic reject_capacity;
+        begin
+            capacity_fault<=1;queue_error<=1;state<=ST_IDLE;
+            q_head<=0;q_tail<=0;q_count<=0;
+        end
+    endtask
+
     integer i;
     always_ff @(posedge clk) begin
         if(rst) begin
@@ -409,7 +436,7 @@ module shama_gpu #(
             cursor_enabled<=0;cursor_single<=0;buffer_diff_rows<='1;present_rows<='1;
             push_row<=0;presented_rows<=0;
             clip_x0<=0;clip_y0<=0;clip_x1<=WIDTH-1;clip_y1<=HEIGHT-1;
-            readback<=0;fence_count<=0;queue_error<=0;
+            readback<=0;fence_count<=0;queue_error<=0;capacity_fault<=0;
             command_reg<=0;
             for(i=0;i<8;i=i+1) begin arg_reg[i]<=0;ca[i]<=0;end
             q_head<=0;q_tail<=0;q_count<=0;cur_op<=0;
@@ -427,8 +454,11 @@ module shama_gpu #(
             char_code<=0;char_x<=0;char_y<=0;char_row<=0;char_col<=0;
             text_start<=0;text_len<=0;text_index<=0;text_x<=0;text_y<=0;text_row<=0;text_col<=0;text_char<=0;
             scroll_dx<=0;scroll_dy<=0;scroll_index<=0;scroll_sx<=0;scroll_sy<=0;scroll_source_bit<=0;
+            scroll_delta<=0;scroll_row<=0;scroll_column<=0;scroll_source_word<=0;scroll_descending<=0;
+            scroll_shift<=0;scroll_high_word<=0;scroll_word_mask<=0;
             push_word_index<=0;push_bit_index<=0;push_word<=0;
         end else begin
+            if(clear_capacity_fault) capacity_fault<=0;
             // Register MMIO writes.
             if(mmio_valid && mmio_we && mmio_ready && !direct_vram_window) begin
                 case(mmio_addr)
@@ -555,7 +585,9 @@ module shama_gpu #(
 
                         GPU_BLIT,GPU_SPRITE:begin
                             if(ca[0]>1024 || ca[3]>1024 || ca[4]>1024 ||
-                               ca[3]*ca[4]>1024-ca[0] || !valid_coord(ca[1]) || !valid_coord(ca[2])) begin
+                               ca[3]*ca[4]>1024-ca[0]) begin
+                                reject_capacity();
+                            end else if(!valid_coord(ca[1]) || !valid_coord(ca[2])) begin
                                 queue_error<=1;state<=ST_IDLE;
                             end else if(ca[3]==0 || ca[4]==0) state<=ST_IDLE;
                             else begin
@@ -574,7 +606,9 @@ module shama_gpu #(
                         end
 
                         GPU_DRAW_TEXT:begin
-                            if(ca[0]>256 || ca[1]>256-ca[0] || !valid_coord(ca[2]) || !valid_coord(ca[3])) begin
+                            if(ca[0]>256 || ca[1]>256-ca[0]) begin
+                                reject_capacity();
+                            end else if(!valid_coord(ca[2]) || !valid_coord(ca[3])) begin
                                 queue_error<=1;state<=ST_IDLE;
                             end else if(ca[1]==0) state<=ST_IDLE;
                             else begin
@@ -586,7 +620,22 @@ module shama_gpu #(
 
                         GPU_SCROLL:begin
                             scroll_dx<=ca[0];scroll_dy<=ca[1];
-                            work_word<=0;state<=ST_SCROLL_COPY_READ;
+                            buffer_diff_rows<='1;
+                            if(ca[0]==0 && ca[1]==0) state<=ST_IDLE;
+                            else if($signed(ca[0])>=WIDTH || $signed(ca[0])<=-WIDTH ||
+                                    $signed(ca[1])>=HEIGHT || $signed(ca[1])<=-HEIGHT) begin
+                                clear_value<=0;work_word<=0;state<=ST_CLEAR_WRITE;
+                            end else begin
+                                scroll_delta<=$signed(ca[1])*WIDTH+$signed(ca[0]);
+                                scroll_descending<=($signed(ca[1])*WIDTH+$signed(ca[0])>0);
+                                work_word<=($signed(ca[1])*WIDTH+$signed(ca[0])>0)?FRAME_WORDS-1:0;
+                                scroll_row<=($signed(ca[1])*WIDTH+$signed(ca[0])>0)?HEIGHT-1:0;
+                                scroll_column<=($signed(ca[1])*WIDTH+$signed(ca[0])>0)?WIDTH-32:0;
+                                scroll_index<=($signed(ca[1])*WIDTH+$signed(ca[0])>0)?PIXELS-1:0;
+                                // The shipped 320-pixel rows use whole-word moves.
+                                // Odd-width fixtures retain a bounded pixel fallback.
+                                state<=(WIDTH%32==0)?ST_SCROLL_WORD_PREP:ST_SCROLL_ADV;
+                            end
                         end
 
                         GPU_SET_CLIP:begin
@@ -703,7 +752,7 @@ module shama_gpu #(
 
                 ST_BLIT_READ:begin
                     if(bw<=0 || bh<=0 || bsrc<0 || (bsrc+by*bw+bx)>=1024) begin
-                        queue_error<=1;state<=ST_IDLE;
+                        reject_capacity();
                     end
                     else if(vram_ready) begin
                         sprite_value<=vram_rdata[((SPRITE_BASE+bsrc+by*bw+bx)&3)*8 +: 8];
@@ -745,7 +794,7 @@ module shama_gpu #(
                 ST_TEXT_CHAR_READ:begin
                     if(text_index>=text_len) state<=ST_IDLE;
                     else if(text_start<0 || text_start+text_index>=256) begin
-                        queue_error<=1;state<=ST_IDLE;
+                        reject_capacity();
                     end
                     else if(vram_ready) begin
                         text_char<=vram_rdata[((TEXT_BASE+text_start+text_index)&3)*8 +: 8];
@@ -776,23 +825,53 @@ module shama_gpu #(
                     else begin work_word<=work_word+1;state<=ST_COPY_READ;end
                 end
 
-                ST_SCROLL_COPY_READ:if(vram_ready) begin copy_word<=vram_rdata;state<=ST_SCROLL_COPY_WRITE;end
-                ST_SCROLL_COPY_WRITE:if(vram_ready) begin
-                    if(work_word==FRAME_WORDS-1) begin work_word<=0;state<=ST_SCROLL_CLEAR;end
-                    else begin work_word<=work_word+1;state<=ST_SCROLL_COPY_READ;end
+                ST_SCROLL_WORD_PREP:begin
+                    next_scroll_source=(work_word*32-scroll_delta)>>>5;
+                    next_scroll_mask=scroll_mask(scroll_row,scroll_column);
+                    scroll_source_word<=next_scroll_source;
+                    scroll_shift<=(work_word*32-scroll_delta)&31;
+                    scroll_word_mask<=next_scroll_mask;
+                    copy_word<=0;scroll_high_word<=0;
+                    if(next_scroll_mask==0) state<=ST_SCROLL_WORD_WRITE;
+                    else if(next_scroll_source>=0 && next_scroll_source<FRAME_WORDS)
+                        state<=ST_SCROLL_WORD_LO;
+                    else if(((work_word*32-scroll_delta)&31)!=0 &&
+                            next_scroll_source+1>=0 && next_scroll_source+1<FRAME_WORDS)
+                        state<=ST_SCROLL_WORD_HI;
+                    else state<=ST_SCROLL_WORD_WRITE;
                 end
-                ST_SCROLL_CLEAR:if(vram_ready) begin
-                    buffer_diff_rows<='1;
-                    if(work_word==FRAME_WORDS-1) begin scroll_index<=0;state<=ST_SCROLL_ADV;end
-                    else work_word<=work_word+1;
+                ST_SCROLL_WORD_LO:if(vram_ready) begin
+                    copy_word<=vram_rdata;
+                    if(scroll_shift!=0 && scroll_source_word+1<FRAME_WORDS)
+                        state<=ST_SCROLL_WORD_HI;
+                    else state<=ST_SCROLL_WORD_WRITE;
+                end
+                ST_SCROLL_WORD_HI:if(vram_ready) begin
+                    scroll_high_word<=vram_rdata;state<=ST_SCROLL_WORD_WRITE;
+                end
+                ST_SCROLL_WORD_WRITE:if(vram_ready) begin
+                    if((scroll_descending && work_word==0) ||
+                       (!scroll_descending && work_word==FRAME_WORDS-1)) state<=ST_IDLE;
+                    else begin
+                        work_word<=work_word+(scroll_descending?-1:1);
+                        if(scroll_descending) begin
+                            if(scroll_column==0) begin scroll_column<=WIDTH-32;scroll_row<=scroll_row-1;end
+                            else scroll_column<=scroll_column-32;
+                        end else begin
+                            if(scroll_column==WIDTH-32) begin scroll_column<=0;scroll_row<=scroll_row+1;end
+                            else scroll_column<=scroll_column+32;
+                        end
+                        state<=ST_SCROLL_WORD_PREP;
+                    end
                 end
                 ST_SCROLL_ADV:begin
-                    if(scroll_index>=PIXELS) state<=ST_IDLE;
+                    if(scroll_index<0 || scroll_index>=PIXELS) state<=ST_IDLE;
                     else begin
                         scroll_sx=(scroll_index%WIDTH)-scroll_dx;
                         scroll_sy=(scroll_index/WIDTH)-scroll_dy;
                         if(in_screen(scroll_sx,scroll_sy)) state<=ST_SCROLL_SRC_READ;
-                        else scroll_index<=scroll_index+1;
+                        else start_pixel(scroll_index%WIDTH,scroll_index/WIDTH,
+                                         PIX_VALUE,0,back_base(),ST_SCROLL_STEP);
                     end
                 end
                 ST_SCROLL_SRC_READ:if(vram_ready) begin
@@ -800,13 +879,11 @@ module shama_gpu #(
                     state<=ST_SCROLL_DST_PIXEL;
                 end
                 ST_SCROLL_DST_PIXEL:begin
-                    if(scroll_source_bit)
-                        start_pixel(
-                            scroll_index%WIDTH,scroll_index/WIDTH,
-                            PIX_SET,1,back_base(),ST_SCROLL_ADV
-                        );
-                    else begin scroll_index<=scroll_index+1;state<=ST_SCROLL_ADV;end
-                    if(scroll_source_bit) scroll_index<=scroll_index+1;
+                    start_pixel(scroll_index%WIDTH,scroll_index/WIDTH,
+                                PIX_VALUE,scroll_source_bit,back_base(),ST_SCROLL_STEP);
+                end
+                ST_SCROLL_STEP:begin
+                    scroll_index<=scroll_index+(scroll_descending?-1:1);state<=ST_SCROLL_ADV;
                 end
 
                 ST_PUSH_FIND:begin

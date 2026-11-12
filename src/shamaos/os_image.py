@@ -5,6 +5,7 @@ from importlib.resources import files
 
 from .assembler import assemble
 from .flashfs import FileType, ShamaFS
+from .machine_spec import BANK_BYTES, CACHE_BYTES, FLASH_BYTES, FLASH_WRITE_LIMIT_PERCENT, RAM_BYTES, VRAM_BYTES
 
 
 DEFAULT_TEXT = """Welcome to ShamaOS.
@@ -34,7 +35,6 @@ FIRMWARE = {
 }
 
 # Physical/ABI memory contract.
-CACHE_BYTES = 16 << 10
 APP_SLOT_BYTES = 16 << 10
 KERNEL_RAM_BASE = 16 << 10
 APP_RAM_BASE = 32 << 10
@@ -65,7 +65,7 @@ APP_IDS = {
 
 
 def app_pc_word(_app: str) -> int:
-    """Foreground app executes from the software-managed 16 KiB fast cache."""
+    """Foreground app executes from the software-managed 8 KiB fast cache."""
     return 0
 
 
@@ -86,7 +86,7 @@ def _firmware_source(filename: str) -> str:
     return files("shamaos").joinpath("firmware", filename).read_text(encoding="utf-8")
 
 
-def build_default_os_image(flash_bytes: int = 4 << 20) -> OSImage:
+def build_default_os_image(flash_bytes: int = FLASH_BYTES) -> OSImage:
     fs = ShamaFS(flash_bytes)
 
     sources: dict[str, str] = {}
@@ -98,18 +98,25 @@ def build_default_os_image(flash_bytes: int = 4 << 20) -> OSImage:
         sources[name] = source
         binaries[name] = binary
 
-    # Fixed-size flash slots make hardware loading simple and deterministic.
-    bundle = bytearray(APP_SLOT_BYTES * len(BUNDLE_ORDER))
-    for slot, name in enumerate(BUNDLE_ORDER):
+    # The hardware loader uses an image-derived address and a length prefix,
+    # so flash records need only word alignment. Padding every executable to
+    # the full RAM/fast-memory slot wastes physical banks without helping
+    # runtime loading. Keep the complete editable source and individual
+    # executable files below; only unused boot-bundle padding is removed.
+    bundle = bytearray()
+    record_offsets: dict[str, int] = {}
+    for name in BUNDLE_ORDER:
         binary = binaries[name]
-        if len(binary) > APP_SLOT_BYTES - 4:
+        if len(binary) > min(CACHE_BYTES, APP_SLOT_BYTES - 4):
             raise ValueError(
                 f"{name} firmware is {len(binary)} bytes; exceeds "
-                f"{APP_SLOT_BYTES - 4}-byte length-prefixed flash/app slot"
+                f"{min(CACHE_BYTES, APP_SLOT_BYTES - 4)}-byte executable capacity"
             )
-        start = slot * APP_SLOT_BYTES
-        bundle[start : start + 4] = len(binary).to_bytes(4, "little")
-        bundle[start + 4 : start + 4 + len(binary)] = binary
+        if len(binary) % 4:
+            raise ValueError(f"{name} executable must be word aligned")
+        record_offsets[name] = len(bundle)
+        bundle.extend(len(binary).to_bytes(4, "little"))
+        bundle.extend(binary)
 
     # First data extent so the hardware can mount/load without a filesystem
     # pathname lookup during the earliest boot stages.
@@ -140,8 +147,8 @@ def build_default_os_image(flash_bytes: int = 4 << 20) -> OSImage:
     fs.create_file("miner-history.log", bytes(32 << 10), FileType.LOG)
 
     slot_flash_offsets = {
-        name: bundle_flash_offset + slot * APP_SLOT_BYTES
-        for slot, name in enumerate(BUNDLE_ORDER)
+        name: bundle_flash_offset + record_offsets[name]
+        for name in BUNDLE_ORDER
     }
 
     return OSImage(
@@ -160,11 +167,26 @@ def build_default_os_image(flash_bytes: int = 4 << 20) -> OSImage:
 def render_boot_parameters(image: OSImage | None = None) -> str:
     """Generate RTL boot/storage constants from the exact serialized image."""
     image = image or build_default_os_image()
+    fs = ShamaFS.deserialize(image.image)
     constants = {
+        "RAM_BYTES": RAM_BYTES,
+        "CACHE_BYTES": CACHE_BYTES,
+        "VRAM_BYTES": VRAM_BYTES,
+        "FLASH_BYTES": len(image.image),
+        "RAM_BANKS": RAM_BYTES // BANK_BYTES,
+        "CACHE_BANKS": CACHE_BYTES // BANK_BYTES,
+        "VRAM_BANKS": VRAM_BYTES // BANK_BYTES,
+        "FLASH_BANKS": len(image.image) // BANK_BYTES,
+        "FS_BLOCK_COUNT": fs.block_count,
+        "FS_WRITE_LIMIT_BLOCKS": fs.block_count * FLASH_WRITE_LIMIT_PERCENT // 100,
+        "FS_BITMAP_WORDS": (fs.block_count + 31) // 32,
+        "FS_TABLE_FLASH_OFFSET": fs.table_start * fs.block_size,
+        "FS_DATA_START_BLOCK": fs.data_start,
         "BUNDLE_FLASH_OFFSET": image.bundle_flash_offset,
         "SLOT_BYTES": APP_SLOT_BYTES,
         "SLOT_DATA_OFFSET": 4,
         **{f"{name.upper()}_FLASH":address for name,address in image.slot_flash_offsets.items()},
+        **{f"{name.upper()}_BINARY_BYTES":length for name,length in image.slot_binary_lengths.items()},
         "KERNEL_RAM_BASE": KERNEL_RAM_BASE,
         "APP_RAM_BASE": APP_RAM_BASE,
         "PC_KERNEL": KERNEL_RAM_BASE // 4,

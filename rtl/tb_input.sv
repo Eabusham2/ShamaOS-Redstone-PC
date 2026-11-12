@@ -3,6 +3,7 @@ module tb_input;
     logic [7:0] kb_rows=0,kb_cols=0;
     logic [9:0] controller=0,controller_latched;
     logic event_valid,event_ack=0,input_overflow,keyboard_shift;
+    logic [25:0] event_ack_data=0;
     logic [7:0] event_code,key_code,queued_count;
     integer i,r,c,shift_mode;
     logic [127:0] seen_characters;
@@ -22,7 +23,7 @@ module tb_input;
                 $display("expected event %h/%h got %h/%h valid=%b count=%d",code,key,event_code,key_code,event_valid,queued_count);
                 $fatal(1);
             end
-            event_ack=1;
+            event_ack_data={controller_latched,key_code,event_code};event_ack=1;
             @(negedge clk);event_ack=0;
         end
     endtask
@@ -44,7 +45,7 @@ module tb_input;
         // One divided-clock acknowledgement remains high across raw clocks.
         // It consumes one record, even when a further key arrives while high.
         keypress(1,1);keypress(1,2);keypress(1,4);
-        @(negedge clk);event_ack=1;
+        @(negedge clk);event_ack_data={controller_latched,key_code,event_code};event_ack=1;
         repeat(7) @(negedge clk);
         if(queued_count!=2 || key_code!="B") $fatal(1,"held slow acknowledgement dropped queued keys");
         keypress(1,8);
@@ -52,6 +53,20 @@ module tb_input;
         if(queued_count!=3 || key_code!="B") $fatal(1,"held acknowledgement consumed a new key");
         event_ack=0;
         expect_event(1,"B");expect_event(1,"C");expect_event(1,"D");
+
+        // A slow service edge consumes A just as a higher-priority Home is
+        // accepted on the raw clock. Ack must remove A and retain new Home.
+        keypress(1,1);
+        @(negedge clk);controller[6]=1;
+        @(posedge clk);
+        if(event_code!=1 || key_code!="A") $fatal(1,"race fixture did not present A");
+        event_ack_data<={controller_latched,key_code,event_code};event_ack<=1;
+        @(negedge clk);controller=0;
+        repeat(3) @(negedge clk);
+        if(queued_count!=1 || event_code!=8'h16)
+            $fatal(1,"slow acknowledgement consumed a newly reprioritized control");
+        event_ack=0;
+        expect_event(8'h16,0);
 
         // Simultaneous controller and keyboard edges are all retained.
         @(negedge clk);controller=10'b0000110000;kb_rows=1;kb_cols=4;
@@ -77,7 +92,7 @@ module tb_input;
 
         // Acknowledge and new input on the same clock consumes one and adds one.
         keypress(1,1);
-        @(negedge clk);event_ack=1;kb_rows=1;kb_cols=2;
+        @(negedge clk);event_ack_data={controller_latched,key_code,event_code};event_ack=1;kb_rows=1;kb_cols=2;
         @(negedge clk);event_ack=0;kb_rows=0;kb_cols=0;
         expect_event(1,"B");
         // Even a saturated typing queue cannot disable universal Exit.

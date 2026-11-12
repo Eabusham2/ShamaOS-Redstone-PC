@@ -20,6 +20,10 @@ module shama_kernel_accel(
     input  logic         cpu_halted,
     input  logic         sha_busy,
     input  logic         gpu_busy,
+    input  logic         gpu_capacity_fault,
+    input  logic [7:0]   notice_code,
+    output logic         notice_busy,
+    output logic         notice_ready,
 
     output logic         gpu_valid,
     output logic         gpu_we,
@@ -119,7 +123,7 @@ module shama_kernel_accel(
     localparam [255:0] HELP_TERMINAL = "TYPE COMMAND  ENTER  EXIT       ";
     localparam [255:0] HELP_PAINT    = "DPAD MOVE  A DRAW  B ERASE      ";
     localparam [255:0] HELP_SETTINGS = "A SELECT  B BACK  EXIT          ";
-    localparam [255:0] HELP_CALCULATOR = "TYPE NUMBERS + - * / ENTER      ";
+    localparam [255:0] HELP_CALCULATOR = "SIGNED + - * / % ENTER B CLEAR  ";
     localparam [255:0] HELP_GENERIC  = "HOME  EDITOR  FILES  EXIT       ";
 
     localparam [255:0] DESK_EDITOR   = "DESKTOP > EDITOR                ";
@@ -215,6 +219,23 @@ module shama_kernel_accel(
     logic [31:0] gfx_a0,gfx_a1,gfx_a2,gfx_a3,gfx_a4;
     logic [31:0] gfx_fence_target;
     logic gfx_wait_fence;
+    logic popup_render,popup_visible,popup_restoring;
+    logic [7:0] popup_code;
+
+    function automatic [255:0] popup_title(input logic [7:0] code);
+        case(code[6:0])
+            1:popup_title="FLASH WRITES PAUSED AT 95%      ";
+            2:popup_title="RAM LIMIT - OS RESTARTED        ";
+            3:popup_title="CODE LIMIT - OS RESTARTED       ";
+            4:popup_title="VRAM LIMIT - OS RESTARTED       ";
+            default:popup_title="APP FAULT - OS RESTARTED        ";
+        endcase
+    endfunction
+    function automatic [255:0] popup_body(input logic [7:0] code);
+        if(code[6:0]==1) popup_body="DELETE FILES TO RESTORE WRITING ";
+        else if(code[7]) popup_body="UNSAVED EDITS COULD NOT BE SAVED";
+        else popup_body="PREVIOUS SAVED FILES PRESERVED  ";
+    endfunction
 
     function automatic [255:0] title_for(input logic [3:0] view);
         begin
@@ -281,7 +302,14 @@ module shama_kernel_accel(
                     3:title_for="SETTINGS > SYSTEM MONITOR       ";
                     default:title_for="SETTINGS > EXIT                 ";
                 endcase
-                VIEW_CALCULATOR:title_for=TITLE_CALCULATOR;
+                VIEW_CALCULATOR:begin
+                    if(view_args[95:64]!=0) title_for="CALCULATOR > ERROR              ";
+                    else case(view_args[1:0])
+                        1:title_for="CALCULATOR > SECOND OPERAND     ";
+                        2:title_for="CALCULATOR > RESULT             ";
+                        default:title_for="CALCULATOR > FIRST OPERAND      ";
+                    endcase
+                end
                 default:title_for=TITLE_GENERIC;
             endcase
         end
@@ -327,7 +355,13 @@ module shama_kernel_accel(
                         default:help_for="CURSOR ON POINT   A TOGGLE      ";
                     endcase
                 end
-                VIEW_CALCULATOR:help_for=HELP_CALCULATOR;
+                VIEW_CALCULATOR:begin
+                    case(view_args[95:64])
+                        1:help_for="ZERO DIVISOR - BACKSPACE/B CLEAR";
+                        2:help_for="OVERFLOW - BACKSPACE OR B CLEAR ";
+                        default:help_for=HELP_CALCULATOR;
+                    endcase
+                end
                 default:help_for=HELP_GENERIC;
             endcase
         end
@@ -371,9 +405,9 @@ module shama_kernel_accel(
         logic [63:0] label;
         begin
             case(status_line)
-                0:begin used=ram_used_bytes;total=32'h100000;label="RAM     ";end
-                1:begin used=cache_used_bytes;total=32'h4000;label="FAST    ";end
-                default:begin used=flash_used_bytes;total=32'h400000;label="FLASH   ";end
+                0:begin used=ram_used_bytes;total=`SHAMA_RAM_BYTES;label="RAM     ";end
+                1:begin used=cache_used_bytes;total=`SHAMA_CACHE_BYTES;label="FAST    ";end
+                default:begin used=flash_used_bytes;total=`SHAMA_FLASH_BYTES;label="FLASH   ";end
             endcase
             if(index<8) status_char=label >> ((7-index)*8);
             else if(index<16) status_char=hex_char(used[(15-index)*4 +: 4]);
@@ -429,6 +463,8 @@ module shama_kernel_accel(
         req_jump_pc=response_pc;
         req_load_app=(state==ST_RESP)&&response_load_app;
         req_app_id=response_app_id;
+        notice_busy=popup_render || popup_visible || popup_restoring;
+        notice_ready=popup_visible && !popup_restoring;
 
         fs_valid=(state==ST_FS);
         fs_id=latched_id;
@@ -462,15 +498,15 @@ module shama_kernel_accel(
             ST_UI_CLEAR_CMD: begin gpu_valid=1;gpu_addr=12'h004;gpu_wdata=status_only?32'h13:32'h01;end
             ST_UI_CLEAR_SUBMIT: begin gpu_valid=1;gpu_addr=12'h028;gpu_wdata=1;end
 
-            ST_UI_ERASE_X: begin gpu_valid=1;gpu_addr=12'h008;gpu_wdata=0;end
+            ST_UI_ERASE_X: begin gpu_valid=1;gpu_addr=12'h008;gpu_wdata=popup_render?24:0;end
             ST_UI_ZERO_CMD: begin gpu_valid=1;gpu_addr=12'h004;gpu_wdata=8'h11;end
             ST_UI_ZERO_SUBMIT: begin gpu_valid=1;gpu_addr=12'h028;gpu_wdata=1;end
             ST_UI_ONE_VALUE: begin gpu_valid=1;gpu_addr=12'h008;gpu_wdata=1;end
             ST_UI_ONE_CMD: begin gpu_valid=1;gpu_addr=12'h004;gpu_wdata=8'h11;end
             ST_UI_ONE_SUBMIT: begin gpu_valid=1;gpu_addr=12'h028;gpu_wdata=1;end
-            ST_UI_ERASE_Y: begin gpu_valid=1;gpu_addr=12'h00c;gpu_wdata=140;end
-            ST_UI_ERASE_W: begin gpu_valid=1;gpu_addr=12'h010;gpu_wdata=320;end
-            ST_UI_ERASE_H: begin gpu_valid=1;gpu_addr=12'h014;gpu_wdata=40;end
+            ST_UI_ERASE_Y: begin gpu_valid=1;gpu_addr=12'h00c;gpu_wdata=popup_render?48:140;end
+            ST_UI_ERASE_W: begin gpu_valid=1;gpu_addr=12'h010;gpu_wdata=popup_render?272:320;end
+            ST_UI_ERASE_H: begin gpu_valid=1;gpu_addr=12'h014;gpu_wdata=popup_render?72:40;end
             ST_UI_ERASE_COLOR: begin gpu_valid=1;gpu_addr=12'h018;gpu_wdata=0;end
             ST_UI_ERASE_CMD: begin gpu_valid=1;gpu_addr=12'h004;gpu_wdata=8'h08;end
             ST_UI_ERASE_SUBMIT: begin gpu_valid=1;gpu_addr=12'h028;gpu_wdata=1;end
@@ -478,33 +514,35 @@ module shama_kernel_accel(
             ST_UI_TITLE_TEXT: begin
                 gpu_valid=1;gpu_addr=(12'h400+text_index)&12'hffc;
                 gpu_wstrb=4'b0001 << text_index[1:0];
-                gpu_wdata={24'd0,packed_char(title_for(current_view),text_index)}
+                gpu_wdata={24'd0,packed_char(popup_render?popup_title(popup_code):title_for(current_view),text_index)}
                           << (text_index[1:0]*8);
             end
             ST_UI_TITLE_A0: begin gpu_valid=1;gpu_addr=12'h008;gpu_wdata=0;end
             ST_UI_TITLE_A1: begin gpu_valid=1;gpu_addr=12'h00c;gpu_wdata=32;end
-            ST_UI_TITLE_A2: begin gpu_valid=1;gpu_addr=12'h010;gpu_wdata=4;end
-            ST_UI_TITLE_A3: begin gpu_valid=1;gpu_addr=12'h014;gpu_wdata=4;end
+            ST_UI_TITLE_A2: begin gpu_valid=1;gpu_addr=12'h010;gpu_wdata=popup_render?32:4;end
+            ST_UI_TITLE_A3: begin gpu_valid=1;gpu_addr=12'h014;gpu_wdata=popup_render?56:4;end
             ST_UI_TITLE_CMD: begin gpu_valid=1;gpu_addr=12'h004;gpu_wdata=32'h0c;end
             ST_UI_TITLE_SUBMIT: begin gpu_valid=1;gpu_addr=12'h028;gpu_wdata=1;end
 
             ST_UI_STATUS_TEXT: begin
                 gpu_valid=1;gpu_addr=(12'h420+{status_line,5'b0}+text_index)&12'hffc;
                 gpu_wstrb=4'b0001 << text_index[1:0];
-                gpu_wdata={24'd0,status_char(text_index)}
+                gpu_wdata={24'd0,(popup_render?packed_char(popup_body(popup_code),text_index):status_char(text_index))}
                           << (text_index[1:0]*8);
             end
             ST_UI_STATUS_A0: begin gpu_valid=1;gpu_addr=12'h008;gpu_wdata=32+{status_line,5'b0};end
             ST_UI_STATUS_A1: begin gpu_valid=1;gpu_addr=12'h00c;gpu_wdata=32;end
-            ST_UI_STATUS_A2: begin gpu_valid=1;gpu_addr=12'h010;gpu_wdata=4;end
-            ST_UI_STATUS_A3: begin gpu_valid=1;gpu_addr=12'h014;gpu_wdata=144+status_line*12;end
+            ST_UI_STATUS_A2: begin gpu_valid=1;gpu_addr=12'h010;gpu_wdata=popup_render?32:4;end
+            ST_UI_STATUS_A3: begin gpu_valid=1;gpu_addr=12'h014;gpu_wdata=popup_render?72:144+status_line*12;end
             ST_UI_STATUS_CMD: begin gpu_valid=1;gpu_addr=12'h004;gpu_wdata=32'h0c;end
             ST_UI_STATUS_SUBMIT: begin gpu_valid=1;gpu_addr=12'h028;gpu_wdata=1;end
 
             ST_UI_HELP_TEXT: begin
                 gpu_valid=1;gpu_addr=(12'h480+text_index)&12'hffc;
                 gpu_wstrb=4'b0001 << text_index[1:0];
-                if(current_view==VIEW_MONITOR)
+                if(popup_render)
+                    gpu_wdata={24'd0,packed_char("A/B CLOSE THIS MESSAGE          ",text_index)} << (text_index[1:0]*8);
+                else if(current_view==VIEW_MONITOR)
                     gpu_wdata={24'd0,monitor_char(text_index)}
                               << (text_index[1:0]*8);
                 else
@@ -513,8 +551,8 @@ module shama_kernel_accel(
             end
             ST_UI_HELP_A0: begin gpu_valid=1;gpu_addr=12'h008;gpu_wdata=128;end
             ST_UI_HELP_A1: begin gpu_valid=1;gpu_addr=12'h00c;gpu_wdata=32;end
-            ST_UI_HELP_A2: begin gpu_valid=1;gpu_addr=12'h010;gpu_wdata=4;end
-            ST_UI_HELP_A3: begin gpu_valid=1;gpu_addr=12'h014;gpu_wdata=28;end
+            ST_UI_HELP_A2: begin gpu_valid=1;gpu_addr=12'h010;gpu_wdata=popup_render?32:4;end
+            ST_UI_HELP_A3: begin gpu_valid=1;gpu_addr=12'h014;gpu_wdata=popup_render?88:28;end
             ST_UI_HELP_CMD: begin gpu_valid=1;gpu_addr=12'h004;gpu_wdata=32'h0c;end
             ST_UI_HELP_SUBMIT: begin gpu_valid=1;gpu_addr=12'h028;gpu_wdata=1;end
 
@@ -538,6 +576,7 @@ module shama_kernel_accel(
             text_index<=0;status_line<=0;status_only<=0;
             gfx_opcode<=0;gfx_a0<=0;gfx_a1<=0;gfx_a2<=0;gfx_a3<=0;gfx_a4<=0;
             gfx_fence_target<=0;gfx_wait_fence<=0;
+            popup_render<=0;popup_visible<=0;popup_restoring<=0;popup_code<=0;
         end else begin
             if(state==ST_RESP && !req_valid) begin
                 state<=ST_IDLE;
@@ -545,8 +584,18 @@ module shama_kernel_accel(
                 response_load_app<=0;
             end
 
-            case(state)
-                ST_IDLE: if(req_valid) begin
+            if(gpu_capacity_fault && state!=ST_IDLE && state!=ST_FS && state!=ST_ASM && state!=ST_RESP &&
+               !popup_render && !popup_visible && !popup_restoring) begin
+                // A rejected resource command may have discarded a queued
+                // fence. Release its caller so OS recovery can acknowledge it.
+                response<=64'hfffffffffffffff6;gfx_wait_fence<=0;state<=ST_RESP;
+            end else case(state)
+                ST_IDLE: if(popup_visible && notice_code==0) begin
+                    popup_restoring<=1;state<=ST_UI_SWAP_CMD;
+                end else if(!popup_visible && notice_code!=0) begin
+                    popup_render<=1;popup_code<=notice_code;status_only<=1;
+                    status_line<=0;text_index<=0;state<=ST_UI_CLEAR_VALUE;
+                end else if(req_valid) begin
                     latched_id<=req_id;
                     latched_args<=req_args;
                     if(is_ui_sys(req_id) && req_id!=SYS_UI_STATUSBAR)
@@ -639,7 +688,10 @@ module shama_kernel_accel(
                 end
 
                 ST_GFX_FENCE_READ: begin
-                    if(gpu_ready) begin
+                    // A previously queued raw FENCE must not satisfy this
+                    // syscall while work after it is still running. Drain the
+                    // existing queue before selecting our completion number.
+                    if(gpu_ready && !gpu_busy) begin
                         gfx_fence_target<=gpu_rdata+1'b1;
                         gfx_opcode<=8'h16;
                         gfx_wait_fence<=1'b1;
@@ -648,10 +700,14 @@ module shama_kernel_accel(
                 end
 
                 ST_GFX_FENCE_WAIT: begin
-                    if(gpu_ready && gpu_rdata>=gfx_fence_target) begin
+                    // Exactly one fence was queued after the idle baseline;
+                    // equality also handles FFFFFFFF -> 00000000 correctly.
+                    if(gpu_ready && gpu_rdata==gfx_fence_target) begin
                         response<=gpu_rdata;
                         gfx_wait_fence<=0;
-                        state<=ST_RESP;
+                        if(popup_render) begin popup_render<=0;popup_visible<=1;state<=ST_IDLE;end
+                        else if(popup_restoring) begin popup_restoring<=0;popup_visible<=0;state<=ST_IDLE;end
+                        else state<=ST_RESP;
                     end
                 end
 
@@ -687,7 +743,7 @@ module shama_kernel_accel(
                 ST_UI_ERASE_SUBMIT:advance_gpu(ST_UI_ONE_VALUE);
                 ST_UI_ONE_VALUE:advance_gpu(ST_UI_ONE_CMD);
                 ST_UI_ONE_CMD:advance_gpu(ST_UI_ONE_SUBMIT);
-                ST_UI_ONE_SUBMIT:if(gpu_ready) state<=status_only?ST_UI_STATUS_TEXT:ST_UI_TITLE_TEXT;
+                ST_UI_ONE_SUBMIT:if(gpu_ready) state<=(status_only && !popup_render)?ST_UI_STATUS_TEXT:ST_UI_TITLE_TEXT;
 
                 ST_UI_TITLE_TEXT: if(gpu_ready) begin
                     if(text_index==31) begin text_index<=0;state<=ST_UI_TITLE_A0;end
@@ -711,7 +767,8 @@ module shama_kernel_accel(
                 ST_UI_STATUS_CMD: advance_gpu(ST_UI_STATUS_SUBMIT);
                 ST_UI_STATUS_SUBMIT: if(gpu_ready) begin
                     text_index<=0;
-                    if(status_line<2) begin status_line<=status_line+1'b1;state<=ST_UI_STATUS_TEXT;end
+                    if(popup_render) state<=ST_UI_HELP_TEXT;
+                    else if(status_line<2) begin status_line<=status_line+1'b1;state<=ST_UI_STATUS_TEXT;end
                     else state<=status_only?ST_UI_SWAP_CMD:ST_UI_HELP_TEXT;
                 end
 

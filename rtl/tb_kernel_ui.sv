@@ -8,6 +8,9 @@ module tb_kernel_ui;
     wire [3:0] req_app_id;
     reg [31:0] ram_used_bytes=32'h12345,cache_used_bytes=32'h1200,flash_used_bytes=32'h45678;
     reg cpu_halted=0,sha_busy=0,gpu_busy=0;
+    reg gpu_capacity_fault=0;
+    reg [7:0] notice_code=0;
+    wire notice_busy,notice_ready;
     wire gpu_valid,gpu_we;
     wire [11:0] gpu_addr;
     wire [31:0] gpu_wdata;
@@ -23,7 +26,7 @@ module tb_kernel_ui;
     reg [7:0] textmem[0:255];
     reg [31:0] a[0:7];
     reg [7:0] command;
-    reg [255:0] title,help,ramline,cacheline,flashline;
+    reg [255:0] title,help,ramline,cacheline,flashline,popup_title,popup_body,popup_help;
     integer i,k,j,cycles,clears=0,copies=0,clears_before;
     always #5 clk=~clk;
     shama_kernel_accel dut(.*);
@@ -44,6 +47,9 @@ module tb_kernel_ui;
                     if(a[3]==144) ramline[(31-j)*8 +: 8]<=textmem[a[0]+j];
                     if(a[3]==156) cacheline[(31-j)*8 +: 8]<=textmem[a[0]+j];
                     if(a[3]==168) flashline[(31-j)*8 +: 8]<=textmem[a[0]+j];
+                    if(a[3]==56) popup_title[(31-j)*8 +: 8]<=textmem[a[0]+j];
+                    if(a[3]==72) popup_body[(31-j)*8 +: 8]<=textmem[a[0]+j];
+                    if(a[3]==88) popup_help[(31-j)*8 +: 8]<=textmem[a[0]+j];
                 end
             end
         end
@@ -67,13 +73,11 @@ module tb_kernel_ui;
         repeat(3) @(negedge clk);rst=0;
         view(12'h048,4,2,0);
         if(title!=="ACTION > RENAME                 ") $fatal(1,"selected action invisible: %s",title);
-        if(ramline!=="RAM     00012345/00100000 B HEX ") begin
-            // The final byte is padding; compare the substantive first 25 bytes.
-            if(ramline[255:56]!==200'h52414d202020202030303031323334352f3030313030303030)
-                $fatal(1,"RAM used/total: %s",ramline);
-        end
+        if(ramline[255:56]!=="RAM     00012345/00030000") $fatal(1,"RAM used/total: %s",ramline);
         if(cacheline[191:120]!==72'h30303030313230302f) $fatal(1,"cache bytes: %s",cacheline);
+        if(cacheline[119:56]!=="00002000") $fatal(1,"cache total: %s",cacheline);
         if(flashline[191:120]!==72'h30303034353637382f) $fatal(1,"flash bytes: %s",flashline);
+        if(flashline[119:56]!=="0007D000") $fatal(1,"flash total: %s",flashline);
         view(12'h048,5,0,0);
         if(title!=="DELETE > CANCEL   A SELECT      ") $fatal(1,"delete default is not Cancel: %s",title);
         view(12'h048,5,1,0);
@@ -86,6 +90,29 @@ module tb_kernel_ui;
         if(clears!=clears_before || copies==0) $fatal(1,"status refresh destroyed foreground canvas");
         if(ramline[191:120]!==72'h30303035363738392f) $fatal(1,"status refresh did not update usage: %s",ramline);
         if(fence!=5) $fatal(1,"missing UI completion fence");
+        view(12'h04e,1,32'h25,0);
+        if(title!=="CALCULATOR > SECOND OPERAND     " || help!=="SIGNED + - * / % ENTER B CLEAR  ")
+            $fatal(1,"calculator input mode/controls not visible: %s / %s",title,help);
+        view(12'h04e,2,0,0);
+        if(title!=="CALCULATOR > RESULT             ") $fatal(1,"calculator result mode missing");
+        view(12'h04e,1,32'h2f,1);
+        if(title!=="CALCULATOR > ERROR              " || help!=="ZERO DIVISOR - BACKSPACE/B CLEAR")
+            $fatal(1,"calculator zero error invisible: %s / %s",title,help);
+        view(12'h04e,1,32'h2a,2);
+        if(help!=="OVERFLOW - BACKSPACE OR B CLEAR ") $fatal(1,"calculator overflow invisible: %s",help);
+        notice_code=1;
+        wait(notice_ready);
+        if(!notice_busy || req_ready || popup_title!=="FLASH WRITES PAUSED AT 95%      " ||
+           popup_body!=="DELETE FILES TO RESTORE WRITING " || popup_help!=="A/B CLOSE THIS MESSAGE          ")
+            $fatal(1,"asynchronous storage popup missing/wrong");
+        notice_code=0;
+        wait(!notice_busy);
+        notice_code=8'h82;
+        wait(notice_ready);
+        if(popup_title!=="RAM LIMIT - OS RESTARTED        " || popup_body!=="UNSAVED EDITS COULD NOT BE SAVED")
+            $fatal(1,"recovery popup hid unsaved-data failure");
+        notice_code=0;
+        wait(!notice_busy);
         $display("KERNEL UI BEHAVIOR PASS");$finish;
     end
 endmodule

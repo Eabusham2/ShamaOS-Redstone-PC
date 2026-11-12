@@ -72,3 +72,40 @@ def test_saved_world_fixture_runs_in_actual_mchprs(tmp_path):
     assert report["runtime_validation"]["status"] == "passed"
     assert report["runtime_validation"]["runtime"] == "MCHPRS redstone"
     assert report["runtime_validation"]["steps"] == 3
+
+
+def test_full_generation_checks_mapped_routes_before_creating_world(tmp_path, monkeypatch):
+    """A fitting storage estimate cannot hide an unaffordable mapped router."""
+    from types import SimpleNamespace
+    from shamaos import generator, system_build
+    from shamaos.hardware.external_router import ExternalNet
+
+    config = generator.load_config(Path(__file__).resolve().parents[1] / "configs/default.toml")
+    config["generator"]["build_dir"] = str(tmp_path / "build")
+    world = tmp_path / "must-not-exist"
+    physical = SimpleNamespace(
+        top="test", cell_types={}, cell_origins={}, input_ports={}, output_ports={},
+        constant_high=(), nets=(), routing_branch_y=286, routing_trunk_y=290,
+        track_pitch=4,
+    )
+    nets = tuple(
+        ExternalNet(str(i), Vec3(i * 8, 64, 0), (Vec3(i * 8 + 4, 64, 0),))
+        for i in range(1000)
+    )
+    prepared = SimpleNamespace(
+        logic=SimpleNamespace(partitions=(), shell=physical), nets=nets,
+        routing=SimpleNamespace(access={}, endpoint_bounds={}),
+    )
+    storage = {
+        "capacity_contract": {"status": "passed"}, "storage_chunks": 10,
+        "minimum_storage_region_bytes": 40960, "available_disk_bytes": 1 << 20,
+        "storage_minimum_fits_available_disk": True,
+    }
+    monkeypatch.setattr(generator, "generation_preflight", lambda *a, **kw: storage)
+    monkeypatch.setattr(system_build, "prepare_system", lambda *a, **kw: prepared)
+    with pytest.raises(WorldWriteError, match="mapped logic/routing Anvil lower bound"):
+        generator.write_available_placements(world, config, generator.build_plan(config))
+    assert not world.exists()
+    report = json.loads((tmp_path / "build" / "mapped-resource-preflight.json").read_text())
+    assert report["generation_gate"] == "blocked-by-proven-disk-lower-bound"
+    assert report["whole_machine_exact_chunks"] is None

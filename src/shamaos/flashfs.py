@@ -5,10 +5,12 @@ from enum import IntEnum
 import math
 import struct
 
+from .machine_spec import FLASH_BYTES, FLASH_WRITE_LIMIT_PERCENT
+
 
 MAGIC = b"SHAMAFS1"
 VERSION = 1
-DEFAULT_FLASH_BYTES = 4 << 20
+DEFAULT_FLASH_BYTES = FLASH_BYTES
 DEFAULT_BLOCK_SIZE = 256
 MAX_FILES = 64
 ENTRY_SIZE = 64
@@ -33,6 +35,10 @@ class FileType(IntEnum):
     LOG = 5
     CFG = 6
     DIR = 7
+
+
+class FlashWriteProtectedError(OSError):
+    """The owner's flash reserve would be consumed by a mutation."""
 
 
 @dataclass
@@ -73,7 +79,9 @@ class ShamaFS:
     def _normalize_name(name: str) -> str:
         # Names on flash are canonical paths relative to the virtual root.
         # Accept a single leading slash for callers, never traversal aliases.
-        name = name.strip()
+        # Spaces are real path bytes in the hardware ABI. Do not strip them,
+        # or discard leading/trailing controls before validation: doing so would
+        # rename valid in-world files and accept paths the controller rejects.
         if name.startswith("/"):
             name = name[1:]
         encoded = name.encode("utf-8")
@@ -168,7 +176,34 @@ class ShamaFS:
         if size < 0 or size > self.flash_bytes:
             raise ValueError("invalid truncate size")
         old = self.read_file(name)
+        if size == 0:
+            # Explicit reclamation remains possible in protected mode. Like
+            # DELETE, this needs only the metadata transaction, not new data.
+            name = self._normalize_name(name)
+            entry = self._files[name]
+            self._mark(entry.start_block, entry.block_count, False)
+            self.generation += 1
+            self._files[name] = FileEntry(name, entry.file_type, b"", entry.flags,
+                                          0, 0, self.generation)
+            return
         self.write_file(name, old[:size].ljust(size, b"\x00"))
+
+    @property
+    def write_limit_bytes(self) -> int:
+        return (self.block_count * FLASH_WRITE_LIMIT_PERCENT // 100) * self.block_size
+
+    @property
+    def write_protected(self) -> bool:
+        return self.used_bytes >= self.write_limit_bytes
+
+    def _check_write_reservation(self, blocks: int = 0) -> None:
+        # Count the complete temporary COW extent while the old file remains
+        # authoritative. Reject before touching allocation, metadata or data.
+        if self.write_protected or self.used_bytes + blocks * self.block_size > self.write_limit_bytes:
+            raise FlashWriteProtectedError(
+                "flash 95% write protection: delete files or truncate to zero to free space; "
+                "copy-on-write saves also need temporary space below the limit"
+            )
 
     def _find_extent(self, blocks: int) -> int:
         if blocks == 0:
@@ -205,6 +240,7 @@ class ShamaFS:
         if len(self._files) >= MAX_FILES:
             raise OSError("file table full")
         blocks = math.ceil(len(data) / self.block_size) if data else 0
+        self._check_write_reservation(blocks)
         start = self._find_extent(blocks)
         self._mark(start, blocks, True)
         self.generation += 1
@@ -227,6 +263,7 @@ class ShamaFS:
         if old.file_type == FileType.DIR or file_type == FileType.DIR:
             raise IsADirectoryError(name)
         new_blocks = math.ceil(len(data) / self.block_size) if data else 0
+        self._check_write_reservation(new_blocks)
 
         # Allocate new extent before freeing old, mirroring a safer save sequence.
         start = self._find_extent(new_blocks)
@@ -256,6 +293,7 @@ class ShamaFS:
         entry = self.stat(old)
         if entry.file_type == FileType.DIR and any(n.startswith(old + "/") for n in self._files):
             raise OSError("cannot rename a nonempty directory")
+        self._check_write_reservation()
         self.generation += 1
         del self._files[old]
         entry.name, entry.generation = new, self.generation

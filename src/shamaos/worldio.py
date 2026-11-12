@@ -3,7 +3,9 @@ from __future__ import annotations
 from contextlib import AbstractContextManager
 from array import array
 from collections import OrderedDict
+from copy import deepcopy
 from dataclasses import dataclass, field
+from functools import lru_cache
 import gzip
 import hashlib
 import io
@@ -70,10 +72,11 @@ _HORIZONTAL = {"north", "east", "south", "west"}
 _STATE_PROPERTIES: dict[str, dict[str, tuple[str, set[str]]]] = {
     name: {} for name in (
         "air", "stone", "smooth_stone", "black_concrete", "polished_deepslate",
-        "smooth_quartz", "redstone_block", "bedrock", "barrier",
+        "smooth_quartz", "redstone_block", "bedrock", "barrier", "dirt",
     )
 }
 _STATE_PROPERTIES.update({
+    "grass_block": {"snowy": ("false", _BOOL)},
     "target": {"power": ("0", {str(i) for i in range(16)})},
     "redstone_wire": {
         **{direction: ("none", {"none", "side", "up"}) for direction in _HORIZONTAL},
@@ -119,6 +122,66 @@ def validate_position(pos: Vec3) -> None:
         raise WorldWriteError(f"placement outside Java 1.20.4 build height at {pos}")
     if not -29_999_984 <= pos.x <= 29_999_983 or not -29_999_984 <= pos.z <= 29_999_983:
         raise WorldWriteError(f"placement outside safe Java world border at {pos}")
+
+
+def _flat_surface_from_level(level: nbtlib.File, *, require_grass: bool) -> int | None:
+    """Find the grass block's Y from this world's actual flat-layer settings."""
+    try:
+        data = level["Data"]
+        if int(data["DataVersion"]) != JAVA_DATA_VERSION:
+            raise WorldWriteError("surface detection requires a Java 1.20.4 world")
+        dimension = data["WorldGenSettings"]["dimensions"]["minecraft:overworld"]
+        generator = dimension["generator"]
+        if str(dimension["type"]) != "minecraft:overworld" or str(generator["type"]) != "minecraft:flat":
+            raise WorldWriteError("the full build requires a grass superflat overworld")
+        layers = generator["settings"]["layers"]
+        heights = [int(layer["height"]) for layer in layers]
+        if not heights or any(height <= 0 for height in heights) or sum(heights) > 384:
+            raise WorldWriteError("invalid superflat terrain layers")
+        if str(layers[-1]["block"]) != "minecraft:grass_block":
+            if not require_grass and all(str(layer["block"]) == "minecraft:air" for layer in layers):
+                return None
+            raise WorldWriteError("superflat terrain must have grass as its top layer")
+        return -64 + sum(heights) - 1
+    except WorldWriteError:
+        raise
+    except (KeyError, TypeError, ValueError, AttributeError) as exc:
+        raise WorldWriteError(f"cannot determine superflat grass surface: {exc}") from exc
+
+
+def superflat_surface_y(world_path: str | Path) -> int | None:
+    """Return an existing world's grass datum, or None for a new destination."""
+    path = Path(world_path) / "level.dat"
+    if not path.exists():
+        return None
+    try:
+        return _flat_surface_from_level(nbtlib.load(path), require_grass=True)
+    except WorldWriteError:
+        raise
+    except Exception as exc:
+        raise WorldWriteError(f"cannot read superflat world settings: {exc}") from exc
+
+
+def resolve_world_surface(config: dict, world_path: str | Path | None) -> dict:
+    """Keep the layout above actual grass, including higher custom flat presets.
+
+    Existing level.dat settings take precedence over the new-world default.
+    Preserve the requested component clearance above grass when moving that
+    datum. Explicit absolute memory-base overrides are checked by the layout.
+    """
+    result = deepcopy(config)
+    world = result["world"]
+    configured = world.get("surface_y", -61)
+    if type(configured) is not int or not -63 <= configured <= 318:
+        raise WorldWriteError("world.surface_y must be a grass-block Y between -63 and 318")
+    actual = None if world_path is None else superflat_surface_y(world_path)
+    surface = configured if actual is None else actual
+    if actual is not None:
+        world["origin_y"] = world.get("origin_y", configured + 5) + actual - configured
+    world["surface_y"] = surface
+    world["surface_source"] = "config-new-world" if actual is None else "level.dat"
+    world["minimum_build_y"] = surface + 1
+    return result
 
 
 def _signed_long(value: int) -> int:
@@ -215,6 +278,35 @@ class _Chunk:
             digest.update(section.assigned)
             count += sum(value.bit_count() for value in section.assigned)
         return digest.hexdigest(), count
+
+
+@lru_cache(maxsize=8)
+def _terrain_sections(surface_y: int) -> dict[int, _Section]:
+    """Reusable flat ground; ownership bits remain clear because it is terrain."""
+    if type(surface_y) is not int or not -63 <= surface_y <= 318:
+        raise WorldWriteError("grass surface must leave bedrock below and building space above")
+    palette = [AIR, BlockState.of("minecraft:bedrock"), BlockState.of("minecraft:dirt"),
+               BlockState.of("minecraft:grass_block", snowy="false")]
+    sections = {}
+    for sy in range(-4, surface_y // 16 + 1):
+        section = _Section(list(palette), lookup={state: index for index, state in enumerate(palette)})
+        for y in range(max(-64, sy * 16), min(surface_y, sy * 16 + 15) + 1):
+            value = 1 if y == -64 else 3 if y == surface_y else 2
+            start = (y & 15) * 256
+            section.indices[start:start + 256] = array("H", [value]) * 256
+        sections[sy] = section
+    return sections
+
+
+def _new_chunk(cx: int, cz: int, surface_y: int | None) -> _Chunk:
+    if surface_y is None:
+        return _Chunk(cx, cz)
+    sections = {
+        sy: _Section(list(section.palette), array("H", section.indices),
+                     bytearray(section.assigned), dict(section.lookup))
+        for sy, section in _terrain_sections(surface_y).items()
+    }
+    return _Chunk(cx, cz, sections, dirty=True)
 
 
 def _chunk_nbt(chunk: _Chunk) -> nbtlib.File:
@@ -496,6 +588,7 @@ class NativeWorldReader:
             level = nbtlib.load(self.world_path / "level.dat")
             if int(level["Data"]["DataVersion"]) != JAVA_DATA_VERSION or int(level["Data"]["version"]) != 19133:
                 raise WorldWriteError("level.dat is not a Java 1.20.4 Anvil world")
+            self.surface_y = _flat_surface_from_level(level, require_grass=False)
         except WorldWriteError:
             raise
         except Exception as exc:
@@ -517,7 +610,7 @@ class NativeWorldReader:
             self._regions.move_to_end(rkey)
         root = region.read((cx & 31) + (cz & 31) * 32)
         if root is None:
-            chunk = _Chunk(cx, cz)
+            chunk = _new_chunk(cx, cz, self.surface_y)
         else:
             chunk = _decode_chunk(root, cx, cz)
         self._cache[key] = chunk
@@ -553,11 +646,20 @@ class NativeWorldReader:
                             yield Placement(Vec3(cx * 16 + (cell & 15), sy * 16 + (cell >> 8), cz * 16 + ((cell >> 4) & 15)), state, "world-readback")
 
 
-def _create_level_dat(path: Path, *, name: str, spawn: Vec3) -> None:
+def _create_level_dat(path: Path, *, name: str, spawn: Vec3, surface_y: int | None = None) -> None:
     validate_position(spawn)
     if spawn.y < -63:
         raise WorldWriteError("spawn requires room for a supporting block")
     n = nbtlib
+    if surface_y is None:
+        layers = [n.Compound({"height": n.Int(1), "block": n.String("minecraft:air")})]
+    else:
+        _terrain_sections(surface_y)  # Validate before creating any world files.
+        layers = [n.Compound({"height": n.Int(1), "block": n.String("minecraft:bedrock")})]
+        dirt = surface_y + 63
+        if dirt:
+            layers.append(n.Compound({"height": n.Int(dirt), "block": n.String("minecraft:dirt")}))
+        layers.append(n.Compound({"height": n.Int(1), "block": n.String("minecraft:grass_block")}))
     root = n.File({"Data": n.Compound({
         "DataVersion": n.Int(JAVA_DATA_VERSION), "version": n.Int(19133),
         "Version": n.Compound({"Name": n.String("1.20.4"), "Id": n.Int(JAVA_DATA_VERSION), "Snapshot": n.Byte(0), "Series": n.String("main")}),
@@ -582,7 +684,7 @@ def _create_level_dat(path: Path, *, name: str, spawn: Vec3) -> None:
                         "type": n.String("minecraft:flat"),
                         "settings": n.Compound({
                             "biome": n.String("minecraft:plains"), "features": n.Byte(0), "lakes": n.Byte(0),
-                            "layers": n.List[n.Compound]([n.Compound({"height": n.Int(1), "block": n.String("minecraft:air")})]),
+                            "layers": n.List[n.Compound](layers),
                             "structure_overrides": n.List[n.String]([]),
                         }),
                     }),
@@ -637,7 +739,13 @@ def validate_native_world(world_path: str | Path) -> dict[str, object]:
         chunks = 0
         blocks = 0
         for cx, cz, expected, expected_count in connection.execute("SELECT x,z,digest,blocks FROM chunks ORDER BY x,z"):
-            digest, count = reader.chunk(cx, cz).fingerprint()
+            chunk = reader.chunk(cx, cz)
+            if reader.surface_y is not None:
+                for sy, section in chunk.sections.items():
+                    terrain_rows = max(0, min(16, reader.surface_y - sy * 16 + 1))
+                    if any(section.assigned[:terrain_rows * 32]):
+                        raise WorldWriteError(f"generated blocks touch protected grass/ground in chunk ({cx}, {cz})")
+            digest, count = chunk.fingerprint()
             if bytes.fromhex(digest) != expected or count != expected_count:
                 raise WorldWriteError(f"saved block-state readback mismatch in chunk ({cx}, {cz})")
             chunks += 1
@@ -664,6 +772,9 @@ def validate_native_world(world_path: str | Path) -> dict[str, object]:
             "status": "passed", "method": "independent-anvil-block-state-readback",
             "data_version": JAVA_DATA_VERSION, "chunks": chunks,
             "assigned_blocks": blocks, "regions": regions, "region_bytes": region_bytes,
+            "grass_surface_y": reader.surface_y,
+            "minimum_build_y": None if reader.surface_y is None else reader.surface_y + 1,
+            "terrain_preserved": reader.surface_y is not None,
         }
     finally:
         connection.close()
@@ -687,6 +798,7 @@ class NativeWorldWriter(WorldWriter):
         spawn: Vec3 = Vec3(-16, 64, -16),
         spawn_platform: bool = True,
         max_cached_chunks: int = 128,
+        surface_y: int | None = None,
         dimension: str = "minecraft:overworld",
         version: tuple[str, tuple[int, int, int]] = ("java", (1, 20, 4)),
     ) -> None:
@@ -702,8 +814,13 @@ class NativeWorldWriter(WorldWriter):
         self._dirty_regions: set[tuple[int, int]] = set()
         self._state_cache: dict[BlockState, BlockState] = {}
         self.max_cached_chunks = max(1, max_cached_chunks)
+        if surface_y is not None:
+            _terrain_sections(surface_y)
+        self.surface_y = surface_y
         marker = self.world_path / "shamaos" / "world.json"
         fresh = not (self.world_path / "level.dat").exists()
+        if fresh and surface_y is not None and spawn_platform and spawn.y - 1 <= surface_y:
+            raise WorldWriteError("spawn platform must also be above the grass surface")
         if fresh:
             if self.world_path.exists() and any(self.world_path.iterdir()):
                 raise WorldWriteError("new native world destination must be empty")
@@ -715,7 +832,12 @@ class NativeWorldWriter(WorldWriter):
                 metadata = json.loads(marker.read_text(encoding="utf-8"))
                 if metadata.get("format") != "shamaos-native-anvil-v1" or metadata.get("data_version") != JAVA_DATA_VERSION:
                     raise WorldWriteError("unsupported native world metadata")
-                NativeWorldReader(self.world_path)
+                actual_surface = NativeWorldReader(self.world_path).surface_y
+                if surface_y is not None and surface_y != actual_surface:
+                    raise WorldWriteError("requested grass surface differs from the existing world's terrain")
+                self.surface_y = actual_surface
+                if metadata.get("surface_y") != actual_surface:
+                    raise WorldWriteError("native world metadata and grass surface disagree")
             except (ValueError, OSError) as exc:
                 raise WorldWriteError(f"invalid native world metadata: {exc}") from exc
         self._lock = (self.world_path / "session.lock").open("a+b")
@@ -750,10 +872,11 @@ class NativeWorldWriter(WorldWriter):
                 raise
         (self.world_path / "shamaos").mkdir(exist_ok=True)
         if fresh:
-            _create_level_dat(self.world_path, name=name, spawn=spawn)
+            _create_level_dat(self.world_path, name=name, spawn=spawn, surface_y=self.surface_y)
             marker.write_text(json.dumps({
                 "format": "shamaos-native-anvil-v1", "data_version": JAVA_DATA_VERSION,
                 "minecraft_version": "1.20.4", "spawn": vars(spawn),
+                "surface_y": self.surface_y,
             }, indent=2) + "\n", encoding="utf-8")
         self._ledger = sqlite3.connect(self.world_path / "shamaos" / "expected.sqlite3")
         self._ledger.execute("CREATE TABLE IF NOT EXISTS chunks (x INTEGER NOT NULL,z INTEGER NOT NULL,digest BLOB NOT NULL,blocks INTEGER NOT NULL,PRIMARY KEY(x,z)) WITHOUT ROWID")
@@ -793,7 +916,7 @@ class NativeWorldWriter(WorldWriter):
             self._chunks.move_to_end(key)
             return self._chunks[key]
         root = self._region(cx // 32, cz // 32).read((cx & 31) + (cz & 31) * 32)
-        chunk = _Chunk(cx, cz) if root is None else _decode_chunk(root, cx, cz)
+        chunk = _new_chunk(cx, cz, self.surface_y) if root is None else _decode_chunk(root, cx, cz)
         self._chunks[key] = chunk
         if len(self._chunks) > self.max_cached_chunks:
             _, evicted = self._chunks.popitem(last=False)
@@ -805,6 +928,11 @@ class NativeWorldWriter(WorldWriter):
             raise WorldWriteError("native world writer is closed")
         pos = placement.pos
         validate_position(pos)
+        if self.surface_y is not None and pos.y <= self.surface_y:
+            raise WorldWriteError(
+                f"placement at {pos} would touch protected grass/ground; "
+                f"every generated block must be at or above Y={self.surface_y + 1}"
+            )
         state = self._state_cache.get(placement.block)
         if state is None:
             state = canonical_block_state(placement.block)

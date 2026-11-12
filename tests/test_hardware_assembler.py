@@ -11,8 +11,21 @@ def rtl_assembler(tmp_path_factory):
         pytest.skip('Icarus Verilog is required for hardware behavior tests')
     folder=tmp_path_factory.mktemp('hardware_assembler')
     binary=folder/'assembler'
-    subprocess.run(['iverilog','-g2012','-s','tb_asm_cases','-o',str(binary),str(ROOT/'rtl/shama_asm_accel.sv'),str(ROOT/'rtl/tb_asm_cases.sv')],check=True,capture_output=True,text=True)
+    subprocess.run(['iverilog','-g2012','-I',str(ROOT/'rtl'),'-s','tb_asm_cases','-o',str(binary),str(ROOT/'rtl/shama_asm_accel.sv'),str(ROOT/'rtl/tb_asm_cases.sv')],check=True,capture_output=True,text=True)
     return binary
+
+
+def test_source_and_output_ranges_stop_at_last_physical_ram_byte(tmp_path):
+    if not shutil.which('iverilog') or not shutil.which('vvp'):
+        pytest.skip('Icarus Verilog is required for hardware behavior tests')
+    binary=tmp_path/'assembler_capacity'
+    compiled=subprocess.run(['iverilog','-g2012','-I',str(ROOT/'rtl'),'-s','tb_asm_capacity','-o',str(binary),
+                             str(ROOT/'rtl/shama_asm_accel.sv'),str(ROOT/'rtl/tb_asm_capacity.sv')],
+                            capture_output=True,text=True,timeout=30)
+    assert compiled.returncode==0,compiled.stdout+compiled.stderr
+    result=subprocess.run(['vvp',str(binary)],capture_output=True,text=True,timeout=20)
+    assert result.returncode==0,result.stdout+result.stderr
+    assert 'ASSEMBLER PHYSICAL RAM ENDPOINTS PASS' in result.stdout
 
 
 def run_case(binary,tmp_path,source,error=0,line=1):

@@ -85,14 +85,14 @@ flow; they are not used as a claim about native hardware cycle performance.
 
 | RAM address | Use |
 |---|---|
-| `0xB2000` | 80-byte live header |
-| `0xB2100` | 32-byte live digest |
-| `0xB2140` | 32-byte target |
-| `0xB2180` | 32-byte software comparison digest |
-| `0xB2200` | 256-byte state snapshot; first 128 bytes are a history record |
-| `0xB2400` | Loaded 128-byte history record |
-| `0xB2600` | 80-byte edit staging buffer |
-| `0xB3000..0xB34ff` | Software SHA scratch/constants reservation |
+| `0x2D000` | 80-byte live header |
+| `0x2D100` | 32-byte live digest |
+| `0x2D140` | 32-byte target |
+| `0x2D180` | 32-byte software comparison digest |
+| `0x2D200` | 256-byte state snapshot; first 128 bytes are a history record |
+| `0x2D400` | Loaded 128-byte history record |
+| `0x2D600` | 80-byte edit staging buffer |
+| `0x2E000..0x2E4ff` | Software SHA scratch/constants reservation |
 
 The lifecycle owns and clears the complete miner workspace. A sequence word at
 state offset 252 is odd during a multiword update and even after a coherent

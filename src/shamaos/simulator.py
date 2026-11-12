@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from .isa import Condition, decode_header
+from .machine_spec import RAM_BYTES
 from .sha256 import (
     MASK32,
     bsig0,
@@ -28,7 +29,7 @@ class Flags:
 
 @dataclass
 class CPUReference:
-    memory_size: int = 1 << 20
+    memory_size: int = RAM_BYTES
     regs: list[int] = field(default_factory=lambda: [0] * 16)
     pc: int = 0
     flags: Flags = field(default_factory=Flags)

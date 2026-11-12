@@ -108,7 +108,7 @@ Assembly syntax, labels, definitions, comments, character/port symbols, simulato
 ShamaOS **does not claim** that the videos contained:
 
 - a standalone programmable GPU ISA;
-- a 1 MiB RAM system;
+- a 192 KiB RAM system;
 - a GUI OS/filesystem/editor;
 - Bitcoin SHA-256 CPU instructions.
 

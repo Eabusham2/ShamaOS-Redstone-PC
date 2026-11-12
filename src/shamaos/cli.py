@@ -10,9 +10,11 @@ import sys
 from .assembler import assemble_file, write_binary, write_listing
 from .generator import build_plan, create_runtime_fixture_world, generation_preflight, load_config, manifest, validate_manifest_capacity, write_available_placements, write_manifest
 from .os_image import build_default_os_image
+from .machine_spec import FLASH_BYTES
+from .software_resources import software_resource_usage
 from .synthesis import build_physical_netlist, synthesize_json
 from .model import Vec3
-from .worldio import NativeWorldWriter, WorldWriteError, validate_native_world
+from .worldio import NativeWorldWriter, WorldWriteError, validate_native_world, resolve_world_surface
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -30,7 +32,10 @@ def _parser() -> argparse.ArgumentParser:
 
     fs = sub.add_parser("flash-image", help="build preloaded ShamaOS flash image")
     fs.add_argument("-o", "--output", default="build/shamaos-flash.img")
-    fs.add_argument("--bytes", type=int, default=4 << 20)
+    fs.add_argument("--bytes", type=int, default=FLASH_BYTES)
+
+    usage = sub.add_parser("software-usage", help="report assembled app RAM/fast-memory and shared VRAM/flash occupancy")
+    usage.add_argument("--report", default="build/software-usage.json")
 
     synth = sub.add_parser("synth-redstone", help="synthesize SystemVerilog into physical redstone cells/routes")
     synth.add_argument("--top", required=True)
@@ -46,9 +51,10 @@ def _parser() -> argparse.ArgumentParser:
     gen.add_argument("--config", default="configs/default.toml")
     gen.add_argument("--manifest", default="build/generated-manifest.json")
 
-    create = sub.add_parser("create-world", help="create an empty Java 1.20.4 void world with a spawn platform")
+    create = sub.add_parser("create-world", help="create a Java 1.20.4 grass superflat world with protected ground")
     create.add_argument("--world", required=True)
     create.add_argument("--name", default="ShamaOS Redstone PC")
+    create.add_argument("--config", default="configs/default.toml")
 
     validate = sub.add_parser("validate-world", help="read saved Anvil chunks and verify every generated block state")
     validate.add_argument("--world", required=True)
@@ -56,6 +62,11 @@ def _parser() -> argparse.ArgumentParser:
     fixture = sub.add_parser("fixture-world", help="create and verify a small playable redstone fixture (not the full computer)")
     fixture.add_argument("--world", required=True)
     fixture.add_argument("--runtime-runner", default=os.environ.get("SHAMA_MCHPRS_RUNNER"), help="optional compiled MCHPRS runner to exercise the saved blocks")
+
+    stacked = sub.add_parser("stacked-fixture-world", help="save and verify an above-ground stacked memory fixture")
+    stacked.add_argument("--world", required=True)
+    stacked.add_argument("--surface-y", type=int, default=-61)
+    stacked.add_argument("--runtime-runner", default=os.environ.get("SHAMA_MCHPRS_RUNNER"))
 
     preflight = sub.add_parser("generation-preflight", help="measure storage geometry and report full-capacity resource/loading limits")
     preflight.add_argument("--config", default="configs/default.toml")
@@ -94,6 +105,12 @@ def main(argv: list[str] | None = None) -> int:
         print(f"wrote {len(image.image)} bytes with {len(image.files)} preloaded files")
         return 0
 
+    if args.command == "software-usage":
+        report = software_resource_usage()
+        write_manifest(args.report, report)
+        print(json.dumps(report, indent=2, sort_keys=True))
+        return 0
+
     if args.command == "synth-redstone":
         netlist_path = synthesize_json(args.rtl, top=args.top, output_json=args.json)
         physical = build_physical_netlist(
@@ -110,7 +127,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.command == "generate":
-        config = load_config(args.config)
+        config = resolve_world_surface(load_config(args.config), args.world)
         plan = build_plan(config)
         result = write_available_placements(args.world, config, plan)
         m = manifest(config, plan)
@@ -133,9 +150,14 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.command == "create-world":
-        with NativeWorldWriter(args.world, name=args.name) as writer:
+        config = resolve_world_surface(load_config(args.config), args.world)
+        world = config["world"]
+        spawn = Vec3(world["origin_x"] - 16, world["surface_y"] + 2, world["origin_z"] - 16)
+        with NativeWorldWriter(args.world, name=args.name, spawn=spawn, surface_y=world["surface_y"]) as writer:
             report = writer.validate()
-        print(f"created Java 1.20.4 world at {args.world}; verified {report['assigned_blocks']} spawn-platform blocks")
+        print(f"created Java 1.20.4 grass superflat world at {args.world}; "
+              f"grass Y={world['surface_y']}, minimum build Y={world['surface_y'] + 1}; "
+              f"verified {report['assigned_blocks']} spawn-platform blocks above intact ground")
         return 0
 
     if args.command == "validate-world":
@@ -162,6 +184,14 @@ def main(argv: list[str] | None = None) -> int:
         write_manifest(args.report, report)
         print(json.dumps(report, indent=2, sort_keys=True))
         return 0 if report["capacity_contract"]["status"] == "passed" and report["storage_minimum_fits_available_disk"] else 1
+
+    if args.command == "stacked-fixture-world":
+        from .memory_fixture import create_stacked_runtime_fixture_world
+        report = create_stacked_runtime_fixture_world(
+            args.world, surface_y=args.surface_y, runtime_runner=args.runtime_runner,
+        )
+        print(json.dumps(report, indent=2, sort_keys=True))
+        return 0
 
     if args.command == "validate-manifest":
         report = validate_manifest_capacity(json.loads(Path(args.manifest).read_text(encoding="utf-8")))

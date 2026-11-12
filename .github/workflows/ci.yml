@@ -37,6 +37,7 @@ jobs:
           shamaos plan --config configs/default.toml --manifest build/plan.json
           shamaos asm examples/bitcoin_miner.asm -o build/miner.bin --listing build/miner.lst
           shamaos flash-image -o build/shamaos-flash.img
+          shamaos software-usage --report build/software-usage.json
 
   world-backend:
     runs-on: ubuntu-24.04
@@ -78,7 +79,7 @@ jobs:
         run: vvp build_sha.vvp
       - name: Compile CPU RTL
         run: |
-          iverilog -g2012 -Wall -s shama_cpu -o build_cpu.vvp \
+          iverilog -g2012 -Wall -I rtl -s shama_cpu -o build_cpu.vvp \
             rtl/sha256_compress.sv rtl/sha256_fixed64.sv rtl/bitcoin_dsha256.sv rtl/shama_cpu.sv
       - name: Compile GPU RTL
         run: |
@@ -93,7 +94,7 @@ jobs:
           vvp build_display_bridge.vvp
       - name: Compile/ring memory-controller test
         run: |
-          iverilog -g2012 -Wall -s tb_ring_memctl -o build_memctl.vvp \
+          iverilog -g2012 -Wall -I rtl -s tb_ring_memctl -o build_memctl.vvp \
             rtl/shama_ring_memctl.sv rtl/tb_ring_memctl.sv
           vvp build_memctl.vvp
 
@@ -223,6 +224,7 @@ jobs:
     env:
       PYTHONPATH: src:tests
       SHAMA_MCHPRS_RUNNER: ${{ github.workspace }}/tests/mchprs_runtime/target/release/shama-redstone-check
+      SHAMA_VALIDATION_REPORT_DIR: ${{ github.workspace }}/build/validation
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -261,6 +263,8 @@ jobs:
         run: |
           shamaos fixture-world --world build/native-runtime-fixture --runtime-runner "$SHAMA_MCHPRS_RUNNER"
           shamaos validate-world --world build/native-runtime-fixture
+          shamaos stacked-fixture-world --world build/stacked-native-runtime-fixture --runtime-runner "$SHAMA_MCHPRS_RUNNER"
+          shamaos validate-world --world build/stacked-native-runtime-fixture
       - name: Archive measured fixture and exact-source validation evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -269,6 +273,8 @@ jobs:
           path: |
             build/behavioral-results.xml
             build/native-runtime-fixture
+            build/stacked-native-runtime-fixture
+            build/validation
           retention-days: 14
           if-no-files-found: error
 
@@ -337,6 +343,7 @@ jobs:
 
           from shamaos.layout import default_origins
           from shamaos.synthesis import build_physical_netlist, synthesize_json
+          from shamaos.resource_accounting import physical_netlist_resource_lower_bound
           from shamaos.system_build import (
               SOC_RTL_FILES,
               _geometry_from_config,
@@ -351,8 +358,9 @@ jobs:
 
           root = _repo_root()
           config = tomllib.loads(Path("configs/default.toml").read_text())
+          geometry = _geometry_from_config(config)
           origin = _partition_origin(
-              default_origins(_geometry_from_config(config)).control,
+              default_origins(geometry).control,
               index,
           )
 
@@ -371,9 +379,13 @@ jobs:
               output,
               top=module,
               origin=origin,
+              minimum_build_y=geometry.minimum_build_y,
           )
           manifest = physical.manifest()
-          print(json.dumps(manifest, indent=2))
+          (out_dir / f"physical-{instance}.json").write_text(json.dumps(manifest, indent=2) + "\n")
+          resources = physical_netlist_resource_lower_bound(physical)
+          (out_dir / f"resources-{instance}.json").write_text(json.dumps(resources, indent=2) + "\n")
+          print(json.dumps({key: manifest[key] for key in ("top", "cell_count", "net_count", "routing_tracks", "routing_planes", "trunk_track_bounds")}, indent=2))
           assert manifest["cell_count"] > 0
           assert manifest["net_count"] > 0
           assert manifest["routing_tracks"] > 0
@@ -386,6 +398,8 @@ jobs:
           path: |
             artifacts/partition-${{ matrix.instance }}-${{ matrix.module }}.json
             artifacts/partition-${{ matrix.instance }}-${{ matrix.module }}.yosys.log
+            artifacts/physical-${{ matrix.instance }}.json
+            artifacts/resources-${{ matrix.instance }}.json
           if-no-files-found: error
           retention-days: 1
 
@@ -445,6 +459,7 @@ jobs:
                   mapped,
                   top=module,
                   origin=_partition_origin(origins.control, index),
+                  minimum_build_y=geometry.minimum_build_y,
               )
               partitions.append((instance, physical))
               bindings[instance] = MacroInstance(
@@ -472,6 +487,9 @@ jobs:
                   origins.control.z - 1_750_000,
               ),
               macro_instances=bindings,
+              routing_branch_y=300,
+              routing_trunk_y=304,
+              minimum_build_y=geometry.minimum_build_y,
           )
 
           logic = PartitionedLogic(
@@ -479,7 +497,8 @@ jobs:
               partitions=tuple(partitions),
           )
           m = logic.manifest()
-          print(json.dumps(m, indent=2))
+          (build / "physical-soc-manifest.json").write_text(json.dumps(m, indent=2) + "\n")
+          print(json.dumps({key: m[key] for key in ("top", "strategy", "cell_count", "net_count", "routing_tracks")}, indent=2))
 
           assert m["strategy"] == "partitioned-blackbox-shell"
           assert m["cell_count"] > 0
@@ -497,10 +516,10 @@ jobs:
           assert len(inputs["flash_selected_word"]) == 32
           assert len(inputs["vram_selected_word"]) == 32
 
-          assert len(outputs["cache_bank_select"]) == 4
-          assert len(outputs["ram_bank_select"]) == 256
-          assert len(outputs["flash_bank_select"]) == 1024
-          assert len(outputs["vram_bank_select"]) == 8
+          assert len(outputs["cache_bank_select"]) == 2
+          assert len(outputs["ram_bank_select"]) == 48
+          assert len(outputs["flash_bank_select"]) == 125
+          assert len(outputs["vram_bank_select"]) == 4
           assert len(outputs["cache_row_select"]) == 1024
           assert len(outputs["ram_row_select"]) == 1024
           assert len(outputs["flash_row_select"]) == 1024
@@ -510,12 +529,22 @@ jobs:
 
           cache, ram, flash = memory_specs(geometry)
           vram = vram_spec(geometry)
-          assert cache.bank_count == 4
-          assert ram.bank_count == 256
-          assert flash.bank_count == 1024
-          assert vram.bank_count == 8
+          assert cache.bank_count == 2
+          assert ram.bank_count == 48
+          assert flash.bank_count == 125
+          assert vram.bank_count == 4
           assert geometry.display_width == 320
           assert geometry.display_height == 180
 
           print("FULL PARTITIONED PHYSICAL SYNTHESIS PASS")
           PY
+      - name: Preserve full synthesis evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-soc-report-${{ github.sha }}
+          path: |
+            build/full-soc/physical-soc-manifest.json
+            build/full-soc/shama_soc-shell-mapped.yosys.log
+          if-no-files-found: error
+          retention-days: 7

@@ -8,6 +8,7 @@ from shamaos.os_image import (
     build_default_os_image,
     render_boot_parameters,
 )
+from shamaos.flashfs import ShamaFS
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -30,9 +31,22 @@ def _defines() -> dict[str, int]:
 def test_rtl_boot_parameters_match_generated_flash_image():
     d = _defines()
     image = build_default_os_image()
+    fs = ShamaFS.deserialize(image.image)
     assert (ROOT / "rtl/shama_boot_params.svh").read_text() == render_boot_parameters(image)
     assert d["SHAMA_MINER_HISTORY_ENTRY"] == image.file_entry_indices["miner-history.log"]
     assert d["SHAMA_MINER_STATE_ENTRY"] == image.file_entry_indices["miner-state.cfg"]
+    assert d["SHAMA_RAM_BYTES"] == 192 << 10
+    assert d["SHAMA_CACHE_BYTES"] == 8 << 10
+    assert d["SHAMA_VRAM_BYTES"] == 16 << 10
+    assert d["SHAMA_CACHE_BANKS"] == 2
+    assert d["SHAMA_VRAM_BANKS"] == 4
+    assert d["SHAMA_FLASH_BYTES"] == len(image.image) == 500 << 10
+    assert d["SHAMA_RAM_BANKS"] == 48
+    assert d["SHAMA_FLASH_BANKS"] == 125
+    assert d["SHAMA_FS_BLOCK_COUNT"] == fs.block_count == 2000
+    assert d["SHAMA_FS_BITMAP_WORDS"] == (fs.block_count + 31) // 32 == 63
+    assert d["SHAMA_FS_TABLE_FLASH_OFFSET"] == fs.table_start * fs.block_size == 512
+    assert d["SHAMA_FS_DATA_START_BLOCK"] == fs.data_start == 18
 
     assert d["SHAMA_BUNDLE_FLASH_OFFSET"] == image.bundle_flash_offset
     assert d["SHAMA_SLOT_BYTES"] == APP_SLOT_BYTES
@@ -56,6 +70,7 @@ def test_rtl_boot_parameters_match_generated_flash_image():
     }
     for name in BUNDLE_ORDER:
         assert d[flash_defines[name]] == image.slot_flash_offsets[name]
+        assert d[f"SHAMA_{name.upper()}_BINARY_BYTES"] == image.slot_binary_lengths[name]
 
     for app, pc_word in image.app_pc_words.items():
         assert pc_word == 0

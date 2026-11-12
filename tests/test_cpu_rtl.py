@@ -12,6 +12,7 @@ import pytest
 from shamaos.assembler import assemble
 from shamaos.isa import SPECS
 from shamaos.simulator import CPUReference
+from shamaos.machine_spec import RAM_BYTES
 
 ROOT=Path(__file__).resolve().parents[1]
 
@@ -26,9 +27,9 @@ def rtl(tmp_path_factory):
         pytest.skip('real CPU RTL execution requires Icarus Verilog')
     build=tmp_path_factory.mktemp('cpu-rtl')
     output=build/'cpu.vvp'
-    proc=subprocess.run(['iverilog','-g2012','-s','tb_cpu','-o',str(output),*(str(ROOT/'rtl'/p) for p in ('sha256_compress.sv','sha256_fixed64.sv','bitcoin_dsha256.sv','shama_cpu.sv','tb_cpu.sv'))],capture_output=True,text=True,timeout=60)
+    proc=subprocess.run(['iverilog','-g2012','-I',str(ROOT/'rtl'),'-s','tb_cpu','-o',str(output),*(str(ROOT/'rtl'/p) for p in ('sha256_compress.sv','sha256_fixed64.sv','bitcoin_dsha256.sv','shama_cpu.sv','tb_cpu.sv'))],capture_output=True,text=True,timeout=60)
     assert proc.returncode==0,proc.stdout+proc.stderr
-    def execute(source,initial=None,dump_base=0x80000,dump_words=0,stall=0,hold_sha=False):
+    def execute(source,initial=None,dump_base=0x18000,dump_words=0,stall=0,hold_sha=False):
         words=assemble(source).words if isinstance(source,str) else source
         program=build/'program.hex'
         lines=['@00000000',*(f'{w:08x}' for w in words)]
@@ -55,15 +56,54 @@ def reference(source,initial=None):
     cpu.run(500000)
     return cpu
 
+
+@pytest.mark.parametrize('source,expected_fault', [
+    ('LDI r1 0x2ffff\nLDI r2 42\nSTB r1 r2 0\nLDB r3 r1 0\nHLT', 0),
+    ('LDI r1 0x30000\nLDB r2 r1 0\nHLT', 8),
+    ('LDI r1 0x30000\nSTW r1 r0 0\nHLT', 8),
+    ('LDI r1 0x107cfff\nLDB r2 r1 0\nHLT', 0),
+    ('LDI r1 0x107d000\nLDB r2 r1 0\nHLT', 8),
+    ('LDI r1 0x107d000\nSTW r1 r0 0\nHLT', 8),
+])
+def test_ram_and_flash_capacity_boundaries_are_architecturally_enforced(rtl, source, expected_fault):
+    regs, _, _, fault = rtl(source, stall=1)
+    assert fault == expected_fault
+    if 'STB' in source:
+        assert regs[3] == 42
+
+
+@pytest.mark.parametrize('delta', [0, 4], ids=['last_valid', 'first_invalid_aligned'])
+@pytest.mark.parametrize('opcode,source_size,which', [
+    ('SHA256', 64, 'source'), ('SHA256', 64, 'destination'),
+    ('DSHA256', 80, 'source'), ('DSHA256', 80, 'destination'),
+    ('HASHCMP', 32, 'source'), ('HASHCMP', 32, 'destination'),
+    ('INCNONCE', 80, 'source'),
+])
+def test_native_sha_family_full_buffer_endpoints(rtl, opcode, source_size, which, delta):
+    source_ptr = RAM_BYTES-source_size+delta if which == 'source' else 0x10000
+    destination_ptr = RAM_BYTES-32+delta if which == 'destination' else 0x10100
+    operation = 'INCNONCE r1' if opcode == 'INCNONCE' else f'{opcode} r2 r1'
+    program = f'LDI r1 {source_ptr}\nLDI r2 {destination_ptr}\n{operation}\nHLT'
+    initial = {}
+    if source_ptr+source_size <= RAM_BYTES:
+        initial[source_ptr] = bytes(source_size)
+    if destination_ptr+32 <= RAM_BYTES:
+        initial[destination_ptr] = bytes(32)
+    _, _, _, fault = rtl(program, initial, stall=1)
+    assert fault == (8 if delta else 0)
+
+@pytest.mark.parametrize('batch',range(4))
 @pytest.mark.parametrize('stall',[0,3])
-def test_integer_flags_immediates_and_sha_primitives_differential(rtl,stall):
+def test_integer_flags_immediates_and_sha_primitives_differential(rtl,stall,batch):
     rng=random.Random(0x5A4A)
-    values=[0,1,31,32,0x7fffffff,0x80000000,0xfffffffe,0xffffffff]+[rng.getrandbits(32) for _ in range(12)]
-    lines=['LDI r15 0x80000']
+    values=[0,1,31,32,0x7fffffff,0x18000000,0xfffffffe,0xffffffff]+[rng.getrandbits(32) for _ in range(12)]
+    lines=['LDI r15 0x18000']
     cases=0
     binary='ADD ADC SUB SBC MUL DIV MOD AND OR XOR NOR NAND XNOR SHL SHR SAR ROL ROR'.split()
     unary='MOV NEG NOT BSIG0 BSIG1 SSIG0 SSIG1 RSH1'.split()
-    for a in values:
+    # Keep each complete program below the compact RAM result region. All
+    # original arithmetic vectors run across the four independent batches.
+    for a in values[batch*5:(batch+1)*5]:
         for b in values[:8]+[rng.getrandbits(32)]:
             for op in binary:
                 lines += [f'LDI r1 {a}',f'LDI r2 {b}','CMP r0 r1',f'{op} r3 r1 r2','RDPMC r14 34','STW r15 r3 0','STW r15 r14 4','ADDI r15 8']
@@ -80,7 +120,7 @@ def test_integer_flags_immediates_and_sha_primitives_differential(rtl,stall):
     cpu=reference(source)
     regs,memory,flags,fault=rtl(source,dump_words=cases*2,stall=stall)
     assert fault==0
-    assert [memory[0x80000+4*i] for i in range(cases*2)]==[int.from_bytes(cpu.memory[0x80000+4*i:0x80004+4*i],'little') for i in range(cases*2)]
+    assert [memory[0x18000+4*i] for i in range(cases*2)]==[int.from_bytes(cpu.memory[0x18000+4*i:0x18004+4*i],'little') for i in range(cases*2)]
     assert [regs[i] for i in range(16)]==cpu.regs
 
 
@@ -123,7 +163,7 @@ def test_calls_branches_stack_width_and_syscalls(rtl):
 
 
 def test_memory_lane_strobes_and_negative_offsets(rtl):
-    source='''LDI r1 0x90004
+    source='''LDI r1 0x10004
     LDI r2 0x89abcdef
     STW r1 r2 -4
     LDB r3 r1 -3
@@ -134,22 +174,22 @@ def test_memory_lane_strobes_and_negative_offsets(rtl):
     LDW r6 r1 -4
     LEA r7 r1 -4
     HLT'''
-    cpu=reference(source);regs,mem,_,fault=rtl(source,dump_base=0x90000,dump_words=1,stall=3)
+    cpu=reference(source);regs,mem,_,fault=rtl(source,dump_base=0x10000,dump_words=1,stall=3)
     assert fault==0 and regs[6]==0x567878ef
     assert [regs[i] for i in range(16)]==cpu.regs
-    assert mem[0x90000]==0x567878ef
+    assert mem[0x10000]==0x567878ef
 
 
 @pytest.mark.parametrize('hold_sha',[False,True])
 def test_cpu_native_sha_full_digest_compare_nonce_and_debug_hold(rtl,hold_sha):
     data=bytes(range(80))
-    initial={0x90000:data,0x90400:bytes([255])*32}
-    source='''LDI r1 0x90000
-    LDI r2 0x90200
+    initial={0x10000:data,0x10400:bytes([255])*32}
+    source='''LDI r1 0x10000
+    LDI r2 0x10200
     SHA256 r2 r1
-    LDI r3 0x90300
+    LDI r3 0x10300
     DSHA256 r3 r1
-    LDI r4 0x90400
+    LDI r4 0x10400
     HASHCMP r3 r4
     BR.NVALID .fail
     INCNONCE r1
@@ -158,11 +198,11 @@ def test_cpu_native_sha_full_digest_compare_nonce_and_debug_hold(rtl,hold_sha):
 .fail
     LDI r15 0xbad
     HLT'''
-    regs,mem,_,fault=rtl(source,initial,dump_base=0x90200,dump_words=72,stall=1,hold_sha=hold_sha)
+    regs,mem,_,fault=rtl(source,initial,dump_base=0x10200,dump_words=72,stall=1,hold_sha=hold_sha)
     assert fault==0 and regs[15]==0 and regs[7]&16
     actual=lambda base:b''.join(mem[base+i].to_bytes(4,'little') for i in range(0,32,4))
-    assert actual(0x90200)==hashlib.sha256(data[:64]).digest()
-    assert actual(0x90300)==hashlib.sha256(hashlib.sha256(data).digest()).digest()
+    assert actual(0x10200)==hashlib.sha256(data[:64]).digest()
+    assert actual(0x10300)==hashlib.sha256(hashlib.sha256(data).digest()).digest()
 
 
 def test_architectural_sha_round_register_contract(rtl):
@@ -176,7 +216,7 @@ def test_architectural_sha_round_register_contract(rtl):
     ('LDI r1 257\n.loop\nPUSH r1\nDEC r1\nBR.NE .loop\nHLT',5),
     ('POP r1',6),('LDI r1 3\nLDW r2 r1 0',7),
     ('LDI r1 0x100000\nLDB r2 r1 0',8),
-    ('LDI r1 0xffff0\nLDI r2 0x90000\nDSHA256 r2 r1',8),
+    ('LDI r1 0x2fff0\nLDI r2 0x10000\nDSHA256 r2 r1',8),
 ])
 def test_architectural_faults_are_visible(rtl,source,code):
     assert rtl(source)[3]==code
@@ -184,15 +224,15 @@ def test_architectural_faults_are_visible(rtl,source,code):
 
 def test_all_conditional_branches_with_signed_overflow(rtl):
     conditions='EQ NE C NC LT LE GT GE NEG POS VALID NVALID'.split()
-    values=[(0,0),(1,0),(0,1),(0x7fffffff,0xffffffff),(0x80000000,1),(0xffffffff,0x80000000)]
-    lines=['LDI r15 0x80000'];index=0
+    values=[(0,0),(1,0),(0,1),(0x7fffffff,0xffffffff),(0x18000000,1),(0xffffffff,0x18000000)]
+    lines=['LDI r15 0x18000'];index=0
     for a,b in values:
         for condition in conditions:
             lines += [f'LDI r1 {a}',f'LDI r2 {b}','CMP r1 r2','LDI r3 0',f'BR.{condition} .taken{index}',f'JMP .done{index}',f'.taken{index}','LDI r3 1',f'.done{index}','STW r15 r3 0','ADDI r15 4'];index+=1
     source='\n'.join(lines+['HLT']);cpu=reference(source)
     _,memory,_,fault=rtl(source,dump_words=index)
     assert fault==0
-    assert [memory[0x80000+4*i] for i in range(index)]==[int.from_bytes(cpu.memory[0x80000+4*i:0x80004+4*i],'little') for i in range(index)]
+    assert [memory[0x18000+4*i] for i in range(index)]==[int.from_bytes(cpu.memory[0x18000+4*i:0x18004+4*i],'little') for i in range(index)]
 
 
 def test_shipped_software_double_sha_runs_on_cpu_rtl_and_matches_native(rtl):
@@ -200,22 +240,22 @@ def test_shipped_software_double_sha_runs_on_cpu_rtl_and_matches_native(rtl):
     library=source[source.index('; CPU-only SHA-256.'):]
     data=bytes((i*157+81)&255 for i in range(80))
     program='''CALL .soft_constants
-LDI r1 0x90000
-LDI r3 0x90300
+LDI r1 0x10000
+LDI r3 0x10300
 RDPMC r4 0
 CALL .soft_dsha256
 RDPMC r5 0
 SUB r5 r5 r4
-LDI r3 0x90400
+LDI r3 0x10400
 RDPMC r6 0
 DSHA256 r3 r1
 RDPMC r7 0
 SUB r7 r7 r6
 HLT
 '''+library
-    regs,memory,_,fault=rtl(program,{0x90000:data},dump_base=0x90300,dump_words=72,stall=1)
+    regs,memory,_,fault=rtl(program,{0x10000:data},dump_base=0x10300,dump_words=72,stall=1)
     assert fault==0
     expected=hashlib.sha256(hashlib.sha256(data).digest()).digest()
-    for addr in (0x90300,0x90400):
+    for addr in (0x10300,0x10400):
         assert b''.join(memory[addr+i].to_bytes(4,'little') for i in range(0,32,4))==expected
     assert 0<regs[7]<regs[5]

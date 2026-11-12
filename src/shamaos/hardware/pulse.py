@@ -32,13 +32,15 @@ def rotate_block(block: BlockState, quarter_turns: int) -> BlockState:
     return BlockState.of(block.name, **properties)
 
 
-def pulse_ports(origin: Vec3, *, quarter_turns: int = 0) -> tuple[Vec3, Vec3]:
+def pulse_ports(origin: Vec3, *, quarter_turns: int = 0, output_inversions: int = 0) -> tuple[Vec3, Vec3]:
+    if output_inversions < 0 or output_inversions % 2:
+        raise ValueError("pulse output riser must use an even number of inversions")
     a = rotate_point(Vec3(0, 1, 0), quarter_turns)
-    y = rotate_point(Vec3(3, 1, 2), quarter_turns)
+    y = rotate_point(Vec3(3,2*output_inversions,3) if output_inversions else Vec3(3,1,2),quarter_turns)
     return origin.offset(a.x, a.y, a.z), origin.offset(y.x, y.y, y.z)
 
 
-def iter_pulse_stretcher(origin: Vec3, *, quarter_turns: int = 0, taps: int = PULSE_TAPS, component: str = "input-pulse") -> Iterator[Placement]:
+def iter_pulse_stretcher(origin: Vec3, *, quarter_turns: int = 0, taps: int = PULSE_TAPS, output_inversions: int = 0, component: str = "input-pulse") -> Iterator[Placement]:
     """OR overlapping delayed copies of a ten-RT stone-button pulse.
 
     A delay-four repeater separates each tap. An isolated repeater joins every
@@ -49,11 +51,15 @@ def iter_pulse_stretcher(origin: Vec3, *, quarter_turns: int = 0, taps: int = PU
     """
     if taps < 1:
         raise ValueError("pulse stretcher needs at least one delay tap")
+    pulse_ports(origin,quarter_turns=quarter_turns,output_inversions=output_inversions)
+
+    def place(x,y,z,block):
+        local=rotate_point(Vec3(x,y,z),quarter_turns)
+        return Placement(origin.offset(local.x,local.y,local.z),rotate_block(block,quarter_turns),component)
 
     def emit(x, z, block):
         for y, state in ((0, SUPPORT), (1, block)):
-            local = rotate_point(Vec3(x, y, z), quarter_turns)
-            yield Placement(origin.offset(local.x, local.y, local.z), rotate_block(state, quarter_turns), component)
+            yield place(x,y,z,state)
 
     for stage in range(taps + 1):
         z = -2 * stage
@@ -66,4 +72,17 @@ def iter_pulse_stretcher(origin: Vec3, *, quarter_turns: int = 0, taps: int = PU
         # Refresh the output itself as well: a nonzero but weak tail would
         # disappear before the first repeater on an external route.
         refresh = z == 1 or (z < 0 and z % 10 == 1)
-        yield from emit(3, z, repeater("south") if refresh else DUST)
+        block=repeater("south") if refresh else DUST
+        if z == 2 and output_inversions:
+            block=SUPPORT
+        yield from emit(3,z,block)
+    if output_inversions:
+        # The final repeater strongly drives the tower's base. Two inversions
+        # preserve the pulse; four lift it above a second crossing plane.
+        for inversion in range(output_inversions):
+            y=2+2*inversion
+            yield place(3,y,2,BlockState.of("minecraft:redstone_torch",lit=str(inversion % 2 == 0).lower()))
+            if inversion+1 < output_inversions:
+                yield place(3,y+1,2,SUPPORT)
+        yield place(3,2*output_inversions-1,3,SUPPORT)
+        yield place(3,2*output_inversions,3,DUST)

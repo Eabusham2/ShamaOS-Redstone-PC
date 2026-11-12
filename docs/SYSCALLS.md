@@ -22,10 +22,10 @@ state and resumes the new executable at PC 0.
 | `00A` | SYS_APP_EVENT | Process an app's packed universal event in r1 |
 | `00B` | SYS_LIFECYCLE_STATUS | r1 last close error; r2 low nibble target app, bit 4 closing for shutdown |
 | `00C` | SYS_SHUTDOWN | Complete persistence/cleanup before permitting clock gating |
-| `010` | SYS_ALLOC | r1 requested bytes; return zeroed allocation base or error |
+| `010` | SYS_ALLOC | r1 requested bytes; return zeroed allocation base; exhaustion initiates visible OS recovery |
 | `011` | SYS_FREE | r1 exact allocation base; clear and release allocation |
-| `012` | SYS_RAM_USAGE | r1 used bytes, r2 total bytes (1,048,576) |
-| `013` | SYS_CACHE_USAGE | r1 used executable fast-memory bytes, r2 total (16,384) |
+| `012` | SYS_RAM_USAGE | r1 used bytes, r2 total bytes (196,608) |
+| `013` | SYS_CACHE_USAGE | r1 used executable fast-memory bytes, r2 total (8,192) |
 | `014` | SYS_CACHE_FLUSH_APP | Copy active executable fast memory to its RAM backing; retain executable contents; return copied bytes |
 | `030` | SYS_GET_KEY | Consume a queued key event and return its byte, otherwise 0 |
 | `031` | SYS_GET_CONTROLLER | Current/presented 10-bit controller state |
@@ -40,11 +40,49 @@ by hardware even if the foreground app does not poll.
 App IDs are Desktop 0, Editor 1, Files 2, Miner 3, Monitor 4, Terminal 5,
 Calculator 6, Paint 7, and Settings 8. Staged user code runs as app 15.
 
-The foreground heap is `0x10000..0xAFFFF`: 160 pages of 4 KiB, with up to 16 live
+The foreground heap is `0xC000..0x17FFF`: 12 pages of 4 KiB, with up to 16 live
 allocation records. Allocation rounds up to pages, initializes them to zero,
 and reports reserved pages in usage. Free/exit clears them before reuse.
 Close/save errors preserve the live app and appear in `SYS_LIFECYCLE_STATUS`.
 A caller must intentionally set the forced-discard flag; normal GUI paths use 0.
+
+`SYS_RAM_USAGE` counts the actual loaded kernel and foreground executable byte
+lengths, live page-rounded heap allocations, and the foreground app's assigned
+workspace below. It does not count nonzero bytes or the length of the current
+document. An empty Editor therefore still reserves its full editing workspace.
+Unused heap pages, unfilled code-slot capacity and unassigned RAM ranges are not
+reported as used. The heap exposes 49,152 of the 196,608 physical RAM bytes;
+the other addresses are outside the general allocator.
+
+| Foreground app | Assigned workspace bytes | RAM ranges |
+| --- | ---: | --- |
+| Editor / Files | 66,116 | `0x2C000..0x2C1FF`, `0x2C200..0x2C243`, `0x18000..0x27FFF` |
+| Editor external assembly staging, when needed | +16,384 | `0x28000..0x2BFFF` |
+| Miner | 5,376 | `0x2D000..0x2DFFF`, `0x2E000..0x2E4FF` |
+| Terminal | 1,024 | `0x2E000..0x2E3FF` |
+| Settings | 272 | `0x2F000..0x2F10F` |
+| Paint | 272 | `0x2F200..0x2F30F` |
+| Desktop / Monitor / Calculator / staged user code (app 15) | 0 | No fixed main-RAM workspace |
+
+Fast-memory usage counts the loaded foreground executable bytes. CPU register
+stacks, filesystem metadata copies, assembler symbol tables and GPU command/text
+state are separate hardware state and are not charged to either usage counter.
+
+Files loads executable content into its text buffer. Editor assembles source of
+at most 49,152 bytes into the aligned unused tail of that same 64 KiB buffer;
+longer source uses the separate 16 KiB assembly region. Full 65,535-byte editing
+remains available. A staged launch copies code before clearing its borrowed
+workspace, and the launched app does not retain an unnecessary staging reservation.
+
+Allocation exhaustion, an excessive executable length, CPU address/stack faults,
+or a GPU resource-range fault trigger cleanup and a fresh Desktop execution.
+The system first attempts a safe Editor/Miner save. A faulted CPU cannot finish
+an odd sequence-protected edit: recovery preserves the previous committed file,
+discards the incomplete working state, and explicitly warns that unsaved edits
+could not be saved. Ordinary user-requested close failures still preserve the
+live app. Recovery messages and storage-protection messages pause the app until
+A/B acknowledgement; the popup restores the original display before execution
+resumes. Boot corruption before the OS is loaded remains a diagnostic halt.
 
 ## Filesystem
 
@@ -52,6 +90,8 @@ Paths are NUL-terminated strings in RAM; use a buffer of at least 44 bytes for a
 43-byte path plus terminator. Handles belong to the foreground app. LIST returns
 metadata, **not an opened handle**; OPEN before reading, writing, renaming,
 deleting, or transferring a listed file.
+If an input includes the optional leading slash, reserve 45 bytes for the
+longest path plus slash and terminator; the stored/LIST name remains 43 bytes.
 
 | ID | Symbol | Arguments / successful result |
 |---|---|---|
@@ -65,7 +105,7 @@ deleting, or transferring a listed file.
 | `027` | SYS_FILE_DELETE | r1 handle; GUI confirmation must already have occurred |
 | `028` | SYS_FILE_STAT | r1 handle; return packed metadata in r1 and size in r2 |
 | `029` | SYS_FILE_LIST | r1 table index 0–63, r2 name destination; return metadata/size, copy name plus NUL |
-| `02A` | SYS_FLASH_USAGE | r1 allocated bytes, r2 total bytes (4,194,304) |
+| `02A` | SYS_FLASH_USAGE | r1 allocated bytes, r2 total bytes (512,000) |
 | `02B` | SYS_FILE_TRANSFER | r1 handle, r2 new owner app ID 0–15; transfer an open handle before app replacement |
 | `02C` | SYS_FS_SYNC | Complete prior serialized storage work; return 0 |
 
@@ -92,6 +132,14 @@ Filesystem errors return `r2=0xFFFFFFFF` and the signed code in r1:
 | -5 | Filesystem metadata/I/O validation failure |
 | -6 | Invalid path or missing/non-directory parent |
 | -7 | Busy/nonempty directory |
+| -8 | Flash write protection at the 95% allocation limit |
+
+At 1,900 allocated blocks (486,400 bytes), new mutations are refused with `-8`
+and an OS popup. Copy-on-write reservations are checked before writes begin;
+an admitted transaction may finish at the limit. DELETE and truncation to zero
+remain available to free space, and journal recovery remains available at mount.
+Direct CPU flash stores are also blocked at the limit, while the filesystem's
+admitted/recovery transactions keep their normal DMA path.
 
 For STAT/LIST, a nonzero r2 is normally the size, not an error. Check specifically
 for `0xFFFFFFFF`. File contents and metadata remain intact on rejected operations.
@@ -116,7 +164,7 @@ memory writes, but ordinary calls enforce ownership and buffer bounds.
 | `04B` | SYS_UI_TERMINAL_VIEW | r1 unknown-command flag |
 | `04C` | SYS_UI_PAINT_VIEW | Paint view |
 | `04D` | SYS_UI_SETTINGS_VIEW | r1 selected action, r2 cursor flags, r3 save-error flag |
-| `04E` | SYS_UI_CALCULATOR_VIEW | Calculator view |
+| `04E` | SYS_UI_CALCULATOR_VIEW | r1 mode (0 first operand, 1 second, 2 result), r2 ASCII operator, r3 error (0 none, 1 zero divisor, 2 overflow) |
 
 Text offsets refer to GPU text staging, not arbitrary RAM pointers. Applications
 write staging through MMIO before drawing and must respect queued-use lifetime.
@@ -128,7 +176,8 @@ commands, presentation/clip/color/cursor semantics, bounds, and queue status.
 `SYS_ASSEMBLE` (`060`) takes r1 source RAM pointer, r2 source byte length,
 r3 output RAM pointer, and r4 output capacity. Source is at most 65,536 bytes.
 Buffers must be valid, nonoverlapping RAM ranges; output is word aligned.
-The implementation has 128 label slots, 128 definition slots, and bounded tokens.
+The implementation has 128 label slots, 128 definition slots, up to eight tokens
+per source line, and at most 48 bytes per token.
 
 On success r1 is emitted byte count and r2 is 0. On failure **r1 is 0** and
 r2 is `(source_line << 8) | error_code`. Source lines are one-based. Codes are
@@ -138,13 +187,19 @@ or undefined name, and 7 insufficient output space. Failed staging is never a
 valid executable; callers must retain their previous BIN until assembly succeeds.
 
 `SYS_RUN_BUFFER` (`061`) takes r1 staging pointer and r2 emitted byte length.
-Staging must lie within `0xE0000..0xE3FFF`, be word aligned, and contain a nonzero,
-word-multiple payload of at most 16,380 bytes. Normal close/save precedes copying
-the staged program into executable fast memory and transferring control.
+Staging normally lies within `0x28000..0x2BFFF`; Editor and Files may instead
+borrow a nonoverrunning range within `0x18000..0x27FFF`. The pointer and byte
+length must be word aligned and the length nonzero. Executables may use at most
+8,192 bytes of fast memory. Larger results can still be assembled and saved,
+but attempting to execute them initiates the visible code-capacity recovery.
+Normal close/save precedes copying into executable fast memory; the staging
+workspace is cleared only after both executable copies finish, before control
+transfers. Packed built-in boot records are additionally bounded by their
+generated individual lengths so a corrupted length cannot read the next record.
 
 ## Miner persistence
 
 The reserved IDs are `050` SYS_MINER_LOG_RESULT, `051` SYS_MINER_SAVE_STATE,
 `052` SYS_MINER_LOAD_HISTORY, and `053` SYS_MINER_LOAD_STATE. They use the same
 serialized filesystem controller. Record layouts, arguments, and software/native
-mode behavior are documented with the miner implementation.
+mode behavior are documented in [MINER.md](MINER.md).

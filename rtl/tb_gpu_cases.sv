@@ -18,11 +18,13 @@ module tb_gpu_cases #(
     wire [31:0] vram_wdata;
     wire [3:0] vram_wstrb;
     wire disp_valid,disp_bit,busy;
+    wire capacity_fault;
+    reg clear_capacity_fault=0;
     wire [15:0] disp_index;
     integer cycle=0;
     wire vram_ready=vram_valid && (cycle%5!=1) && (cycle%5!=2);
     wire disp_ready=(cycle%7!=2) && (cycle%7!=3);
-    reg [7:0] mem[0:32767];
+    reg [7:0] mem[0:16383];
     reg screen[0:PIXELS-1];
     wire [31:0] vram_rdata={mem[{vram_addr[14:2],2'b00}+3],mem[{vram_addr[14:2],2'b00}+2],
                             mem[{vram_addr[14:2],2'b00}+1],mem[{vram_addr[14:2],2'b00}]};
@@ -32,6 +34,7 @@ module tb_gpu_cases #(
     integer command_count,expected_count,need_queue_stall=0,need_direct_stall=0;
     integer n,k,p,check_index=0,offset,front_addr,back_addr,watchdog;
     integer queue_stalls=0,direct_stalls=0,display_updates=0;
+    integer vram_transactions=0,marked_transactions=0,transaction_limit;
     reg vram_stalled=0,display_stalled=0;
     reg [14:0] held_vram_addr;
     reg held_vram_we;
@@ -54,11 +57,9 @@ module tb_gpu_cases #(
             if(display_stalled && (!disp_valid || disp_index!==held_disp_index || disp_bit!==held_disp_bit))
                 $fatal(1,"display request changed while stalled");
             if(vram_valid) begin
-                if(!((vram_addr<FRAME_WORDS*4) ||
-                     (vram_addr>=15'h2000 && vram_addr<15'h2000+FRAME_WORDS*4) ||
-                     (vram_addr>=15'h4000 && vram_addr<15'h4500) ||
-                     (vram_addr>=15'h5000 && vram_addr<15'h5000+FRAME_WORDS*4)))
+                if(vram_addr>=FRAME_WORDS*8+1280 || vram_addr>=16384)
                     $fatal(1,"GPU escaped its VRAM resource span at %h",vram_addr);
+                if(vram_ready) vram_transactions<=vram_transactions+1;
                 if(vram_ready && vram_we)
                     for(k=0;k<4;k=k+1) if(vram_wstrb[k]) mem[vram_addr+k]<=vram_wdata[k*8 +: 8];
             end
@@ -118,7 +119,7 @@ module tb_gpu_cases #(
                     dut.queue_error,expected[offset+3],dut.presented_rows,expected[offset+4],display_updates,expected[offset+5]);
                 $fatal(1,"GPU state differs from reference");
             end
-            front_addr=dut.front_sel?8192:0;back_addr=dut.front_sel?0:8192;
+            front_addr=dut.front_sel?FRAME_WORDS*4:0;back_addr=dut.front_sel?0:FRAME_WORDS*4;
             for(p=0;p<PIXELS;p=p+1) begin
                 if(mem[front_addr+p/8][p%8]!==expected[offset+6+p][0] ||
                    mem[back_addr+p/8][p%8]!==expected[offset+6+p][1] || screen[p]!==expected[offset+6+p][2]) begin
@@ -139,7 +140,7 @@ module tb_gpu_cases #(
         if($value$plusargs("DIRECT_STALL=%d",need_direct_stall)) begin end
         $readmemh(command_path,commands,0,command_count*10-1);
         $readmemh(expected_path,expected,0,expected_count*EXPECT_STRIDE-1);
-        for(n=0;n<32768;n=n+1) mem[n]=0;
+        for(n=0;n<16384;n=n+1) mem[n]=0;
         for(n=0;n<PIXELS;n=n+1) screen[n]=0;
         repeat(3) @(negedge clk);rst=0;
         for(n=0;n<command_count;n=n+1) begin
@@ -151,6 +152,35 @@ module tb_gpu_cases #(
                 1:write_mmio(commands[n*10+1],commands[n*10+2],commands[n*10+3]);
                 2:checkpoint();
                 3:read_mmio(commands[n*10+1],commands[n*10+2]);
+                4:begin
+                    if(capacity_fault!==commands[n*10+1][0]) $fatal(1,"capacity-fault status mismatch");
+                    if(commands[n*10+2][0]) begin
+                        @(negedge clk);clear_capacity_fault=1;
+                        @(negedge clk);clear_capacity_fault=0;
+                        if(capacity_fault) $fatal(1,"capacity fault did not acknowledge");
+                    end
+                end
+                5:begin
+                    watchdog=0;
+                    while(busy && watchdog<2000000) begin @(negedge clk);watchdog=watchdog+1;end
+                    if(busy) $fatal(1,"GPU failed to drain before transaction marker");
+                    @(negedge clk);marked_transactions=vram_transactions;
+                end
+                6:begin
+                    watchdog=0;
+                    while(busy && watchdog<2000000) begin @(negedge clk);watchdog=watchdog+1;end
+                    if(busy) $fatal(1,"GPU failed to drain for transaction count");
+                    @(negedge clk);transaction_limit=commands[n*10+1];
+                    if(vram_transactions-marked_transactions>transaction_limit)
+                        $fatal(1,"VRAM traffic %d exceeds bound %d",vram_transactions-marked_transactions,transaction_limit);
+                    $display("GPU VRAM TRANSACTIONS actual=%0d maximum=%0d",vram_transactions-marked_transactions,transaction_limit);
+                end
+                7:begin
+                    if(busy) $fatal(1,"fixture attempted to seed an active GPU");
+                    @(negedge clk);
+                    back_addr=(dut.front_sel?0:FRAME_WORDS*4)+commands[n*10+1]*4;
+                    for(p=0;p<4;p=p+1) mem[back_addr+p]=commands[n*10+2]>>(p*8);
+                end
                 default:$fatal(1,"unknown GPU fixture operation");
             endcase
         end

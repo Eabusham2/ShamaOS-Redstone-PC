@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from collections import Counter
 from functools import lru_cache
 import hashlib
@@ -15,29 +15,39 @@ from typing import Callable, Iterable, Iterator
 from .hardware.controls import iter_controls
 from .hardware.display import LampPanelSpec, iter_lamp_panel
 from .hardware.memory import MemoryBankSpec, MemoryFabricSpec, bank_ports, iter_memory_bank
+from .hardware.memory_backbone import StackedMemoryFabricSpec, iter_stacked_memory_tile
+from .hardware.memory_streaming import iter_memory_bank_ordered
 from .layout import (
     MachineGeometry,
+    StackedBankPacking,
     default_origins,
+    memory_placement_options,
     memory_specs,
     plan_machine,
 )
 from .model import BlockState, BuildPlan, Placement, Vec3
+from .machine_spec import RAM_BYTES, FLASH_BYTES, CACHE_BYTES, VRAM_BYTES
 from .os_image import build_default_os_image
-from .worldio import NativeWorldReader, NativeWorldWriter, WorldWriteError
+from .worldio import NativeWorldReader, NativeWorldWriter, WorldWriteError, resolve_world_surface
 
 
 REQUIRED_CAPACITY = {
-    "logical_ram_bytes": 1 << 20, "physical_ram_bytes": 1 << 20,
-    "cache_bytes": 16 << 10, "physical_cache_bytes": 16 << 10,
-    "flash_bytes": 4 << 20, "physical_flash_bytes": 4 << 20,
-    "vram_bytes": 32 << 10,
+    "logical_ram_bytes": RAM_BYTES, "physical_ram_bytes": RAM_BYTES,
+    "cache_bytes": CACHE_BYTES, "physical_cache_bytes": CACHE_BYTES,
+    "flash_bytes": FLASH_BYTES, "physical_flash_bytes": FLASH_BYTES,
+    "vram_bytes": VRAM_BYTES,
 }
 
 
 def source_provenance() -> dict[str, object]:
     """Record exact generation sources, including an uncommitted work tree."""
     root = Path(__file__).resolve().parents[2]
-    files = ["src/shamaos/generator.py", "src/shamaos/worldio.py", "src/shamaos/hardware/logic.py", "src/shamaos/hardware/memory.py"]
+    files = ["src/shamaos/generator.py", "src/shamaos/worldio.py", "src/shamaos/layout.py",
+             "src/shamaos/hardware/logic.py", "src/shamaos/hardware/memory.py",
+             "src/shamaos/hardware/memory_backbone.py", "src/shamaos/hardware/memory_streaming.py",
+             "src/shamaos/hardware/external_router.py", "src/shamaos/system_build.py",
+             "src/shamaos/memory_fixture.py", "src/shamaos/physical_resources.py",
+             "src/shamaos/resource_accounting.py", "src/shamaos/machine_spec.py", "configs/default.toml"]
     result: dict[str, object] = {
         "files_sha256": {name: hashlib.sha256((root / name).read_bytes()).hexdigest() for name in files if (root / name).is_file()},
     }
@@ -110,6 +120,8 @@ def memory_bank_profile(spec: MemoryBankSpec = MemoryBankSpec()) -> dict[str, ob
     return {
         "method": "counted-real-memory-bank-emitter", "words": spec.words, "word_bits": spec.word_bits,
         "bytes": spec.bytes, "placements": sum(blocks.values()), "chunks_at_aligned_origin": len(chunks),
+        "storage_repeaters": spec.words * spec.word_bits,
+        "other_cell_and_wiring_blocks": sum(blocks.values()) - spec.words * spec.word_bits,
         "block_types": dict(blocks), "bounds_relative_to_origin": {"min": minimum, "max": maximum},
     }
 
@@ -134,32 +146,56 @@ def _bank_chunk_footprint(spec: MemoryBankSpec, x_mod: int, z_mod: int) -> froze
     return frozenset(chunks)
 
 
+@lru_cache(maxsize=16)
+def _storage_layout_cost(g: MachineGeometry) -> dict[str, object]:
+    origins = default_origins(g)
+    cache, ram, flash = memory_specs(g)
+    from .layout import vram_spec
+    fabrics = (("cache", origins.cache, cache), ("ram", origins.ram, ram),
+               ("flash", origins.flash, flash), ("vram", origins.vram, vram_spec(g)))
+    regions: set[tuple[int, int]] = set()
+    total_chunks = 0
+    details = {}
+    for name, origin, fabric in fabrics:
+        chunks = 0
+        for group in range(fabric.group_count):
+            base = fabric.group_origin(origin, group)
+            footprint = _bank_chunk_footprint(fabric.bank, base.x & 15, base.z & 15)
+            chunks += len(footprint)
+            regions.update(((base.x // 16 + cx) // 32, (base.z // 16 + cz) // 32) for cx, cz in footprint)
+        box = fabric.bounds(origin)
+        details[name] = {
+            "bytes": fabric.total_bytes, "banks": fabric.bank_count, "layers": fabric.layers,
+            "tiles": fabric.group_count, "banks_in_final_tile": fabric.tile_spec(fabric.group_count - 1).banks,
+            "chunks": chunks, "origin": vars(origin),
+            "bounds_with_local_controls": {"min": vars(box.min), "max": vars(box.max)},
+        }
+        total_chunks += chunks
+    # Separate tile/control envelopes have gaps greater than one chunk; only
+    # vertically stacked banks share a chunk. Count each horizontal tile once.
+    return {
+        "storage_fabrics": details, "storage_chunks": total_chunks, "storage_regions": len(regions),
+        "minimum_storage_region_bytes": total_chunks * 4096 + len(regions) * 8192,
+        "storage_banks": sum(fabric.bank_count for _, _, fabric in fabrics),
+        "storage_bits": sum(fabric.total_bytes for _, _, fabric in fabrics) * 8,
+    }
+
+
 def generation_preflight(config: dict, *, world_path: str | Path | None = None, benchmark_path: str | Path | None = None) -> dict[str, object]:
     """Report literal capacity, sampled storage cost and unresolved full-world costs."""
+    config = resolve_world_surface(config, world_path)
     g = geometry_from_config(config)
     origins = default_origins(g)
     cache, ram, flash = memory_specs(g)
     from .layout import vram_spec
     fabrics = (("cache", origins.cache, cache), ("ram", origins.ram, ram), ("flash", origins.flash, flash), ("vram", origins.vram, vram_spec(g)))
     profile = memory_bank_profile(ram.bank)
-    regions: set[tuple[int, int]] = set()
-    total_chunks = 0
-    total_banks = 0
-    fabric_details = {}
-    for name, origin, fabric in fabrics:
-        fabric_chunks = 0
-        for index in range(fabric.bank_count):
-            bank_origin = _bank_origin(origin, fabric, index)
-            footprint = _bank_chunk_footprint(fabric.bank, bank_origin.x & 15, bank_origin.z & 15)
-            fabric_chunks += len(footprint)
-            for cx, cz in footprint:
-                regions.add(((bank_origin.x // 16 + cx) // 32, (bank_origin.z // 16 + cz) // 32))
-        total_banks += fabric.bank_count
-        total_chunks += fabric_chunks
-        fabric_details[name] = {"bytes": fabric.total_bytes, "banks": fabric.bank_count, "chunks": fabric_chunks}
-    # Separated banks have disjoint horizontal chunk footprints with the
-    # default floorplan. The region headers can be shared by nearby banks.
-    minimum_region_bytes = total_chunks * 4096 + len(regions) * 8192
+    layout_cost = _storage_layout_cost(g)
+    from .physical_resources import regular_fabric_resources
+    regular = regular_fabric_resources(g)
+    total_chunks = int(layout_cost["storage_chunks"])
+    total_banks = int(layout_cost["storage_banks"])
+    minimum_region_bytes = int(layout_cost["minimum_storage_region_bytes"])
     disk_path = Path(world_path or ".").resolve()
     while not disk_path.exists():
         disk_path = disk_path.parent
@@ -171,13 +207,20 @@ def generation_preflight(config: dict, *, world_path: str | Path | None = None, 
             contract["status"] = "failed"
     result: dict[str, object] = {
         "kind": "full-capacity-generation-preflight", "capacity_contract": contract,
-        "source": source_provenance(), "sample_bank": profile, "storage_fabrics": fabric_details,
-        "storage_bits": sum(fabric.total_bytes for _, _, fabric in fabrics) * 8,
+        "source": source_provenance(), "sample_bank": profile, **layout_cost,
+        "regular_fabrics": regular,
         "storage_banks": total_banks, "storage_placements": int(profile["placements"]) * total_banks,
-        "storage_chunks": total_chunks, "storage_regions": len(regions),
         "minimum_storage_region_bytes": minimum_region_bytes, "available_disk_bytes": free,
         "storage_minimum_fits_available_disk": minimum_region_bytes < free,
-        "estimate_excludes": ["synthesized logic", "interconnect", "clock/backbone routes", "display/input", "validation ledger", "temporary compaction space"],
+        "estimate_excludes": ["synthesized logic", "interconnect", "validation ledger", "temporary compaction space"],
+        "regular_fabric_minimum_fits_available_disk": int(regular["minimum_regular_fabric_region_bytes"]) < free,
+        "minimum_region_bytes_note": "Anvil sector/header lower bound only; dense stacked chunks may require several sectors. Physical block count is unchanged by sharing X/Z chunks.",
+        "production_packing": {"requested_layers": g.memory_layers if g.memory_layers is not None else "auto",
+                               "maximum_safe_layers": g.maximum_memory_layers, "actual_max_layers": g.resolved_memory_layers,
+                               "layer_pitch": g.memory_layer_pitch, "surface_y": g.surface_y,
+                               "minimum_build_y": g.minimum_build_y, "storage_base_y": g.storage_origin_y,
+                               "control_ceiling_y": g.memory_control_ceiling,
+                               "scope": "complete literal banks with above-ground local decode and shared isolated read return"},
         "resident_chunk_memory_scenarios": [
             {"assumed_bytes_per_chunk": assumption, "total_bytes": total_chunks * assumption}
             for assumption in (16 << 10, 64 << 10, 256 << 10)
@@ -187,17 +230,32 @@ def generation_preflight(config: dict, *, world_path: str | Path | None = None, 
         "complete_generation_feasibility": "not-established-until-logic-routes-and-loading-are-validated",
         "complete_world_runtime_verified": False,
     }
+    density_scenarios = []
+    for layers in sorted({1, *(value for value in (8, 16, 24, g.resolved_memory_layers, g.maximum_memory_layers) if value <= g.maximum_memory_layers)}):
+        pitch = g.memory_layer_pitch
+        alternate = _storage_layout_cost(replace(g, memory_layers=layers, memory_layer_pitch=pitch))
+        density_scenarios.append({
+            "layers": layers, "layer_pitch": pitch, "physical_storage_bytes": sum(f.total_bytes for _, _, f in fabrics),
+            "physical_storage_placements": int(profile["placements"]) * total_banks,
+            **alternate,
+            "production_enabled": layers == g.resolved_memory_layers and pitch == g.memory_layer_pitch,
+            "scope": "storage chunks only; bounds include local control and shared return geometry; global routes are additional",
+            "validation": "representative local decode, shared return and first/middle/last bank read/write/retention proven through 32 layers; complete-machine timing remains unverified",
+        })
+    result["stacking_scenarios"] = density_scenarios
     if benchmark_path is not None:
         benchmark = json.loads(Path(benchmark_path).read_text(encoding="utf-8"))
+        if "z-slabs" in benchmark:
+            benchmark = benchmark["z-slabs"]
         expected_hashes = result["source"]["files_sha256"]
-        geometry_matches = benchmark.get("source_sha256", {}).get("src/shamaos/hardware/memory.py") == expected_hashes.get("src/shamaos/hardware/memory.py") and benchmark.get("placements") == profile["placements"]
+        geometry_matches = benchmark.get("source_sha256", {}).get("src/shamaos/hardware/memory.py") == expected_hashes.get("src/shamaos/hardware/memory.py") and benchmark.get("physical_placements", benchmark.get("placements")) == profile["placements"]
         writer_matches = benchmark.get("source_sha256", {}).get("src/shamaos/worldio.py") == expected_hashes.get("src/shamaos/worldio.py")
         result["sample_benchmark"] = {
             "source_matches_current": geometry_matches and writer_matches,
             "geometry_matches_current": geometry_matches, "writer_matches_current": writer_matches,
             "measured": benchmark,
             "estimated_storage_seconds": float(benchmark["total_seconds"]) * total_banks if geometry_matches else None,
-            "estimate_note": "Linear extrapolation using the measured writer revision and one aligned 4 KiB bank; excludes other hardware and system-wide I/O contention. Check writer_matches_current before treating throughput as current.",
+            "estimate_note": "Flat per-bank linear extrapolation using the measured writer revision; stacked chunk compression, interleaving, other hardware and system-wide I/O contention are not measured here. Check writer_matches_current before treating throughput as current.",
         }
     return result
 
@@ -236,6 +294,7 @@ def geometry_from_config(config: dict) -> MachineGeometry:
         bank_words=m.get("bank_words", 1024),
         bank_word_bits=m.get("bank_word_bits", 32),
         banks_per_row=m.get("banks_per_row", 16),
+        **memory_placement_options(config),
         pixel_pitch_x=d.get("pixel_pitch_x", 4),
         pixel_pitch_y=d.get("pixel_pitch_y", 2),
     )
@@ -250,6 +309,8 @@ def _bank_origin(
     fabric: MemoryFabricSpec,
     bank_index: int,
 ) -> Vec3:
+    if isinstance(fabric, StackedMemoryFabricSpec):
+        return fabric.bank_origin(fabric_origin, bank_index)
     grid_x = bank_index % fabric.banks_per_row
     grid_z = bank_index // fabric.banks_per_row
     return Vec3(
@@ -266,6 +327,26 @@ def _memory_sections(
     fabric: MemoryFabricSpec,
     initial: bytes | None,
 ) -> Iterator[PhysicalSection]:
+    if isinstance(fabric, StackedMemoryFabricSpec):
+        for group in range(fabric.group_count):
+            tile = fabric.tile_spec(group)
+            tile_origin = fabric.group_origin(origin, group)
+            first_bank = group * fabric.layers
+            start = first_bank * fabric.bank.bytes
+            tile_data = None if initial is None else initial[start:start + tile.bytes]
+
+            def factory(tile=tile, tile_origin=tile_origin, tile_data=tile_data, group=group):
+                yield from iter_stacked_memory_tile(tile_origin, tile=tile, initial=tile_data,
+                                                    component=f"{name}-tile-{group:03d}", include_backbone=False)
+
+            yield PhysicalSection(f"{name}-tile-{group:03d}", factory, {
+                "kind": "stacked-memory-tile", "tile_index": group,
+                "first_bank_index": first_bank, "banks": tile.banks,
+                "bytes": tile.bytes, "layer_pitch": tile.layer_pitch,
+                "origin": vars(tile_origin), "preloaded": tile_data is not None,
+                "emission_order": "ascending-z-slabs-interleaved-layers",
+            })
+        return
     for bank_index in range(fabric.bank_count):
         bank_origin = _bank_origin(origin, fabric, bank_index)
         start = bank_index * fabric.bank.bytes
@@ -280,7 +361,7 @@ def _memory_sections(
             bank_data: bytes | None = bank_data,
             bank_index: int = bank_index,
         ) -> Iterator[Placement]:
-            yield from iter_memory_bank(
+            yield from iter_memory_bank_ordered(
                 bank_origin,
                 spec=fabric.bank,
                 initial=bank_data,
@@ -363,7 +444,7 @@ def physical_sections(config: dict) -> Iterator[PhysicalSection]:
         assert os_image is not None
         cache_initial = os_image.boot_binary.ljust(g.cache_bytes, b"\x00")
         if len(cache_initial) > g.cache_bytes:
-            raise ValueError("boot firmware exceeds 16 KiB cache/scratch capacity")
+            raise ValueError(f"boot firmware exceeds {g.cache_bytes // 1024} KiB cache/scratch capacity")
         yield from _memory_sections(
             name="cache",
             origin=origins.cache,
@@ -379,7 +460,7 @@ def physical_sections(config: dict) -> Iterator[PhysicalSection]:
             initial=None,
         )
 
-    # Dedicated 32 KiB GPU VRAM is always a real physical memory fabric.
+    # Dedicated GPU VRAM is always a real physical memory fabric.
     yield from _memory_sections(
         name="vram",
         origin=origins.vram,
@@ -425,6 +506,17 @@ def manifest(config: dict, plan: BuildPlan) -> dict:
             "vram": vram_fabric.bank_count,
             "bytes_per_bank": ram_spec.bank.bytes,
         },
+        "memory_packing": {
+            "requested_layers": g.memory_layers if g.memory_layers is not None else "auto",
+            "maximum_safe_layers": g.maximum_memory_layers, "layer_pitch": g.memory_layer_pitch,
+            "surface_y": g.surface_y, "minimum_build_y": g.minimum_build_y,
+            "storage_base_y": g.storage_origin_y, "control_ceiling_y": g.memory_control_ceiling,
+            "bank_address_order": "group,layer=divmod(bank_index,layers)",
+            "actual_layers": {"cache": cache_spec.layers, "ram": ram_spec.layers,
+                              "flash": flash_spec.layers, "vram": vram_fabric.layers},
+            "tiles": {"cache": cache_spec.group_count, "ram": ram_spec.group_count,
+                      "flash": flash_spec.group_count, "vram": vram_fabric.group_count},
+        },
         "display": {
             "width": g.display_width,
             "height": g.display_height,
@@ -465,6 +557,7 @@ def write_placement_stages(
     validate_after_write: bool = True,
     spawn: Vec3 = Vec3(-16, 64, -16),
     name: str = "ShamaOS Redstone PC",
+    surface_y: int | None = None,
 ) -> tuple[int, dict[str, int], dict[str, object]]:
     """Stream placements with collision checks and optional exact disk readback.
 
@@ -473,7 +566,7 @@ def write_placement_stages(
     """
     count = 0
     counts: dict[str, int] = {}
-    with NativeWorldWriter(world_path, name=name, spawn=spawn) as writer:
+    with NativeWorldWriter(world_path, name=name, spawn=spawn, surface_y=surface_y) as writer:
         for stage_name, placements in stages:
             if stage_name in counts:
                 raise WorldWriteError(f"duplicate generation stage name: {stage_name}")
@@ -564,7 +657,9 @@ def write_available_placements(
         iter_system_infrastructure,
         prepare_system,
     )
+    from .resource_accounting import prepared_system_resource_preflight
 
+    config = resolve_world_surface(config, world_path)
     save_every = max(
         1,
         int(config.get("generator", {}).get("save_every_blocks", 250_000)),
@@ -581,6 +676,15 @@ def write_available_placements(
     if not preflight["storage_minimum_fits_available_disk"]:
         raise WorldWriteError("insufficient disk even for the storage-only Anvil lower bound; see generation-preflight.json")
     prepared = prepare_system(config, build_dir=build_dir)
+    mapped_preflight = prepared_system_resource_preflight(prepared, preflight)
+    write_manifest(build_dir / "mapped-resource-preflight.json", mapped_preflight)
+    if not mapped_preflight["disk_lower_bound_fits"]:
+        raise WorldWriteError(
+            "insufficient disk for the mapped logic/routing Anvil lower bound "
+            f"({mapped_preflight['minimum_whole_machine_region_bytes']:,} bytes minimum, "
+            f"{mapped_preflight['available_disk_bytes']:,} available); "
+            "no world blocks were emitted; see mapped-resource-preflight.json"
+        )
 
     def stages() -> Iterator[tuple[str, Iterable[Placement]]]:
         for section in physical_sections(config):
@@ -594,7 +698,8 @@ def write_available_placements(
     count, stage_counts, verification = write_placement_stages(
         world_path, stages(), save_every=save_every,
         validate_after_write=config.get("generator", {}).get("validate_after_write", True),
-        spawn=Vec3(config["world"]["origin_x"] - 16, config["world"]["origin_y"], config["world"]["origin_z"] - 16),
+        spawn=Vec3(config["world"]["origin_x"] - 16, config["world"]["surface_y"] + 2, config["world"]["origin_z"] - 16),
+        surface_y=config["world"]["surface_y"],
     )
 
     metadata = dict(prepared.metadata)
@@ -603,6 +708,7 @@ def write_available_placements(
     metadata["world_validation"] = verification
     metadata["runtime_validation"] = {"status": "not-run"}
     metadata["generation_preflight"] = preflight
+    metadata["mapped_resource_preflight"] = mapped_preflight
 
     return GenerationResult(
         written_blocks=count,

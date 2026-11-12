@@ -2,12 +2,16 @@
 
 ## Boot
 
-ShamaOS is stored in the 4 MiB physical flash image. An immutable gate-based boot
+ShamaOS is stored in the 500 KiB physical flash image. An immutable gate-based boot
 ROM remains available even after executable fast memory has been erased. Boot
 mounts ShamaFS, copies the kernel into resident RAM, clears foreground RAM/fast
 memory, loads Desktop, and starts its program at fast-memory PC 0.
 
 Kernel RAM base is `0x4000`; foreground app RAM base is `0x8000`.
+An invalid mount or executable bundle halts before Desktop with the original
+error in r1 and `0xFFFFFFFF` in r2. The immutable ROM and `boot.asm` are checked
+word for word; repairing the image and resetting retries boot. Persistent flash
+is not auto-formatted on a rejected mount.
 
 ## App lifecycle
 
@@ -50,11 +54,11 @@ Enter creates the file exclusively. Names without a final three-character
 extension receive `.TXT`/`.ASM`. Full canonical paths must fit 43 bytes.
 Duplicate names and invalid parents report errors without replacing another file.
 
-The source workspace is 64 KiB at `0xC0000`, with **65,535 editable bytes** and a
+The source workspace is 64 KiB at `0x18000`, with **65,535 editable bytes** and a
 reserved guard byte. All shipped app sources fit and are editable in full.
 Oversized files are refused explicitly; saving never replaces a complete file
 with a truncated display prefix. Binaries must fit **16,380 bytes**, the executable
-slot payload after its length word; assembly staging is at `0xE0000`.
+slot payload after its length word; assembly staging is at `0x28000`.
 
 Keyboard input inserts at the visible cursor. Left/Right moves by byte;
 Up/Down moves between logical lines while preserving the column where possible.
@@ -98,6 +102,7 @@ immediate child; nested descendants remain inside their parent directory.
 | Right in the list | Open Cancel-first delete confirmation |
 | Keyboard R | Rename within the current folder |
 | Keyboard N | Create a folder within the current folder |
+| Other letters, either case | Jump to the first matching filename initial in the current folder |
 
 Empty folders are labelled. New/renamed paths are relative to the visible
 directory. Deleting or renaming a nonempty directory is refused to avoid
@@ -125,7 +130,23 @@ Terminal accepts complete, case-insensitive commands without arguments:
 `MEM`/`FLASH`/`GPU` open Monitor. Unknown commands display an error. This is a
 small app-launching terminal, not a general command-language parser.
 
-Calculator performs integer decimal arithmetic. Paint uses D-pad movement,
+Calculator accepts signed decimal integers from **−2,147,483,648 to
+2,147,483,647** and supports `+`, `-`, `*`, `/`, and `%`. A leading `+`/`-`
+sets an operand's sign. Enter or `=` evaluates; successive operations evaluate
+left to right, without precedence or parentheses. Division truncates toward zero
+and a nonzero remainder has the dividend's sign. For example, `-7/3` is `-2`
+and `-7%3` is `-1`.
+
+Input/result overflow and division/remainder by zero display explicit errors;
+they retain accepted operands instead of wrapping or returning a false zero.
+In particular, `−2,147,483,648 / −1` reports overflow, while the corresponding
+remainder is zero. B clears the calculation. Backspace first dismisses an error
+without deleting accepted input, then edits digits normally. A digit after a
+completed result starts a new calculation; an operator continues from it.
+The view identifies the active operand/result/error, displays the selected
+operator, and presents signed decimal output through a completed GPU fence.
+
+Paint uses D-pad movement,
 A to draw, B to erase, and keyboard C to clear. Its cursor is a non-destructive
 GPU overlay. Movement preserves canvas pixels; canvas edits use front-to-back
 copy, drawing, and presentation. The canvas is temporary app state.
@@ -137,6 +158,9 @@ before the updated view returns. The record contains magic `0x53434647`, flags
 record on launch. A failed save is visible and can be retried; it is not reported
 as durable success. Settings persistence is tested by serializing flash,
 reopening it, and launching both Settings and Paint.
+Both apps check the complete record length, magic and version. Paint uses its
+enabled-cross default on invalid input without changing the file; Settings
+restores and persists its version-1 defaults for an invalid record.
 
 ## Syscalls
 

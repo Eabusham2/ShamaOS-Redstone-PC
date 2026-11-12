@@ -25,8 +25,33 @@ def test_round_trip_and_mutations():
 
 
 def test_full_image_size():
-    fs = ShamaFS(4 << 20)
-    assert len(fs.serialize()) == 4 << 20
+    fs = ShamaFS()
+    assert len(fs.serialize()) == 500 << 10
+    assert fs.block_count == 2000
+    assert fs.bitmap_blocks == 1
+    assert fs.table_start == 2
+    assert fs.data_start == 18
+
+
+def test_paths_preserve_literal_spaces_across_persistence_and_reject_controls():
+    import pytest
+
+    fs = ShamaFS()
+    fs.mkdir(" notes ")
+    fs.create_file("/ notes / source.asm ", b"HLT\n", FileType.ASM)
+    fs.create_file("source.asm", b"NOP\n", FileType.ASM)
+    fs.create_file(" ", b"space is a filename", FileType.TXT)
+    restored = ShamaFS.deserialize(fs.serialize())
+    assert restored.read_file(" notes / source.asm ") == b"HLT\n"
+    assert restored.read_file("source.asm") == b"NOP\n"
+    assert restored.read_file(" ") == b"space is a filename"
+    assert [entry.name for entry in restored.list_files(" notes ")] == [" notes / source.asm "]
+    with pytest.raises(FileNotFoundError):
+        restored.read_file("notes/source.asm")
+    for byte in (0, 9, 10, 13, 31):
+        for path in (chr(byte) + "invalid.txt", "invalid.txt" + chr(byte)):
+            with pytest.raises(ValueError, match="control"):
+                fs.create_file(path, b"must not be accepted", FileType.TXT)
 
 
 def test_directory_paths_handles_and_app_cleanup():
@@ -130,3 +155,71 @@ def test_corrupt_committed_journal_and_bad_extents_fail_explicitly():
     struct.pack_into('<I', image, fs.table_start * fs.block_size + 8, 1)
     with pytest.raises(ValueError, match='outside'):
         ShamaFS.deserialize(image)
+
+
+def test_95_percent_guard_is_atomic_persistent_and_has_a_reclamation_path():
+    import pytest
+    from shamaos.flashfs import FlashWriteProtectedError
+
+    fs = ShamaFS()
+    assert fs.write_limit_bytes == 475 << 10
+    fs.create_file("bulk.bin", bytes(fs.write_limit_bytes - fs.used_bytes - 256), FileType.BIN)
+    fs.create_file("last.txt", b"", FileType.TXT)
+    assert not fs.write_protected
+    before = fs.serialize()
+    # A COW reservation needs two blocks and is refused before any mutation.
+    with pytest.raises(FlashWriteProtectedError, match="95%"):
+        fs.write_file("last.txt", bytes(257))
+    assert fs.serialize() == before
+
+    fs.write_file("last.txt", b"last safe save")
+    assert fs.used_bytes == fs.write_limit_bytes
+    assert fs.write_protected
+    fs = ShamaFS.deserialize(fs.serialize())
+    assert fs.write_protected
+    before = fs.serialize()
+    for operation in (
+        lambda: fs.write_file("last.txt", b"replacement"),
+        lambda: fs.create_file("empty.txt"),
+        lambda: fs.mkdir("folder"),
+        lambda: fs.rename("last.txt", "renamed.txt"),
+        lambda: fs.truncate("last.txt", 1),
+    ):
+        with pytest.raises(FlashWriteProtectedError):
+            operation()
+        assert fs.serialize() == before
+    assert fs.read_file("last.txt") == b"last safe save"
+
+    fs.truncate("last.txt", 0)
+    assert not fs.write_protected
+    fs.write_file("last.txt", b"new safe save")
+    assert fs.write_protected
+    fs.delete("last.txt")
+    assert not fs.write_protected
+    fs.create_file("recovered.txt", b"writable again", FileType.TXT)
+    assert fs.read_file("recovered.txt") == b"writable again"
+
+
+def test_full_imported_flash_mounts_protected_and_retains_last_physical_byte():
+    import struct
+    import pytest
+    from shamaos.flashfs import ENTRY_FMT, FlashWriteProtectedError
+
+    fs = ShamaFS()
+    image = bytearray(fs.serialize())
+    data_bytes = fs.flash_bytes - fs.data_start * fs.block_size
+    struct.pack_into(ENTRY_FMT, image, fs.table_start * fs.block_size,
+                     1, int(FileType.BIN), 0, data_bytes, fs.data_start,
+                     fs.block_count - fs.data_start, 1, 8, b"full.bin")
+    image[-1] = 0xA5
+    loaded = ShamaFS.deserialize(image)
+    assert loaded.used_bytes == 500 << 10
+    assert loaded.free_bytes == 0
+    assert loaded.write_protected
+    assert loaded.read_file("full.bin")[-1] == 0xA5
+    before = loaded.serialize()
+    with pytest.raises(FlashWriteProtectedError):
+        loaded.write_file("full.bin", b"must not replace the original")
+    assert loaded.serialize() == before
+    loaded.delete("full.bin")
+    assert not loaded.write_protected

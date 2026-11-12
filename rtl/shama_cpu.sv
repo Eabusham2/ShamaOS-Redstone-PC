@@ -1,3 +1,5 @@
+`include "shama_boot_params.svh"
+
 module shama_cpu (
     input  logic         clk,
     input  logic         rst,
@@ -207,8 +209,8 @@ module shama_cpu (
     endfunction
 
     function automatic logic data_address_ok(input logic [31:0] addr, input logic [2:0] size);
-        data_address_ok = ((addr < 32'h00100000 && {1'b0,addr}+size <= 33'h00100000)
-                         ||(addr >= 32'h01000000 && {1'b0,addr}+size <= 33'h01400000)
+        data_address_ok = ((addr < `SHAMA_RAM_BYTES && {1'b0,addr}+size <= {1'b0,`SHAMA_RAM_BYTES})
+                         ||(addr >= 32'h01000000 && {1'b0,addr}+size <= 33'h01000000+{1'b0,`SHAMA_FLASH_BYTES})
                          ||(addr >= 32'h02000000 && {1'b0,addr}+size <= 33'h02010000));
     endfunction
 
@@ -520,22 +522,22 @@ module shama_cpu (
                         OP_SHA256: begin
                             sha_src_ptr<=rreg(ra); sha_dst_ptr<=rreg(rd); sha_word_index<=0;
                             if(|ra_value[1:0] || |rd_value[1:0]) fault(8'd7);
-                            else if(ra_value>32'h000fffc0 || rd_value>32'h000fffe0) fault(8'd8);
+                            else if(ra_value>`SHAMA_RAM_BYTES-64 || rd_value>`SHAMA_RAM_BYTES-32) fault(8'd8);
                             else state<=S_SHA64_LOAD;
                         end
                         OP_DSHA256: begin
                             sha_src_ptr<=rreg(ra); sha_dst_ptr<=rreg(rd); sha_word_index<=0;
                             if(|ra_value[1:0] || |rd_value[1:0]) fault(8'd7);
-                            else if(ra_value>32'h000fffb0 || rd_value>32'h000fffe0) fault(8'd8);
+                            else if(ra_value>`SHAMA_RAM_BYTES-80 || rd_value>`SHAMA_RAM_BYTES-32) fault(8'd8);
                             else state<=S_DSHA_LOAD;
                         end
                         OP_HASHCMP: begin
                             sha_src_ptr<=rreg(rd); sha_dst_ptr<=rreg(ra); hash_word_index<=0;
                             if(|ra_value[1:0] || |rd_value[1:0]) fault(8'd7);
-                            else if(ra_value>32'h000fffe0 || rd_value>32'h000fffe0) fault(8'd8);
+                            else if(ra_value>`SHAMA_RAM_BYTES-32 || rd_value>`SHAMA_RAM_BYTES-32) fault(8'd8);
                             else state<=S_HASH_LOAD_HASH;
                         end
-                        OP_INCNONCE: begin sha_src_ptr<=rreg(rd); if(|rd_value[1:0]) fault(8'd7); else if(rd_value>32'h000fffb0) fault(8'd8); else state<=S_NONCE_READ; end
+                        OP_INCNONCE: begin sha_src_ptr<=rreg(rd); if(|rd_value[1:0]) fault(8'd7); else if(rd_value>`SHAMA_RAM_BYTES-80) fault(8'd8); else state<=S_NONCE_READ; end
                         default: fault(8'd1);
                     endcase
                 end

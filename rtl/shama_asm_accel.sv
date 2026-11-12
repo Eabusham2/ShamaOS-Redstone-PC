@@ -1,3 +1,5 @@
+`include "shama_boot_params.svh"
+
 module shama_asm_accel(
     input  logic         clk,
     input  logic         rst,
@@ -586,8 +588,8 @@ module shama_asm_accel(
                     def_count<=0;
 
                     if(req_args[63:32]==0 || req_args[63:32]>MAX_SOURCE ||
-                       req_args[31:0]>=32'h100000 || req_args[63:32]>32'h100000-req_args[31:0] ||
-                       req_args[95:64]>=32'h100000 || req_args[127:96]>32'h100000-req_args[95:64] ||
+                       req_args[31:0]>=`SHAMA_RAM_BYTES || req_args[63:32]>`SHAMA_RAM_BYTES-req_args[31:0] ||
+                       req_args[95:64]>=`SHAMA_RAM_BYTES || req_args[127:96]>`SHAMA_RAM_BYTES-req_args[95:64] ||
                        req_args[65:64]!=0 || req_args[127:96]<4 ||
                        (req_args[31:0]<req_args[95:64]+req_args[127:96] &&
                         req_args[95:64]<req_args[31:0]+req_args[63:32])) begin

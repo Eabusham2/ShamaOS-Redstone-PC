@@ -42,6 +42,7 @@ def run_soc(executable, image, tmp_path, *arguments, timeout=600):
         ["vvp", str(executable), f"+flash={flash}", *arguments],
         capture_output=True, text=True, timeout=timeout,
     )
+    (tmp_path / "soc-output.txt").write_text(run.stdout + run.stderr)
     assert run.returncode == 0, run.stdout + run.stderr
     return run.stdout
 
@@ -56,14 +57,15 @@ def test_immutable_boot_rom_matches_checked_boot_firmware():
     assert entries == {4 * index: word for index, word in enumerate(expected)}
 
 
-@pytest.mark.parametrize("broken_image,error", [("blank_flash", -5), ("invalid_kernel_length", -7)])
+@pytest.mark.parametrize("broken_image,error", [("blank_flash", -5), ("invalid_kernel_length", -7), ("kernel_crosses_packed_record", -7)])
 def test_boot_failure_halts_with_original_diagnostics(soc_executable, os_image, tmp_path, broken_image, error):
     if broken_image == "blank_flash":
         image = bytes(len(os_image.image))
     else:
         image = bytearray(os_image.image)
         offset = os_image.slot_flash_offsets["kernel"]
-        image[offset:offset + 4] = (3).to_bytes(4, "little")
+        length = 3 if broken_image == "invalid_kernel_length" else os_image.slot_binary_lengths["kernel"] + 4
+        image[offset:offset + 4] = length.to_bytes(4, "little")
     output = run_soc(soc_executable, image, tmp_path, "+expect_boot_failure", f"+boot_error={error}", timeout=90)
     assert f"SOC BOOT FAILURE PASS error={error}" in output, output
 
@@ -71,3 +73,8 @@ def test_boot_failure_halts_with_original_diagnostics(soc_executable, os_image, 
 def test_boot_edit_dirty_close_shutdown_reboot_and_explorer_handoff(soc_executable, os_image, tmp_path):
     output = run_soc(soc_executable, os_image.image, tmp_path)
     assert "SOC INTEGRATION PASS" in output, output
+
+
+def test_physical_keyboard_source_assembly_runs_saved_binary_and_exits_halted_app(soc_executable, os_image, tmp_path):
+    output = run_soc(soc_executable, os_image.image, tmp_path, "+program_flow")
+    assert "SOC PROGRAM ASSEMBLE RUN HOME PASS" in output, output

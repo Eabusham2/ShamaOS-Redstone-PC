@@ -4,14 +4,23 @@
 **Project:** ShamaOS Redstone PC  
 **Repository:** `Eabusham2/ShamaOS-Redstone-PC`
 
-This document freezes the initial intent of the project so later implementation work cannot quietly simplify it. It separates facts learned from the supplied videos/transcripts from requirements that were agreed for ShamaOS.
+## Owner-approved capacity amendment — 2026-11-12
 
-The complete reconciled acceptance checklist is [REQUIREMENTS.md](REQUIREMENTS.md).
-It restores planning commitments omitted or deferred in later implementation
-notes, including software/native SHA comparison, dirty-region display updates,
-complete in-world source editing, clean app/shutdown lifecycle and debug controls.
-For practical runtime speed, increased game tick rate or compatible acceleration
-software is recommended; see [RUNNING_AND_ACCELERATION.md](RUNNING_AND_ACCELERATION.md).
+The owner finalized **192 KiB main RAM**, **500 KiB flash**, **8 KiB cache /
+fast scratch** and **16 KiB VRAM** to reduce the physical build. These explicit
+choices supersede the original capacities and intermediate sizing proposals.
+RAM remains a clean 48-bank size; the complete 65,535-byte Editor source limit
+is preserved through conditional workspace reuse. Cache and VRAM were each
+halved by a subsequent explicit owner instruction.
+
+The latest executable sizes, per-app normal/peak RAM, flash occupancy and exact
+physical footprint are recorded in [MEMORY.md](MEMORY.md) and reproduced by
+`shamaos software-usage`. The explicit 500 KiB flash size replaces the earlier
+60%-occupancy sizing target; ordinary writes are protected at **95%** usage.
+Unused boot-record padding and the GPU's third-frame scroll scratch are removed.
+The 32-bit CPU, screen, double buffering, assembler, controls, circuits and all
+planned software features remain required. Large programs may still be assembled
+and saved; executing code larger than 8 KiB triggers graceful capacity recovery.
 
 ## 1. Source material ingested
 
@@ -186,10 +195,10 @@ The project makes no claim that a Minecraft redstone miner is competitive with r
 
 Agreed target:
 
-- **1 MiB main RAM** (1,048,576 bytes).
-- **16 KiB cache / fast scratch** (16,384 bytes).
-- **32 KiB VRAM** (32,768 bytes), sufficient for the 320×180 1-bit double-buffered display plus GPU working state.
-- **4 MiB flash** (4,194,304 bytes), exactly 4× main RAM.
+- **192 KiB main RAM** (196,608 bytes; 48 × 4 KiB banks).
+- **8 KiB cache / fast scratch** (8,192 bytes).
+- **16 KiB VRAM** (16,384 bytes), sufficient for the 320×180 1-bit double-buffered display plus GPU working state.
+- **500 KiB flash** (512,000 bytes; 125 × 4 KiB banks).
 
 
 The final implementation may use a hierarchical/banked physical arrangement to keep the world tractable. It must never label sparse/backed/logical memory as literal one-cell-per-bit physical redstone RAM without documentation.
@@ -209,7 +218,7 @@ ShamaOS requires persistent flash-like storage for:
 - settings.
 - filesystem metadata.
 
-**Agreed flash capacity: 4 MiB (4,194,304 bytes), exactly 4× the 1 MiB main RAM capacity.** This is the canonical default/final target and must not be reduced or changed without explicit owner approval.
+**Agreed flash capacity: 500 KiB (512,000 bytes), with 192 KiB main RAM.** This incorporates the owner's 2026-11-12 amendment and is the canonical default/final target. It must not be reduced or changed without explicit owner approval.
 
 ### 3.6 GPU
 

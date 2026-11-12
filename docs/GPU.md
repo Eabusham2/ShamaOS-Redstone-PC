@@ -1,10 +1,12 @@
 # Shama GPU
 
-The GPU is an independent, queued raster engine with **32 KiB of physical VRAM**
+The GPU is an independent, queued raster engine with **16 KiB of physical VRAM**
 and a **320×180 monochrome display**. Drawing modifies the back buffer;
 presentation controls what reaches the lamp display. The default command queue
 holds **256 commands**. A full queue stalls submission until room is available;
-an acknowledged command is not dropped.
+an acknowledged command is not dropped during normal operation. A resource
+capacity fault discards the remaining app queue at a safe command boundary so
+the OS can recover.
 
 ## Command interface
 
@@ -14,7 +16,7 @@ submission, so later register writes do not change a queued command.
 
 | Offset | Register |
 |---|---|
-| `0x000` | Status: bit 0 engine active; bits 4–12 queued count; bit 16 front-buffer selector; bit 17 sticky command error |
+| `0x000` | Status: bit 0 engine active; bits 4–12 queued count; bit 16 front-buffer selector; bit 17 sticky command error; bit 18 resource-capacity fault |
 | `0x004` | Command opcode |
 | `0x008`–`0x024` | Arguments 0–7 |
 | `0x028` | Submit; writes wait when the queue is full |
@@ -28,7 +30,11 @@ submission, so later register writes do not change a queued command.
 
 Busy means status bit 0 **or a nonzero queue count**. Unsupported opcodes/font
 IDs, invalid resource spans, and malformed raster arguments set the sticky error
-bit, which clears on reset. Later commands remain usable. Unused register
+bit, which clears on reset. Text/sprite source-capacity violations also assert
+the sticky `capacity_fault` output before any invalid DMA; the OS acknowledges
+it with `clear_capacity_fault`. Queued work from the failing app is discarded,
+but the front buffer remains intact and recovery commands remain usable.
+Malformed coordinates alone do not trigger memory recovery. Unused register
 addresses read as zero. Text/sprite accesses wait until queued drawing has
 finished before accessing shared VRAM. Byte write strobes are preserved.
 
@@ -112,16 +118,27 @@ staging memory referenced by queued text or sprite commands.
 | Byte offset | Use |
 |---|---|
 | `0x0000` | Framebuffer 0 |
-| `0x2000` | Framebuffer 1 |
-| `0x4000` | Text staging, 256 bytes |
-| `0x4100` | Sprite staging, 1024 bytes |
-| `0x5000` | Scroll snapshot scratch |
+| `0x1C20` | Framebuffer 1 |
+| `0x3840` | Text staging, 256 bytes |
+| `0x3940` | Sprite staging, 1024 bytes |
+| `0x3D40..0x3FFF` | 704 bytes unreserved |
 
 Pixels are packed linearly at bit `Y×320+X`, least-significant bit first. Each
-visible plane uses 7,200 bytes. VRAM uses eight physical 4 KiB banks. The display
+visible plane uses 7,200 bytes. The packed reservation is **15,680 bytes / 95.7031%**
+of four physical 4 KiB banks. MMIO resource window offsets are unchanged; these
+are physical VRAM offsets. The display
 bridge uses the actual emitted pixel index, so skipped clean rows do not shift
 later updates to the wrong row. Physical placement/loading/runtime checks are
 covered separately by the hardware and validation documents.
+
+Scrolling uses no snapshot buffer. It visits destination words in the direction
+that preserves unread source data, reads up to two adjacent source words,
+shifts/masks them and writes one destination word. Exposed columns/rows become
+zero; the front buffer and resource staging remain untouched. Native 320-pixel
+rows need at most **5,400 VRAM transactions** for a nontrivial full-screen
+scroll (three per 32-pixel word). A zero shift needs none; a completely offscreen
+shift uses the ordinary clear path. Odd-width test configurations use the same
+overlap-safe order with a bounded pixel fallback.
 
 ## Behavioral evidence
 

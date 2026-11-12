@@ -11,7 +11,7 @@ module tb_gpu;
     logic [14:0] vram_addr;
     logic [31:0] vram_wdata,vram_rdata;
     logic [3:0] vram_wstrb;
-    logic [7:0] vram [0:32767];
+    logic [7:0] vram [0:16383];
 
     logic disp_valid;
     logic [15:0] disp_index;
@@ -21,7 +21,7 @@ module tb_gpu;
     always #5 clk=~clk;
 
     shama_gpu #(.WIDTH(16),.HEIGHT(8),.QUEUE_DEPTH(4)) dut(
-        .clk(clk),.rst(rst),
+        .clk(clk),.rst(rst),.clear_capacity_fault(1'b0),.capacity_fault(),
         .mmio_valid(mmio_valid),.mmio_we(mmio_we),.mmio_addr(mmio_addr),
         .mmio_wdata(mmio_wdata),.mmio_wstrb(mmio_wstrb),.mmio_ready(mmio_ready),.mmio_rdata(mmio_rdata),
         .vram_valid,.vram_we,.vram_addr,.vram_wdata,.vram_wstrb,.vram_ready,.vram_rdata,
@@ -75,7 +75,7 @@ module tb_gpu;
 
     integer vi;
     initial begin
-        for(vi=0;vi<32768;vi=vi+1) vram[vi]=0;
+        for(vi=0;vi<16384;vi=vi+1) vram[vi]=0;
         saw_pixel=0;
         repeat(3) @(posedge clk);
         rst<=0;
@@ -87,8 +87,8 @@ module tb_gpu;
         mmio_wstrb<=4'b1111; mmio_we<=1; mmio_valid<=1;
         @(negedge clk); mmio_valid<=0; mmio_we<=0;
         @(posedge clk);
-        if(vram[15'h40a0]!=="A" || vram[15'h40a1]!=="B" ||
-           vram[15'h40a2]!=="C" || vram[15'h40a3]!=="D") begin
+        if(vram[dut.TEXT_BASE+160]!=="A" || vram[dut.TEXT_BASE+161]!=="B" ||
+           vram[dut.TEXT_BASE+162]!=="C" || vram[dut.TEXT_BASE+163]!=="D") begin
             $display("GPU external VRAM text lane fail"); $fatal(1);
         end
 

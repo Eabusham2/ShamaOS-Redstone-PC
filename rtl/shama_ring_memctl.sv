@@ -1,6 +1,7 @@
 module shama_ring_memctl #(
     parameter integer BANK_BITS = 8,
-    parameter integer ROW_BITS = 10
+    parameter integer ROW_BITS = 10,
+    parameter integer BANK_COUNT = (1 << BANK_BITS)
 )(
     input  logic        clk,
     input  logic        rst,
@@ -33,6 +34,7 @@ module shama_ring_memctl #(
     logic [BANK_BITS-1:0] target_bank;
     logic [ROW_BITS-1:0] target_row;
     logic [31:0] merged;
+    logic rejected_address;
 
     localparam integer BANK_LSB = ROW_BITS + 2;
 
@@ -52,7 +54,7 @@ module shama_ring_memctl #(
 
     always_comb begin
         req_ready = (state == RESP);
-        req_rdata = selected_word;
+        req_rdata = rejected_address ? 32'd0 : selected_word;
         bank_step = (state == SEEK_BANK) && (current_bank != target_bank);
         row_step = (state == SEEK_ROW) && (current_row != target_row);
         write_commit = (state == COMMIT_WRITE);
@@ -70,6 +72,7 @@ module shama_ring_memctl #(
             target_bank <= 0;
             target_row <= 0;
             merged <= 0;
+            rejected_address <= 0;
         end else begin
             case(state)
                 IDLE: if(req_valid) begin
@@ -78,12 +81,18 @@ module shama_ring_memctl #(
                     latched_wstrb <= req_wstrb;
                     target_bank <= req_addr[BANK_LSB + BANK_BITS - 1 : BANK_LSB];
                     target_row <= req_addr[ROW_BITS + 1 : 2];
-                    state <= SEEK_BANK;
+                    rejected_address <= req_addr >= BANK_COUNT*(1 << ROW_BITS)*4;
+                    if(req_addr >= BANK_COUNT*(1 << ROW_BITS)*4)
+                        state <= RESP;
+                    else
+                        state <= SEEK_BANK;
                 end
 
                 SEEK_BANK: begin
                     if(current_bank == target_bank)
                         state <= SEEK_ROW;
+                    else if(current_bank == BANK_COUNT-1)
+                        current_bank <= '0;
                     else
                         current_bank <= current_bank + 1'b1;
                 end

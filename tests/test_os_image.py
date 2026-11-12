@@ -35,29 +35,33 @@ def test_default_boot_bundle_geometry():
     image = build_default_os_image()
     fs = ShamaFS.deserialize(image.image)
 
-    assert len(image.image) == 4 << 20
-    assert len(image.boot_binary) <= 16 << 10
+    assert len(image.image) == 500 << 10
+    assert len(image.boot_binary) <= 8 << 10
 
     bundle = fs.stat("boot.bundle")
     assert image.bundle_flash_offset == bundle.start_block * fs.block_size
     assert bundle.start_block == fs.data_start
-    assert image.bundle_bytes == bundle.block_count * fs.block_size
-    assert image.bundle_bytes == len(BUNDLE_ORDER) * APP_SLOT_BYTES
-
-    for slot, name in enumerate(BUNDLE_ORDER):
-        assert image.slot_flash_offsets[name] == (
-            image.bundle_flash_offset + slot * APP_SLOT_BYTES
-        )
+    assert image.bundle_bytes == len(bundle.data)
+    assert bundle.block_count == (image.bundle_bytes + fs.block_size - 1) // fs.block_size
+    assert image.bundle_bytes == sum(4 + image.slot_binary_lengths[name] for name in BUNDLE_ORDER)
+    assert image.bundle_bytes < len(BUNDLE_ORDER) * APP_SLOT_BYTES
 
     for _name, pc_word in image.app_pc_words.items():
         assert pc_word == 0
 
     bundle_data = fs.read_file("boot.bundle")
-    for slot, name in enumerate(BUNDLE_ORDER):
-        start = slot * APP_SLOT_BYTES
+    start = 0
+    for name in BUNDLE_ORDER:
+        assert image.slot_flash_offsets[name] == image.bundle_flash_offset + start
+        assert image.slot_flash_offsets[name] % 4 == 0
         encoded_len = int.from_bytes(bundle_data[start:start+4], "little")
         assert encoded_len == image.slot_binary_lengths[name]
         assert 0 < encoded_len <= APP_SLOT_BYTES - 4
+        assert encoded_len <= 8 << 10
+        executable_name = FIRMWARE[name][1]
+        assert bundle_data[start + 4:start + 4 + encoded_len] == fs.read_file(executable_name)
+        start += 4 + encoded_len
+    assert start == len(bundle_data)
 
     assert KERNEL_RAM_BASE == 16 << 10
     assert APP_RAM_BASE == 32 << 10
@@ -83,3 +87,15 @@ def test_miner_hardware_file_entries_are_stable():
     assert names.index("miner-state.cfg") == image.file_entry_indices["miner-state.cfg"]
     for directory in ("documents","programs","projects","logs","config"):
         assert fs.stat(directory).file_type == FileType.DIR
+
+
+def test_packed_boot_removes_padding_from_the_fixed_flash_capacity():
+    image = build_default_os_image()
+    fs = ShamaFS.deserialize(image.image)
+    # Preserve the owner's explicit 500 KiB choice. Packing changes allocated
+    # bytes, not flash capacity or the separate editable source/binary files.
+    assert fs.flash_bytes == 500 << 10
+    former_bundle_blocks = len(BUNDLE_ORDER) * APP_SLOT_BYTES // fs.block_size
+    removed_padding = (former_bundle_blocks - fs.stat("boot.bundle").block_count) * fs.block_size
+    assert removed_padding > 128 << 10
+    assert fs.used_bytes + fs.free_bytes == fs.flash_bytes

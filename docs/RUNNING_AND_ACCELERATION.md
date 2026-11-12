@@ -30,7 +30,35 @@ of acceleration. [MCHPRS](https://github.com/MCHPR/MCHPRS) is a specialized
 redstone server with a redstone compiler, rather than a normal client mod. Its
 `/rtps` and Redpiler commands are described in its own README. Use a supported
 version/import path and validate the machine's block and timing behavior on that
-runtime before treating it as a tested target.
+runtime before treating it as a tested target. ShamaOS currently checks physical
+circuit fixtures against a pinned MCHPRS engine; this does not establish that
+the complete generated computer imports, stays active and boots on an MCHPRS
+server. Keep Redpiler options and the tested engine revision in the run report.
+
+## Viewing the build: Distant Horizons
+
+[Distant Horizons](https://modrinth.com/mod/distanthorizons) is recommended as an
+optional way to see the overall build from farther away. It renders distant
+geometry with reduced detail, including player-created structures. Use a
+version matching Minecraft Java 1.20.4 and its supported mod loader.
+
+Treat distant views as an overview: they do not verify live redstone simulation,
+chunk loading, or pixel-accurate updates on the OS lamp screen. The operating
+console and screen still need their own usable, tested viewing arrangement.
+
+## Experimental runtime: Horizon Launcher
+
+[Horizon](https://github.com/horizon-rust/horizon), installed through Horizon
+Launcher, is another performance candidate to evaluate. Its current project
+targets Minecraft Java 26.3 behavior in a Rust runtime. ShamaOS's generated world
+targets Java 1.20.4, so Horizon needs its own world-import, redstone-timing and
+full-OS acceptance run before it becomes a supported recommendation.
+
+The [Horizon FAQ](https://playhorizon.dev/docs/faq) explains that ordinary
+Fabric, Forge and NeoForge Java mods are incompatible with this runtime. Do not
+assume a Java mod configuration, including Distant Horizons, transfers to it.
+
+## Loading and timing
 
 Acceleration does not load unloaded circuitry. All required parts of the machine
 must remain loaded and ticking, and all long routes must retain sufficient
@@ -47,3 +75,7 @@ Sources:
 
 - [Mojang Java 1.20.3 release notes: tick command](https://feedback.minecraft.net/hc/en-us/articles/21968446892173-Minecraft-Java-Edition-1-20-3)
 - [MCHPRS README and command documentation](https://github.com/MCHPR/MCHPRS)
+- [MCHPRS Redpiler documentation](https://github.com/MCHPR/MCHPRS/blob/master/docs/Redpiler.md)
+- [Distant Horizons project and compatibility list](https://modrinth.com/mod/distanthorizons)
+- [Horizon source and supported game version](https://github.com/horizon-rust/horizon)
+- [Horizon compatibility FAQ](https://playhorizon.dev/docs/faq)

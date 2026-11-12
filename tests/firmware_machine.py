@@ -26,6 +26,7 @@ class FirmwareMachine(CPUReference):
         self.draws = []
         self.views = []
         self.file_writes = []
+        self.assembly_requests = []
         self.pending_app = None
         self.pending_binary = None
         self.load_app(app)
@@ -114,6 +115,7 @@ class FirmwareMachine(CPUReference):
                     r1=int(ent.file_type)|(len(name)<<8)|(ent.start_block<<16)
                     r2=len(ent.data)
             elif sid==SYSCALLS['SYS_ASSEMBLE']:
+                self.assembly_requests.append((a,b,c,d))
                 try:
                     code=assemble(bytes(self.memory[a:a+b]).decode('ascii')).to_bytes()
                     if len(code)>d: raise AssemblyError('output full')

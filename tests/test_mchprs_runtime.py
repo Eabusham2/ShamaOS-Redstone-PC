@@ -19,11 +19,16 @@ from shamaos.hardware.controls import (
     iter_controls, keyboard_buttons,
 )
 from shamaos.hardware.display import LampPanelSpec, iter_lamp_panel, panel_ports
-from shamaos.hardware.external_router import ExternalNet, iter_external_router
+from shamaos.hardware.debug import debug_ports, iter_debug_panel
+from shamaos.hardware.external_router import ExternalNet, _plan_escapes, iter_external_router
 from shamaos.hardware.memory import DUST, SUPPORT, MemoryBankSpec, bank_ports, iter_memory_bank, repeater
+from shamaos.hardware.memory_backbone import (
+    StackedMemoryTileSpec, iter_stacked_memory_tile, iter_stacked_tile_terminal_keepouts,
+    stacked_tile_bounds, stacked_tile_ports,
+)
 from shamaos.hardware.pulse import iter_pulse_stretcher, pulse_ports, rotate_point
 from shamaos.model import Placement, Vec3
-from shamaos.synthesis import build_physical_netlist
+from shamaos.synthesis import MacroInstance, build_physical_netlist
 
 
 ORIGIN = Vec3(32, 32, 32)
@@ -83,6 +88,22 @@ def test_actual_runtime_dff_edges_holds_and_falling_edge_races():
         ]
         last = value
     run_case(template.emitter(ORIGIN, "DFF"), {p: pins[p] for p in ("C", "D")}, {"Q": pins["Q"]}, steps)
+
+
+def test_actual_dff_obeys_the_declared_setup_and_hold_contract():
+    template=TEMPLATES["DFF"]
+    pins={name:ORIGIN.offset(p.x,p.y,p.z) for name,p in template.pins.items()}
+    steps=[{"drive":{"C":False,"D":False},"ticks":24,"expect":{"Q":False}}]
+    previous=False
+    for value in (True,False,True,False):
+        steps += [
+            {"drive":{"D":value},"ticks":template.setup_ticks,"expect":{"Q":previous}},
+            {"drive":{"C":True},"ticks":template.hold_ticks},
+            {"drive":{"D":not value},"ticks":template.minimum_clock_half_period-template.hold_ticks,"expect":{"Q":value}},
+            {"drive":{"C":False,"D":value},"ticks":template.minimum_clock_half_period,"expect":{"Q":value},"continuous":True},
+        ]
+        previous=value
+    run_case(template.emitter(ORIGIN,"DFF"),{name:pins[name] for name in ("C","D")},{"Q":pins["Q"]},steps)
 
 
 def high_runs(trace):
@@ -297,6 +318,20 @@ def test_actual_external_route_fans_out_in_both_directions_and_across_heights():
              ])
 
 
+def test_actual_wired_or_return_isolates_every_leaf_driver():
+    central=Vec3(96,32,5000)
+    leaves=(Vec3(32,40,5064),Vec3(160,24,5040),Vec3(224,32,5080))
+    blocks=iter_external_router([ExternalNet("read-return",central,leaves,wired_or=True)],branch_y=64,trunk_y=68)
+    outputs={"Y":central} | {f"L{i}":pin for i,pin in enumerate(leaves)}
+    steps=[]
+    for value in (0,1,2,4,3,5,6,7,0):
+        states={f"A{i}":bool(value & (1<<i)) for i in range(3)}
+        # Observe the un-driven leaf pins as well as the central OR result.
+        expected={"Y":bool(value)} | {f"L{i}":states[f"A{i}"] for i in range(3)}
+        steps.append({"drive":states,"ticks":1400,"expect":expected})
+    run_case(blocks,{f"A{i}":west_driver(pin) for i,pin in enumerate(leaves)},outputs,steps)
+
+
 def test_actual_clock_export_survives_its_route_and_preserves_pulse_width():
     origin=Vec3(64,32,5000)
     ports=clock_ports(origin)
@@ -306,9 +341,10 @@ def test_actual_clock_export_survives_its_route_and_preserves_pulse_width():
                                          branch_y=64,trunk_y=68,obstacles=cell))
     result=run_case(blocks,{"enable":west_driver(ports.enable)},
                     {"local":ports.clock,"remote":destination},[
+                        {"ticks":1200,"expect":{"local":False,"remote":False},"continuous":True},
                         {"drive":{"enable":True},"ticks":2000},
                         {"drive":{"enable":False},"ticks":1400,"expect":{"remote":False}},
-                    ],capture_trace=True)
+                    ],initial_ticks=0,capture_trace=True)
     local,remote=result["traces"]["local"],result["traces"]["remote"]
     delay=remote.index(True)-local.index(True)
     assert delay > 0
@@ -347,3 +383,167 @@ def test_actual_placed_and_routed_register_semantics(tmp_path,enabled):
     if enabled:
         steps += [step({"clock":False,"enable":True},True),step({"clock":True},False)]
     run_case(physical.iter_placements(),inputs,{"Q":physical.output_ports["q"][0]},steps)
+
+
+@pytest.mark.parametrize("constant_data", (False, True), ids=("routed_data", "constant_macro_input"))
+def test_actual_partition_shell_and_global_tiers_preserve_register_semantics(tmp_path, constant_data):
+    child_path=tmp_path/"child.json"
+    child_path.write_text(json.dumps({"modules":{"child":{
+        "ports":{"clock":{"direction":"input","bits":[2]},
+                 "data":{"direction":"input","bits":[3]},
+                 "q":{"direction":"output","bits":[4]}},
+        "cells":{"ff":{"type":"$_DFF_P_","connections":{"C":[2],"D":[3],"Q":[4]}}},
+    }}}))
+    child=build_physical_netlist(child_path,top="child",origin=Vec3(64,32,6000))
+    shell_ports={"clock":{"direction":"input","bits":[2]},"q":{"direction":"output","bits":[4]}}
+    if not constant_data:
+        shell_ports["data"]={"direction":"input","bits":[3]}
+    shell_path=tmp_path/"shell.json"
+    shell_path.write_text(json.dumps({"modules":{"shell":{
+        "ports":shell_ports,
+        "cells":{"u_child":{"type":"child","port_directions":{"clock":"input","data":"input","q":"output"},
+                               "connections":{"clock":[2],"data":["1"] if constant_data else [3],"q":[4]}}},
+    }}}))
+    shell=build_physical_netlist(shell_path,top="shell",origin=Vec3(512,32,6400),
+        macro_instances={"u_child":MacroInstance("u_child","child",child)},
+        routing_branch_y=300,routing_trunk_y=304)
+    blocks=list(child.iter_placements())+list(shell.iter_placements())
+    sources={name:Vec3(32+8*i,33,6500) for i,name in enumerate(shell.input_ports)}
+    result_pin=Vec3(800,33,6500)
+    nets=[ExternalNet(name,sources[name],pins) for name,pins in shell.input_ports.items()]
+    nets.append(ExternalNet("result",shell.output_ports["q"][0],(result_pin,)))
+    access={pin:("south",) for ports in (shell.input_ports,shell.output_ports) for pins in ports.values() for pin in pins}
+    blocks+=list(iter_external_router(nets,obstacles=blocks,access=access))
+    steps=[{"drive":{"clock":False,**({} if constant_data else {"data":False})},"ticks":8000,"expect":{"Q":False}}]
+    for value in (True,False,True):
+        if not constant_data:
+            steps.append({"drive":{"data":value},"ticks":8000})
+        steps += [
+            {"drive":{"clock":True},"ticks":8000,"expect":{"Q":constant_data or value}},
+            {"drive":{"clock":False},"ticks":8000,"expect":{"Q":constant_data or value}},
+        ]
+    run_case(blocks,{name:west_driver(pin) for name,pin in sources.items()},{"Q":result_pin},steps)
+
+
+def test_actual_global_routes_reach_all_faces_of_a_thirty_layer_memory_tile():
+    origin=Vec3(512,-56,6000)
+    tile=StackedMemoryTileSpec(MemoryBankSpec(words=4,word_bits=8),banks=30,layer_pitch=12)
+    pins=stacked_tile_ports(origin,tile)
+    bounds=stacked_tile_bounds(origin,tile)
+    native_inputs=({f"B{i}":pin for i,pin in enumerate(pins.bank_select)}
+                   | {f"R{i}":pin for i,pin in enumerate(pins.row_select)}
+                   | {f"D{i}":pin for i,pin in enumerate(pins.write_data)}
+                   | {"READ":pins.read_enable,"WRITE":pins.write_enable})
+    sources={name:Vec3(32+4*i,-55,5400) for i,name in enumerate(native_inputs)}
+    outputs={f"Q{i}":Vec3(400+4*i,-55,5400) for i in range(8)}
+    nets=[ExternalNet(name,sources[name],(pin,)) for name,pin in native_inputs.items()]
+    nets.extend(ExternalNet(f"Q{i}",pin,(outputs[f"Q{i}"],)) for i,pin in enumerate(pins.selected_word))
+    access={pin:("north",) if name.startswith("D") else ("west",) for name,pin in native_inputs.items()}
+    access.update({pin:("south",) for pin in pins.selected_word})
+    endpoint_bounds=dict.fromkeys((*native_inputs.values(),*pins.selected_word),bounds)
+    initial=bytes((bank*37+word*13)&255 for bank in range(30) for word in range(4))
+    blocks=list(iter_stacked_memory_tile(origin,tile=tile,initial=initial))
+    blocks+=list(iter_external_router(nets,access=access,endpoint_bounds=endpoint_bounds,
+        obstacle_bounds=(bounds,),obstacles=iter_stacked_tile_terminal_keepouts(origin,tile),minimum_y=-60))
+    assert min(placement.pos.y for placement in blocks) >= -60
+    assert max(placement.pos.y for placement in blocks) <= 318
+    bits=lambda value:{f"Q{i}":bool(value>>i&1) for i in range(8)}
+    steps=[{"ticks":5000,"expect":bits(0)}]
+    for bank in (0,15,29):
+        for row in (0,3):
+            steps += [
+                {"drive":{f"B{bank}":True,f"R{row}":True,"READ":True},"ticks":5000,"expect":bits(initial[bank*4+row])},
+                {"drive":{f"B{bank}":False,f"R{row}":False,"READ":False},"ticks":5000,"expect":bits(0)},
+            ]
+    steps += [
+        {"drive":{"B29":True,"R3":True,"READ":True,**{f"D{i}":bool(0xA5>>i&1) for i in range(8)}},"ticks":5000,"expect":bits(initial[-1])},
+        {"drive":{"WRITE":True},"ticks":5000,"expect":bits(0xA5)},
+        {"drive":{"WRITE":False},"ticks":5000,"expect":bits(0xA5)},
+        {"drive":{f"D{i}":bool(0x5A>>i&1) for i in range(8)},"ticks":5000,"expect":bits(0xA5)},
+    ]
+    # TestWorld has an unbounded positive-Y test grid. The actual generated
+    # geometry was checked above against Java and the preserved grass datum.
+    shift=lambda point:point.offset(dy=64)
+    run_case((Placement(shift(p.pos),p.block,p.component) for p in blocks),
+             {name:west_driver(shift(pin)) for name,pin in sources.items()},
+             {name:shift(pin) for name,pin in outputs.items()},steps,initial_ticks=128)
+
+
+def test_actual_router_honors_forced_west_escapes_for_source_and_sink():
+    source,sink=Vec3(96,32,5000),Vec3(160,32,5040)
+    obstacles=[Placement(pin.offset(dz=dz),SUPPORT,"keepout") for pin in (source,sink) for dz in (-1,1)]
+    escapes=_plan_escapes((source,sink),64,obstacles)
+    assert all(escape.escape_x is not None for escape in escapes.values())
+    blocks=obstacles+list(iter_external_router([ExternalNet("west",source,(sink,))],
+                                              branch_y=64,trunk_y=68,obstacles=obstacles))
+    # Drive from the east: the west side now belongs to the actual route.
+    run_case(blocks,{"A":source.offset(1,0,-1)},{"Y":sink},[
+        {"drive":{"A":value},"ticks":1400,"expect":{"Y":value}} for value in (False,True,False)
+    ])
+
+
+def test_actual_debug_wall_and_routed_inputs_are_independent():
+    origin=Vec3(128,32,5000)
+    fields=tuple((f"row{row}",4) for row in range(4))
+    pins=debug_ports(origin,fields=fields,columns=4)
+    cell=list(iter_debug_panel(origin,fields=fields,columns=4))
+    inputs={f"{name}:{bit}":pin for name,group in pins.items() for bit,pin in enumerate(group)}
+    outputs={name:pin.offset(dz=-3) for name,pin in inputs.items()}
+    run_case(cell,{name:west_driver(pin) for name,pin in inputs.items()},outputs,[
+        {"drive":{other:other == name for other in inputs},"ticks":12,"expect":{other:other == name for other in outputs}}
+        for name in inputs
+    ])
+    sources={f"A{i}":Vec3(32+i*4,32,5060) for i in range(4)}
+    nets=[ExternalNet(f"A{i}",sources[f"A{i}"],(pins[f"row{i}"][i],)) for i in range(4)]
+    access={pin:("wall-south",) for group in pins.values() for pin in group}
+    blocks=cell+list(iter_external_router(nets,branch_y=64,trunk_y=68,obstacles=cell,access=access))
+    run_case(blocks,{name:west_driver(pin) for name,pin in sources.items()},outputs,[
+        {"drive":{name:name == f"A{i}" for name in sources},"ticks":1400,
+         "expect":{name:name == f"row{i}:{i}" for name in outputs}}
+        for i in range(4)
+    ])
+
+
+def test_actual_routed_keyboard_preserves_row_column_overlap_and_isolation():
+    origin=Vec3(64,32,5000)
+    pins=control_ports(origin)
+    cell=list(iter_controls(origin))
+    sources={f"R{i}":pin for i,pin in enumerate(pins.keyboard_rows)} | {f"C{i}":pin for i,pin in enumerate(pins.keyboard_cols)}
+    outputs={name:Vec3(400+i*8,33,5200) for i,name in enumerate(sources)}
+    nets=[ExternalNet(name,pin,(outputs[name],)) for name,pin in sources.items()]
+    blocks=cell+list(iter_external_router(nets,branch_y=96,trunk_y=100,obstacles=cell))
+    keys=((0,0),(0,7),(7,0),(7,7),(3,4),(4,3))
+    buttons=keyboard_buttons(origin)
+    result=run_case(blocks,{},outputs,[
+        {"use_blocks":[coordinates(buttons[row][col])],"ticks":1500,"expect":dict.fromkeys(outputs,False)}
+        for row,col in keys
+    ],capture_trace=True)
+    minimum=2*CLOCK_HALF_PERIOD+TEMPLATES["DFF"].setup_ticks+TEMPLATES["DFF"].hold_ticks
+    for index,(row,col) in enumerate(keys):
+        traces={name:trace[index*1500:(index+1)*1500] for name,trace in result["traces"].items()}
+        selected={f"R{row}",f"C{col}"}
+        assert all(high_runs(trace) == ([119] if name in selected else []) for name,trace in traces.items())
+        overlap=sum(a and b for a,b in zip(traces[f"R{row}"],traces[f"C{col}"]))
+        assert overlap >= minimum,(row,col,overlap)
+
+
+def test_actual_routed_display_uses_clear_front_and_side_approaches():
+    origin=Vec3(128,32,5000)
+    spec=LampPanelSpec(width=8,height=4)
+    pins=panel_ports(origin,spec)
+    cell=list(iter_lamp_panel(origin,spec=spec))
+    inputs={f"D{i}":pin for i,pin in enumerate(pins.data_in)} | {f"R{i}":pin for i,pin in enumerate(pins.row_select)}
+    sources={name:Vec3(32+i*4,32,5200) for i,name in enumerate(inputs)}
+    nets=[ExternalNet(name,sources[name],(pin,)) for name,pin in inputs.items()]
+    blocks=cell+list(iter_external_router(nets,branch_y=96,trunk_y=100,obstacles=cell))
+    outputs={f"P{row}:{col}":origin.offset(col*5+3,2,row*5) for row in range(4) for col in range(8)}
+    expected=dict.fromkeys(outputs,False)
+    steps=[]
+    for row,value in ((0,0xA5),(1,0x5A),(2,0x81),(3,0x18)):
+        steps.append({"drive":{f"D{i}":bool((value>>i)&1) for i in range(8)},"ticks":1800,"expect":expected.copy()})
+        expected.update({f"P{row}:{i}":bool((value>>i)&1) for i in range(8)})
+        steps += [
+            {"drive":{f"R{row}":True},"ticks":1800,"expect":expected.copy()},
+            {"drive":{f"R{row}":False},"ticks":1800,"expect":expected.copy()},
+        ]
+    run_case(blocks,{name:west_driver(pin) for name,pin in sources.items()},outputs,steps)

@@ -38,6 +38,69 @@ suite can explicitly skip unavailable external tools. The required CI behavioral
 job installs Icarus/Yosys, builds the pinned runner, and rejects any skipped
 required test. Optional Amulet conversion is isolated in its own real-backend job.
 
+### Measured physical fixture contracts
+
+`tests/test_mchprs_runtime.py` checks the following against actual scheduled
+redstone updates, and rejects conflicting block placements before simulation:
+
+- Technology DFF pins require at least 12 redstone ticks per clock half-period,
+  8 ticks of data setup and 2 ticks of hold. Falling-edge data changes do not
+  leak through the two storage repeaters.
+- The emitted gated clock produces complete 35-tick high and low phases at all
+  70 possible power-change offsets. A cold disabled clock stays low, including
+  after its signal travels through a long external route. Hold keeps cleanup
+  clocked after the power request is removed.
+- Real stone buttons produce continuous 94-tick controller pulses. Keyboard
+  row/column delay lines produce 119-tick pulses; the representative 16-net
+  routed matrix has at least 95 ticks of simultaneous high for the tested
+  corner/middle keys, exceeding one raw period plus the local setup/hold budget.
+- Four nearby independent routes, three-way fanout across different heights,
+  and forced west-side escapes preserve their signals. A placed/routed DFF and
+  a lowered five-cell enabled register capture, hold and overwrite correctly
+  when the test allows complete route propagation.
+- A vertical debug wall and an 8×4 display preserve independent lamp values
+  through their routed interfaces. Display data approaches from the front;
+  interior row selectors approach from the side instead of crossing other rows.
+- A three-level partition/shell/global register fixture captures and holds data,
+  including a constant-one macro input, over 136,064 simulated ticks. Partition
+  tracks use Y=286/290, shell tracks Y=300/304, and global tracks Y=314/318.
+  Internal top-port connections leave north; the enclosing connections enter
+  from the south, beyond the lower tier's branch starts.
+- All external faces of a thirty-layer memory tile are connected in a real
+  engine fixture: thirty bank selects, row/data/read/write inputs and read
+  returns. First/middle/last-bank reads and a write/hold sequence pass over
+  85,128 ticks. The literal fixture and its routes fit Y=-60..318 above the
+  classic-flat grass. This fixture has four words and eight bits per bank;
+  it does not establish full-size row-interface timing.
+
+The router uses a separate endpoint landing plane and reserves stair headroom.
+Directional repeaters refresh junctions as well as straight runs. The caller
+must supply component obstacles for peripheral ports; an empty obstacle set
+cannot prove that an otherwise valid route avoids an existing device. Internal
+netlist routing supplies the emitted cell geometry. Dense placement that cannot
+be isolated fails explicitly instead of accepting overlapping wires.
+
+Global interconnect now supplies each peripheral's intended access face,
+small exact terminal neighborhoods, complete memory-tile/display envelopes,
+and the selected grass surface's minimum build Y. A stair must leave its native
+envelope before rising and cannot enter another tile. These checks operate on
+terminal count and tile bounds, without materializing storage billions of times.
+The complete 993-signal diagnostic wall has a separate bounded-lead geometry
+regression; full-wall electrical behavior is not inferred from that geometry.
+
+These are fixture contracts, not a measured full-SoC frequency. The enabled
+register fixture deliberately waits thousands of ticks for its long routes.
+Full clock-tree skew, minimum data-path delay, maximum combinational delay,
+matrix overlap after global routing and loaded/ticking chunks still require
+validation on the exact complete placement.
+
+The current default raw period of 70 redstone ticks and `CORE_DIV_BIT=17` give
+`70 × 2^18 = 18,350,080` redstone ticks per core cycle: about 21.24 days at normal
+10-redstone-tick/s operation. This is a configured delay, not a measured safe
+frequency or a practical execution-speed claim. A shorter setting requires
+route-derived clock-skew, setup and hold closure; a larger setting alone cannot
+repair a hold-time failure.
+
 ## CI jobs and artifacts
 
 - Python 3.11/3.12 host tests on Linux and Windows plus CLI image/plan smoke tests.

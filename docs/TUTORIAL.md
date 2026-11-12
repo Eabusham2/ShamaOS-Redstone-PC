@@ -97,12 +97,13 @@ not a successful hardware release gate.
 
 ```bash
 shamaos flash-image -o build/shamaos-flash.img
+shamaos software-usage --report build/software-usage.json
 shamaos asm examples/bitcoin_miner.asm -o build/miner.bin --listing build/miner.lst
 shamaos plan --config configs/default.toml --manifest build/plan.json
 shamaos generation-preflight --config configs/default.toml --world build/ShamaOS --report build/resource-preflight.json
 ```
 
-The flash image is exactly 4 MiB and contains fixed boot/application slots,
+The flash image is exactly 500 KiB and contains packed, length-prefixed boot/application records,
 complete editable sources, documents, directories, settings/miner data and
 filesystem metadata. The preflight reports physical storage bits, banks,
 placements, touched chunks, disk lower bounds, source identity and unverified
@@ -114,7 +115,14 @@ a promise that the complete world fits that amount.
 ```bash
 shamaos fixture-world --world build/native-runtime-fixture --runtime-runner "$SHAMA_MCHPRS_RUNNER"
 shamaos validate-world --world build/native-runtime-fixture
+shamaos stacked-fixture-world --world build/stacked-native-runtime-fixture --runtime-runner "$SHAMA_MCHPRS_RUNNER"
+shamaos validate-world --world build/stacked-native-runtime-fixture
 ```
+
+The stacked fixture preserves its grass terrain and exercises three representative
+32-bit banks through their shared read-return wiring. It uses two words per bank
+to keep the independent save/reopen/runtime check small; its report explicitly
+does not claim the complete machine's capacity or timing.
 
 Use `$env:SHAMA_MCHPRS_RUNNER` instead of `$SHAMA_MCHPRS_RUNNER` in PowerShell.
 The command creates native Java 1.20.4 world files, reads them back, and, when a
@@ -124,8 +132,8 @@ Its report names its limited scope. Copy that world folder into Minecraft's
 
 ## 5. Full generation
 
-Create a new disposable world directly, without installing Amulet or manually
-launching Minecraft:
+Create a new grass superflat world directly, without installing Amulet or
+manually launching Minecraft:
 
 ```bash
 shamaos create-world --world build/ShamaOS --name ShamaOS
@@ -133,6 +141,25 @@ shamaos generate --world build/ShamaOS --config configs/default.toml --manifest 
 shamaos validate-world --world build/ShamaOS
 shamaos validate-manifest --manifest build/generated-manifest.json
 ```
+
+The generated terrain has bedrock at Y=-64, dirt at -63/-62, and grass at -61.
+The first permitted build block is -60. Every support, memory cell, selector and
+route stays above the grass; the writer rejects a placement on or below it.
+Ground is present in every written chunk and is included in independent saved
+world verification. The spawn platform is also above the grass.
+
+Memory stacking is automatic. The default surface allows 30 layers at a
+12-block pitch while reserving the upper routing canopy. A grass surface at
+Y=63 allows 20 layers. All 185 physical banks remain present; the generator
+uses more horizontal groups when fewer layers fit. The final group contains
+only its actual banks and retains their original address order.
+
+`generate` and `generation-preflight --world ...` read an existing world's flat
+layer settings from `level.dat` instead of assuming the grass height. For a new
+custom-height grass world, set `world.surface_y` to the grass-block coordinate
+and `world.origin_y` to five blocks above it; keep `memory.stack_layers` and
+`memory.storage_base_y` automatic. Unsafe explicit heights/layer counts fail
+validation. The standalone mechanism fixture remains a small isolated test save.
 
 The generator performs resource/capacity checks before a huge emission. It must
 not silently reduce memory or display resolution to fit available disk. A real
