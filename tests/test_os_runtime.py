@@ -1,4 +1,9 @@
-from shamaos.flashfs import FileType, ShamaFS
+import hashlib
+import struct
+
+import pytest
+
+from shamaos.flashfs import FileType, FlashWriteProtectedError, ShamaFS
 from shamaos.os_image import build_default_os_image
 from shamaos.os_runtime import ShamaOSRuntime
 
@@ -87,4 +92,67 @@ def test_miner_start_stop_and_valid_history():
     assert os.miner.found
     assert not os.miner.running
     assert os.miner.saved_runs[0][0] == 7
-    assert b"gen=7" in os.fs.read_file("miner-history.log")
+    history = os.fs.read_file("miner-history.log")
+    record = history[7 * 128:8 * 128]
+    assert len(history) == 32768
+    assert struct.unpack_from("<4IQII", record) == (0x31524D53, 1, 7, 0, 1, 2, 0)
+    assert record[48:80] == hashlib.sha256(hashlib.sha256(bytes(80)).digest()).digest()
+    assert record[80:112] == b"\xff" * 32
+    assert history[:7 * 128] + history[8 * 128:] == bytes(32768 - 128)
+    assert os.fs.read_file("miner-state.cfg")[:128] == record
+    assert len(os.fs.read_file("miner-state.cfg")) == 256
+
+
+def test_miner_history_uses_all_slots_then_wraps_without_growing_flash():
+    os = booted()
+    original = {entry.name: entry.data for entry in os.fs.list_files()}
+    history_start = os.fs.stat("miner-history.log").start_block
+    used = os.fs.used_bytes
+    expected = bytearray(32768)
+    for generation in range(258):
+        header = bytearray(80)
+        header[76:80] = generation.to_bytes(4, "little")
+        os.miner_configure(bytes(header), b"\xff" * 32, generation=generation)
+        os.miner_start()
+        assert os.miner_step(1)
+        offset = (generation & 255) * 128
+        record = os.fs.read_file("miner-state.cfg")[:128]
+        assert int.from_bytes(record[8:12], "little") == generation
+        assert int.from_bytes(record[12:16], "little") == generation
+        expected[offset:offset + 128] = record
+        assert os.fs.read_file("miner-history.log") == expected
+        assert os.fs.used_bytes == used
+        assert os.fs.stat("miner-history.log").start_block == history_start
+    reopened = ShamaFS.deserialize(os.flash_image())
+    assert reopened.read_file("miner-history.log") == expected
+    for name, data in original.items():
+        if name not in ("miner-history.log", "miner-state.cfg"):
+            assert reopened.stat(name).data == data
+
+
+def test_miner_record_retains_full_width_counters_hash_target_and_header():
+    os = booted()
+    header = bytes(range(76)) + b"\xff" * 4
+    os.miner_configure(header, b"\xff" * 32, generation=0xFFFFFFFF)
+    os.miner.state.attempts = 0xFFFFFFFFFFFFFFFE
+    os.miner_start()
+    assert os.miner_step(1)
+    snapshot = os.fs.read_file("miner-state.cfg")
+    assert struct.unpack_from("<IIQ", snapshot, 8) == (
+        0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFFFFFFFFFF)
+    assert snapshot[48:80] == hashlib.sha256(hashlib.sha256(header).digest()).digest()
+    assert snapshot[80:112] == b"\xff" * 32
+    assert snapshot[128:208] == header
+    assert os.fs.read_file("miner-history.log")[255 * 128:] == snapshot[:128]
+
+
+def test_miner_history_protection_preserves_existing_records():
+    os = booted()
+    os.fs.create_file("fill.dat", bytes(os.fs.write_limit_bytes - os.fs.used_bytes))
+    before = os.flash_image()
+    os.miner_configure(bytes(80), b"\xff" * 32, generation=7)
+    os.miner_start()
+    with pytest.raises(FlashWriteProtectedError):
+        os.miner_step(1)
+    assert os.flash_image() == before
+    assert not os.miner.saved_runs

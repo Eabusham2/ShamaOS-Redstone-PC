@@ -26,8 +26,13 @@ envelope checks intact. This proves those escapes, not all final system routes.
 An upward memory-return redesign passes **62 production/partial/saved-world
 regressions without skips**, retaining every memory bit. The default regular
 geometry is **23,328 occupied chunks / 86,000 envelope chunks**; logic and global
-routes remain additional. The latest integrated 200 KiB SoC flows and the exact
-candidate CI are separate checks and must finish before this checkpoint is green.
+routes remain additional. The fresh integrated 200 KiB SoC regression passes
+**19 tests with zero failures, errors or skips**; its exact source hashes and
+observed outputs are retained in
+[the SoC report](evidence/soc-200-journal-2026-11-13.json). The exact-commit CI
+remains a separate required gate. Its first run exposed a stale host OS model
+that still copied the entire history; that path now uses the fixed 128-byte
+record journal and preserves the firmware's complete record/state format.
 
 ## Implemented in code and exercised behaviorally
 
@@ -57,12 +62,12 @@ paused shutdown → cache-cleared reboot → Explorer → Editor reopen with the
 bytes intact. A separate flow types a new assembly source through the real input
 path, saves it, invokes the hardware assembler, runs the generated binary, checks
 its result and returns from the halted program using universal Home. Its external
-memory devices use bounded test models for broad failure coverage. A separate
-historical 96 KiB RAM / 250 KiB flash lifecycle run retains the four production memory adapters and exercises
+memory devices use bounded test models for broad failure coverage. The current
+96 KiB RAM / 200 KiB flash lifecycle run retains the four production memory adapters and exercises
 their physical bank/row/read/write pins against delayed persistent bank models.
 It passes boot, edit/save, paused shutdown, cache-cleared reboot and reopened
-bytes in 8,603,261 simulator cycles. The production-controller typed-assembly
-flow passes in 9,640,839 cycles; heap-backed self-replacement passes in 5,137,683.
+bytes in 8,602,153 simulator cycles. The production-controller typed-assembly
+flow passes in 9,639,349 cycles; heap-backed self-replacement passes in 5,137,201.
 That last case checks all 84 KiB of the released heap, copied code in both cache
 and DMA-only backing, and a later return to Desktop. Neither backend is evidence
 that a complete physical world has performed that flow.
@@ -150,10 +155,10 @@ for larger Editor documents. The focused 96 KiB firmware/CPU/allocator/image/har
 passes 166 distinct cases with no skips. The focused modal/kernel/services
 regression passes 17 cases, and six capacity/accounting cases also pass. These
 groups overlap at services coverage. The complete GPU suite and memory-adapter
-variants additionally remain required CI checks. Eleven integrated
-SoC checks pass at these capacities, including boot/lifecycle, typed assembly
-and RAM/heap/cache/VRAM/protected-flash recovery. Five additional malformed
-boot-bundle cases stop with the original diagnostics. These use real CPU/OS RTL
+variants additionally remain required CI checks. The current 19-case integrated
+SoC batch includes boot/lifecycle, typed assembly, owned-heap self-replacement
+and RAM/heap/cache/VRAM/protected-flash recovery. Eight malformed boot cases
+stop with the original diagnostics. These use real CPU/OS RTL
 with modeled external memory; complete-world acceptance remains separate.
 
 The filesystem 95% guard rejects unsafe copy-on-write reservations before any

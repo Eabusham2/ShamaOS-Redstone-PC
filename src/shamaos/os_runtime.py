@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import PurePosixPath
+import struct
 from typing import Literal
 
 from .assembler import AssemblyError, assemble
-from .flashfs import FileEntry, FileType, ShamaFS
+from .flashfs import HISTORY_RECORD_COUNT, FileEntry, FileType, ShamaFS
 from .machine_spec import RAM_BYTES, CACHE_BYTES
 from .memory_map import HEAP_BASE
 from .sha256 import MiningState
@@ -147,6 +148,7 @@ class MinerRuntime:
     state: MiningState | None = None
     running: bool = False
     found: bool = False
+    last_nonce: int = 0
     saved_runs: list[tuple[int, int, str, int]] = field(default_factory=list)
 
 
@@ -403,6 +405,7 @@ class ShamaOSRuntime:
         self.miner.state = MiningState(bytearray(header), bytes(target), generation=generation)
         self.miner.running = False
         self.miner.found = False
+        self.miner.last_nonce = self.miner.state.nonce()
 
     def miner_start(self) -> None:
         if self.miner.state is None:
@@ -417,6 +420,7 @@ class ShamaOSRuntime:
         if not self.miner.running or self.miner.state is None:
             return False
         for _ in range(max(0, hashes)):
+            self.miner.last_nonce = self.miner.state.nonce()
             if self.miner.state.step():
                 self.miner.running = False
                 self.miner.found = True
@@ -424,30 +428,41 @@ class ShamaOSRuntime:
                 return True
         return False
 
-    def _save_miner_state(self) -> None:
+    def _miner_snapshot(self) -> bytes:
+        """Encode the same fixed record/state layout consumed by firmware.
+
+        This host behavior model does not measure hardware cycles. Those
+        fields remain zero; full hash, target, counters and header are retained.
+        """
         state = self.miner.state
         if state is None:
-            return
-        text = (
-            f"generation={state.generation}\n"
-            f"nonce={state.nonce()}\n"
-            f"attempts={state.attempts}\n"
-            f"running={int(self.miner.running)}\n"
-            f"last_hash={state.last_hash.hex()}\n"
-        ).encode()
-        self.fs.write_file("miner-state.cfg", text, file_type=FileType.CFG)
+            raise RuntimeError("miner is not configured")
+        snapshot = bytearray(256)
+        status = 1 if self.miner.running else 2 if self.miner.found else 0
+        struct.pack_into("<4IQII", snapshot, 0, 0x31524D53, 1,
+                         state.generation & 0xFFFFFFFF, self.miner.last_nonce,
+                         state.attempts & 0xFFFFFFFFFFFFFFFF, status, 0)
+        struct.pack_into("<I", snapshot, 40,
+                         256 - int.from_bytes(state.target, "big").bit_length())
+        snapshot[48:80] = state.last_hash
+        snapshot[80:112] = state.target
+        snapshot[128:208] = state.header
+        struct.pack_into("<I", snapshot, 244, int(self.miner.found))
+        return bytes(snapshot)
+
+    def _save_miner_state(self) -> None:
+        if self.miner.state is not None:
+            self.fs.write_file("miner-state.cfg", self._miner_snapshot(), file_type=FileType.CFG)
 
     def _log_miner_result(self) -> None:
         state = self.miner.state
         if state is None:
             return
         record = (state.generation, state.nonce(), state.last_hash.hex(), state.attempts)
+        self.fs.write_history_record("miner-history.log",
+                                     state.generation % HISTORY_RECORD_COUNT,
+                                     self._miner_snapshot()[:128])
         self.miner.saved_runs.append(record)
-        line = (
-            f"gen={record[0]} nonce={record[1]} hash={record[2]} attempts={record[3]}\n"
-        ).encode()
-        old = self.fs.read_file("miner-history.log") if self.fs.exists("miner-history.log") else b""
-        self.fs.write_file("miner-history.log", old + line, file_type=FileType.LOG)
         self._save_miner_state()
 
     def flash_image(self) -> bytes:

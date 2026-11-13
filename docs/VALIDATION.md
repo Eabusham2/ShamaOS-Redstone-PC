@@ -35,9 +35,17 @@ executes the marker, compares both code copies and checks every released heap
 word before returning Home. It directly guards against cleanup erasing the
 staged source before the loader reads it.
 
-The 200 KiB candidate reruns these flows with the new history journal. Current
-results must come from its own report; historical cycle counts are not reused
-as proof of a later source revision.
+The fresh 200 KiB checkpoint passes **all 19 integrated cases with zero skips**
+in 1,897.783 seconds. Its production-controller lifecycle takes **8,602,153
+cycles**, typed assembly/save/run **9,639,349 cycles**, and heap-backed
+self-replacement **5,137,201 cycles**. Lifecycle commits are 18,188 cache,
+39,485 RAM, 1,359 flash and 180,397 VRAM writes. The retained
+[current report](evidence/soc-200-journal-2026-11-13.json) includes the exact
+compiled source hashes, flash image hash, test names and observed output.
+These are RTL simulation measurements, not physical-world execution speed.
+All eight malformed boot cases and RAM/heap/cache/VRAM/protected-flash recovery
+also pass. Current results come from this report; historical cycle counts are
+not reused as proof of a later source revision.
 
 ### Bounded history-save recovery
 

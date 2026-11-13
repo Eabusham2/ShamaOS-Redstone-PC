@@ -40,13 +40,26 @@ loaded/ticking-world plan and whole-computer runtime acceptance remain open.
 
 The bounded hierarchy audit and real sequential cut pass 17 tests with deliberate
 passing/failing clock rates; see `docs/ROUTING_PROGRESS.md`. All three agents are
-now reassigned to the complete graph partition planner, physical horizontal
-placement, and sparse whole-world runtime/loading prototypes. Their new work is
-outside this candidate under `/workspace/scratch/fb0eaf1c89fe/experiments/` until
-a separate implementation worktree is created. Root handles integration, docs,
-commits and CI. The fresh 19-case 200 KiB SoC regression is running; all three
-production-controller lifecycle/typed-assembly/heap-replacement cases already
-passed. No individual fixture or old CI run certifies this current candidate.
+now reassigned to the complete graph partition planner, bounded physical
+placement, and sparse whole-world runtime/loading prototypes. The integration
+checkpoint is published as `b12fb70232d67fb1dad720c767e5b312fc4d67ce`. New work
+continues in `/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded`, with large
+measurement artifacts under `/workspace/scratch/fb0eaf1c89fe/experiments/`.
+Root handles integration, docs, commits and CI. The fresh 19-case 200 KiB SoC
+regression has passed with zero skips, including all three production-controller
+lifecycle/typed-assembly/heap-replacement cases. Its source hashes and outputs
+are in `docs/evidence/soc-200-journal-2026-11-13.json`.
+
+The first exact-checkpoint CI run found the Python OS model still appending to
+the full 32 KiB history with copy-on-write. The model now uses the bounded
+record operation and firmware-compatible fixed binary state/history. Focused
+tests cover every slot, wraparound, complete counters/hash/target/header and the
+95% guard without increasing flash allocation. The focused host/image/filesystem
+batch passes 28 cases; the ordinary platform suite passes 435 with no failures.
+Its 409 hardware/world-dependent cases are skipped in that platform environment
+and remain covered by the separate required HDL/redstone/world jobs, not counted
+as successful executions. Full CI must pass on this fix;
+no individual fixture or old CI run certifies the current candidate.
 
 ## Historical pause record
 

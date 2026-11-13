@@ -1,0 +1,216 @@
+{
+  "schema": 1,
+  "recorded_at_utc": "2026-11-13T01:24:15.355964+00:00",
+  "source_commit": "b12fb70232d67fb1dad720c767e5b312fc4d67ce",
+  "scope": "Real CPU/OS RTL with both fast memory models and production memory adapters. Physical storage, global wiring and a complete Minecraft world are not part of this proof.",
+  "capacities_bytes": {
+    "ram": 98304,
+    "cache": 8192,
+    "vram": 16384,
+    "flash": 204800
+  },
+  "image_sha256": "06c9faf5fafd4821885ae1153a099bbc8a2017b00783c10f8077c152b87757e7",
+  "tests": 19,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "duration_seconds": 1897.783,
+  "cases": [
+    {
+      "name": "test_immutable_boot_rom_matches_checked_boot_firmware",
+      "seconds": 0.003
+    },
+    {
+      "name": "test_boot_failure_halts_with_original_diagnostics[blank_flash--5]",
+      "seconds": 0.254
+    },
+    {
+      "name": "test_boot_failure_halts_with_original_diagnostics[invalid_kernel_length--7]",
+      "seconds": 12.55
+    },
+    {
+      "name": "test_boot_failure_halts_with_original_diagnostics[kernel_crosses_packed_record--7]",
+      "seconds": 12.374
+    },
+    {
+      "name": "test_boot_failure_halts_with_original_diagnostics[bundle_missing--5]",
+      "seconds": 12.176
+    },
+    {
+      "name": "test_boot_failure_halts_with_original_diagnostics[bundle_moved--5]",
+      "seconds": 0.158
+    },
+    {
+      "name": "test_boot_failure_halts_with_original_diagnostics[bundle_renamed--5]",
+      "seconds": 11.31
+    },
+    {
+      "name": "test_boot_failure_halts_with_original_diagnostics[bundle_wrong_type--5]",
+      "seconds": 0.123
+    },
+    {
+      "name": "test_boot_failure_halts_with_original_diagnostics[bundle_wrong_size--5]",
+      "seconds": 0.125
+    },
+    {
+      "name": "test_boot_edit_dirty_close_shutdown_reboot_and_explorer_handoff",
+      "seconds": 240.847
+    },
+    {
+      "name": "test_real_memory_controllers_boot_save_reboot_and_explorer_handoff",
+      "seconds": 273.812
+    },
+    {
+      "name": "test_real_memory_controllers_assemble_typed_source_and_run_saved_binary",
+      "seconds": 314.822
+    },
+    {
+      "name": "test_real_memory_controllers_run_code_staged_inside_an_owned_heap_allocation",
+      "seconds": 155.919
+    },
+    {
+      "name": "test_physical_keyboard_source_assembly_runs_saved_binary_and_exits_halted_app",
+      "seconds": 270.508
+    },
+    {
+      "name": "test_real_app_resource_faults_recover_and_protected_flash_rejects_cpu_stores[ram-2]",
+      "seconds": 115.23
+    },
+    {
+      "name": "test_real_app_resource_faults_recover_and_protected_flash_rejects_cpu_stores[heap-2]",
+      "seconds": 115.715
+    },
+    {
+      "name": "test_real_app_resource_faults_recover_and_protected_flash_rejects_cpu_stores[cache-3]",
+      "seconds": 117.853
+    },
+    {
+      "name": "test_real_app_resource_faults_recover_and_protected_flash_rejects_cpu_stores[vram-4]",
+      "seconds": 119.462
+    },
+    {
+      "name": "test_real_app_resource_faults_recover_and_protected_flash_rejects_cpu_stores[protected_flash-1]",
+      "seconds": 124.409
+    }
+  ],
+  "compiled_source_sha256": {
+    "soc0": {
+      "rtl/bitcoin_dsha256.sv": "7c8c36ff57d51c63827039eb9302099129332778eaee74e1a62094d2f554fae5",
+      "rtl/sha256_compress.sv": "eb9b0df776d407b28e0e59b92559a1ba8ae00a888256141c9aa96f6ad91400e8",
+      "rtl/sha256_fixed64.sv": "5c36c329b2526ca8ff55fcd2009aa9e11cab52d2331e93003fed2eff89b54012",
+      "rtl/shama_asm_accel.sv": "34d04460a043e31b45d412b93762b7ebfd413c718679a73d1fad8f0f0481fc65",
+      "rtl/shama_boot_params.svh": "3ec00fbefe06958cc2b918e52caa18129384cb267453a9fc976270bc72fa8025",
+      "rtl/shama_cpu.sv": "27e994f05283e16a6ab2536466cbb3923ee3f2f49cca5251491b0470395ea333",
+      "rtl/shama_display_bridge.sv": "c5753e43857b62cb97f8ef6bd5c98e0f8fcf2f69a707450215453c6f282234bb",
+      "rtl/shama_font5x7.sv": "b04981885905696d604c8923dd2350ee6e2c5b56c3226597bdb42ee8ff2f1505",
+      "rtl/shama_fs_accel.sv": "f6022d374ed0197d9c61d41a2b742d70600aa135d4ec4861d83a80fabfd20671",
+      "rtl/shama_gpu.sv": "817ddbb03248bae2ba816f754eceb4c0a6d3b3fe4463fae550ad7b3a1ea1d4c2",
+      "rtl/shama_input.sv": "50c552be1af19dbc9da2b2d3e93fb9b94d3e420a4618cd2a21514a9c71c27b4e",
+      "rtl/shama_kernel_accel.sv": "56ba28e236f033824f3a3062897ceac3146c5513f8301a528bcf7450b54c95cd",
+      "rtl/shama_onehot_ring.sv": "4e5516e317d231f958d966f57d9002f3a9a36d01585fc70b55ef98b4ba6d80a2",
+      "rtl/shama_ring_memctl.sv": "a384b525d6709499bca0563498d8d956d80a5ccfeb23341a04b72afff2d64856",
+      "rtl/shama_services.sv": "e47144577491797114fe9f21cfbf7037ea3ac2b23837205371eafc5df91ba711",
+      "rtl/shama_soc.sv": "5387762f974450c8b33fd67c77b49ede0107c69ecd6930e07f8fdc30f9ed8c26",
+      "rtl/tb_soc.sv": "530fc972a675013321f07300834ed2a88cbf2d298954100e80eaffaef9ac12e0",
+      "tests/rtl/fast_memory_models.sv": "1c328506067e3d65547009e8a6a82bf345dea346cd949e636c4c5ca2ec77b29f"
+    },
+    "soc-real-adapters0": {
+      "rtl/bitcoin_dsha256.sv": "7c8c36ff57d51c63827039eb9302099129332778eaee74e1a62094d2f554fae5",
+      "rtl/sha256_compress.sv": "eb9b0df776d407b28e0e59b92559a1ba8ae00a888256141c9aa96f6ad91400e8",
+      "rtl/sha256_fixed64.sv": "5c36c329b2526ca8ff55fcd2009aa9e11cab52d2331e93003fed2eff89b54012",
+      "rtl/shama_asm_accel.sv": "34d04460a043e31b45d412b93762b7ebfd413c718679a73d1fad8f0f0481fc65",
+      "rtl/shama_boot_params.svh": "3ec00fbefe06958cc2b918e52caa18129384cb267453a9fc976270bc72fa8025",
+      "rtl/shama_cpu.sv": "27e994f05283e16a6ab2536466cbb3923ee3f2f49cca5251491b0470395ea333",
+      "rtl/shama_display_bridge.sv": "c5753e43857b62cb97f8ef6bd5c98e0f8fcf2f69a707450215453c6f282234bb",
+      "rtl/shama_font5x7.sv": "b04981885905696d604c8923dd2350ee6e2c5b56c3226597bdb42ee8ff2f1505",
+      "rtl/shama_fs_accel.sv": "f6022d374ed0197d9c61d41a2b742d70600aa135d4ec4861d83a80fabfd20671",
+      "rtl/shama_gpu.sv": "817ddbb03248bae2ba816f754eceb4c0a6d3b3fe4463fae550ad7b3a1ea1d4c2",
+      "rtl/shama_input.sv": "50c552be1af19dbc9da2b2d3e93fb9b94d3e420a4618cd2a21514a9c71c27b4e",
+      "rtl/shama_kernel_accel.sv": "56ba28e236f033824f3a3062897ceac3146c5513f8301a528bcf7450b54c95cd",
+      "rtl/shama_memory_adapter.sv": "853d438ff507e4740fb6468445804ccc846378686e66d7b136952a06f93fb0af",
+      "rtl/shama_onehot_ring.sv": "4e5516e317d231f958d966f57d9002f3a9a36d01585fc70b55ef98b4ba6d80a2",
+      "rtl/shama_ring_memctl.sv": "a384b525d6709499bca0563498d8d956d80a5ccfeb23341a04b72afff2d64856",
+      "rtl/shama_services.sv": "e47144577491797114fe9f21cfbf7037ea3ac2b23837205371eafc5df91ba711",
+      "rtl/shama_soc.sv": "5387762f974450c8b33fd67c77b49ede0107c69ecd6930e07f8fdc30f9ed8c26",
+      "rtl/tb_soc.sv": "530fc972a675013321f07300834ed2a88cbf2d298954100e80eaffaef9ac12e0",
+      "tests/rtl/persistent_bank_models.sv": "81ecc844e104204ced1f3e3888a20e344c5e99a168d05301490fd6e3695171ea"
+    }
+  },
+  "observed_outputs": {
+    "test_boot_edit_dirty_close_shu0": [
+      "SOC BOOT desktop PASS cycles=1035305",
+      "SOC Editor universal launch PASS",
+      "SOC named document created PASS",
+      "SOC dirty save/cleanup PASS",
+      "SOC reboot from erased cache PASS",
+      "SOC persistence/Explorer handoff PASS",
+      "SOC INTEGRATION PASS cycles=7644437"
+    ],
+    "test_boot_failure_halts_with_o0": [
+      "SOC BOOT FAILURE PASS error=-5 cycles=67"
+    ],
+    "test_boot_failure_halts_with_o1": [
+      "SOC BOOT FAILURE PASS error=-7 cycles=365343"
+    ],
+    "test_boot_failure_halts_with_o2": [
+      "SOC BOOT FAILURE PASS error=-7 cycles=365343"
+    ],
+    "test_boot_failure_halts_with_o3": [
+      "SOC BOOT FAILURE PASS error=-5 cycles=353165"
+    ],
+    "test_boot_failure_halts_with_o4": [
+      "SOC BOOT FAILURE PASS error=-5 cycles=781"
+    ],
+    "test_boot_failure_halts_with_o5": [
+      "SOC BOOT FAILURE PASS error=-5 cycles=365315"
+    ],
+    "test_boot_failure_halts_with_o6": [
+      "SOC BOOT FAILURE PASS error=-5 cycles=781"
+    ],
+    "test_boot_failure_halts_with_o7": [
+      "SOC BOOT FAILURE PASS error=-5 cycles=781"
+    ],
+    "test_physical_keyboard_source_0": [
+      "SOC BOOT desktop PASS cycles=1035305",
+      "SOC PROGRAM ASSEMBLE RUN HOME PASS cycles=8746241"
+    ],
+    "test_real_app_resource_faults_0": [
+      "SOC BOOT desktop PASS cycles=1045775",
+      "SOC RESOURCE RECOVERY PASS cause=2 cycles=3979867"
+    ],
+    "test_real_app_resource_faults_1": [
+      "SOC BOOT desktop PASS cycles=1045775",
+      "SOC RESOURCE RECOVERY PASS cause=2 cycles=3979867"
+    ],
+    "test_real_app_resource_faults_2": [
+      "SOC BOOT desktop PASS cycles=1045775",
+      "SOC RESOURCE RECOVERY PASS cause=3 cycles=3980069"
+    ],
+    "test_real_app_resource_faults_3": [
+      "SOC BOOT desktop PASS cycles=1045775",
+      "SOC RESOURCE RECOVERY PASS cause=4 cycles=3981213"
+    ],
+    "test_real_app_resource_faults_4": [
+      "SOC BOOT desktop PASS cycles=1245913",
+      "SOC RESOURCE RECOVERY PASS cause=1 cycles=4180223"
+    ],
+    "test_real_memory_controllers_a0": [
+      "SOC BOOT desktop PASS cycles=1133601",
+      "SOC PROGRAM ASSEMBLE RUN HOME PASS cycles=9639349"
+    ],
+    "test_real_memory_controllers_b0": [
+      "SOC BOOT desktop PASS cycles=1133601",
+      "SOC Editor universal launch PASS",
+      "SOC named document created PASS",
+      "SOC dirty save/cleanup PASS",
+      "SOC reboot from erased cache PASS",
+      "SOC persistence/Explorer handoff PASS",
+      "SOC REAL ADAPTERS PASS cache_writes=18188 ram_writes=39485 flash_writes=1359 vram_writes=180397",
+      "SOC INTEGRATION PASS cycles=8602153"
+    ],
+    "test_real_memory_controllers_r0": [
+      "SOC BOOT desktop PASS cycles=1144091",
+      "SOC ALLOCATED HEAP SELF REPLACEMENT PASS cycles=5137201"
+    ]
+  }
+}
