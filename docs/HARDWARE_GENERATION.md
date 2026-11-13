@@ -95,12 +95,33 @@ used.
 
 ## Resource accounting
 
-Before full emission, `generation-preflight` checks the fixed capacity contract
-and available disk against a storage-only Anvil lower bound. It reports what is
-excluded, including logic, routes, clock/backbones, display, validation ledger
-and compaction space. Bank layout, generation locality and canonical section
-reuse can materially improve cost, but each needs measured results and exact
-readback before claims are updated.
+Before full emission, `generation-preflight` validates the fixed capacity contract
+and reports both storage-only costs and the measured regular-component profile.
+The latter includes storage, local memory controls/returns and binary decoders,
+the screen, keyboard/controller circuitry, debug panel and clock. Its occupied
+X/Z chunk count is a union: vertically shared chunks are counted once. Placement
+counts describe emission operations, which can include repeated identical
+supports. Anvil sector/header costs are disk lower bounds, not forecasts of the
+compressed save size.
+
+After mapping the partitions and shell, `generate` also invokes
+`prepared_system_resource_preflight` and writes `mapped-resource-preflight.json`.
+That analysis includes literal mapped-cell placement counts and analytical
+routing lower bounds for every partition, the shell and the global interconnect.
+Each routing bound covers guaranteed long branch wires in the current
+unique-global-track topology; horizontal trunks, stairs and short terminal leads
+are additional. The report retains the exact regular-component profile. It takes
+the maximum of the regular and individual route chunk/byte lower bounds, rather
+than summing overlapping footprints, and leaves the exact whole-machine chunk
+count unset. A proven insufficient disk budget stops generation before world
+blocks are emitted.
+
+Validation-ledger space, temporary compaction space, compression growth beyond
+the minimum sectors and runtime loading costs remain additional or unmeasured.
+A fitting lower bound does not establish complete-route validity, safe clock
+timing, a workable loading strategy or in-world boot. Bank layout, generation
+locality and canonical section reuse need measured results and independent
+readback before their claimed savings are updated.
 
 ## Commands
 

@@ -94,6 +94,7 @@ jobs:
             build/physical/generation-preflight.json
             build/physical/mapped-resource-preflight.json
           if-no-files-found: warn
+          retention-days: 14
 
   attach:
     needs: package

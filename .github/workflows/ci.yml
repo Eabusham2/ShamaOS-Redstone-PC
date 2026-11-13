@@ -403,7 +403,7 @@ jobs:
             artifacts/physical-${{ matrix.instance }}.json
             artifacts/resources-${{ matrix.instance }}.json
           if-no-files-found: error
-          retention-days: 1
+          retention-days: 14
 
   full-physical-synthesis:
     if: contains(github.event.head_commit.message, '[full-synth]') || github.event_name == 'pull_request'
@@ -550,4 +550,4 @@ jobs:
             build/full-soc/physical-soc-manifest.json
             build/full-soc/shama_soc-shell-mapped.yosys.log
           if-no-files-found: error
-          retention-days: 7
+          retention-days: 14

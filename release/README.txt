@@ -1,7 +1,9 @@
 SHAMAOS - START HERE
 
-Use Minecraft Java 1.20.4. This computer needs the tested settings listed at
-the end of this file. Keep a copy of your save before trying other runtimes.
+Use Minecraft Java 1.20.4. A published guide ends with THIS RELEASE'S TESTED
+SETTINGS. Without that section, this source template does not certify a
+complete world download. See README.md for current progress.
+Use the tested settings and keep a copy of your save before trying other runtimes.
 
 WHAT EACH DOWNLOAD IS
   ShamaOS-world.zip: a grass superflat save with the whole computer in place.
@@ -19,10 +21,17 @@ same folder. The installer joins and checks the world parts automatically.
 For a split schematic or source archive, join the parts with 7-Zip first.
 
 EASIEST SETUP: READY-MADE WORLD
-1. Unzip ShamaOS-world.zip. Put the ShamaOS folder in your Minecraft saves folder.
-2. Open it in Java 1.20.4 and follow THIS RELEASE'S TESTED SETTINGS below.
-   For a split world, run the installer with --extract-world; it makes the same
-   ShamaOS folder. On Windows: Start-Windows.cmd --extract-world
+1. Unzip ShamaOS-world.zip. For .001/.002 parts, use SPLIT WORLD DOWNLOADS below.
+2. Put the resulting ShamaOS folder in your Minecraft saves folder.
+3. Open it in Java 1.20.4 and follow THIS RELEASE'S TESTED SETTINGS below.
+
+SPLIT WORLD DOWNLOADS
+Download ALL world parts, ShamaOS-installer.zip and release-manifest.json into
+one folder. Unzip the installer and install Python 3.11 or newer if needed.
+Open a terminal in the installer folder:
+  Windows PowerShell: .\Start-Windows.cmd --extract-world
+  Mac/Linux: sh Start-Mac-Linux.command --extract-world
+Move the created ShamaOS folder from your downloads into Minecraft's saves.
 
 ADD IT TO YOUR OWN WORLD
 1. Download the world, installer and release-manifest.json into one folder.
@@ -34,6 +43,19 @@ ADD IT TO YOUR OWN WORLD
 5. Open the NEW save. Read its START-HERE.txt for the console location and setup.
    The installer leaves grass/bedrock intact and avoids all existing chunks.
    A different ground height may not fit; use the ready-made save in that case.
+
+USING THE SCHEMATIC
+Install Fabric for Java 1.20.4, plus matching Litematica and MaLiLib versions:
+https://modrinth.com/mod/litematica
+Put ShamaOS.litematic in your game's schematics folder. Press M, choose Load
+Schematics and create a placement. This shows a preview. Use an empty area
+with the same grass height as the ready-made save. Put the lowest layer one
+block above grass and keep its saved orientation.
+To place the blocks in single player, use Creative mode, select the placement
+and choose "Paste schematic in world". Hold the enabled tool item (normally a
+stick) and use the executeOperation hotkey, found under M+C > Hotkeys. Follow this
+release's loading/startup settings before using the computer.
+Official paste guide: https://github.com/maruohon/litematica/wiki/Schematic-Pasting
 
 USING THE COMPUTER
 At the console, use Power, the on-screen menus and the physical keyboard.

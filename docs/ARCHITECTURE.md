@@ -40,13 +40,19 @@ Literal default capacities:
 - flash 250 KiB / 62 full banks plus one 2 KiB bank;
 - VRAM 16 KiB / 4 banks.
 
-Each bank is 4 KiB (1,024 × 32-bit words).
-The owner approved the RAM/flash reduction and subsequent RAM halving on
-2026-11-12. No screen, input,
-assembler, compute or OS functionality was removed with it. Bank selection wraps
-at the exact physical bank count, including the non-power-of-two RAM/flash counts.
-The compact controller exports a ten-bit binary row address to each tile's
-physical decoder instead of routing 1,024 row-select signals across the system.
+Each full bank contains 4 KiB (1,024 × 32-bit words). Flash's final bank contains
+512 words / 2 KiB, so its 63 bank modules provide exactly 250 KiB without padded
+storage. The owner approved the current capacities on 2026-11-12; screen, input,
+assembler, compute and OS functionality remain required.
+
+The controller checks each requested byte address against the exact installed
+capacity. An in-range request latches its bank and word-row address directly;
+there is no rotating bank/row seek or wraparound of an invalid address.
+Out-of-range requests are rejected before changing those address latches or
+starting a read/write transaction. Bank selects cover exactly the installed
+modules, including the non-power-of-two RAM/flash counts. A ten-bit binary row
+address reaches each tile's physical decoder instead of 1,024 system-wide
+row-select wires.
 
 ## GPU/display
 

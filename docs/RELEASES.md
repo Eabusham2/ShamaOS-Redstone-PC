@@ -37,6 +37,12 @@ into a verified playable computer.
    generate the guide with the exact tested settings, and publish the complete
    set only after packaging succeeds.
 
+All CI evidence, checked release bundles and blocked-release diagnostics use
+**14-day artifact retention**. This applies to newly uploaded artifacts; existing
+uploads keep their original expiry. If any required artifact has expired, rerun
+CI for the exact release commit before packaging. The release job refuses a
+partial evidence set.
+
 This workflow consumes an independently accepted candidate when available; it
 does not yet supply the missing whole-computer runtime harness. The fallback
 build currently stops at the concrete resource or runtime gate and uploads its
@@ -127,6 +133,9 @@ Sources for the user guide and formats:
 - [MCHPRS commands and Redpiler](https://github.com/MCHPR/MCHPRS)
 - [Distant Horizons versions and setup](https://modrinth.com/mod/distanthorizons)
 - [Horizon runtime and mod compatibility](https://playhorizon.dev/docs/faq)
+- [Litematica Java 1.20.4 Fabric download](https://modrinth.com/mod/litematica/version/0.17.4)
+- [Litematica loading and placement instructions](https://github.com/maruohon/litematica/wiki/Frequently-Asked-Questions)
+- [Litematica Creative-mode paste instructions](https://github.com/maruohon/litematica/wiki/Schematic-Pasting)
 - [Litematica schematic reader/writer](https://github.com/maruohon/litematica/blob/pre-rewrite/fabric/1.20.x/src/main/java/fi/dy/masa/litematica/schematic/LitematicaSchematic.java)
 - [Litematica metadata fields](https://github.com/maruohon/litematica/blob/pre-rewrite/fabric/1.20.x/src/main/java/fi/dy/masa/litematica/schematic/SchematicMetadata.java)
 - [GitHub release asset size/count limits](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases)
