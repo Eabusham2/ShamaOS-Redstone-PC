@@ -1,0 +1,16 @@
+{
+  "schema": "complete-connected-cache-union-checkpoint-v1",
+  "status": "two-exact-unions-agree-native-write-in-progress",
+  "observed_build_report_sha256": "8ec0ceb16c54324a07fbfc0ccc9ad794f6648cb8a2ce5b15a6cd1320f712489d",
+  "observed_build_report_file": "connected-cache-build-in-progress-checkpoint.json",
+  "base_repository_commit": "f711074956957b95f61c9db307a0d3c303af497d",
+  "source_input_archive": "connected-cache-frozen-source-inputs.zip",
+  "source_input_archive_sha256": "abd95246972f78cc915f00ecd2ba8496531431863a4c617e518c18df8793d159",
+  "unique_blocks": 37102012,
+  "occupied_chunks": 192026,
+  "sorted_unique_record_sha256": "d7291152fc8dfd2ab0a575d74ae2e08d00f7cd9bbb285cc8b61112e8f9c40530",
+  "scope": "Complete 1144-cell controller, all facade wires, both full 4 KiB banks, real decoder and every external route. Exact geometry only; regular-component and whole-computer totals must not be summed from this fixture.",
+  "native_world_readback_verified": false,
+  "connected_cache_runtime_verified": false,
+  "complete_machine_runtime_verified": false
+}

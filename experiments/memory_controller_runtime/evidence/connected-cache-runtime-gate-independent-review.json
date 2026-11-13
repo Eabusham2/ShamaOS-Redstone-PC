@@ -1,0 +1,36 @@
+{
+  "scope": "Synthetic rejection-guard reproduction only; no physical runtime or source-world evidence is asserted",
+  "source": {
+    "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-cache-native-f711/experiments/memory_controller_runtime/run_connected.py",
+    "sha256": "faccd37e13eab70a7eb8dd577501073b7f283e88ab10d081cc914f28100309d2",
+    "bytes": 29694
+  },
+  "harness": {
+    "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded-integration/build/connected-cache-independent-review/verify_fixed_clock_gate.py",
+    "sha256": "dd0502e429ccebda045101ebcb60452b8d670f92c35199867cec70b0812641bc",
+    "bytes": 2807
+  },
+  "results": [
+    {
+      "case": "missing-both-cases",
+      "accepted_by_current_clock_gate": false,
+      "error_type": "ValueError",
+      "error": "clock evidence must retain both exact safe and too-fast cases",
+      "native_execution_run": false
+    },
+    {
+      "case": "missing-negative-case",
+      "accepted_by_current_clock_gate": false,
+      "error_type": "ValueError",
+      "error": "clock evidence must retain both exact safe and too-fast cases",
+      "native_execution_run": false
+    },
+    {
+      "case": "requested-period-not-probed",
+      "accepted_by_current_clock_gate": false,
+      "error_type": "ValueError",
+      "error": "transaction half-period must equal the actually accepted safe clock probe",
+      "native_execution_run": false
+    }
+  ]
+}

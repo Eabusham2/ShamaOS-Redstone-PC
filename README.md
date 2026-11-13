@@ -18,12 +18,16 @@ physical synthesis partitions and final reconnection. Newer work and the remaini
 in the implementation status document.
 
 The current program sizes are accepted; work is focused on complete physical routing,
-timing, saved-world execution and the final release. The bounded router still
-needs production integration, and the complete-world acceptance runner still
-needs implementation. The newer [completion checkpoint](docs/evidence/completion-checkpoint-root-review-2026-11-13.json)
-adds an audited bounded-partition world exporter and preserves the complete
-cache-controller placement. Its development world has been saved and reopened;
-connecting the controller to both physical memory banks remains unfinished.
+timing, saved-world execution and the final release. An explicit
+[bounded generation backend](docs/BOUNDED_BACKEND.md) now connects complete mapped
+partitions, exterior contacts, the mapped top shell and global routing to the
+existing world writer. Its complete small test system passes saved-world execution;
+placing and operating all twelve real partitions remains unfinished. The default
+backend is still `flat`, and the complete-world acceptance runner still needs
+implementation. The full cache controller's original development world has passed
+saved-world clock probes. Its larger exterior-contact layout now passes exact
+geometry and planned clock matching; connecting and operating it with both full
+physical memory banks is the next native-runtime gate.
 
 ## Agreed machine
 

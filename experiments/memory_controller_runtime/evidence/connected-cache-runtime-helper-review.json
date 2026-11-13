@@ -1,0 +1,23 @@
+{
+  "schema": "complete-cache-runtime-helper-review-v1",
+  "status": "passed",
+  "tests": 64,
+  "failures": 0,
+  "errors": 0,
+  "skips": 0,
+  "current_source_hashes": {
+    "experiments/memory_controller_runtime/interconnect.py": "159dd746d905d93a1cfecb25cc8e7645ea91fc136d772432cf7c0923486c519b",
+    "experiments/memory_controller_runtime/save_connected.py": "70c44d2fc3eee9f401911373b6a15f412a89da8cb84d4662bcfe36363bdec2ef",
+    "experiments/memory_controller_runtime/run_connected.py": "faccd37e13eab70a7eb8dd577501073b7f283e88ab10d081cc914f28100309d2",
+    "tests/test_memory_controller_runtime_experiment.py": "de89a3cdefd1ba98701bff7f1e1d3a86202a886240dca4661485550c63b03f73"
+  },
+  "junit_sha256": "0c0f083bb843eae569dc4e99658fc4387fc1794c25bf1ec193f9dd65118b773a",
+  "independent_native_review_sha256": "b8847d7ac18d01888c5a42bc80826d7d93313680559c61d947c1441095417af6",
+  "independent_gate_review_sha256": "7c470b2549c001cd1e6a10bc8ebf44427b72e5e903ddd1d6d171d39df4da3296",
+  "independent_guard_junit_sha256": "03bec63a8a3eaba9cc08aa6e33541176339f1550779e262971620ede0651f0d1",
+  "scope": "Current helper/preparation/clock/evidence-guard regression and independent small native snapshot replay only; full connected native world execution remains pending",
+  "earlier_preparation_review_scope": "The earlier 15-case report binds the preparation-only test-file revision; this 64-case report binds the current full test file and includes all those checks.",
+  "connected_cache_runtime_verified": false,
+  "native_complete_cache_persistence_verified": false,
+  "complete_machine_runtime_verified": false
+}

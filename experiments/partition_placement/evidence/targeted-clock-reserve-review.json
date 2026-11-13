@@ -1,0 +1,97 @@
+{
+  "status": "focused-targeted-reservation-tests-passed",
+  "scope": "Experimental group reservation, unchanged original matcher/rollback, exact empty-override equivalence and real small-pipeline positive/negative; full 640-block cache group untested until new placement",
+  "tests": 19,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "source_hashes": {
+    "experiments/partition_placement/targeted_clock_reserve.py": "02bf1a51c40e61910efb7fbda41480ec7ce1cc1bbb8369cd731988a5d90f46b0",
+    "experiments/partition_placement/clock_capacity.py": "f0b9cb8f4c00bd5adecabe682ab11438178d2278977c0ec1abe13837af531604",
+    "experiments/partition_placement/run_port_egress.py": "8ec6ea064afb4d519bccb9ba2158143fdb2a2db26818a9ab5532a6c73b1c91a5",
+    "experiments/partition_placement/parent_union/run_capped.py": "276c6ef42dd17d6bb4d525410e8d568b7c063f030112add6a0a2a2df44022b0b",
+    "tests/test_targeted_clock_reserve.py": "8159cbdd0d5d40fdf119cb0f778a804babed27ba7e251620bd3a355eae1b9e42"
+  },
+  "runtime_cases": [
+    {
+      "half_period_redstone_ticks": 512,
+      "clock_edges": 16,
+      "clock_skew_ticks": 0,
+      "minimum_setup_ticks": 856,
+      "minimum_hold_ticks": 94,
+      "pipeline_failures": []
+    },
+    {
+      "half_period_redstone_ticks": 20,
+      "clock_edges": 16,
+      "clock_skew_ticks": 0,
+      "minimum_setup_ticks": 27,
+      "minimum_hold_ticks": 14,
+      "pipeline_failures": [
+        {
+          "edge": 3398,
+          "register": "b",
+          "expected": true,
+          "actual": false
+        },
+        {
+          "edge": 3438,
+          "register": "b",
+          "expected": true,
+          "actual": false
+        },
+        {
+          "edge": 5606,
+          "register": "b",
+          "expected": false,
+          "actual": true
+        },
+        {
+          "edge": 5646,
+          "register": "b",
+          "expected": false,
+          "actual": true
+        },
+        {
+          "edge": 7814,
+          "register": "b",
+          "expected": true,
+          "actual": false
+        },
+        {
+          "edge": 7854,
+          "register": "b",
+          "expected": true,
+          "actual": false
+        },
+        {
+          "edge": 9982,
+          "register": "b",
+          "expected": false,
+          "actual": true
+        },
+        {
+          "edge": 10022,
+          "register": "b",
+          "expected": false,
+          "actual": true
+        }
+      ]
+    }
+  ],
+  "proposed_full_configuration": {
+    "baseline_clock_padding_blocks": 128,
+    "absolute_domain_padding": {
+      "4": 640
+    },
+    "maximum_y": 285,
+    "memory_limit_mib": 2048
+  },
+  "full_cache_clock_verified": false,
+  "launcher_smoke": {
+    "status": "complete-geometry-runtime-pending",
+    "source_and_input_bindings_unchanged": true,
+    "complete_geometry_verified": true,
+    "full_cache_result": false
+  }
+}

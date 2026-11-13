@@ -1,0 +1,153 @@
+{
+  "all_semantic_fields_and_traces_equal": true,
+  "complete_machine_runtime_verified": false,
+  "connected_cache_runtime_verified": false,
+  "declared_assertions": 5408,
+  "fresh_process_assertions": 224,
+  "fresh_process_continuation": {
+    "address_space_limit_bytes": 536870912,
+    "cpu_limit_seconds": 60,
+    "exit_code": 0,
+    "explicit_wall_timeout_reached": false,
+    "peak_rss_kib": 67440,
+    "snapshot_file": {
+      "bytes": 721321,
+      "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded-integration/build/connected-cache-independent-review/run-faccd37/continuation-snapshot.jsonl",
+      "sha256": "205d1fccf292df84e02c3ccc4f4fd00fd71e30cbf75116951e22bef78c7c44bd"
+    },
+    "stderr": {
+      "bytes": 2094,
+      "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded-integration/build/connected-cache-independent-review/run-faccd37/continuation-progress.jsonl",
+      "sha256": "9e36dbb9977bf76dfb1f87db9a46591b64ca2636538cac102e249d06a0e96159"
+    },
+    "stdout": {
+      "bytes": 5135,
+      "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded-integration/build/connected-cache-independent-review/run-faccd37/continuation-runtime.json",
+      "sha256": "c84ba8a1827af6fbf19e0057473ff9b69e63345c1ee9bbed2eee9448f981387e"
+    },
+    "system_cpu_seconds": 0.155,
+    "termination_signal": null,
+    "user_cpu_seconds": 0.208887,
+    "wall_limit_seconds": 60,
+    "wall_seconds": 0.5042419469973538
+  },
+  "full_cache_runtime_verified": false,
+  "harness": {
+    "bytes": 6184,
+    "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded-integration/build/connected-cache-independent-review/audit_native_hardened.py",
+    "sha256": "577b0042d00de377c01f75f8d974cebd931b88b43ec733a17ef36d33580582c0"
+  },
+  "historical_wrapper_source": {
+    "bytes": 24325,
+    "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/experiments/memory_controller_runtime/run_connected.py",
+    "sha256": "c985ff3b3ced489f22e7fbd745df1ed702d47f7a5099470c21d6db6bc7a5f7d9"
+  },
+  "ignored_fields": [
+    "import_seconds",
+    "initialization_seconds",
+    "runtime_seconds",
+    "peak_rss_kib",
+    "snapshot.seconds",
+    "snapshot.path"
+  ],
+  "mutations_rejected": [
+    "loaded_chunks",
+    "decoded_nonair_blocks",
+    "initialized_nonair_blocks",
+    "comparator_entities",
+    "steps",
+    "ticks",
+    "assertions",
+    "imported_stream_sha256",
+    "scenario_sha256"
+  ],
+  "native_restore": {
+    "additional_runtime_chunks": 0,
+    "chunks": 50,
+    "comparators": 192,
+    "complete_machine_runtime_verified": false,
+    "engine_registry_patch_sha256": "8ebd0e097d07e93a6b2b158e08ad19c2660b0b7e2521c6b6d34a4583a10bfbdc",
+    "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+    "nonair": 72063,
+    "original_chunk_inventory_preserved": true,
+    "original_chunk_inventory_sha256": "2e2bb4c08f1531d761ae0eee9e4bcbfc3948f0b44a77cbb982c78607c3c76bc2",
+    "original_source_chunks": 50,
+    "parent_imported_stream_sha256": "56c8ab1c5ce23cfcacba32174f5adbbd81eb3578f28dcc4ab4c2755c3f17d00e",
+    "parent_scenario_sha256": "999cd8393b9eba249d2282741c0dd37d8354545b6503e843543fd7b9cd6636ac",
+    "pending_scheduled_ticks": 0,
+    "sections": 1200,
+    "snapshot_sha256": "7f9d004d70bbe22a88f41093c99f8b8d2292da7b4923284506779a7d5ebaaa7b",
+    "status": "quiescent-snapshot-native-readback-passed"
+  },
+  "native_runtime_helper_approved_for_full_cache_attempt": true,
+  "process": {
+    "address_space_limit_bytes": 536870912,
+    "cpu_limit_seconds": 60,
+    "exit_code": 0,
+    "explicit_wall_timeout_reached": false,
+    "peak_rss_kib": 51348,
+    "snapshot_file": {
+      "bytes": 721277,
+      "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded-integration/build/connected-cache-independent-review/run-faccd37/memory-snapshot.jsonl",
+      "sha256": "7f9d004d70bbe22a88f41093c99f8b8d2292da7b4923284506779a7d5ebaaa7b"
+    },
+    "stderr": {
+      "bytes": 5591,
+      "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded-integration/build/connected-cache-independent-review/run-faccd37/memory-progress.jsonl",
+      "sha256": "55d13460b4569724354e3cbfcbd78ca086646b08c8769ff5f1b5e4e781041a30"
+    },
+    "stdout": {
+      "bytes": 7968905,
+      "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded-integration/build/connected-cache-independent-review/run-faccd37/memory-runtime.json",
+      "sha256": "d9fd573cd17f8e738c3f57504a658ae020b26eeb33e950f01894d1d64f5f67d6"
+    },
+    "system_cpu_seconds": 0.17970799999999998,
+    "termination_signal": null,
+    "user_cpu_seconds": 0.48156299999999996,
+    "wall_limit_seconds": 60,
+    "wall_seconds": 1.003451643999142
+  },
+  "retained_harness": {
+    "bytes": 6184,
+    "content_identical_to_executed_helper": true,
+    "path": "experiments/memory_controller_runtime/evidence/independent_review/native.py",
+    "sha256": "577b0042d00de377c01f75f8d974cebd931b88b43ec733a17ef36d33580582c0"
+  },
+  "review_limit": "This is a 192-bit small native memory fixture, not execution of the complete cache; every full-cache acceptance flag remains false.",
+  "runner": {
+    "bytes": 1325480,
+    "path": "/workspace/scratch/fb0eaf1c89fe/experiments/cache-controller/lazy-native-promoted/target/release/shama-sparse-world-check-terrain",
+    "sha256": "16a981eca53535e8109f22090d8afcb2e5b0870d73ac4697083c01c0a84d6691"
+  },
+  "runtime_helper_sources": {
+    "experiments/memory_controller_runtime/probe_controller.py": "d08649c2ee06c6ae9fa4aa1341d1fb27f1c99b1d9e4fbb915cd1707d1e7146ad",
+    "experiments/memory_controller_runtime/run_connected.py": "faccd37e13eab70a7eb8dd577501073b7f283e88ab10d081cc914f28100309d2",
+    "experiments/memory_controller_runtime/save_connected.py": "70c44d2fc3eee9f401911373b6a15f412a89da8cb84d4662bcfe36363bdec2ef",
+    "experiments/memory_controller_runtime/scenarios.py": "1319d9a6097909dd849ac59c855c17232fc2442624cb957fb000de37e8499b67",
+    "src/shamaos/mchprs_import.py": "0680be7ad82c53561bd1401be2b8133c7cd19a55b591bba6ea18410a6d5de0ea",
+    "src/shamaos/mchprs_snapshot.py": "e0c92da3d8ced59a65879a4fcc411ffbf994f625714d0fee0ba3adae52fcb91e",
+    "src/shamaos/model.py": "1a0fd1f9eb9469989057e4486401e5161e7f0bb02eb69195b7a14a74e92f4b95",
+    "src/shamaos/release_io.py": "5e1f310243d2325b9e4f6987649a770d2d4d03667cb66f5d442262fae43609c1",
+    "src/shamaos/worldio.py": "08e163497c981357b3aa4ce444709f38769001fb512700b0ffd2a8fc4ebda69c"
+  },
+  "scenario": {
+    "bytes": 89990,
+    "path": "/workspace/scratch/fb0eaf1c89fe/experiments/world-runtime/fixtures/memory/scenario.json",
+    "sha256": "999cd8393b9eba249d2282741c0dd37d8354545b6503e843543fd7b9cd6636ac"
+  },
+  "scope": "Independent exact-wrapper small native memory comparison, complete small-fixture snapshot readback and fresh-process observation; not full cache acceptance",
+  "snapshot_bytes_equal": true,
+  "source": {
+    "bytes": 29694,
+    "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-cache-native-f711/experiments/memory_controller_runtime/run_connected.py",
+    "sha256": "faccd37e13eab70a7eb8dd577501073b7f283e88ab10d081cc914f28100309d2"
+  },
+  "status": "passed",
+  "stored_bits_read_before_fresh_engine": 192,
+  "stream": {
+    "bytes": 466848,
+    "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/lazy-native-equivalence-v2/uniform-v2-memory/world.jsonl",
+    "sha256": "56c8ab1c5ce23cfcacba32174f5adbbd81eb3578f28dcc4ab4c2755c3f17d00e"
+  },
+  "trace_samples_compared": 1433600
+}

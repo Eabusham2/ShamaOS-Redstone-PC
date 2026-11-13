@@ -1,0 +1,549 @@
+{
+  "status": "fixed-coordinate-clock-capacity-prediction-only",
+  "scope": "Moving the full sibling track group without parent repacking predicts delay capacity only; these altered coordinates are not accepted geometry",
+  "manifest_sha256": "eb3c544f1f0ad77d8d3ad0dc748d2176fac952202c09a54bff89e6cb3adf70ee",
+  "target_cluster": 25,
+  "sibling_modules": [
+    [
+      "domain",
+      4
+    ],
+    [
+      "domain",
+      11
+    ],
+    [
+      "egress",
+      25,
+      0
+    ]
+  ],
+  "trials": [
+    {
+      "additional_group_blocks": 0,
+      "absolute_group_padding": 128,
+      "maximum_shortfall": 1904,
+      "clocks": {
+        "2": {
+          "clock_leaves": 115,
+          "modules": 27,
+          "ideal_original_pin_to_register_delay": 3570,
+          "facade_common_prefix_repeater_delay": 3448,
+          "ideal_exterior_to_register_delay": 7018
+        }
+      },
+      "shortages": [
+        {
+          "module": [
+            "domain",
+            4
+          ],
+          "net": 2,
+          "sink": "boundary:net2:cluster25>cluster16:out",
+          "pin": "net2:cluster25>cluster16:out",
+          "position": {
+            "x": 5688,
+            "y": -59,
+            "z": 1758
+          },
+          "arrival": 580,
+          "tail": 177,
+          "needed_extra_delay": 2865,
+          "available_private_branch_extra_delay": 1188,
+          "private_branch_positions": 305,
+          "shortfall": 1677,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 681,
+            "straight_existing_repeaters": 89,
+            "available_extra_delay_upper_bound": 2991,
+            "path_active_positions": 893
+          }
+        },
+        {
+          "module": [
+            "domain",
+            4
+          ],
+          "net": 2,
+          "sink": "boundary:net2:cluster25>cluster17:out",
+          "pin": "net2:cluster25>cluster17:out",
+          "position": {
+            "x": 5208,
+            "y": -35,
+            "z": 1754
+          },
+          "arrival": 415,
+          "tail": 128,
+          "needed_extra_delay": 3030,
+          "available_private_branch_extra_delay": 1126,
+          "private_branch_positions": 289,
+          "shortfall": 1904,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 398,
+            "straight_existing_repeaters": 54,
+            "available_extra_delay_upper_bound": 1754,
+            "path_active_positions": 549
+          }
+        }
+      ],
+      "target_domain_sinks": [
+        {
+          "sink": "boundary:net2:cluster25>cluster16:out",
+          "pin": "net2:cluster25>cluster16:out",
+          "position": {
+            "x": 5688,
+            "y": -59,
+            "z": 1758
+          },
+          "arrival": 580,
+          "tail": 177,
+          "needed_extra_delay": 2865,
+          "available_private_branch_extra_delay": 1188,
+          "private_branch_positions": 305,
+          "shortfall": 1677,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 681,
+            "straight_existing_repeaters": 89,
+            "available_extra_delay_upper_bound": 2991,
+            "path_active_positions": 893
+          }
+        },
+        {
+          "sink": "boundary:net2:cluster25>cluster17:out",
+          "pin": "net2:cluster25>cluster17:out",
+          "position": {
+            "x": 5208,
+            "y": -35,
+            "z": 1754
+          },
+          "arrival": 415,
+          "tail": 128,
+          "needed_extra_delay": 3030,
+          "available_private_branch_extra_delay": 1126,
+          "private_branch_positions": 289,
+          "shortfall": 1904,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 398,
+            "straight_existing_repeaters": 54,
+            "available_extra_delay_upper_bound": 1754,
+            "path_active_positions": 549
+          }
+        },
+        {
+          "sink": "boundary:net2:cluster25>cluster27:out",
+          "pin": "net2:cluster25>cluster27:out",
+          "position": {
+            "x": 4336,
+            "y": -59,
+            "z": 3568
+          },
+          "arrival": 3445,
+          "tail": 2892,
+          "needed_extra_delay": 0,
+          "available_private_branch_extra_delay": 8060,
+          "private_branch_positions": 2067,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 2750,
+            "straight_existing_repeaters": 318,
+            "available_extra_delay_upper_bound": 11954,
+            "path_active_positions": 3191
+          }
+        }
+      ]
+    },
+    {
+      "additional_group_blocks": 484,
+      "absolute_group_padding": 612,
+      "maximum_shortfall": 17,
+      "clocks": {
+        "2": {
+          "clock_leaves": 115,
+          "modules": 27,
+          "ideal_original_pin_to_register_delay": 3667,
+          "facade_common_prefix_repeater_delay": 3545,
+          "ideal_exterior_to_register_delay": 7212
+        }
+      },
+      "shortages": [
+        {
+          "module": [
+            "domain",
+            4
+          ],
+          "net": 2,
+          "sink": "boundary:net2:cluster25>cluster17:out",
+          "pin": "net2:cluster25>cluster17:out",
+          "position": {
+            "x": 5208,
+            "y": -35,
+            "z": 1754
+          },
+          "arrival": 512,
+          "tail": 128,
+          "needed_extra_delay": 3030,
+          "available_private_branch_extra_delay": 3013,
+          "private_branch_positions": 773,
+          "shortfall": 17,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 833,
+            "straight_existing_repeaters": 103,
+            "available_extra_delay_upper_bound": 3641,
+            "path_active_positions": 1033
+          }
+        }
+      ],
+      "target_domain_sinks": [
+        {
+          "sink": "boundary:net2:cluster25>cluster16:out",
+          "pin": "net2:cluster25>cluster16:out",
+          "position": {
+            "x": 5688,
+            "y": -59,
+            "z": 1758
+          },
+          "arrival": 676,
+          "tail": 177,
+          "needed_extra_delay": 2866,
+          "available_private_branch_extra_delay": 3076,
+          "private_branch_positions": 789,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 1117,
+            "straight_existing_repeaters": 137,
+            "available_extra_delay_upper_bound": 4879,
+            "path_active_positions": 1377
+          }
+        },
+        {
+          "sink": "boundary:net2:cluster25>cluster17:out",
+          "pin": "net2:cluster25>cluster17:out",
+          "position": {
+            "x": 5208,
+            "y": -35,
+            "z": 1754
+          },
+          "arrival": 512,
+          "tail": 128,
+          "needed_extra_delay": 3030,
+          "available_private_branch_extra_delay": 3013,
+          "private_branch_positions": 773,
+          "shortfall": 17,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 833,
+            "straight_existing_repeaters": 103,
+            "available_extra_delay_upper_bound": 3641,
+            "path_active_positions": 1033
+          }
+        },
+        {
+          "sink": "boundary:net2:cluster25>cluster27:out",
+          "pin": "net2:cluster25>cluster27:out",
+          "position": {
+            "x": 4336,
+            "y": -59,
+            "z": 3568
+          },
+          "arrival": 3542,
+          "tail": 2892,
+          "needed_extra_delay": 0,
+          "available_private_branch_extra_delay": 9947,
+          "private_branch_positions": 2551,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 3185,
+            "straight_existing_repeaters": 367,
+            "available_extra_delay_upper_bound": 13841,
+            "path_active_positions": 3675
+          }
+        }
+      ]
+    },
+    {
+      "additional_group_blocks": 488,
+      "absolute_group_padding": 616,
+      "maximum_shortfall": 1,
+      "clocks": {
+        "2": {
+          "clock_leaves": 115,
+          "modules": 27,
+          "ideal_original_pin_to_register_delay": 3668,
+          "facade_common_prefix_repeater_delay": 3545,
+          "ideal_exterior_to_register_delay": 7213
+        }
+      },
+      "shortages": [
+        {
+          "module": [
+            "domain",
+            4
+          ],
+          "net": 2,
+          "sink": "boundary:net2:cluster25>cluster17:out",
+          "pin": "net2:cluster25>cluster17:out",
+          "position": {
+            "x": 5208,
+            "y": -35,
+            "z": 1754
+          },
+          "arrival": 513,
+          "tail": 128,
+          "needed_extra_delay": 3030,
+          "available_private_branch_extra_delay": 3029,
+          "private_branch_positions": 777,
+          "shortfall": 1,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 837,
+            "straight_existing_repeaters": 103,
+            "available_extra_delay_upper_bound": 3657,
+            "path_active_positions": 1037
+          }
+        }
+      ],
+      "target_domain_sinks": [
+        {
+          "sink": "boundary:net2:cluster25>cluster16:out",
+          "pin": "net2:cluster25>cluster16:out",
+          "position": {
+            "x": 5688,
+            "y": -59,
+            "z": 1758
+          },
+          "arrival": 678,
+          "tail": 177,
+          "needed_extra_delay": 2865,
+          "available_private_branch_extra_delay": 3091,
+          "private_branch_positions": 793,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 1120,
+            "straight_existing_repeaters": 138,
+            "available_extra_delay_upper_bound": 4894,
+            "path_active_positions": 1381
+          }
+        },
+        {
+          "sink": "boundary:net2:cluster25>cluster17:out",
+          "pin": "net2:cluster25>cluster17:out",
+          "position": {
+            "x": 5208,
+            "y": -35,
+            "z": 1754
+          },
+          "arrival": 513,
+          "tail": 128,
+          "needed_extra_delay": 3030,
+          "available_private_branch_extra_delay": 3029,
+          "private_branch_positions": 777,
+          "shortfall": 1,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 837,
+            "straight_existing_repeaters": 103,
+            "available_extra_delay_upper_bound": 3657,
+            "path_active_positions": 1037
+          }
+        },
+        {
+          "sink": "boundary:net2:cluster25>cluster27:out",
+          "pin": "net2:cluster25>cluster27:out",
+          "position": {
+            "x": 4336,
+            "y": -59,
+            "z": 3568
+          },
+          "arrival": 3543,
+          "tail": 2892,
+          "needed_extra_delay": 0,
+          "available_private_branch_extra_delay": 9963,
+          "private_branch_positions": 2555,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 3189,
+            "straight_existing_repeaters": 367,
+            "available_extra_delay_upper_bound": 13857,
+            "path_active_positions": 3679
+          }
+        }
+      ]
+    },
+    {
+      "additional_group_blocks": 492,
+      "absolute_group_padding": 620,
+      "maximum_shortfall": 0,
+      "clocks": {
+        "2": {
+          "clock_leaves": 115,
+          "modules": 27,
+          "ideal_original_pin_to_register_delay": 3668,
+          "facade_common_prefix_repeater_delay": 3546,
+          "ideal_exterior_to_register_delay": 7214
+        }
+      },
+      "shortages": [],
+      "target_domain_sinks": [
+        {
+          "sink": "boundary:net2:cluster25>cluster16:out",
+          "pin": "net2:cluster25>cluster16:out",
+          "position": {
+            "x": 5688,
+            "y": -59,
+            "z": 1758
+          },
+          "arrival": 678,
+          "tail": 177,
+          "needed_extra_delay": 2865,
+          "available_private_branch_extra_delay": 3107,
+          "private_branch_positions": 797,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 1124,
+            "straight_existing_repeaters": 138,
+            "available_extra_delay_upper_bound": 4910,
+            "path_active_positions": 1385
+          }
+        },
+        {
+          "sink": "boundary:net2:cluster25>cluster17:out",
+          "pin": "net2:cluster25>cluster17:out",
+          "position": {
+            "x": 5208,
+            "y": -35,
+            "z": 1754
+          },
+          "arrival": 514,
+          "tail": 128,
+          "needed_extra_delay": 3029,
+          "available_private_branch_extra_delay": 3044,
+          "private_branch_positions": 781,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 840,
+            "straight_existing_repeaters": 104,
+            "available_extra_delay_upper_bound": 3672,
+            "path_active_positions": 1041
+          }
+        },
+        {
+          "sink": "boundary:net2:cluster25>cluster27:out",
+          "pin": "net2:cluster25>cluster27:out",
+          "position": {
+            "x": 4336,
+            "y": -59,
+            "z": 3568
+          },
+          "arrival": 3543,
+          "tail": 2892,
+          "needed_extra_delay": 0,
+          "available_private_branch_extra_delay": 9979,
+          "private_branch_positions": 2559,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 3193,
+            "straight_existing_repeaters": 367,
+            "available_extra_delay_upper_bound": 13873,
+            "path_active_positions": 3683
+          }
+        }
+      ]
+    },
+    {
+      "additional_group_blocks": 512,
+      "absolute_group_padding": 640,
+      "maximum_shortfall": 0,
+      "clocks": {
+        "2": {
+          "clock_leaves": 115,
+          "modules": 27,
+          "ideal_original_pin_to_register_delay": 3672,
+          "facade_common_prefix_repeater_delay": 3550,
+          "ideal_exterior_to_register_delay": 7222
+        }
+      },
+      "shortages": [],
+      "target_domain_sinks": [
+        {
+          "sink": "boundary:net2:cluster25>cluster16:out",
+          "pin": "net2:cluster25>cluster16:out",
+          "position": {
+            "x": 5688,
+            "y": -59,
+            "z": 1758
+          },
+          "arrival": 682,
+          "tail": 177,
+          "needed_extra_delay": 2865,
+          "available_private_branch_extra_delay": 3185,
+          "private_branch_positions": 817,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 1142,
+            "straight_existing_repeaters": 140,
+            "available_extra_delay_upper_bound": 4988,
+            "path_active_positions": 1405
+          }
+        },
+        {
+          "sink": "boundary:net2:cluster25>cluster17:out",
+          "pin": "net2:cluster25>cluster17:out",
+          "position": {
+            "x": 5208,
+            "y": -35,
+            "z": 1754
+          },
+          "arrival": 518,
+          "tail": 128,
+          "needed_extra_delay": 3029,
+          "available_private_branch_extra_delay": 3122,
+          "private_branch_positions": 801,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 858,
+            "straight_existing_repeaters": 106,
+            "available_extra_delay_upper_bound": 3750,
+            "path_active_positions": 1061
+          }
+        },
+        {
+          "sink": "boundary:net2:cluster25>cluster27:out",
+          "pin": "net2:cluster25>cluster27:out",
+          "position": {
+            "x": 4336,
+            "y": -59,
+            "z": 3568
+          },
+          "arrival": 3547,
+          "tail": 2892,
+          "needed_extra_delay": 0,
+          "available_private_branch_extra_delay": 10057,
+          "private_branch_positions": 2579,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 3211,
+            "straight_existing_repeaters": 369,
+            "available_extra_delay_upper_bound": 13951,
+            "path_active_positions": 3703
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -345,3 +345,273 @@ def test_complete_clock_analyzer_rejects_missing_pulses_wrong_width_and_skew():
         assert not analyze_clocks({"traces": traces}, ("a", "b"), 2)["clock_gate_passed"]
     with pytest.raises(ValueError, match="inventory"):
         analyze_clocks({"traces": {"a": pulse}}, ("a", "b"), 2)
+
+
+@pytest.fixture(scope="module")
+def small_connected_facade():
+    """Small real graph for binding guards, never a complete-cache surrogate."""
+    from experiments.partition_placement.port_egress import place_with_egress
+    from shamaos.hardware.partition_planner import Graph
+    mapped = fixture.ROOT / "experiments/partition_placement/raised_exports/evidence/pipeline-mapped.json"
+    graph = Graph.read(mapped, "pipeline")
+    plan = build_plan(graph, cell_budget=1, boundary_budget=8, domain_budget=5, arity=4)
+    return graph, plan, place_with_egress(graph, plan)
+
+
+def _connected_facade_inputs(tmp_path, small_connected_facade):
+    from experiments.memory_controller_runtime import save_connected
+    from experiments.partition_placement.port_egress_manifest import write_egress_manifest
+    graph, plan, placed = small_connected_facade
+    plan_path = tmp_path / "plan.json"
+    plan_path.write_text(json.dumps(plan))
+    plan_sha = save_connected._sha(plan_path)
+    manifest_path = tmp_path / "facade.json.gz"
+    record = write_egress_manifest(manifest_path, graph, plan, placed,
+        provenance={"plan_sha256": plan_sha, "clock_balance_verified": True})
+    document = json.loads(gzip.decompress(manifest_path.read_bytes()))
+    report = {"status": save_connected.PASSED_FACADE, "balanced_manifest": record,
+              "mapped_source": graph.source, "plan_sha256": plan_sha,
+              "source_hashes": document["original_geometry"]["provenance"]["source_hashes"]}
+    path = tmp_path / "facade-report.json"
+    path.write_text(json.dumps(report))
+    return graph, path, plan_path, manifest_path, report, document
+
+
+def test_connected_emitter_accepts_only_bound_balanced_facade(tmp_path, small_connected_facade):
+    from experiments.memory_controller_runtime.save_connected import _accepted_facade
+    graph, path, plan, manifest, report, _ = _connected_facade_inputs(tmp_path, small_connected_facade)
+    actual, record, actual_manifest = _accepted_facade(path, plan, graph)
+    assert actual == report
+    assert record == report["balanced_manifest"] and actual_manifest == manifest
+
+
+@pytest.mark.parametrize("fault", ["source", "plan", "unbalanced", "report-source", "mapped", "manifest"])
+def test_connected_emitter_rejects_changed_sources_plan_or_geometry(tmp_path, small_connected_facade, fault):
+    from experiments.memory_controller_runtime.save_connected import _accepted_facade, _sha
+    graph, path, plan, manifest, report, document = _connected_facade_inputs(tmp_path, small_connected_facade)
+    provenance = document["original_geometry"]["provenance"]
+    if fault == "source":
+        name = next(iter(provenance["source_hashes"]))
+        provenance["source_hashes"][name] = "0" * 64
+        report["source_hashes"][name] = "0" * 64
+    elif fault == "plan":
+        plan.write_text(plan.read_text() + "\nchanged")
+    elif fault == "unbalanced":
+        provenance["clock_balance_verified"] = False
+    elif fault == "report-source":
+        report["source_hashes"] = dict(report["source_hashes"], **{"invented.py": "0" * 64})
+    elif fault == "mapped":
+        report["mapped_source"] = dict(report["mapped_source"], sha256="0" * 64)
+    if fault in ("source", "unbalanced"):
+        # Correctly rehashing a tampered document cannot make its provenance valid.
+        manifest.write_bytes(gzip.compress(json.dumps(document).encode(), mtime=0))
+        report["balanced_manifest"]["sha256"] = _sha(manifest)
+    if fault == "manifest":
+        manifest.write_bytes(manifest.read_bytes() + b"changed")
+    path.write_text(json.dumps(report))
+    with pytest.raises(ValueError):
+        _accepted_facade(path, plan, graph)
+
+
+def test_connected_emitter_never_replaces_existing_output(tmp_path, monkeypatch):
+    from experiments.memory_controller_runtime import save_connected
+    destination = tmp_path / "existing-world"
+    destination.mkdir()
+    sentinel = destination / "user-data"
+    sentinel.write_bytes(b"preserved")
+    monkeypatch.setattr(fixture, "graph_and_fabric", lambda: pytest.fail("existing destination was not rejected first"))
+    with pytest.raises(FileExistsError):
+        save_connected.save_connected(tmp_path / "unread", tmp_path / "unread-plan", destination)
+    assert sentinel.read_bytes() == b"preserved"
+    assert list(destination.iterdir()) == [sentinel]
+
+
+def test_connected_interconnect_rejects_reduced_physical_capacity_before_routing(complete_cache):
+    from types import SimpleNamespace
+    from experiments.memory_controller_runtime.interconnect import connect_cache, iter_complete_banks
+    graph, _, fabric, origin = complete_cache
+    reduced = SimpleNamespace(total_bytes=4096, bank_count=1, bank=fabric.bank,
+                              layers=1, layer_pitch=fabric.layer_pitch, decoder_x_offset=fabric.decoder_x_offset)
+    with pytest.raises(ValueError, match="both complete"):
+        connect_cache(graph, None, reduced, origin)
+    with pytest.raises(ValueError, match="exactly 8 KiB"):
+        list(iter_complete_banks(None, fabric, bytes(4096)))
+
+
+@pytest.mark.parametrize("fault", [None, "missing-terminal", "occupied-pad", "unrelated-neighbor", "aliased-pad"])
+def test_connected_host_pad_checks_saved_native_blocks(tmp_path, fault):
+    from experiments.memory_controller_runtime.save_connected import _validate_native_driver_pads
+    from shamaos.hardware.memory import DUST, SUPPORT
+    from shamaos.model import Placement
+    from shamaos.worldio import NativeWorldReader, NativeWorldWriter
+    terminal = Vec3(0, 0, 0)
+    blocks = [Placement(terminal.offset(dy=-1), SUPPORT, "test-terminal")]
+    if fault != "missing-terminal":
+        blocks.append(Placement(terminal, DUST, "test-terminal"))
+    if fault == "occupied-pad":
+        blocks.append(Placement(terminal.offset(dz=1), SUPPORT, "bad-driver-pad"))
+    if fault == "unrelated-neighbor":
+        blocks.append(Placement(terminal.offset(dz=2), SUPPORT, "bad-neighbor"))
+    world = tmp_path / "native"
+    with NativeWorldWriter(world, surface_y=-61, spawn_platform=False) as writer:
+        writer.set_blocks(blocks)
+    inputs = {"host:clk:0": [0, 0, 0]}
+    if fault == "aliased-pad":
+        inputs["host:rst:0"] = [0, 0, 0]
+    reader = NativeWorldReader(world)
+    if fault is None:
+        result = _validate_native_driver_pads(reader, inputs)
+        assert result["host_pads"] == 1
+        assert result["each_pad_directly_touches_only_its_intended_terminal"]
+    else:
+        with pytest.raises(ValueError, match="host"):
+            _validate_native_driver_pads(reader, inputs)
+
+
+def test_connected_union_methods_preserve_exact_small_native_states(tmp_path):
+    """Exercise both collectors and the actual encoder independently of placement."""
+    from dataclasses import asdict
+    from experiments.partition_placement.raised_exports.streamed_union import literal_union
+    from shamaos.bounded_build import _LiteralUnion
+    from shamaos.hardware.memory import MemoryBankSpec, iter_memory_bank
+    from shamaos.model import Box
+    from shamaos.worldio import NativeWorldReader, NativeWorldWriter, validate_native_world
+    origin = Vec3(16, -56, 16)
+    bank = MemoryBankSpec(words=4, word_bits=32)
+    values = (0, 0xFFFFFFFF, 0x55AA55AA, 0xA596C33C)
+    initial = b"".join(word.to_bytes(4, "little") for word in values)
+    placements = lambda: iter_memory_bank(origin, spec=bank, initial=initial)
+    first = literal_union(placements(), run_records=257, merge_fan_in=3, temporary_parent=tmp_path)
+    bounds = Box(Vec3(**first["bounds"]["min"]), Vec3(**first["bounds"]["max"]))
+    union = _LiteralUnion(tmp_path / "union.sqlite3")
+    try:
+        second = union.collect(placements(), surface_y=-61, maximum_y=319,
+                               bounds=bounds, expected_unique=first["literal_unique_blocks"])
+        assert first["sorted_unique_record_sha256"] == second["sorted_unique_record_sha256"]
+        assert first["bounds"] == second["bounds"] == asdict(bounds)
+        assert json.loads(json.dumps(first["palette"])) == json.loads(json.dumps(second["palette"]))
+        world = tmp_path / "world"
+        with NativeWorldWriter(world, surface_y=-61, spawn_platform=False) as writer:
+            writer.set_blocks(union.placements())
+        result = validate_native_world(world)
+        assert result["assigned_blocks"] == first["literal_unique_blocks"]
+        assert result["chunks"] == first["occupied_chunks"]
+        reader = NativeWorldReader(world)
+        for row, word in enumerate(values):
+            for bit in range(32):
+                state = reader.get_block(origin.offset(bit * bank.bit_pitch + 2, bank.cell_y,
+                                                     3 + row * bank.word_pitch))
+                assert state.name == "minecraft:repeater"
+                assert dict(state.properties)["powered"] == str(bool(word >> bit & 1)).lower()
+                assert dict(state.properties)["locked"] == "true"
+    finally:
+        union.close()
+
+
+@pytest.fixture
+def runtime_clock_evidence(tmp_path):
+    """Synthetic traces test the evidence gate; they never prove physical timing."""
+    from experiments.memory_controller_runtime import run_connected as runtime
+    from experiments.memory_controller_runtime.probe_controller import clock_scenario
+    runner = tmp_path / "runner-identity"
+    runner.write_bytes(b"identity only; never executed")
+    prepared_directory = tmp_path / "prepared"
+    prepared_directory.mkdir()
+    (prepared_directory / "prepared.json").write_text('{"synthetic_guard_test":true}\n')
+    prepared = {"stream": {"sha256": "1" * 64}, "runtime_helper_sources": runtime._helper_sources()}
+    imported = {"stream_sha256": "1" * 64, "chunks": 1, "nonair": 116,
+                "comparators": 0, "source": {"synthetic_guard_test": True}}
+    inputs = {host("clk"): [0, 0, 0], host("rst"): [4, 0, 0]}
+    outputs = {port("req_ready"): [8, 0, 0]}
+    clock_points = {f"register:test-{index}:C": Vec3(index * 4, 4, 0) for index in range(115)}
+    drive = {"clk": Vec3(0, 0, 0), "rst": Vec3(4, 0, 0)}
+    report = {"status": runtime.CLOCKS_PASSED, "native_clock_gate_verified": True,
+        "world_stream": prepared["stream"], "runtime_helper_sources": prepared["runtime_helper_sources"],
+        "prepared": runtime._record(prepared_directory / "prepared.json"),
+        "runner": runtime._record(runner), "cases": {}}
+    for name, period in (("safe", 2), ("too-fast", 1)):
+        scenario, samples = clock_scenario(drive, clock_points, Vec3(8, 0, 0), half_period=period, settle_ticks=1)
+        scenario_path, result_path = tmp_path / f"{name}-scenario.json", tmp_path / f"{name}-result.json"
+        scenario_path.write_text(json.dumps(scenario))
+        captured = sum(step["ticks"] for step in scenario["steps"])
+        trace = ([False] + [True, True, False, False] * 3 + [False]
+                 if name == "safe" else [False, True, True, True, False, False, False, False])
+        assert len(trace) == captured
+        result = {"status": "passed", "imported_stream_sha256": "1" * 64,
+            "scenario_sha256": runtime._sha(scenario_path), "source": imported["source"],
+            "loaded_chunks": 1, "decoded_nonair_blocks": 116, "initialized_nonair_blocks": 116,
+            "comparator_entities": 0, "steps": len(scenario["steps"]),
+            "ticks": 1 + captured, "assertions": 116, "complete_machine_runtime_verified": False,
+            "engine_revision": runtime.ENGINE_REVISION, "engine_registry_patch_sha256": runtime.TERRAIN_PATCH,
+            "traces": {name: trace for name in clock_points}}
+        result_path.write_text(json.dumps(result))
+        report["cases"][name] = {"status": "passed" if name == "safe" else "too-fast-failure-detected",
+            "half_period_ticks": period, "settle_ticks": 1, "exit_code": 0,
+            "trace_samples": samples, "scenario": runtime._record(scenario_path), "stdout": runtime._record(result_path)}
+    arguments = (report, prepared_directory, prepared, runner, imported, inputs, outputs, clock_points)
+    return runtime, arguments
+
+
+def test_native_runtime_clock_gate_rechecks_both_bound_sample_sets(runtime_clock_evidence):
+    runtime, arguments = runtime_clock_evidence
+    checked = runtime._verify_clock_report(*arguments, 2)
+    assert checked["safe"]["clock_gate_passed"]
+    assert not checked["too-fast"]["clock_gate_passed"]
+    assert checked["safe"]["register_clocks"] == 115
+
+
+@pytest.mark.parametrize("fault", ["no-cases", "missing-negative", "invented-case", "faster-period", "slower-period",
+    "different-scenario", "changed-safe-trace", "false-negative", "lost-clock", "other-stream", "other-helper"])
+def test_native_runtime_clock_gate_rejects_incomplete_or_false_evidence(runtime_clock_evidence, fault):
+    runtime, arguments = runtime_clock_evidence
+    report = arguments[0]
+    period = 2
+    if fault == "no-cases":
+        report["cases"] = {}
+    elif fault == "missing-negative":
+        del report["cases"]["too-fast"]
+    elif fault == "invented-case":
+        report["cases"]["invented"] = report["cases"]["safe"]
+    elif fault == "faster-period":
+        period = 1
+    elif fault == "slower-period":
+        period = 3
+    elif fault == "other-helper":
+        report["runtime_helper_sources"] = dict(report["runtime_helper_sources"], **{"invented.py": "0" * 64})
+    else:
+        name = "too-fast" if fault == "false-negative" else "safe"
+        case = report["cases"][name]
+        key = "scenario" if fault == "different-scenario" else "stdout"
+        path = Path(case[key]["path"])
+        document = json.loads(path.read_text())
+        if fault == "different-scenario":
+            document["steps"][1]["drive"]["clk"] = False
+        elif fault == "other-stream":
+            document["imported_stream_sha256"] = "0" * 64
+        elif fault == "lost-clock":
+            del document["traces"][next(iter(document["traces"]))]
+        elif fault == "changed-safe-trace":
+            name = next(iter(document["traces"]))
+            document["traces"][name] = [False] * len(document["traces"][name])
+        else:
+            document["traces"] = {name: [False, True, False, True, False, True, False, False]
+                                  for name in document["traces"]}
+        path.write_text(json.dumps(document))
+        # Rehashing a false scenario or trace cannot restore its acceptance.
+        case[key] = runtime._record(path)
+    with pytest.raises(ValueError):
+        runtime._verify_clock_report(*arguments, period)
+
+
+@pytest.mark.parametrize("fault", ["missing", "changed", "extra"])
+def test_native_runtime_helper_inventory_is_exact(fault):
+    from experiments.memory_controller_runtime import run_connected as runtime
+    expected = runtime._helper_sources()
+    if fault == "missing":
+        expected.pop(runtime.RUNTIME_SOURCES[-1])
+    elif fault == "changed":
+        expected[runtime.RUNTIME_SOURCES[-1]] = "0" * 64
+    else:
+        expected["invented.py"] = "0" * 64
+    with pytest.raises(ValueError, match="helper sources changed"):
+        runtime._check_helpers(expected)

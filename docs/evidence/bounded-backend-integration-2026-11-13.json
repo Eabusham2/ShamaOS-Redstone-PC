@@ -1,0 +1,177 @@
+{
+  "base_commit": "b84c44a99543935022bc11406aadd377035835be",
+  "commands": [
+    "PYTHONPATH=src:tests:. SHAMA_MCHPRS_TERRAIN_RUNNER=<canonical-terrain-runner> python -m pytest -q tests/test_bounded_system_backend.py --junitxml=build/bounded-system-backend.xml",
+    "PATH=<pinned-hdl-tools>:$PATH PYTHONPATH=src:tests:. SHAMA_MCHPRS_RUNNER=<pinned-dense-runner> python -m pytest -q tests/test_resource_accounting.py tests/test_synthesis.py tests/test_synthesis_integration.py tests/test_world_generation.py tests/test_interface_routing.py --junitxml=build/bounded-backend-existing-regression.xml"
+  ],
+  "complete_machine_runtime_verified": false,
+  "default_backend": "flat",
+  "initial_rejected_fixture": {
+    "junit": {
+      "errors": "0",
+      "failures": "2",
+      "path": "build/bounded-system-backend-initial-pad-rejection.xml",
+      "sha256": "4c8a512a430fe3b1b3acec3808b41c6aa6080d490553f89ac416595d6177879b",
+      "skipped": "0",
+      "tests": "10",
+      "time": "30.028"
+    },
+    "reason": "South-side external driver pads would overwrite real global route blocks. The circuit was retained; the test now uses the established West driver anchors."
+  },
+  "native_runtime_cases": [
+    {
+      "report_path": "build/bounded-backend-native/test_opt_in_complete_top_and_g0/bounded-backend-runtime.json",
+      "report_sha256": "e4e8b844253fd62f9c1cc3bfc3fda0249ce546848a47db96776e94399c4a17d2",
+      "result": {
+        "actual_ticks": 49152,
+        "clock_edges": 12,
+        "clock_skew_ticks": 0,
+        "complete_machine_runtime_verified": false,
+        "half_period_redstone_ticks": 512,
+        "imported_stream_sha256": "da0f5bbe73e91475c8c1d9b32a1b2bece79b27bd58cbffe82f37ddb344f43069",
+        "loaded_chunks": 796,
+        "mapped_cell_count": 4,
+        "minimum_hold_ticks": 87,
+        "minimum_setup_ticks": 938,
+        "native_sections": 19104,
+        "pipeline_failures": [],
+        "runner_sha256": "16a981eca53535e8109f22090d8afcb2e5b0870d73ac4697083c01c0a84d6691",
+        "scenario_sha256": "f2d1a8ab7b6b72a25f37467f49e53deeb958bb14343d5cb40f20dfc691e1e4a2",
+        "status": "opt-in-bounded-complete-top-with-global-inputs"
+      }
+    },
+    {
+      "report_path": "build/bounded-backend-native/test_opt_in_complete_top_and_g1/bounded-backend-runtime.json",
+      "report_sha256": "e0eedb69c7c3c7b7c9218b03859be3c553c115ea6d3fe69be01a5a1dd47940cb",
+      "result": {
+        "actual_ticks": 37344,
+        "clock_edges": 12,
+        "clock_skew_ticks": 0,
+        "complete_machine_runtime_verified": false,
+        "half_period_redstone_ticks": 20,
+        "imported_stream_sha256": "da0f5bbe73e91475c8c1d9b32a1b2bece79b27bd58cbffe82f37ddb344f43069",
+        "loaded_chunks": 796,
+        "mapped_cell_count": 4,
+        "minimum_hold_ticks": 7,
+        "minimum_setup_ticks": 3767,
+        "native_sections": 19104,
+        "pipeline_failures": [
+          {
+            "actual": false,
+            "edge": 13739,
+            "expected": true,
+            "register": "b"
+          },
+          {
+            "actual": false,
+            "edge": 13779,
+            "expected": true,
+            "register": "b"
+          },
+          {
+            "actual": true,
+            "edge": 22051,
+            "expected": false,
+            "register": "b"
+          },
+          {
+            "actual": true,
+            "edge": 22091,
+            "expected": false,
+            "register": "b"
+          },
+          {
+            "actual": false,
+            "edge": 30363,
+            "expected": true,
+            "register": "b"
+          },
+          {
+            "actual": false,
+            "edge": 30403,
+            "expected": true,
+            "register": "b"
+          }
+        ],
+        "runner_sha256": "16a981eca53535e8109f22090d8afcb2e5b0870d73ac4697083c01c0a84d6691",
+        "scenario_sha256": "f60247201622843999a7118fc89345af8869ea8a2c922c5d403907ac2e1b9dc9",
+        "status": "opt-in-bounded-complete-top-with-global-inputs"
+      }
+    }
+  ],
+  "program_sizes_changed": false,
+  "promoted_source_provenance": {
+    "src/shamaos/bounded_system.py": {
+      "initial_promoted_sha256": "ed924cd751dd576cc76b520c1ff8d21a451528a9360395d020333ec88815bc60",
+      "reviewed_source": "experiments/system_bounded_integration/adapter.py",
+      "reviewed_source_sha256": "73a2fdc22e35f9bf9cece9c002f22fb01439d90908afb90e727436cc0a5ff9d4"
+    },
+    "src/shamaos/hardware/bounded_facade.py": {
+      "initial_promoted_sha256": "31f898503e19d9c7e6716b2578fda107326b0fe71b37d516dc65c41616027f45",
+      "reviewed_source": "experiments/partition_placement/port_egress.py",
+      "reviewed_source_sha256": "9b9ca8e2209f4401d6c8a7783c72c4188ed9f9b018b8a57d63fb9aa1fc20c9f5"
+    },
+    "src/shamaos/hardware/bounded_interfaces.py": {
+      "initial_promoted_sha256": "bae5a546d3cd9be273115db8be03be9b63129924c7b83e432333c8df0575bfd8",
+      "reviewed_source": "experiments/partition_placement/port_egress_interfaces.py",
+      "reviewed_source_sha256": "e47dffef1f73ad0141a5230f3fe294e4852f13cd0cb3a10a1364d91e5f79f5a2"
+    },
+    "src/shamaos/hardware/packed_parent_union.py": {
+      "initial_promoted_sha256": "a9982d5e230fb7fa4e8b4e666a42323fd59b55066564b1fbf1567d0d15281a50",
+      "reviewed_source": "experiments/partition_placement/packed_parent_union.py",
+      "reviewed_source_sha256": "a9982d5e230fb7fa4e8b4e666a42323fd59b55066564b1fbf1567d0d15281a50"
+    },
+    "src/shamaos/literal_union.py": {
+      "initial_promoted_sha256": "4732f29067e5d7aff013a9d2a5565e8e7037e4259b6cc1b74ffb0e45fd84281d",
+      "reviewed_source": "experiments/partition_placement/raised_exports/streamed_union.py",
+      "reviewed_source_sha256": "4732f29067e5d7aff013a9d2a5565e8e7037e4259b6cc1b74ffb0e45fd84281d"
+    }
+  },
+  "release_eligible": false,
+  "remaining_gates": [
+    "Complete accepted larger facade geometry and exterior clock/runtime proof",
+    "Connected controller plus physical storage transactions and persistence",
+    "Placement and full interconnection of every production partition",
+    "Complete clock/data timing and input capture",
+    "Whole-world occupied footprint and workable chunk loading",
+    "Native world boot, all apps, save, shutdown/reopen and fault recovery",
+    "Exact-final-revision CI and release acceptance"
+  ],
+  "schema": "shamaos-bounded-backend-integration-v1",
+  "scope": "Explicit complete-mapped-artifact small-top production adapter plus real global routing, native save/readback and engine transfer checks; not a full ShamaOS machine proof",
+  "sources_sha256": {
+    "docs/BOUNDED_BACKEND.md": "81e420fbddb41ded0735f5d48261c03401e1cb79aa847c387025af2fb4ebd7d3",
+    "experiments/system_bounded_integration/fixtures/pipeline-shell-mapped.json": "6547929d34cd2740a321fec90a7598a9cb76248f34dd407c85f574eebde2a92f",
+    "src/shamaos/bounded_system.py": "0aa9249efd2c6750921716d97652b26074010ecf6e6b941f51baa9938ca02661",
+    "src/shamaos/cli.py": "8c7d41180a82ce95fa39004b23ab88ebbb6245f3c874a491a78674676029050c",
+    "src/shamaos/generator.py": "089bad6b69f9987c6a0ef47e9cee1e095267af4f7aee7c1a76b86ce5f630f8dd",
+    "src/shamaos/hardware/bounded_facade.py": "31f898503e19d9c7e6716b2578fda107326b0fe71b37d516dc65c41616027f45",
+    "src/shamaos/hardware/bounded_interfaces.py": "bae5a546d3cd9be273115db8be03be9b63129924c7b83e432333c8df0575bfd8",
+    "src/shamaos/hardware/packed_parent_union.py": "a9982d5e230fb7fa4e8b4e666a42323fd59b55066564b1fbf1567d0d15281a50",
+    "src/shamaos/literal_union.py": "4732f29067e5d7aff013a9d2a5565e8e7037e4259b6cc1b74ffb0e45fd84281d",
+    "src/shamaos/resource_accounting.py": "168ab4f721207819543c4e8b711c126f1aeb2685f9b185255b5e82d13ab87451",
+    "src/shamaos/system_build.py": "26ff06d346ae30699108b823b62efe5aaa58d3e4bd6d0ada1d6bbf07b85418d5",
+    "tests/test_bounded_system_backend.py": "db556be198f8149d9a6848034ba6912ff9589e8996e80be63ef45c574003dcc2",
+    "tests/test_resource_accounting.py": "2d0b821a1f0bdb00ad41fcd1d6f00007af6f2c770bfa0d2f2fe9325a8499bcb8"
+  },
+  "test_suites": [
+    {
+      "errors": "0",
+      "failures": "0",
+      "path": "build/bounded-system-backend.xml",
+      "sha256": "53a448bd5a9b01988471a37d9156ca144407be252e1ff2bb6beadc8ffed71918",
+      "skipped": "0",
+      "tests": "17",
+      "time": "35.490"
+    },
+    {
+      "errors": "0",
+      "failures": "0",
+      "path": "build/bounded-backend-existing-regression.xml",
+      "sha256": "919ef43b197f0d99a780f64865749191d14562a8246226022082ea5a18fcf369",
+      "skipped": "0",
+      "tests": "29",
+      "time": "59.475"
+    }
+  ]
+}

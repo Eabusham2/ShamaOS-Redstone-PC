@@ -1,0 +1,29 @@
+{
+  "schema": "connected-cache-preparation-independent-review-v1",
+  "status": "passed",
+  "test_counts": {
+    "tests": 15,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "source_hashes": {
+    "experiments/memory_controller_runtime/interconnect.py": "159dd746d905d93a1cfecb25cc8e7645ea91fc136d772432cf7c0923486c519b",
+    "experiments/memory_controller_runtime/save_connected.py": "70c44d2fc3eee9f401911373b6a15f412a89da8cb84d4662bcfe36363bdec2ef",
+    "experiments/memory_controller_runtime/geometry.py": "b815a0375895c8ce31dbcffddddf8e020e538d724d7050eb1a9ff9ea5595c06c",
+    "experiments/memory_controller_runtime/scenarios.py": "1319d9a6097909dd849ac59c855c17232fc2442624cb957fb000de37e8499b67",
+    "tests/test_memory_controller_runtime_experiment.py": "c481a69c2d20e5ac5e51fdc7ba635bf37aaee9052856d79cfffbf58b7023610a",
+    "src/shamaos/bounded_build.py": "85ca0c83d4fc1bc781a4872cadca4b4f972e35cad0a0d35d151c3f9c8e153ee8",
+    "src/shamaos/worldio.py": "08e163497c981357b3aa4ce444709f38769001fb512700b0ffd2a8fc4ebda69c"
+  },
+  "junit_sha256": "eb3f2cec907bb5b00cb1cde4532f57b27af066551a6c069f3ab845b4cdb55901",
+  "review": [
+    "Only 72 actual host inputs are driven; physical memory read returns are never supplied by Python.",
+    "Both full 4 KiB banks, actual row decoder, all 78 external nets and all 65,536 storage-bit observables remain required.",
+    "Balanced complete facade, exact source/plan/container bindings, no-overwrite output and isolated saved host-driver pads are enforced.",
+    "Independent sort/merge and SQLite unions must agree before complete native write and fresh readback.",
+    "Large emission retains exact sources/inputs and explicit process limits; frozen checkout is required while other integration changes proceed."
+  ],
+  "connected_cache_runtime_verified": false,
+  "complete_machine_runtime_verified": false
+}

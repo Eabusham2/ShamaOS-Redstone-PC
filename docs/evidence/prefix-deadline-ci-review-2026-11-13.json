@@ -1,0 +1,27 @@
+{
+  "schema": "prefix-deadline-ci-review-v1",
+  "status": "passed-local-independent-review-ci-pending",
+  "failed_ci_run": 43377435918,
+  "failed_job": 131727106144,
+  "failure": "An already exited worker could bypass the loop containing the wall-budget check.",
+  "change": "Check the observed deadline before accepting either successful or failed child completion.",
+  "test_counts": {
+    "tests": 30,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "sources": {
+    "experiments/partition_placement/prefix_precheck/compare.py": "453bf2195747166ced327486f898e785c0249301f19c043bb7784b49d6a2647e",
+    "tests/test_prefix_comparison_harness.py": "7a2bcd7d5a14f333e42afef1d58e01d8164fd4d2facc7364ed0dd5ed3f20e19f"
+  },
+  "junit_sha256": "6b0b68a9fb2050a0c81cbe7e05f614a78d05843e0c01737dfd2fab695c440a06",
+  "negative_cases": [
+    "Already successful worker observed after deadline.",
+    "Already failed worker observed after deadline.",
+    "Within-budget failure retains ordinary failure status.",
+    "Real tiny-budget abort retains its status and owns process cleanup."
+  ],
+  "physical_generator_changed": false,
+  "complete_machine_runtime_verified": false
+}

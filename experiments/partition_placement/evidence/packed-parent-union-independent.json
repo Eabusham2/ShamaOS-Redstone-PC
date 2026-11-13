@@ -1,0 +1,206 @@
+{
+  "accepted": 608,
+  "baseline_egress_sha256": "35c209b4b56b32f76309ea0337f6c346d0d65ce328fc943fe401defbd002d281",
+  "by_group": {
+    "adjacency": 528,
+    "codec": 198,
+    "duplicates": 5,
+    "empty": 3,
+    "envelope": 23,
+    "height": 3,
+    "physical": 9,
+    "properties": 5,
+    "stairs": 5
+  },
+  "candidate_source_sha256": "a9982d5e230fb7fa4e8b4e666a42323fd59b55066564b1fbf1567d0d15281a50",
+  "cases": 779,
+  "emitted_operations": 46888,
+  "fixture_parents": [
+    {
+      "bounds": {
+        "max": {
+          "x": 278,
+          "y": 169,
+          "z": 132
+        },
+        "min": {
+          "x": 0,
+          "y": -60,
+          "z": 0
+        }
+      },
+      "child_duplicates": 12,
+      "cluster": 11,
+      "domains": 1,
+      "fixture": "ordinary-single",
+      "literal_sha256": "f67b9ec871cebe1a0acc8b8767dde05995bf5df5039bed2b29cc2ae08cdc625e",
+      "unique_parent_states": 3702
+    },
+    {
+      "bounds": {
+        "max": {
+          "x": 114,
+          "y": 145,
+          "z": 86
+        },
+        "min": {
+          "x": 0,
+          "y": 54,
+          "z": 0
+        }
+      },
+      "child_duplicates": 6,
+      "cluster": 10,
+      "domains": 1,
+      "fixture": "ordinary-single",
+      "literal_sha256": "e7030f15606b57e220b50855d2721ed579b915d7e5bf64f2ad2a911751964eff",
+      "unique_parent_states": 1934
+    },
+    {
+      "bounds": {
+        "max": {
+          "x": 138,
+          "y": 49,
+          "z": 126
+        },
+        "min": {
+          "x": 0,
+          "y": -60,
+          "z": 0
+        }
+      },
+      "child_duplicates": 18,
+      "cluster": 9,
+      "domains": 1,
+      "fixture": "ordinary-single",
+      "literal_sha256": "619f209a7caa131779e6caf1270d5188aaf7dbfc6fb14ec8d98d8251b68b4162",
+      "unique_parent_states": 4874
+    },
+    {
+      "bounds": {
+        "max": {
+          "x": 278,
+          "y": 169,
+          "z": 140
+        },
+        "min": {
+          "x": 0,
+          "y": -60,
+          "z": 0
+        }
+      },
+      "child_duplicates": 12,
+      "cluster": 11,
+      "domains": 2,
+      "fixture": "ordinary-multiple",
+      "literal_sha256": "fdeedfc1ab4cdce39e66935868900bb28f1afa8ee23eb856a868d8fffb99fea5",
+      "unique_parent_states": 3766
+    },
+    {
+      "bounds": {
+        "max": {
+          "x": 114,
+          "y": 145,
+          "z": 86
+        },
+        "min": {
+          "x": 0,
+          "y": 54,
+          "z": 0
+        }
+      },
+      "child_duplicates": 6,
+      "cluster": 10,
+      "domains": 2,
+      "fixture": "ordinary-multiple",
+      "literal_sha256": "55e83aad09c376cbc36d644731d39e9b111da01a52f1cc7ce9b1327beb76037c",
+      "unique_parent_states": 1878
+    },
+    {
+      "bounds": {
+        "max": {
+          "x": 138,
+          "y": 49,
+          "z": 134
+        },
+        "min": {
+          "x": 0,
+          "y": -60,
+          "z": 0
+        }
+      },
+      "child_duplicates": 18,
+      "cluster": 9,
+      "domains": 3,
+      "fixture": "ordinary-multiple",
+      "literal_sha256": "e476ce15c85e463cb70fad7328677bb992cf0aff6d264f9f2ab4000922e01ad9",
+      "unique_parent_states": 4930
+    },
+    {
+      "bounds": {
+        "max": {
+          "x": 302,
+          "y": 169,
+          "z": 218
+        },
+        "min": {
+          "x": 0,
+          "y": -60,
+          "z": -14
+        }
+      },
+      "child_duplicates": 24,
+      "cluster": 11,
+      "domains": 5,
+      "fixture": "facade",
+      "literal_sha256": "1846c32aa3b4315b62fce1161940c31a4b260e8dd7fe0b1d1c44037033d94d1c",
+      "unique_parent_states": 12634
+    },
+    {
+      "bounds": {
+        "max": {
+          "x": 146,
+          "y": 145,
+          "z": 128
+        },
+        "min": {
+          "x": 0,
+          "y": 54,
+          "z": 0
+        }
+      },
+      "child_duplicates": 14,
+      "cluster": 10,
+      "domains": 4,
+      "fixture": "facade",
+      "literal_sha256": "ff10f35a7352be45e7c5f43124bc53c9621ca4bd402e43c71baf48791ba04315",
+      "unique_parent_states": 5460
+    },
+    {
+      "bounds": {
+        "max": {
+          "x": 142,
+          "y": 49,
+          "z": 142
+        },
+        "min": {
+          "x": 0,
+          "y": -60,
+          "z": 0
+        }
+      },
+      "child_duplicates": 20,
+      "cluster": 9,
+      "domains": 4,
+      "fixture": "facade",
+      "literal_sha256": "6966a302012b00077095f7e1df1540ec21f11132192069742083a15f6a4870f4",
+      "unique_parent_states": 5748
+    }
+  ],
+  "harness_sha256": "bcddd5f2c4a83a81790b33b25269daa0f69539e91ed5d67b0c25c853aed6b42d",
+  "outcomes_sha256": "32f621aae2bc1d6c278b22e515bd2bd67144d15df515538b54669bf9f92e6727",
+  "reference_guard_source_sha256": "2ce9d0d5519e9dadfe12bfe64ead4bec6fa34863552ecd0d18bd598908ff7c13",
+  "rejected": 171,
+  "scope": "Exact old/new literal guard outcomes and small physical parent inventories; no full-cache completion or timing claim",
+  "status": "passed"
+}

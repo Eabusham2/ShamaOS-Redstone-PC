@@ -50,6 +50,8 @@ def _parser() -> argparse.ArgumentParser:
     gen.add_argument("--world", required=True)
     gen.add_argument("--config", default="configs/default.toml")
     gen.add_argument("--manifest", default="build/generated-manifest.json")
+    gen.add_argument("--logic-backend", choices=("flat", "bounded"),
+                     help="explicit physical logic backend; bounded remains experimental and requires all normal validation gates")
 
     create = sub.add_parser("create-world", help="create a Java 1.20.4 grass superflat world with protected ground")
     create.add_argument("--world", required=True)
@@ -128,6 +130,8 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "generate":
         config = resolve_world_surface(load_config(args.config), args.world)
+        if args.logic_backend is not None:
+            config.setdefault("generator", {})["logic_backend"] = args.logic_backend
         plan = build_plan(config)
         result = write_available_placements(args.world, config, plan)
         m = manifest(config, plan)

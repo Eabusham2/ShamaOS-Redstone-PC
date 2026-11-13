@@ -1,0 +1,69 @@
+{
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+    "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/experiments/partition_placement/run_port_egress.py",
+    "--mapped",
+    "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/port-egress/full-cache-domain4-672-packed-cap2048/inputs/cache-controller-c331.json.gz",
+    "--top",
+    "shama_cache_adapter",
+    "--plan",
+    "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/port-egress/full-cache-domain4-672-packed-cap2048/inputs/plan.json",
+    "--clock-padding",
+    "128",
+    "--maximum-y",
+    "285",
+    "--memory-limit-mib",
+    "2048",
+    "--wall-seconds",
+    "1800",
+    "--literal-union",
+    "--output",
+    "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/port-egress/full-cache-domain4-672-packed-cap2048/report.json",
+    "--clock-domain-padding",
+    "4=672"
+  ],
+  "configuration": {
+    "clock_domain_padding": {
+      "4": 672
+    },
+    "clock_padding_blocks": 128,
+    "mapped_input": "inputs/cache-controller-c331.json.gz",
+    "maximum_y": 285,
+    "memory_limit_mib": 2048,
+    "top": "shama_cache_adapter",
+    "wall_limit_seconds": 1800
+  },
+  "input_hashes": {
+    "inputs/cache-controller-c331.json.gz": "33016917c70829684a45758a1a2164791f514803394101a6bde3ea19cafca8c0",
+    "inputs/plan.json": "0c81a0a49d447669adfc82facb682b805fbdd72df5690acb6f22b7a6a3a30362"
+  },
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "schema": "shama-capped-facade-source-bundle-v1",
+  "scope": "Exact input and generator snapshot before execution; preparation is not geometry or runtime proof",
+  "source_bundle_sha256": "371cfb98d77ec07a0f5ab3a87ec899e9e090c003d10b692fe3468baaf1343659",
+  "source_hashes": {
+    "experiments/memory_controller_runtime/__init__.py": "34a15cb365769edbdbcf6cf0fdb9506755f2462484e1dd0b3c31aa407f1ad429",
+    "experiments/memory_controller_runtime/clock_reserve.py": "6a5bd0ba923dbb6aabf0046ad6a487905043373854e76bdec502432db815d8fb",
+    "experiments/partition_placement/packed_parent_union.py": "a9982d5e230fb7fa4e8b4e666a42323fd59b55066564b1fbf1567d0d15281a50",
+    "experiments/partition_placement/parent_union/run_capped.py": "276c6ef42dd17d6bb4d525410e8d568b7c063f030112add6a0a2a2df44022b0b",
+    "experiments/partition_placement/port_egress.py": "9b9ca8e2209f4401d6c8a7783c72c4188ed9f9b018b8a57d63fb9aa1fc20c9f5",
+    "experiments/partition_placement/port_egress_manifest.py": "822e4d29bd605456a159e687411e829268b183a7962a09a128324ffe97e6ba1a",
+    "experiments/partition_placement/raised_exports/replay_manifest.py": "308075b05664930ed457ca14054943bc7370e07ac45a86f54a9716ebf2c26ddb",
+    "experiments/partition_placement/raised_exports/streamed_union.py": "4732f29067e5d7aff013a9d2a5565e8e7037e4259b6cc1b74ffb0e45fd84281d",
+    "experiments/partition_placement/run_port_egress.py": "8ec6ea064afb4d519bccb9ba2158143fdb2a2db26818a9ab5532a6c73b1c91a5",
+    "experiments/partition_placement/targeted_clock_reserve.py": "02bf1a51c40e61910efb7fbda41480ec7ce1cc1bbb8369cd731988a5d90f46b0",
+    "src/shamaos/__init__.py": "a191dc5c1f1dce8dde90da66d309ea7216301d051a92d1b67384de2541669526",
+    "src/shamaos/hardware/__init__.py": "7996c03c727f02fb72aac9166cc5693636df3aa6762c10fd752639005863fe13",
+    "src/shamaos/hardware/external_router.py": "96834193a37bb485ab225ea21dc1ae460afcc3ab9ac41a434e45660be2f7666d",
+    "src/shamaos/hardware/local_router.py": "63054c806442499ba0aa27f65b1ec2b35c339c0c8595521dbc3097a334307bc6",
+    "src/shamaos/hardware/logic.py": "84a4f2cc3c535628ccd4e16ae0480b3cc99310f1fb83fe28f98d98b621ab1dff",
+    "src/shamaos/hardware/memory.py": "f44923cd4376d10fb2f62d5daf3bf752fe340e269355ac3564fd26ee2b5a8517",
+    "src/shamaos/hardware/partition_placement.py": "10c6a4b5aba6b5c4776326d0a863bf57cd1fc5b0d216115ca496d851d6a82e90",
+    "src/shamaos/hardware/partition_planner.py": "82e7f39548af7443b29ffd322a118cb42474f6f0bf3da2273b1ecdefb38164b4",
+    "src/shamaos/hardware/routing.py": "d2b885f908a5942036269992c3fff7e3eb19ffe5a4753b97f5494aaf7120ccce",
+    "src/shamaos/model.py": "1a0fd1f9eb9469989057e4486401e5161e7f0bb02eb69195b7a14a74e92f4b95",
+    "src/shamaos/synthesis.py": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274"
+  },
+  "status": "prepared-not-run",
+  "working_directory": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded"
+}

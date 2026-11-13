@@ -1,0 +1,72 @@
+{
+  "status": "passed",
+  "scope": "Independent frozen-input/source/complete graph/facade inventory and exact saved clock matching; large literal union is retained reported evidence and is not re-emitted here",
+  "report": {
+    "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-cache-native-f711/build/cache-native-frozen/accepted-facade/report.json",
+    "sha256": "e8f389f6d83567b3cdb0016a607bb9cd97b4c2a9deca3c8e2a1f775fc77c13d6"
+  },
+  "manifest": {
+    "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-cache-native-f711/build/cache-native-frozen/accepted-facade/report-balanced.json.gz",
+    "sha256": "3dc614564d5b57c3e31acff94ecc374260d27a8e8ea17594097fb8a85d0332df"
+  },
+  "harness": {
+    "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded-integration/build/connected-cache-independent-review/audit_facade.py",
+    "sha256": "dc7d8685b5de132c527c0cc0f11db74465f0d56c04461bff2f5adea475f63504"
+  },
+  "frozen_files_verified": 7,
+  "generator_sources_verified": 38,
+  "complete_graph_audit": {
+    "native_cells": 1144,
+    "original_port_bits": 183,
+    "shared_contacts": 1484,
+    "native_sink_uses": 2155,
+    "clock_leaf_uses": 115,
+    "constant_terminals": 0,
+    "status": "structural-contacts-passed",
+    "runtime_verified": false
+  },
+  "facade_audit": {
+    "status": "original-io-facade-structure-passed-runtime-unverified",
+    "original_port_bits": 183,
+    "facade_modules": 5,
+    "directed_handoffs": 494,
+    "runtime_verified": false,
+    "electrical_route_isolation_verified": false,
+    "scope": "Directed endpoint/contact conservation only; fresh placement isolation guards or replayed runtime remain separate evidence",
+    "base_clock_matching_scope": "Original mapped input pin to registers; facade input delivery adds an uncounted common prefix and requires exterior runtime timing"
+  },
+  "matching": {
+    "2": {
+      "balanced_repeater_delay": 3843,
+      "clock_leaves": 115,
+      "visited_modules": 27,
+      "runtime_verified": false
+    }
+  },
+  "saved_clock_overrides_unchanged": true,
+  "retained_geometry_counts": {
+    "emitted_blocks": 27186360,
+    "literal_unique_blocks": 27156924,
+    "identical_duplicate_blocks": 29436,
+    "occupied_chunks": 136764,
+    "bounds": {
+      "min": {
+        "x": 0,
+        "y": -60,
+        "z": 0
+      },
+      "max": {
+        "x": 7522,
+        "y": 199,
+        "z": 7450
+      }
+    },
+    "sorted_unique_record_sha256": "e69863be965e5bdd42ef7945736ecd8fcff4dd2929b4a3023e4a75a7e052a1c7"
+  },
+  "seconds": 1.4679578110008151,
+  "peak_rss_kib": 76464,
+  "large_literal_union_independently_reemitted": false,
+  "external_clock_runtime_verified": false,
+  "connected_cache_runtime_verified": false,
+  "complete_machine_runtime_verified": false
+}

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field, replace
 
+from experiments.partition_placement.packed_parent_union import PackedParentUnion
 from shamaos.hardware import partition_placement as base
 from shamaos.hardware.local_router import LocalTile
 from shamaos.hardware.memory import DUST, SUPPORT
@@ -202,34 +203,22 @@ def _connect_attempt(context, cluster_id, children, maximum_y, packing, apron):
             max_domain_terminals=context.plan["budgets"]["routing_terminals_per_domain"])
     except ValueError as error:
         raise base.PlacementError(f"cluster {cluster_id}, shared graph/facade escape prefixes: {error}") from error
-    modules, facade_modules, parent_states = {}, {}, {}
-    for key, tile in zip(keys, tiles, strict=True):
-        states = base._literal_states(tile.iter_placements())
-        base._check_domain_isolation(parent_states, states)
-        for point, state in states.items():
-            old = parent_states.setdefault(point, state)
-            if old != state:
-                raise base.PlacementError(f"graph/facade domains collide at {point}")
-        (facade_modules if key[0] == "egress" else modules)[key] = tile
     expected_shared = {record["position"]: DUST for record in (*shared.values(), *facade_shared.values())}
     expected_shared.update({point.offset(dy=-1): SUPPORT for point in tuple(expected_shared)})
-    duplicates = 0
-    for point, state in parent_states.items():
-        if any(box.min.x <= point.x <= box.max.x and box.min.y <= point.y <= box.max.y
-               and box.min.z <= point.z <= box.max.z for box in boxes):
-            if expected_shared.get(point) != state:
-                raise base.PlacementError(f"graph/facade route intrudes into a child envelope at {point}")
-            duplicates += 1
-    bounds = base._box([*(point for box in boxes for point in (box.min, box.max)), *parent_states])
-    if bounds.min.y < context.minimum_y or bounds.max.y > maximum_y:
-        raise base.PlacementError("facade hierarchy exceeds its above-grass height envelope")
+    modules, facade_modules = {}, {}
+    parent_union = PackedParentUnion(boxes, expected_shared)
+    for key, tile in zip(keys, tiles, strict=True):
+        parent_union.add_domain(tile.iter_placements())
+        (facade_modules if key[0] == "egress" else modules)[key] = tile
+    union = parent_union.finish(minimum_y=context.minimum_y, maximum_y=maximum_y)
+    bounds = union.bounds
     contacts = {name: record for child in children for name, record in child.shared_contacts.items()}
     contacts.update(shared)
     all_facade_contacts = {key: record for child in children for key, record in child.facade_contacts.items()}
     all_facade_contacts.update(facade_shared)
     return EgressCluster(cluster_id, bounds, children, modules, {**child_terminals, **own_terminals},
         {entity: point for child in children for entity, point in child.ports.items()},
-        sum(child.unique_blocks for child in children) + len(parent_states) - duplicates,
+        sum(child.unique_blocks for child in children) + union.unique_blocks - union.child_duplicates,
         contacts, packing, facade_modules, exposed, all_facade_contacts)
 
 

@@ -1,0 +1,163 @@
+{
+  "artifact_inventory": {
+    "cache-facade-domain4-672-balanced-manifest.json.gz": {
+      "bytes": 326937,
+      "sha256": "3dc614564d5b57c3e31acff94ecc374260d27a8e8ea17594097fb8a85d0332df"
+    },
+    "cache-facade-domain4-672-clock-capacity.json": {
+      "bytes": 105088,
+      "sha256": "48bafa6eb380a10b229041bb8a969d2a91f6139ab187970a934340e206c64931"
+    },
+    "cache-facade-domain4-672-prepared.json": {
+      "bytes": 4365,
+      "sha256": "2d8399d99dcd44c9a45a364176477c3bb6e44d0a5aa22d2c99d6bb0493a4b70a"
+    },
+    "cache-facade-domain4-672-process.json": {
+      "bytes": 533,
+      "sha256": "b5b51e41039453a261cb5bb531dc44583ee692d2f7488e71e54de0a743cfc283"
+    },
+    "cache-facade-domain4-672-progress.jsonl": {
+      "bytes": 7997,
+      "sha256": "fec77177a0516838cc42a8dc8006da34168ca89c10a1f132272b56c0c1a98695"
+    },
+    "cache-facade-domain4-672-report.json": {
+      "bytes": 12619,
+      "sha256": "e8f389f6d83567b3cdb0016a607bb9cd97b4c2a9deca3c8e2a1f775fc77c13d6"
+    },
+    "cache-facade-domain4-672-resources.jsonl": {
+      "bytes": 21823,
+      "sha256": "69386d426664c50f041494f16c81f2861c9243ee2f1692ac11fce161403cc0a3"
+    },
+    "cache-facade-domain4-672-source-bundle.zip": {
+      "bytes": 174874,
+      "sha256": "371cfb98d77ec07a0f5ab3a87ec899e9e090c003d10b692fe3468baaf1343659"
+    },
+    "cache-facade-domain4-672-unbalanced-manifest.json.gz": {
+      "bytes": 297377,
+      "sha256": "7f60b6d79ff106c28321ef889e622003530e5f8e0275dc18df47de785799d0cf"
+    }
+  },
+  "clock_model": {
+    "clock_bit": 2,
+    "consumer_count": 115,
+    "exterior_native_pulse_proof_completed": false,
+    "exterior_to_consumers_redstone_ticks": 7616,
+    "facade_common_prefix_redstone_ticks": 3773,
+    "original_matcher_completed": true,
+    "original_pin_to_consumers_redstone_ticks": 3843
+  },
+  "configuration": {
+    "clock_domain_padding": {
+      "4": 672
+    },
+    "clock_padding_blocks": 128,
+    "mapped_input": "inputs/cache-controller-c331.json.gz",
+    "maximum_y": 285,
+    "memory_limit_mib": 2048,
+    "top": "shama_cache_adapter",
+    "wall_limit_seconds": 1800
+  },
+  "connected_cache_verified": false,
+  "conservation": {
+    "clock_leaf_uses": 115,
+    "constant_terminals": 0,
+    "directed_original_io_handoffs": 494,
+    "exterior_contacts": 183,
+    "facade_modules": 5,
+    "native_cells": 1144,
+    "native_sink_uses": 2155,
+    "original_graph_modules": 33,
+    "original_port_bits": 183,
+    "runtime_verified": false,
+    "shared_contacts": 1484,
+    "status": "structural-contacts-passed"
+  },
+  "earlier_attempts": [
+    {
+      "prefix": "cache-facade-cap1228-",
+      "status": "resource-incomplete-no-complete-root-manifest"
+    },
+    {
+      "prefix": "cache-facade-cap2048-",
+      "status": "resource-incomplete-no-complete-root-manifest"
+    },
+    {
+      "maximum_extra_delay_shortfall": 1904,
+      "prefix": "cache-facade-packed-unbalanced-",
+      "status": "complete-unbalanced-geometry-and-union-clock-matching-rejected"
+    },
+    {
+      "maximum_extra_delay_shortfall": 60,
+      "prefix": "cache-facade-domain4-640-",
+      "status": "complete-unbalanced-geometry-clock-matching-rejected-no-final-union"
+    }
+  ],
+  "geometry": {
+    "bounds": {
+      "max": {
+        "x": 7522,
+        "y": 199,
+        "z": 7450
+      },
+      "min": {
+        "x": 0,
+        "y": -60,
+        "z": 0
+      }
+    },
+    "emitted_operations": 27186360,
+    "fresh_placement_guards_passed": true,
+    "identical_duplicates": 29436,
+    "literal_unique_blocks": 27156924,
+    "occupied_chunks": 136764,
+    "sorted_unique_record_sha256": "e69863be965e5bdd42ef7945736ecd8fcff4dd2929b4a3023e4a75a7e052a1c7"
+  },
+  "prior_guard_validation": {
+    "accepted_cases": 608,
+    "focused_packed_and_facade_tests": 64,
+    "focused_targeted_reserve_tests": 19,
+    "packed_independent_cases": 779,
+    "rejected_cases": 171,
+    "reports": [
+      "packed-parent-union-independent.json",
+      "port-egress-packed-review.json",
+      "targeted-clock-reserve-review.json",
+      "targeted-clock-reserve-independent-review.json"
+    ],
+    "scope": "Separate retained suites with their original source hashes; these test counts are not a full-machine runtime claim."
+  },
+  "remaining_gates": [
+    "Native exterior-clock pulse preservation and deliberately too-fast rejection for this exact balanced facade.",
+    "Exact combined controller, two-bank and all external-route union, native world write/readback and external host pad checks.",
+    "Complete cache controller transactions through actual decoder and memory cells, including all declared storage assertions.",
+    "Complete computer integration and saved-world boot/app/save/reopen acceptance."
+  ],
+  "reproduction": "Create a fresh full repository checkout at f711074956957b95f61c9db307a0d3c303af497d and overlay the retained source bundle. From that checkout run its parent_union/run_capped.py with the archived mapped input and inputs/plan.json, baseline clock-padding 128, clock-domain-padding 4=672, maximum-y 285, memory-limit-mib 2048 and wall-seconds 1800. Use a new output directory. The 21-source archive is not standalone; unchanged package imports come from the base checkout. Do not rebind retained old manifests to newer generator source hashes.",
+  "resources": {
+    "driver_seconds": 395.9327821879997,
+    "exit_code": 0,
+    "memory_limit_mib": 2048,
+    "peak_rss_kib": 928456,
+    "wall_limit_seconds": 1800,
+    "wrapper_seconds": 396.36682662399835
+  },
+  "runtime_verified": false,
+  "schema": "complete-cache-facade-retained-review-v1",
+  "scope": "Complete 1144-cell cache controller and all original-I/O facade delivery wires; excludes the two physical memory banks, external bank routes and the rest of the computer.",
+  "source_bundle": {
+    "base_repository_commit": "f711074956957b95f61c9db307a0d3c303af497d",
+    "dependency_scope": "The 21 bound generation files and exact inputs are a source overlay. Remaining imports, including shamaos.worldio used by streamed_union, come from the base repository checkout.",
+    "generator_archive_binding_verified": true,
+    "generator_sources": 21,
+    "inputs": {
+      "inputs/cache-controller-c331.json.gz": "33016917c70829684a45758a1a2164791f514803394101a6bde3ea19cafca8c0",
+      "inputs/plan.json": "0c81a0a49d447669adfc82facb682b805fbdd72df5690acb6f22b7a6a3a30362"
+    },
+    "inventory_verified": true,
+    "path": "cache-facade-domain4-672-source-bundle.zip",
+    "sha256": "371cfb98d77ec07a0f5ab3a87ec899e9e090c003d10b692fe3468baaf1343659",
+    "standalone_archive": false
+  },
+  "status": "complete-geometry-and-planned-clock-matching-passed-native-runtime-pending",
+  "whole_computer_verified": false
+}

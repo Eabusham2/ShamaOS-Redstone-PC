@@ -1,0 +1,63 @@
+{
+  "schema": "bounded-production-backend-independent-review-v1",
+  "status": "passed",
+  "source_manifest": {
+    "base_commit": "b84c44a99543935022bc11406aadd377035835be",
+    "changed": [
+      "src/shamaos/cli.py",
+      "src/shamaos/generator.py",
+      "src/shamaos/resource_accounting.py",
+      "src/shamaos/system_build.py",
+      "tests/test_resource_accounting.py"
+    ],
+    "excluded_prototype_files": [
+      "experiments/system_bounded_integration/adapter.py",
+      "experiments/system_bounded_integration/README.md",
+      "tests/test_system_bounded_integration.py"
+    ],
+    "files_sha256": {
+      "docs/BOUNDED_BACKEND.md": "81e420fbddb41ded0735f5d48261c03401e1cb79aa847c387025af2fb4ebd7d3",
+      "docs/evidence/bounded-backend-integration-2026-11-13.json": "f52a389177d814b2ee82b8ca63feaf42605b96ba34a604842fc2d345368c89ae",
+      "experiments/system_bounded_integration/fixtures/pipeline-shell-mapped.json": "6547929d34cd2740a321fec90a7598a9cb76248f34dd407c85f574eebde2a92f",
+      "src/shamaos/bounded_system.py": "0aa9249efd2c6750921716d97652b26074010ecf6e6b941f51baa9938ca02661",
+      "src/shamaos/cli.py": "8c7d41180a82ce95fa39004b23ab88ebbb6245f3c874a491a78674676029050c",
+      "src/shamaos/generator.py": "089bad6b69f9987c6a0ef47e9cee1e095267af4f7aee7c1a76b86ce5f630f8dd",
+      "src/shamaos/hardware/bounded_facade.py": "31f898503e19d9c7e6716b2578fda107326b0fe71b37d516dc65c41616027f45",
+      "src/shamaos/hardware/bounded_interfaces.py": "bae5a546d3cd9be273115db8be03be9b63129924c7b83e432333c8df0575bfd8",
+      "src/shamaos/hardware/packed_parent_union.py": "a9982d5e230fb7fa4e8b4e666a42323fd59b55066564b1fbf1567d0d15281a50",
+      "src/shamaos/literal_union.py": "4732f29067e5d7aff013a9d2a5565e8e7037e4259b6cc1b74ffb0e45fd84281d",
+      "src/shamaos/resource_accounting.py": "168ab4f721207819543c4e8b711c126f1aeb2685f9b185255b5e82d13ab87451",
+      "src/shamaos/system_build.py": "26ff06d346ae30699108b823b62efe5aaa58d3e4bd6d0ada1d6bbf07b85418d5",
+      "tests/test_bounded_system_backend.py": "db556be198f8149d9a6848034ba6912ff9589e8996e80be63ef45c574003dcc2",
+      "tests/test_resource_accounting.py": "2d0b821a1f0bdb00ad41fcd1d6f00007af6f2c770bfa0d2f2fe9325a8499bcb8"
+    },
+    "new": [
+      "src/shamaos/bounded_system.py",
+      "src/shamaos/hardware/bounded_facade.py",
+      "src/shamaos/hardware/bounded_interfaces.py",
+      "src/shamaos/hardware/packed_parent_union.py",
+      "src/shamaos/literal_union.py",
+      "tests/test_bounded_system_backend.py",
+      "docs/BOUNDED_BACKEND.md",
+      "experiments/system_bounded_integration/fixtures/pipeline-shell-mapped.json",
+      "docs/evidence/bounded-backend-integration-2026-11-13.json"
+    ],
+    "patch_sha256": "b77ac9e81c570f59d89594514d6c10c0f64f98b46ed0cb820a44e8a04cf323f8"
+  },
+  "independent_test_counts": {
+    "tests": 27,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "independent_junit_sha256": "13e9b7bf62621188628a43e3a9b4fa7a29b664e030411fcf3f81fbe28e395e7b",
+  "default_backend": "flat",
+  "review": [
+    "Complete mapped graphs and the original shell retain every port, cell, constant and reversed bus connection.",
+    "Early proven resource rejection stops before the full union; measured complete logic keepouts reach the production global router.",
+    "Reused placement objects must retain exact clock matching; replaying matching on clones does not modify the original geometry.",
+    "Actual global input routes and the complete small mapped top pass after native world reopen at safe timing and preserve deliberately too-fast failures."
+  ],
+  "whole_machine_runtime_verified": false,
+  "release_eligible": false
+}

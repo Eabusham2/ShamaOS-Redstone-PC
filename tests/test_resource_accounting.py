@@ -11,19 +11,24 @@ from shamaos.model import Box, Vec3
 from shamaos.resource_accounting import router_resource_lower_bound, prepared_system_resource_preflight
 
 
-def test_route_block_chunk_and_delay_bounds_do_not_exceed_actual_geometry():
+@pytest.mark.parametrize("track_base_z", [None, -1200])
+def test_route_block_chunk_and_delay_bounds_do_not_exceed_actual_geometry(track_base_z):
     nets = (
         ExternalNet("normal", Vec3(0, 64, 0), (Vec3(120, 32, 200), Vec3(240, 96, 400))),
         ExternalNet("merged", Vec3(8, 64, 0), (Vec3(128, 32, 200), Vec3(248, 96, 400)), wired_or=True),
     )
-    report = router_resource_lower_bound(nets)
-    blocks = list(iter_external_router(nets))
+    report = router_resource_lower_bound(nets, track_base_z=track_base_z)
+    blocks = list(iter_external_router(nets, track_base_z=track_base_z))
     branch_wires = {p.pos for p in blocks if p.pos.y == 314 and p.block.name in ("minecraft:redstone_wire", "minecraft:repeater")}
     actual_chunks = {(p.pos.x // 16, p.pos.z // 16) for p in blocks}
     assert 0 < report["guaranteed_unique_branch_wires"] <= len(branch_wires)
     assert 0 < report["minimum_emitted_route_placements"] <= len(blocks)
     assert 0 < report["minimum_route_chunks"] <= len(actual_chunks)
-    assert report["maximum_single_net_delay_lower_bound_redstone_ticks"] > 600
+    assert report["maximum_single_net_delay_lower_bound_redstone_ticks"] > 0
+    if track_base_z is None:
+        assert report["maximum_single_net_delay_lower_bound_redstone_ticks"] > 600
+    else:
+        assert report["track_z_bounds"][0] == track_base_z
     assert report["exact_chunk_count"] is None
     assert report["route_validity_verified"] is False
 

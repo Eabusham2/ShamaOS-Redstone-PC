@@ -37,12 +37,16 @@ at this checkpoint.**
 
 These are remaining engineering tasks, not merely pending test executions:
 
-1. `system_build._prepare_partitioned_logic` still uses the flat routing backend.
-   The complete bounded graph planner and recursive placer exist, but the
-   complete machine generator does not yet use them.
-2. Original ports inside a recursively packed partition require accessible
-   external contacts and checked escape corridors. Retaining every graph port
-   does not by itself make that port connectable from outside the partition.
+1. The explicit `generator.logic_backend="bounded"` path now connects complete
+   mapped partitions, their exterior contacts, the original mapped shell,
+   resource finalization and global routing to the production world writer.
+   Its small complete test top passes native save/reopen and actual global-input
+   execution. All twelve real production partitions still need accepted
+   placement, interconnection and runtime; the default backend remains `flat`.
+2. The full cache controller now has accessible exterior contacts and checked
+   corridors for all 183 original pins, with planned clock matching and an exact
+   complete block union. Its exterior clock/data timing and those interfaces on
+   the remaining production partitions still require native-runtime proof.
 3. The full cache controller is the next complete hardware integration target.
    Its prepared request traces are RTL evidence; the physical controller,
    decoder, two 4 KiB banks and external routes must execute together before
@@ -64,10 +68,25 @@ register pipeline and rejection of corrupted region data. Root independently
 reran 42 combined exporter and geometry-recovery cases and all 34 cache
 preparation/clock cases without skips; the
 [root review](evidence/completion-checkpoint-root-review-2026-11-13.json)
-records their exact sources. This path
-does not yet replace the flat complete-machine backend; electrical route
+records their exact sources. This exporter
+does not replace the flat complete-machine default; electrical route
 isolation, external accessibility and full runtime acceptance remain explicit
 unverified fields in its reports.
+
+The separate [opt-in production backend](BOUNDED_BACKEND.md) now supplies the
+whole-system builder connection. Its 17 focused cases and 29 existing flat,
+synthesis, world and interface cases pass without skips. Root independently
+reran 27 backend/resource cases, including both native runtime schedules. The
+four-cell complete mapped test top retains reversed bus wiring and constants;
+its actual production global clock/data routes reach the bounded hierarchy
+after saving and reopening 796 chunks. All twelve tested transfers pass at a
+512-tick half-period; a 20-tick half-period produces six detected misses.
+Conservative resource rejection happens before the expensive full logic union,
+and the measured complete logic keepout reaches the global router. Reused
+placement objects must also retain exact planned clock matching. These are
+builder integration and small-system proofs, not full ShamaOS execution; the
+[independent review](evidence/bounded-backend-root-review-2026-11-13.json)
+records the exact scope and sources.
 
 The complete 1,144-cell cache controller now has a retained placement with all
 183 original port bits and 115 register clocks. Its exact block union contains
@@ -106,12 +125,31 @@ the original graph pins remain intact. Passing and deliberately too-fast
 engine tests exercise that circuit, and a separate manifest retains every
 added wire. A saved/reopened small pipeline also matches every positive and
 deliberately too-fast reference signal, and actual external-router wires reach
-all six exterior pins without entering the component volume. The 1,228 MiB and
-2,048 MiB capped full-controller trials both ended incomplete; the latter
-finished delivery of all 183 pins through an ancestor but exhausted its memory
-budget at the final root. The full-controller exterior and physically connected
-cache/memory execution remain the next integration gates. These partial trials
-do not count as a complete externally connectable controller.
+all six exterior pins without entering the component volume. The earlier
+1,228 MiB and 2,048 MiB capped full-controller trials both ended incomplete; the
+latter finished delivery of all 183 pins through an ancestor but exhausted its
+memory budget at the final root. Their incomplete evidence remains retained.
+
+An exact packed parent-union collector then completed the exterior geometry
+within the same 2 GiB cap. Its first layout was rejected because two clock
+branches lacked delay capacity. A targeted real track reservation, applied to
+the entire affected sibling group, now passes the unchanged clock matcher and
+full independent literal union. The accepted controller plus exterior wiring
+contains **27,156,924 unique blocks and 136,764 occupied chunks**, retaining
+all 1,144 cells, 183 exterior pins, 1,484 graph contacts and 494 exterior-wire
+handoffs. All 115 planned original-pin-to-register paths match at 3,843 redstone
+ticks; the exterior common prefix and actual operating period remain separate
+runtime measurements. The full checked run used 928,456 KiB peak resident memory.
+This measurement is separate from the regular-component subtotal and excludes
+both cache memory banks and their external connections. For the combined
+controller, exterior wiring, both full banks, decoder and all external routes,
+two independent union methods now agree on **37,102,012 unique blocks and
+192,026 occupied chunks**. The
+[retained geometry checkpoint](../experiments/memory_controller_runtime/evidence/connected-cache-union-checkpoint.json)
+binds both collectors and their frozen sources. Native writing and readback are
+underway in that immutable checkout; connected cache transactions and
+persistence have not yet passed. This is a cache-fixture measurement, not the
+complete computer's footprint.
 
 ## Current 200 KiB integration checkpoint
 

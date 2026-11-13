@@ -227,12 +227,60 @@ physical circuitry. The [clock summary](evidence/cache-controller-native-clock-s
 and [full proof](evidence/cache-controller-native-clock-proof.json) bind the
 runner, source, scenarios, telemetry and complete compressed traces.
 
-All 78 external routes, exact connected native save/readback, real decoder/bank
-runtime and complete connected clock/data timing remain pending. The first complete
-straight-corridor audit found 87 of the original controller's 183 south-facing
-I/O paths obstructed; placing the controller does not make those original pins
-externally accessible. Real export wires must preserve every original pin.
-Quiescent engine state must then be exported
-to a native save and reimported into a fresh process before continuation is
-accepted. The prepared fixture and its tests do not establish a complete
-machine boot or a connected-world chunk count.
+## Complete facade and connected native cache
+
+The original controller's buried I/O required actual export wires: the first
+straight-corridor audit rejected 87 of its 183 original south-facing paths.
+The accepted facade now retains every cell and original contact, and adds five
+explicit wire modules that deliver all 183 original pins to the exterior.
+Its exact geometry contains **27,156,924 unique blocks in 136,764 occupied
+chunks**. This includes the controller and its export wires; physical memory
+and global interconnect are additional. The source-bound
+[facade review](../partition_placement/evidence/cache-facade-domain4-672-review.json)
+retains the earlier failed capacity attempts and the accepted full manifest.
+
+Clock matching requires 672 blocks of reserved branch space for domain 4's
+entire sibling group, with 128 elsewhere. All 115 original-pin clock paths
+match at a planned 3,843 redstone ticks. The facade adds a common planned
+3,773-tick prefix, giving 7,616 ticks from exterior contact to consumer. These
+are structural delivery delays; exterior native pulses and data transfers
+remain separate gates.
+
+`interconnect.py` places both complete 4 KiB banks beside this accepted
+controller and connects all 78 memory nets with the unchanged external router.
+It preserves the real row decoder, bank selection, write data/commit and all
+32 reverse-flow physical read-return paths. All 72 host driver pads remain
+separate saved AIR positions outside the controller. A returned routing
+contract alone does not establish native electrical behavior.
+
+`save_connected.py` consumes the accepted facade report and its exact plan.
+It first retains the source/input bundle, independently sort-merges the entire
+controller, facade, both banks and external routes, then requires a separate
+SQLite union to reproduce every state and coordinate. Only then does it write
+the native world and read every saved chunk back. Its final pad check reads all
+six neighboring block faces and rejects a pad touching an unrelated saved
+block. The generator uses a separate frozen checkout so later system changes
+cannot invalidate its source bindings:
+
+```sh
+PYTHONPATH=src python -m experiments.memory_controller_runtime.save_connected \
+  accepted-facade/report.json accepted-facade/inputs/plan.json build/connected-cache \
+  --memory-limit-mib 2048 --wall-seconds 5400
+```
+
+The combined native build is in progress; its runtime flags remain false until
+the saved-world and execution gates complete. `run_connected.py` provides
+separate preparation, clock and transaction phases so successful native
+generation can be reused after an execution failure. The clock phase observes
+every one of the 115 register clock pins through the actual exterior contact
+and requires both the ordinary pulse proof and a rejected too-fast case. The
+transaction phase revalidates those saved traces and requires its half-period
+to equal the accepted ordinary probe's period.
+
+The functional run retains all 649 prepared frames and 53 complete-storage
+boundaries. It snapshots only actual quiescent engine state, converts that
+snapshot to a native save, checks every locked storage repeater before any
+fresh initialization, and runs the continuation in a new process. Runtime,
+oracle, importer and snapshot helper sources are bound across phases. These
+helpers and their small-fixture checks establish preparation correctness; they
+do not establish a complete connected-cache runtime, machine boot or release.

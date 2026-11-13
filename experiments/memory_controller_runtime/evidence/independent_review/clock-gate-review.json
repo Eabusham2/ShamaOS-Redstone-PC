@@ -1,0 +1,134 @@
+{
+  "after_fix": {
+    "harness": {
+      "bytes": 2807,
+      "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded-integration/build/connected-cache-independent-review/verify_fixed_clock_gate.py",
+      "sha256": "dd0502e429ccebda045101ebcb60452b8d670f92c35199867cec70b0812641bc"
+    },
+    "results": [
+      {
+        "accepted_by_current_clock_gate": false,
+        "case": "missing-both-cases",
+        "error": "clock evidence must retain both exact safe and too-fast cases",
+        "error_type": "ValueError",
+        "native_execution_run": false
+      },
+      {
+        "accepted_by_current_clock_gate": false,
+        "case": "missing-negative-case",
+        "error": "clock evidence must retain both exact safe and too-fast cases",
+        "error_type": "ValueError",
+        "native_execution_run": false
+      },
+      {
+        "accepted_by_current_clock_gate": false,
+        "case": "requested-period-not-probed",
+        "error": "transaction half-period must equal the actually accepted safe clock probe",
+        "error_type": "ValueError",
+        "native_execution_run": false
+      }
+    ],
+    "scope": "Synthetic rejection-guard reproduction only; no physical runtime or source-world evidence is asserted",
+    "source": {
+      "bytes": 29694,
+      "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-cache-native-f711/experiments/memory_controller_runtime/run_connected.py",
+      "sha256": "faccd37e13eab70a7eb8dd577501073b7f283e88ab10d081cc914f28100309d2"
+    }
+  },
+  "before_fix": {
+    "harness": {
+      "bytes": 2474,
+      "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded-integration/build/connected-cache-independent-review/reproduce_clock_gate.py",
+      "sha256": "737965c548b53a73be7711a2fb92eb5e6ec5ce3004a529577d97e0a4de7d12f0"
+    },
+    "results": [
+      {
+        "accepted_by_current_clock_gate": true,
+        "case": "missing-both-cases",
+        "native_execution_run": false
+      },
+      {
+        "accepted_by_current_clock_gate": true,
+        "case": "missing-negative-case",
+        "native_execution_run": false
+      },
+      {
+        "accepted_by_current_clock_gate": true,
+        "case": "requested-period-not-probed",
+        "native_execution_run": false
+      }
+    ],
+    "scope": "Synthetic rejection-guard reproduction only; no physical runtime or source-world evidence is asserted",
+    "source": {
+      "bytes": 24325,
+      "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-cache-native-f711/experiments/memory_controller_runtime/run_connected.py",
+      "sha256": "c985ff3b3ced489f22e7fbd745df1ed702d47f7a5099470c21d6db6bc7a5f7d9"
+    }
+  },
+  "complete_machine_runtime_verified": false,
+  "connected_cache_runtime_verified": false,
+  "focused_guard_test_suite": {
+    "errors": "0",
+    "failures": "0",
+    "junit_path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded-integration/build/connected-cache-independent-review/guard-regression.xml",
+    "junit_sha256": "03bec63a8a3eaba9cc08aa6e33541176339f1550779e262971620ede0651f0d1",
+    "selection": "-k native_runtime_",
+    "skipped": "0",
+    "test_names": [
+      "test_native_runtime_clock_gate_rechecks_both_bound_sample_sets",
+      "test_native_runtime_clock_gate_rejects_incomplete_or_false_evidence[no-cases]",
+      "test_native_runtime_clock_gate_rejects_incomplete_or_false_evidence[missing-negative]",
+      "test_native_runtime_clock_gate_rejects_incomplete_or_false_evidence[invented-case]",
+      "test_native_runtime_clock_gate_rejects_incomplete_or_false_evidence[faster-period]",
+      "test_native_runtime_clock_gate_rejects_incomplete_or_false_evidence[slower-period]",
+      "test_native_runtime_clock_gate_rejects_incomplete_or_false_evidence[different-scenario]",
+      "test_native_runtime_clock_gate_rejects_incomplete_or_false_evidence[changed-safe-trace]",
+      "test_native_runtime_clock_gate_rejects_incomplete_or_false_evidence[false-negative]",
+      "test_native_runtime_clock_gate_rejects_incomplete_or_false_evidence[lost-clock]",
+      "test_native_runtime_clock_gate_rejects_incomplete_or_false_evidence[other-stream]",
+      "test_native_runtime_clock_gate_rejects_incomplete_or_false_evidence[other-helper]",
+      "test_native_runtime_helper_inventory_is_exact[missing]",
+      "test_native_runtime_helper_inventory_is_exact[changed]",
+      "test_native_runtime_helper_inventory_is_exact[extra]"
+    ],
+    "test_source": "tests/test_memory_controller_runtime_experiment.py",
+    "test_source_sha256": "de89a3cdefd1ba98701bff7f1e1d3a86202a886240dca4661485550c63b03f73",
+    "tests": "15",
+    "time": "0.176"
+  },
+  "full_cache_runtime_verified": false,
+  "retained_after_fix_harness": {
+    "bytes": 2807,
+    "content_identical_to_executed_helper": true,
+    "path": "experiments/memory_controller_runtime/evidence/independent_review/clock_gate_after_fix.py",
+    "sha256": "dd0502e429ccebda045101ebcb60452b8d670f92c35199867cec70b0812641bc"
+  },
+  "retained_before_fix_harness": {
+    "bytes": 2474,
+    "content_identical_to_executed_helper": true,
+    "path": "experiments/memory_controller_runtime/evidence/independent_review/clock_gate_before_fix.py",
+    "sha256": "737965c548b53a73be7711a2fb92eb5e6ec5ce3004a529577d97e0a4de7d12f0"
+  },
+  "source_review": {
+    "bound_safe_and_negative_scenarios_reconstructed": true,
+    "every_retained_native_clock_trace_reanalyzed": true,
+    "failures_leave_runtime_flags_false": true,
+    "native_engine_and_terrain_revision_checked": true,
+    "restored_parent_stream_and_scenario_match_cold_run": true,
+    "runtime_helper_inventory_count": 9,
+    "runtime_helper_sources": {
+      "experiments/memory_controller_runtime/probe_controller.py": "d08649c2ee06c6ae9fa4aa1341d1fb27f1c99b1d9e4fbb915cd1707d1e7146ad",
+      "experiments/memory_controller_runtime/run_connected.py": "faccd37e13eab70a7eb8dd577501073b7f283e88ab10d081cc914f28100309d2",
+      "experiments/memory_controller_runtime/save_connected.py": "70c44d2fc3eee9f401911373b6a15f412a89da8cb84d4662bcfe36363bdec2ef",
+      "experiments/memory_controller_runtime/scenarios.py": "1319d9a6097909dd849ac59c855c17232fc2442624cb957fb000de37e8499b67",
+      "src/shamaos/mchprs_import.py": "0680be7ad82c53561bd1401be2b8133c7cd19a55b591bba6ea18410a6d5de0ea",
+      "src/shamaos/mchprs_snapshot.py": "e0c92da3d8ced59a65879a4fcc411ffbf994f625714d0fee0ba3adae52fcb91e",
+      "src/shamaos/model.py": "1a0fd1f9eb9469989057e4486401e5161e7f0bb02eb69195b7a14a74e92f4b95",
+      "src/shamaos/release_io.py": "5e1f310243d2325b9e4f6987649a770d2d4d03667cb66f5d442262fae43609c1",
+      "src/shamaos/worldio.py": "08e163497c981357b3aa4ce444709f38769001fb512700b0ffd2a8fc4ebda69c"
+    },
+    "transaction_half_period_matches_safe_clock_probe": true
+  },
+  "status": "identified-clock-evidence-gaps-fixed-and-independently-retested",
+  "synthetic_guard_tests_are_physical_runtime_proof": false
+}

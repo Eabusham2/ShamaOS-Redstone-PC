@@ -1,0 +1,3419 @@
+{
+  "status": "diagnostic-only-no-clock-matching-or-runtime-acceptance",
+  "clocks": {
+    "2": {
+      "clock_leaves": 115,
+      "modules": 27,
+      "ideal_original_pin_to_register_delay": 3843,
+      "facade_common_prefix_repeater_delay": 3773,
+      "ideal_exterior_to_register_delay": 7616
+    }
+  },
+  "modules": [
+    {
+      "module": [
+        "leaf",
+        16
+      ],
+      "net": 2,
+      "target_if_all_descendants_can_be_balanced": 177,
+      "track_base_z": 2056,
+      "sinks": [
+        {
+          "sink": "$auto$ff.cc:266:slice$67929",
+          "pin": "C",
+          "position": {
+            "x": 4470,
+            "y": -59,
+            "z": 2254
+          },
+          "arrival": 177,
+          "tail": 0,
+          "needed_extra_delay": 0,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67931",
+          "pin": "C",
+          "position": {
+            "x": 5174,
+            "y": -59,
+            "z": 2254
+          },
+          "arrival": 105,
+          "tail": 0,
+          "needed_extra_delay": 72,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68001",
+          "pin": "C",
+          "position": {
+            "x": 5846,
+            "y": -59,
+            "z": 2254
+          },
+          "arrival": 68,
+          "tail": 0,
+          "needed_extra_delay": 109,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68003",
+          "pin": "C",
+          "position": {
+            "x": 6038,
+            "y": -59,
+            "z": 2254
+          },
+          "arrival": 88,
+          "tail": 0,
+          "needed_extra_delay": 89,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68085",
+          "pin": "C",
+          "position": {
+            "x": 6230,
+            "y": -59,
+            "z": 2254
+          },
+          "arrival": 108,
+          "tail": 0,
+          "needed_extra_delay": 69,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68087",
+          "pin": "C",
+          "position": {
+            "x": 4982,
+            "y": -59,
+            "z": 2254
+          },
+          "arrival": 125,
+          "tail": 0,
+          "needed_extra_delay": 52,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68089",
+          "pin": "C",
+          "position": {
+            "x": 5686,
+            "y": -59,
+            "z": 2254
+          },
+          "arrival": 53,
+          "tail": 0,
+          "needed_extra_delay": 124,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        }
+      ]
+    },
+    {
+      "module": [
+        "leaf",
+        17
+      ],
+      "net": 2,
+      "target_if_all_descendants_can_be_balanced": 128,
+      "track_base_z": 2056,
+      "sinks": [
+        {
+          "sink": "$auto$ff.cc:266:slice$67933",
+          "pin": "C",
+          "position": {
+            "x": 4470,
+            "y": -35,
+            "z": 2250
+          },
+          "arrival": 128,
+          "tail": 0,
+          "needed_extra_delay": 0,
+          "available_private_branch_extra_delay": 704,
+          "private_branch_positions": 181,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 164,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 722,
+            "path_active_positions": 209
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67935",
+          "pin": "C",
+          "position": {
+            "x": 5206,
+            "y": -35,
+            "z": 2250
+          },
+          "arrival": 52,
+          "tail": 0,
+          "needed_extra_delay": 76,
+          "available_private_branch_extra_delay": 704,
+          "private_branch_positions": 181,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 164,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 722,
+            "path_active_positions": 209
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68005",
+          "pin": "C",
+          "position": {
+            "x": 4758,
+            "y": -35,
+            "z": 2250
+          },
+          "arrival": 99,
+          "tail": 0,
+          "needed_extra_delay": 29,
+          "available_private_branch_extra_delay": 704,
+          "private_branch_positions": 181,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 164,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 722,
+            "path_active_positions": 209
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68007",
+          "pin": "C",
+          "position": {
+            "x": 4982,
+            "y": -35,
+            "z": 2250
+          },
+          "arrival": 75,
+          "tail": 0,
+          "needed_extra_delay": 53,
+          "available_private_branch_extra_delay": 704,
+          "private_branch_positions": 181,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 164,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 722,
+            "path_active_positions": 209
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68091",
+          "pin": "C",
+          "position": {
+            "x": 5622,
+            "y": -35,
+            "z": 2250
+          },
+          "arrival": 92,
+          "tail": 0,
+          "needed_extra_delay": 36,
+          "available_private_branch_extra_delay": 704,
+          "private_branch_positions": 181,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 164,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 722,
+            "path_active_positions": 209
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68093",
+          "pin": "C",
+          "position": {
+            "x": 5910,
+            "y": -35,
+            "z": 2250
+          },
+          "arrival": 122,
+          "tail": 0,
+          "needed_extra_delay": 6,
+          "available_private_branch_extra_delay": 704,
+          "private_branch_positions": 181,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 164,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 722,
+            "path_active_positions": 209
+          }
+        }
+      ]
+    },
+    {
+      "module": [
+        "leaf",
+        0
+      ],
+      "net": 2,
+      "target_if_all_descendants_can_be_balanced": 70,
+      "track_base_z": 176,
+      "sinks": [
+        {
+          "sink": "$auto$ff.cc:266:slice$67865",
+          "pin": "C",
+          "position": {
+            "x": 1542,
+            "y": -59,
+            "z": 378
+          },
+          "arrival": 44,
+          "tail": 0,
+          "needed_extra_delay": 26,
+          "available_private_branch_extra_delay": 533,
+          "private_branch_positions": 137,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 127,
+            "straight_existing_repeaters": 18,
+            "available_extra_delay_upper_bound": 562,
+            "path_active_positions": 169
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67867",
+          "pin": "C",
+          "position": {
+            "x": 1286,
+            "y": -59,
+            "z": 378
+          },
+          "arrival": 70,
+          "tail": 0,
+          "needed_extra_delay": 0,
+          "available_private_branch_extra_delay": 533,
+          "private_branch_positions": 137,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 125,
+            "straight_existing_repeaters": 17,
+            "available_extra_delay_upper_bound": 551,
+            "path_active_positions": 165
+          }
+        }
+      ]
+    },
+    {
+      "module": [
+        "leaf",
+        1
+      ],
+      "net": 2,
+      "target_if_all_descendants_can_be_balanced": 99,
+      "track_base_z": 176,
+      "sinks": [
+        {
+          "sink": "$auto$ff.cc:266:slice$67869",
+          "pin": "C",
+          "position": {
+            "x": 774,
+            "y": -35,
+            "z": 374
+          },
+          "arrival": 99,
+          "tail": 0,
+          "needed_extra_delay": 0,
+          "available_private_branch_extra_delay": 595,
+          "private_branch_positions": 153,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 139,
+            "straight_existing_repeaters": 19,
+            "available_extra_delay_upper_bound": 613,
+            "path_active_positions": 181
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68009",
+          "pin": "C",
+          "position": {
+            "x": 998,
+            "y": -35,
+            "z": 374
+          },
+          "arrival": 76,
+          "tail": 0,
+          "needed_extra_delay": 23,
+          "available_private_branch_extra_delay": 595,
+          "private_branch_positions": 153,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 139,
+            "straight_existing_repeaters": 19,
+            "available_extra_delay_upper_bound": 613,
+            "path_active_positions": 181
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68023",
+          "pin": "C",
+          "position": {
+            "x": 1286,
+            "y": -35,
+            "z": 374
+          },
+          "arrival": 47,
+          "tail": 0,
+          "needed_extra_delay": 52,
+          "available_private_branch_extra_delay": 595,
+          "private_branch_positions": 153,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 141,
+            "straight_existing_repeaters": 20,
+            "available_extra_delay_upper_bound": 624,
+            "path_active_positions": 185
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68025",
+          "pin": "C",
+          "position": {
+            "x": 1638,
+            "y": -35,
+            "z": 374
+          },
+          "arrival": 79,
+          "tail": 0,
+          "needed_extra_delay": 20,
+          "available_private_branch_extra_delay": 595,
+          "private_branch_positions": 153,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 139,
+            "straight_existing_repeaters": 19,
+            "available_extra_delay_upper_bound": 613,
+            "path_active_positions": 181
+          }
+        }
+      ]
+    },
+    {
+      "module": [
+        "leaf",
+        2
+      ],
+      "net": 2,
+      "target_if_all_descendants_can_be_balanced": 119,
+      "track_base_z": 176,
+      "sinks": [
+        {
+          "sink": "$auto$ff.cc:266:slice$68011",
+          "pin": "C",
+          "position": {
+            "x": 678,
+            "y": -11,
+            "z": 366
+          },
+          "arrival": 90,
+          "tail": 0,
+          "needed_extra_delay": 29,
+          "available_private_branch_extra_delay": 533,
+          "private_branch_positions": 137,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 125,
+            "straight_existing_repeaters": 17,
+            "available_extra_delay_upper_bound": 551,
+            "path_active_positions": 165
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68013",
+          "pin": "C",
+          "position": {
+            "x": 902,
+            "y": -11,
+            "z": 366
+          },
+          "arrival": 66,
+          "tail": 0,
+          "needed_extra_delay": 53,
+          "available_private_branch_extra_delay": 533,
+          "private_branch_positions": 137,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 125,
+            "straight_existing_repeaters": 17,
+            "available_extra_delay_upper_bound": 551,
+            "path_active_positions": 165
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68015",
+          "pin": "C",
+          "position": {
+            "x": 1126,
+            "y": -11,
+            "z": 366
+          },
+          "arrival": 43,
+          "tail": 0,
+          "needed_extra_delay": 76,
+          "available_private_branch_extra_delay": 533,
+          "private_branch_positions": 137,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 125,
+            "straight_existing_repeaters": 17,
+            "available_extra_delay_upper_bound": 551,
+            "path_active_positions": 165
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68017",
+          "pin": "C",
+          "position": {
+            "x": 1350,
+            "y": -11,
+            "z": 366
+          },
+          "arrival": 64,
+          "tail": 0,
+          "needed_extra_delay": 55,
+          "available_private_branch_extra_delay": 533,
+          "private_branch_positions": 137,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 125,
+            "straight_existing_repeaters": 17,
+            "available_extra_delay_upper_bound": 551,
+            "path_active_positions": 165
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68021",
+          "pin": "C",
+          "position": {
+            "x": 390,
+            "y": -11,
+            "z": 366
+          },
+          "arrival": 119,
+          "tail": 0,
+          "needed_extra_delay": 0,
+          "available_private_branch_extra_delay": 533,
+          "private_branch_positions": 137,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 125,
+            "straight_existing_repeaters": 17,
+            "available_extra_delay_upper_bound": 551,
+            "path_active_positions": 165
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68027",
+          "pin": "C",
+          "position": {
+            "x": 1574,
+            "y": -11,
+            "z": 366
+          },
+          "arrival": 87,
+          "tail": 0,
+          "needed_extra_delay": 32,
+          "available_private_branch_extra_delay": 533,
+          "private_branch_positions": 137,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 125,
+            "straight_existing_repeaters": 17,
+            "available_extra_delay_upper_bound": 551,
+            "path_active_positions": 165
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68029",
+          "pin": "C",
+          "position": {
+            "x": 1894,
+            "y": -11,
+            "z": 366
+          },
+          "arrival": 119,
+          "tail": 0,
+          "needed_extra_delay": 0,
+          "available_private_branch_extra_delay": 533,
+          "private_branch_positions": 137,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 125,
+            "straight_existing_repeaters": 17,
+            "available_extra_delay_upper_bound": 551,
+            "path_active_positions": 165
+          }
+        }
+      ]
+    },
+    {
+      "module": [
+        "leaf",
+        3
+      ],
+      "net": 2,
+      "target_if_all_descendants_can_be_balanced": 170,
+      "track_base_z": 176,
+      "sinks": [
+        {
+          "sink": "$auto$ff.cc:266:slice$67871",
+          "pin": "C",
+          "position": {
+            "x": 134,
+            "y": 13,
+            "z": 370
+          },
+          "arrival": 170,
+          "tail": 0,
+          "needed_extra_delay": 0,
+          "available_private_branch_extra_delay": 704,
+          "private_branch_positions": 181,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 164,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 722,
+            "path_active_positions": 209
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67873",
+          "pin": "C",
+          "position": {
+            "x": 838,
+            "y": 13,
+            "z": 370
+          },
+          "arrival": 98,
+          "tail": 0,
+          "needed_extra_delay": 72,
+          "available_private_branch_extra_delay": 704,
+          "private_branch_positions": 181,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 164,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 722,
+            "path_active_positions": 209
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67937",
+          "pin": "C",
+          "position": {
+            "x": 1478,
+            "y": 13,
+            "z": 370
+          },
+          "arrival": 70,
+          "tail": 0,
+          "needed_extra_delay": 100,
+          "available_private_branch_extra_delay": 704,
+          "private_branch_positions": 181,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 164,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 722,
+            "path_active_positions": 209
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67945",
+          "pin": "C",
+          "position": {
+            "x": 1286,
+            "y": 13,
+            "z": 370
+          },
+          "arrival": 52,
+          "tail": 0,
+          "needed_extra_delay": 118,
+          "available_private_branch_extra_delay": 704,
+          "private_branch_positions": 181,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 164,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 722,
+            "path_active_positions": 209
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68019",
+          "pin": "C",
+          "position": {
+            "x": 1830,
+            "y": 13,
+            "z": 370
+          },
+          "arrival": 106,
+          "tail": 0,
+          "needed_extra_delay": 64,
+          "available_private_branch_extra_delay": 704,
+          "private_branch_positions": 181,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 164,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 722,
+            "path_active_positions": 209
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68031",
+          "pin": "C",
+          "position": {
+            "x": 422,
+            "y": 13,
+            "z": 370
+          },
+          "arrival": 140,
+          "tail": 0,
+          "needed_extra_delay": 30,
+          "available_private_branch_extra_delay": 704,
+          "private_branch_positions": 181,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 164,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 722,
+            "path_active_positions": 209
+          }
+        }
+      ]
+    },
+    {
+      "module": [
+        "domain",
+        0
+      ],
+      "net": 2,
+      "target_if_all_descendants_can_be_balanced": 440,
+      "track_base_z": 0,
+      "sinks": [
+        {
+          "sink": "boundary:net2:cluster21>cluster0:out",
+          "pin": "net2:cluster21>cluster0:out",
+          "position": {
+            "x": 1544,
+            "y": -59,
+            "z": 426
+          },
+          "arrival": 384,
+          "tail": 70,
+          "needed_extra_delay": 56,
+          "available_private_branch_extra_delay": 1625,
+          "private_branch_positions": 417,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 377,
+            "straight_existing_repeaters": 54,
+            "available_extra_delay_upper_bound": 1670,
+            "path_active_positions": 553
+          }
+        },
+        {
+          "sink": "boundary:net2:cluster21>cluster1:out",
+          "pin": "net2:cluster21>cluster1:out",
+          "position": {
+            "x": 1288,
+            "y": -35,
+            "z": 422
+          },
+          "arrival": 381,
+          "tail": 99,
+          "needed_extra_delay": 59,
+          "available_private_branch_extra_delay": 1609,
+          "private_branch_positions": 413,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 373,
+            "straight_existing_repeaters": 52,
+            "available_extra_delay_upper_bound": 1648,
+            "path_active_positions": 521
+          }
+        },
+        {
+          "sink": "boundary:net2:cluster21>cluster2:out",
+          "pin": "net2:cluster21>cluster2:out",
+          "position": {
+            "x": 1128,
+            "y": -11,
+            "z": 414
+          },
+          "arrival": 381,
+          "tail": 119,
+          "needed_extra_delay": 59,
+          "available_private_branch_extra_delay": 1601,
+          "private_branch_positions": 411,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 383,
+            "straight_existing_repeaters": 51,
+            "available_extra_delay_upper_bound": 1685,
+            "path_active_positions": 505
+          }
+        },
+        {
+          "sink": "boundary:net2:cluster21>cluster3:out",
+          "pin": "net2:cluster21>cluster3:out",
+          "position": {
+            "x": 1288,
+            "y": 13,
+            "z": 418
+          },
+          "arrival": 440,
+          "tail": 170,
+          "needed_extra_delay": 0,
+          "available_private_branch_extra_delay": 1594,
+          "private_branch_positions": 409,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 370,
+            "straight_existing_repeaters": 46,
+            "available_extra_delay_upper_bound": 1618,
+            "path_active_positions": 459
+          }
+        }
+      ]
+    },
+    {
+      "module": [
+        "leaf",
+        4
+      ],
+      "net": 2,
+      "target_if_all_descendants_can_be_balanced": 136,
+      "track_base_z": 72,
+      "sinks": [
+        {
+          "sink": "$auto$ff.cc:266:slice$67875",
+          "pin": "C",
+          "position": {
+            "x": 134,
+            "y": 55,
+            "z": 274
+          },
+          "arrival": 136,
+          "tail": 0,
+          "needed_extra_delay": 0,
+          "available_private_branch_extra_delay": 736,
+          "private_branch_positions": 189,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 172,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 754,
+            "path_active_positions": 217
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67877",
+          "pin": "C",
+          "position": {
+            "x": 934,
+            "y": 55,
+            "z": 274
+          },
+          "arrival": 53,
+          "tail": 0,
+          "needed_extra_delay": 83,
+          "available_private_branch_extra_delay": 736,
+          "private_branch_positions": 189,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 172,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 754,
+            "path_active_positions": 217
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67947",
+          "pin": "C",
+          "position": {
+            "x": 422,
+            "y": 55,
+            "z": 274
+          },
+          "arrival": 106,
+          "tail": 0,
+          "needed_extra_delay": 30,
+          "available_private_branch_extra_delay": 736,
+          "private_branch_positions": 189,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 172,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 754,
+            "path_active_positions": 217
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67949",
+          "pin": "C",
+          "position": {
+            "x": 1606,
+            "y": 55,
+            "z": 274
+          },
+          "arrival": 120,
+          "tail": 0,
+          "needed_extra_delay": 16,
+          "available_private_branch_extra_delay": 736,
+          "private_branch_positions": 189,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 172,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 754,
+            "path_active_positions": 217
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68033",
+          "pin": "C",
+          "position": {
+            "x": 742,
+            "y": 55,
+            "z": 274
+          },
+          "arrival": 73,
+          "tail": 0,
+          "needed_extra_delay": 63,
+          "available_private_branch_extra_delay": 736,
+          "private_branch_positions": 189,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 172,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 754,
+            "path_active_positions": 217
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68035",
+          "pin": "C",
+          "position": {
+            "x": 1446,
+            "y": 55,
+            "z": 274
+          },
+          "arrival": 103,
+          "tail": 0,
+          "needed_extra_delay": 33,
+          "available_private_branch_extra_delay": 736,
+          "private_branch_positions": 189,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 172,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 754,
+            "path_active_positions": 217
+          }
+        }
+      ]
+    },
+    {
+      "module": [
+        "leaf",
+        5
+      ],
+      "net": 2,
+      "target_if_all_descendants_can_be_balanced": 184,
+      "track_base_z": 72,
+      "sinks": [
+        {
+          "sink": "$auto$ff.cc:266:slice$67879",
+          "pin": "C",
+          "position": {
+            "x": 1990,
+            "y": 79,
+            "z": 270
+          },
+          "arrival": 111,
+          "tail": 0,
+          "needed_extra_delay": 73,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67881",
+          "pin": "C",
+          "position": {
+            "x": 134,
+            "y": 79,
+            "z": 270
+          },
+          "arrival": 184,
+          "tail": 0,
+          "needed_extra_delay": 0,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67883",
+          "pin": "C",
+          "position": {
+            "x": 838,
+            "y": 79,
+            "z": 270
+          },
+          "arrival": 112,
+          "tail": 0,
+          "needed_extra_delay": 72,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67951",
+          "pin": "C",
+          "position": {
+            "x": 1414,
+            "y": 79,
+            "z": 270
+          },
+          "arrival": 53,
+          "tail": 0,
+          "needed_extra_delay": 131,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67953",
+          "pin": "C",
+          "position": {
+            "x": 1606,
+            "y": 79,
+            "z": 270
+          },
+          "arrival": 71,
+          "tail": 0,
+          "needed_extra_delay": 113,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67955",
+          "pin": "C",
+          "position": {
+            "x": 1286,
+            "y": 79,
+            "z": 270
+          },
+          "arrival": 67,
+          "tail": 0,
+          "needed_extra_delay": 117,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 170,
+            "straight_existing_repeaters": 23,
+            "available_extra_delay_upper_bound": 749,
+            "path_active_positions": 217
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68037",
+          "pin": "C",
+          "position": {
+            "x": 1798,
+            "y": 79,
+            "z": 270
+          },
+          "arrival": 91,
+          "tail": 0,
+          "needed_extra_delay": 93,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68039",
+          "pin": "C",
+          "position": {
+            "x": 646,
+            "y": 79,
+            "z": 270
+          },
+          "arrival": 132,
+          "tail": 0,
+          "needed_extra_delay": 52,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        }
+      ]
+    },
+    {
+      "module": [
+        "leaf",
+        6
+      ],
+      "net": 2,
+      "target_if_all_descendants_can_be_balanced": 177,
+      "track_base_z": 72,
+      "sinks": [
+        {
+          "sink": "$auto$ff.cc:266:slice$67885",
+          "pin": "C",
+          "position": {
+            "x": 134,
+            "y": 103,
+            "z": 270
+          },
+          "arrival": 177,
+          "tail": 0,
+          "needed_extra_delay": 0,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67887",
+          "pin": "C",
+          "position": {
+            "x": 838,
+            "y": 103,
+            "z": 270
+          },
+          "arrival": 105,
+          "tail": 0,
+          "needed_extra_delay": 72,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67957",
+          "pin": "C",
+          "position": {
+            "x": 1478,
+            "y": 103,
+            "z": 270
+          },
+          "arrival": 64,
+          "tail": 0,
+          "needed_extra_delay": 113,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67959",
+          "pin": "C",
+          "position": {
+            "x": 1670,
+            "y": 103,
+            "z": 270
+          },
+          "arrival": 84,
+          "tail": 0,
+          "needed_extra_delay": 93,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68041",
+          "pin": "C",
+          "position": {
+            "x": 1862,
+            "y": 103,
+            "z": 270
+          },
+          "arrival": 104,
+          "tail": 0,
+          "needed_extra_delay": 73,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68043",
+          "pin": "C",
+          "position": {
+            "x": 646,
+            "y": 103,
+            "z": 270
+          },
+          "arrival": 125,
+          "tail": 0,
+          "needed_extra_delay": 52,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68045",
+          "pin": "C",
+          "position": {
+            "x": 1350,
+            "y": 103,
+            "z": 270
+          },
+          "arrival": 54,
+          "tail": 0,
+          "needed_extra_delay": 123,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 170,
+            "straight_existing_repeaters": 23,
+            "available_extra_delay_upper_bound": 749,
+            "path_active_positions": 217
+          }
+        }
+      ]
+    },
+    {
+      "module": [
+        "leaf",
+        7
+      ],
+      "net": 2,
+      "target_if_all_descendants_can_be_balanced": 177,
+      "track_base_z": 72,
+      "sinks": [
+        {
+          "sink": "$auto$ff.cc:266:slice$67889",
+          "pin": "C",
+          "position": {
+            "x": 134,
+            "y": 127,
+            "z": 274
+          },
+          "arrival": 177,
+          "tail": 0,
+          "needed_extra_delay": 0,
+          "available_private_branch_extra_delay": 736,
+          "private_branch_positions": 189,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 172,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 754,
+            "path_active_positions": 217
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67891",
+          "pin": "C",
+          "position": {
+            "x": 838,
+            "y": 127,
+            "z": 274
+          },
+          "arrival": 105,
+          "tail": 0,
+          "needed_extra_delay": 72,
+          "available_private_branch_extra_delay": 736,
+          "private_branch_positions": 189,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 172,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 754,
+            "path_active_positions": 217
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67939",
+          "pin": "C",
+          "position": {
+            "x": 1542,
+            "y": 127,
+            "z": 274
+          },
+          "arrival": 71,
+          "tail": 0,
+          "needed_extra_delay": 106,
+          "available_private_branch_extra_delay": 736,
+          "private_branch_positions": 189,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 172,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 754,
+            "path_active_positions": 217
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67961",
+          "pin": "C",
+          "position": {
+            "x": 1734,
+            "y": 127,
+            "z": 274
+          },
+          "arrival": 91,
+          "tail": 0,
+          "needed_extra_delay": 86,
+          "available_private_branch_extra_delay": 736,
+          "private_branch_positions": 189,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 172,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 754,
+            "path_active_positions": 217
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67963",
+          "pin": "C",
+          "position": {
+            "x": 1926,
+            "y": 127,
+            "z": 274
+          },
+          "arrival": 111,
+          "tail": 0,
+          "needed_extra_delay": 66,
+          "available_private_branch_extra_delay": 736,
+          "private_branch_positions": 189,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 172,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 754,
+            "path_active_positions": 217
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68047",
+          "pin": "C",
+          "position": {
+            "x": 646,
+            "y": 127,
+            "z": 274
+          },
+          "arrival": 125,
+          "tail": 0,
+          "needed_extra_delay": 52,
+          "available_private_branch_extra_delay": 736,
+          "private_branch_positions": 189,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 172,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 754,
+            "path_active_positions": 217
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68049",
+          "pin": "C",
+          "position": {
+            "x": 1350,
+            "y": 127,
+            "z": 274
+          },
+          "arrival": 53,
+          "tail": 0,
+          "needed_extra_delay": 124,
+          "available_private_branch_extra_delay": 736,
+          "private_branch_positions": 189,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 172,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 754,
+            "path_active_positions": 217
+          }
+        }
+      ]
+    },
+    {
+      "module": [
+        "domain",
+        1
+      ],
+      "net": 2,
+      "target_if_all_descendants_can_be_balanced": 452,
+      "track_base_z": 0,
+      "sinks": [
+        {
+          "sink": "boundary:net2:cluster22>cluster4:out",
+          "pin": "net2:cluster22>cluster4:out",
+          "position": {
+            "x": 936,
+            "y": 55,
+            "z": 322
+          },
+          "arrival": 361,
+          "tail": 136,
+          "needed_extra_delay": 91,
+          "available_private_branch_extra_delay": 1243,
+          "private_branch_positions": 319,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 303,
+            "straight_existing_repeaters": 47,
+            "available_extra_delay_upper_bound": 1353,
+            "path_active_positions": 473
+          }
+        },
+        {
+          "sink": "boundary:net2:cluster22>cluster5:out",
+          "pin": "net2:cluster22>cluster5:out",
+          "position": {
+            "x": 1416,
+            "y": 79,
+            "z": 318
+          },
+          "arrival": 452,
+          "tail": 184,
+          "needed_extra_delay": 0,
+          "available_private_branch_extra_delay": 1227,
+          "private_branch_positions": 315,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 293,
+            "straight_existing_repeaters": 43,
+            "available_extra_delay_upper_bound": 1301,
+            "path_active_positions": 433
+          }
+        },
+        {
+          "sink": "boundary:net2:cluster22>cluster6:out",
+          "pin": "net2:cluster22>cluster6:out",
+          "position": {
+            "x": 1352,
+            "y": 103,
+            "z": 318
+          },
+          "arrival": 431,
+          "tail": 177,
+          "needed_extra_delay": 21,
+          "available_private_branch_extra_delay": 1204,
+          "private_branch_positions": 309,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 280,
+            "straight_existing_repeaters": 39,
+            "available_extra_delay_upper_bound": 1237,
+            "path_active_positions": 389
+          }
+        },
+        {
+          "sink": "boundary:net2:cluster22>cluster7:out",
+          "pin": "net2:cluster22>cluster7:out",
+          "position": {
+            "x": 1352,
+            "y": 127,
+            "z": 322
+          },
+          "arrival": 425,
+          "tail": 177,
+          "needed_extra_delay": 27,
+          "available_private_branch_extra_delay": 1219,
+          "private_branch_positions": 313,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 283,
+            "straight_existing_repeaters": 37,
+            "available_extra_delay_upper_bound": 1243,
+            "path_active_positions": 363
+          }
+        }
+      ]
+    },
+    {
+      "module": [
+        "leaf",
+        8
+      ],
+      "net": 2,
+      "target_if_all_descendants_can_be_balanced": 177,
+      "track_base_z": 80,
+      "sinks": [
+        {
+          "sink": "$auto$ff.cc:266:slice$67893",
+          "pin": "C",
+          "position": {
+            "x": 2310,
+            "y": -59,
+            "z": 278
+          },
+          "arrival": 177,
+          "tail": 0,
+          "needed_extra_delay": 0,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67895",
+          "pin": "C",
+          "position": {
+            "x": 3014,
+            "y": -59,
+            "z": 278
+          },
+          "arrival": 105,
+          "tail": 0,
+          "needed_extra_delay": 72,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67965",
+          "pin": "C",
+          "position": {
+            "x": 3686,
+            "y": -59,
+            "z": 278
+          },
+          "arrival": 68,
+          "tail": 0,
+          "needed_extra_delay": 109,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67967",
+          "pin": "C",
+          "position": {
+            "x": 3878,
+            "y": -59,
+            "z": 278
+          },
+          "arrival": 88,
+          "tail": 0,
+          "needed_extra_delay": 89,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68051",
+          "pin": "C",
+          "position": {
+            "x": 2822,
+            "y": -59,
+            "z": 278
+          },
+          "arrival": 125,
+          "tail": 0,
+          "needed_extra_delay": 52,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68053",
+          "pin": "C",
+          "position": {
+            "x": 3526,
+            "y": -59,
+            "z": 278
+          },
+          "arrival": 53,
+          "tail": 0,
+          "needed_extra_delay": 124,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        }
+      ]
+    },
+    {
+      "module": [
+        "leaf",
+        9
+      ],
+      "net": 2,
+      "target_if_all_descendants_can_be_balanced": 145,
+      "track_base_z": 80,
+      "sinks": [
+        {
+          "sink": "$auto$ff.cc:266:slice$67897",
+          "pin": "C",
+          "position": {
+            "x": 2310,
+            "y": -35,
+            "z": 278
+          },
+          "arrival": 145,
+          "tail": 0,
+          "needed_extra_delay": 0,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67899",
+          "pin": "C",
+          "position": {
+            "x": 2502,
+            "y": -35,
+            "z": 278
+          },
+          "arrival": 125,
+          "tail": 0,
+          "needed_extra_delay": 20,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67901",
+          "pin": "C",
+          "position": {
+            "x": 3206,
+            "y": -35,
+            "z": 278
+          },
+          "arrival": 53,
+          "tail": 0,
+          "needed_extra_delay": 92,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67969",
+          "pin": "C",
+          "position": {
+            "x": 3686,
+            "y": -35,
+            "z": 278
+          },
+          "arrival": 100,
+          "tail": 0,
+          "needed_extra_delay": 45,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67971",
+          "pin": "C",
+          "position": {
+            "x": 3878,
+            "y": -35,
+            "z": 278
+          },
+          "arrival": 120,
+          "tail": 0,
+          "needed_extra_delay": 25,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68055",
+          "pin": "C",
+          "position": {
+            "x": 4070,
+            "y": -35,
+            "z": 278
+          },
+          "arrival": 140,
+          "tail": 0,
+          "needed_extra_delay": 5,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68057",
+          "pin": "C",
+          "position": {
+            "x": 3014,
+            "y": -35,
+            "z": 278
+          },
+          "arrival": 73,
+          "tail": 0,
+          "needed_extra_delay": 72,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        }
+      ]
+    },
+    {
+      "module": [
+        "leaf",
+        10
+      ],
+      "net": 2,
+      "target_if_all_descendants_can_be_balanced": 146,
+      "track_base_z": 80,
+      "sinks": [
+        {
+          "sink": "$auto$ff.cc:266:slice$67903",
+          "pin": "C",
+          "position": {
+            "x": 2310,
+            "y": -11,
+            "z": 286
+          },
+          "arrival": 146,
+          "tail": 0,
+          "needed_extra_delay": 0,
+          "available_private_branch_extra_delay": 751,
+          "private_branch_positions": 193,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 175,
+            "straight_existing_repeaters": 23,
+            "available_extra_delay_upper_bound": 769,
+            "path_active_positions": 221
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67905",
+          "pin": "C",
+          "position": {
+            "x": 3014,
+            "y": -11,
+            "z": 286
+          },
+          "arrival": 74,
+          "tail": 0,
+          "needed_extra_delay": 72,
+          "available_private_branch_extra_delay": 751,
+          "private_branch_positions": 193,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 175,
+            "straight_existing_repeaters": 23,
+            "available_extra_delay_upper_bound": 769,
+            "path_active_positions": 221
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67941",
+          "pin": "C",
+          "position": {
+            "x": 3206,
+            "y": -11,
+            "z": 286
+          },
+          "arrival": 54,
+          "tail": 0,
+          "needed_extra_delay": 92,
+          "available_private_branch_extra_delay": 751,
+          "private_branch_positions": 193,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 175,
+            "straight_existing_repeaters": 23,
+            "available_extra_delay_upper_bound": 769,
+            "path_active_positions": 221
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67973",
+          "pin": "C",
+          "position": {
+            "x": 4038,
+            "y": -11,
+            "z": 286
+          },
+          "arrival": 137,
+          "tail": 0,
+          "needed_extra_delay": 9,
+          "available_private_branch_extra_delay": 751,
+          "private_branch_positions": 193,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 175,
+            "straight_existing_repeaters": 23,
+            "available_extra_delay_upper_bound": 769,
+            "path_active_positions": 221
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67975",
+          "pin": "C",
+          "position": {
+            "x": 3654,
+            "y": -11,
+            "z": 286
+          },
+          "arrival": 97,
+          "tail": 0,
+          "needed_extra_delay": 49,
+          "available_private_branch_extra_delay": 751,
+          "private_branch_positions": 193,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 175,
+            "straight_existing_repeaters": 23,
+            "available_extra_delay_upper_bound": 769,
+            "path_active_positions": 221
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68059",
+          "pin": "C",
+          "position": {
+            "x": 3846,
+            "y": -11,
+            "z": 286
+          },
+          "arrival": 117,
+          "tail": 0,
+          "needed_extra_delay": 29,
+          "available_private_branch_extra_delay": 751,
+          "private_branch_positions": 193,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 175,
+            "straight_existing_repeaters": 23,
+            "available_extra_delay_upper_bound": 769,
+            "path_active_positions": 221
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68061",
+          "pin": "C",
+          "position": {
+            "x": 2822,
+            "y": -11,
+            "z": 286
+          },
+          "arrival": 94,
+          "tail": 0,
+          "needed_extra_delay": 52,
+          "available_private_branch_extra_delay": 751,
+          "private_branch_positions": 193,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 175,
+            "straight_existing_repeaters": 23,
+            "available_extra_delay_upper_bound": 769,
+            "path_active_positions": 221
+          }
+        }
+      ]
+    },
+    {
+      "module": [
+        "leaf",
+        11
+      ],
+      "net": 2,
+      "target_if_all_descendants_can_be_balanced": 183,
+      "track_base_z": 80,
+      "sinks": [
+        {
+          "sink": "$auto$ff.cc:266:slice$67907",
+          "pin": "C",
+          "position": {
+            "x": 2310,
+            "y": 13,
+            "z": 278
+          },
+          "arrival": 183,
+          "tail": 0,
+          "needed_extra_delay": 0,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67909",
+          "pin": "C",
+          "position": {
+            "x": 3014,
+            "y": 13,
+            "z": 278
+          },
+          "arrival": 111,
+          "tail": 0,
+          "needed_extra_delay": 72,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67977",
+          "pin": "C",
+          "position": {
+            "x": 4134,
+            "y": 13,
+            "z": 278
+          },
+          "arrival": 108,
+          "tail": 0,
+          "needed_extra_delay": 75,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67979",
+          "pin": "C",
+          "position": {
+            "x": 3590,
+            "y": 13,
+            "z": 278
+          },
+          "arrival": 53,
+          "tail": 0,
+          "needed_extra_delay": 130,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67981",
+          "pin": "C",
+          "position": {
+            "x": 3782,
+            "y": 13,
+            "z": 278
+          },
+          "arrival": 71,
+          "tail": 0,
+          "needed_extra_delay": 112,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68063",
+          "pin": "C",
+          "position": {
+            "x": 3974,
+            "y": 13,
+            "z": 278
+          },
+          "arrival": 91,
+          "tail": 0,
+          "needed_extra_delay": 92,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68065",
+          "pin": "C",
+          "position": {
+            "x": 2822,
+            "y": 13,
+            "z": 278
+          },
+          "arrival": 131,
+          "tail": 0,
+          "needed_extra_delay": 52,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        }
+      ]
+    },
+    {
+      "module": [
+        "domain",
+        2
+      ],
+      "net": 2,
+      "target_if_all_descendants_can_be_balanced": 445,
+      "track_base_z": 0,
+      "sinks": [
+        {
+          "sink": "boundary:net2:cluster23>cluster8:out",
+          "pin": "net2:cluster23>cluster8:out",
+          "position": {
+            "x": 3528,
+            "y": -59,
+            "z": 326
+          },
+          "arrival": 445,
+          "tail": 177,
+          "needed_extra_delay": 0,
+          "available_private_branch_extra_delay": 1282,
+          "private_branch_positions": 329,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 309,
+            "straight_existing_repeaters": 46,
+            "available_extra_delay_upper_bound": 1374,
+            "path_active_positions": 477
+          }
+        },
+        {
+          "sink": "boundary:net2:cluster23>cluster9:out",
+          "pin": "net2:cluster23>cluster9:out",
+          "position": {
+            "x": 3208,
+            "y": -35,
+            "z": 326
+          },
+          "arrival": 375,
+          "tail": 145,
+          "needed_extra_delay": 70,
+          "available_private_branch_extra_delay": 1258,
+          "private_branch_positions": 323,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 297,
+            "straight_existing_repeaters": 44,
+            "available_extra_delay_upper_bound": 1320,
+            "path_active_positions": 437
+          }
+        },
+        {
+          "sink": "boundary:net2:cluster23>cluster10:out",
+          "pin": "net2:cluster23>cluster10:out",
+          "position": {
+            "x": 3208,
+            "y": -11,
+            "z": 334
+          },
+          "arrival": 370,
+          "tail": 146,
+          "needed_extra_delay": 75,
+          "available_private_branch_extra_delay": 1266,
+          "private_branch_positions": 325,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 301,
+            "straight_existing_repeaters": 41,
+            "available_extra_delay_upper_bound": 1327,
+            "path_active_positions": 413
+          }
+        },
+        {
+          "sink": "boundary:net2:cluster23>cluster11:out",
+          "pin": "net2:cluster23>cluster11:out",
+          "position": {
+            "x": 3592,
+            "y": 13,
+            "z": 326
+          },
+          "arrival": 439,
+          "tail": 183,
+          "needed_extra_delay": 6,
+          "available_private_branch_extra_delay": 1235,
+          "private_branch_positions": 317,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 287,
+            "straight_existing_repeaters": 37,
+            "available_extra_delay_upper_bound": 1259,
+            "path_active_positions": 367
+          }
+        }
+      ]
+    },
+    {
+      "module": [
+        "leaf",
+        12
+      ],
+      "net": 2,
+      "target_if_all_descendants_can_be_balanced": 177,
+      "track_base_z": 88,
+      "sinks": [
+        {
+          "sink": "$auto$ff.cc:266:slice$67911",
+          "pin": "C",
+          "position": {
+            "x": 2310,
+            "y": 55,
+            "z": 286
+          },
+          "arrival": 177,
+          "tail": 0,
+          "needed_extra_delay": 0,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67913",
+          "pin": "C",
+          "position": {
+            "x": 3014,
+            "y": 55,
+            "z": 286
+          },
+          "arrival": 105,
+          "tail": 0,
+          "needed_extra_delay": 72,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67983",
+          "pin": "C",
+          "position": {
+            "x": 3686,
+            "y": 55,
+            "z": 286
+          },
+          "arrival": 68,
+          "tail": 0,
+          "needed_extra_delay": 109,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67985",
+          "pin": "C",
+          "position": {
+            "x": 3878,
+            "y": 55,
+            "z": 286
+          },
+          "arrival": 88,
+          "tail": 0,
+          "needed_extra_delay": 89,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68067",
+          "pin": "C",
+          "position": {
+            "x": 4134,
+            "y": 55,
+            "z": 286
+          },
+          "arrival": 114,
+          "tail": 0,
+          "needed_extra_delay": 63,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68069",
+          "pin": "C",
+          "position": {
+            "x": 2822,
+            "y": 55,
+            "z": 286
+          },
+          "arrival": 125,
+          "tail": 0,
+          "needed_extra_delay": 52,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68071",
+          "pin": "C",
+          "position": {
+            "x": 3526,
+            "y": 55,
+            "z": 286
+          },
+          "arrival": 53,
+          "tail": 0,
+          "needed_extra_delay": 124,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        }
+      ]
+    },
+    {
+      "module": [
+        "leaf",
+        13
+      ],
+      "net": 2,
+      "target_if_all_descendants_can_be_balanced": 156,
+      "track_base_z": 88,
+      "sinks": [
+        {
+          "sink": "$auto$ff.cc:266:slice$67915",
+          "pin": "C",
+          "position": {
+            "x": 2310,
+            "y": 79,
+            "z": 294
+          },
+          "arrival": 156,
+          "tail": 0,
+          "needed_extra_delay": 0,
+          "available_private_branch_extra_delay": 751,
+          "private_branch_positions": 193,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 175,
+            "straight_existing_repeaters": 23,
+            "available_extra_delay_upper_bound": 769,
+            "path_active_positions": 221
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67917",
+          "pin": "C",
+          "position": {
+            "x": 2790,
+            "y": 79,
+            "z": 294
+          },
+          "arrival": 106,
+          "tail": 0,
+          "needed_extra_delay": 50,
+          "available_private_branch_extra_delay": 751,
+          "private_branch_positions": 193,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 175,
+            "straight_existing_repeaters": 23,
+            "available_extra_delay_upper_bound": 769,
+            "path_active_positions": 221
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67987",
+          "pin": "C",
+          "position": {
+            "x": 2598,
+            "y": 79,
+            "z": 294
+          },
+          "arrival": 126,
+          "tail": 0,
+          "needed_extra_delay": 30,
+          "available_private_branch_extra_delay": 751,
+          "private_branch_positions": 193,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 175,
+            "straight_existing_repeaters": 23,
+            "available_extra_delay_upper_bound": 769,
+            "path_active_positions": 221
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67989",
+          "pin": "C",
+          "position": {
+            "x": 3846,
+            "y": 79,
+            "z": 294
+          },
+          "arrival": 107,
+          "tail": 0,
+          "needed_extra_delay": 49,
+          "available_private_branch_extra_delay": 751,
+          "private_branch_positions": 193,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 175,
+            "straight_existing_repeaters": 23,
+            "available_extra_delay_upper_bound": 769,
+            "path_active_positions": 221
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68073",
+          "pin": "C",
+          "position": {
+            "x": 4038,
+            "y": 79,
+            "z": 294
+          },
+          "arrival": 127,
+          "tail": 0,
+          "needed_extra_delay": 29,
+          "available_private_branch_extra_delay": 751,
+          "private_branch_positions": 193,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 175,
+            "straight_existing_repeaters": 23,
+            "available_extra_delay_upper_bound": 769,
+            "path_active_positions": 221
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68075",
+          "pin": "C",
+          "position": {
+            "x": 3302,
+            "y": 79,
+            "z": 294
+          },
+          "arrival": 54,
+          "tail": 0,
+          "needed_extra_delay": 102,
+          "available_private_branch_extra_delay": 751,
+          "private_branch_positions": 193,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 175,
+            "straight_existing_repeaters": 23,
+            "available_extra_delay_upper_bound": 769,
+            "path_active_positions": 221
+          }
+        }
+      ]
+    },
+    {
+      "module": [
+        "leaf",
+        14
+      ],
+      "net": 2,
+      "target_if_all_descendants_can_be_balanced": 191,
+      "track_base_z": 88,
+      "sinks": [
+        {
+          "sink": "$auto$ff.cc:266:slice$67919",
+          "pin": "C",
+          "position": {
+            "x": 4198,
+            "y": 103,
+            "z": 290
+          },
+          "arrival": 109,
+          "tail": 0,
+          "needed_extra_delay": 82,
+          "available_private_branch_extra_delay": 736,
+          "private_branch_positions": 189,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 174,
+            "straight_existing_repeaters": 23,
+            "available_extra_delay_upper_bound": 765,
+            "path_active_positions": 221
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67921",
+          "pin": "C",
+          "position": {
+            "x": 2310,
+            "y": 103,
+            "z": 290
+          },
+          "arrival": 191,
+          "tail": 0,
+          "needed_extra_delay": 0,
+          "available_private_branch_extra_delay": 736,
+          "private_branch_positions": 189,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 172,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 754,
+            "path_active_positions": 217
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67923",
+          "pin": "C",
+          "position": {
+            "x": 3014,
+            "y": 103,
+            "z": 290
+          },
+          "arrival": 119,
+          "tail": 0,
+          "needed_extra_delay": 72,
+          "available_private_branch_extra_delay": 736,
+          "private_branch_positions": 189,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 172,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 754,
+            "path_active_positions": 217
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67943",
+          "pin": "C",
+          "position": {
+            "x": 3334,
+            "y": 103,
+            "z": 290
+          },
+          "arrival": 86,
+          "tail": 0,
+          "needed_extra_delay": 105,
+          "available_private_branch_extra_delay": 736,
+          "private_branch_positions": 189,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 172,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 754,
+            "path_active_positions": 217
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67991",
+          "pin": "C",
+          "position": {
+            "x": 3654,
+            "y": 103,
+            "z": 290
+          },
+          "arrival": 53,
+          "tail": 0,
+          "needed_extra_delay": 138,
+          "available_private_branch_extra_delay": 736,
+          "private_branch_positions": 189,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 172,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 754,
+            "path_active_positions": 217
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67993",
+          "pin": "C",
+          "position": {
+            "x": 3846,
+            "y": 103,
+            "z": 290
+          },
+          "arrival": 71,
+          "tail": 0,
+          "needed_extra_delay": 120,
+          "available_private_branch_extra_delay": 736,
+          "private_branch_positions": 189,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 172,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 754,
+            "path_active_positions": 217
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68077",
+          "pin": "C",
+          "position": {
+            "x": 4038,
+            "y": 103,
+            "z": 290
+          },
+          "arrival": 91,
+          "tail": 0,
+          "needed_extra_delay": 100,
+          "available_private_branch_extra_delay": 736,
+          "private_branch_positions": 189,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 172,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 754,
+            "path_active_positions": 217
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68079",
+          "pin": "C",
+          "position": {
+            "x": 2822,
+            "y": 103,
+            "z": 290
+          },
+          "arrival": 139,
+          "tail": 0,
+          "needed_extra_delay": 52,
+          "available_private_branch_extra_delay": 736,
+          "private_branch_positions": 189,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 172,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 754,
+            "path_active_positions": 217
+          }
+        }
+      ]
+    },
+    {
+      "module": [
+        "leaf",
+        15
+      ],
+      "net": 2,
+      "target_if_all_descendants_can_be_balanced": 177,
+      "track_base_z": 88,
+      "sinks": [
+        {
+          "sink": "$auto$ff.cc:266:slice$67925",
+          "pin": "C",
+          "position": {
+            "x": 2310,
+            "y": 127,
+            "z": 286
+          },
+          "arrival": 177,
+          "tail": 0,
+          "needed_extra_delay": 0,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67927",
+          "pin": "C",
+          "position": {
+            "x": 3014,
+            "y": 127,
+            "z": 286
+          },
+          "arrival": 105,
+          "tail": 0,
+          "needed_extra_delay": 72,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67995",
+          "pin": "C",
+          "position": {
+            "x": 3686,
+            "y": 127,
+            "z": 286
+          },
+          "arrival": 68,
+          "tail": 0,
+          "needed_extra_delay": 109,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67997",
+          "pin": "C",
+          "position": {
+            "x": 3878,
+            "y": 127,
+            "z": 286
+          },
+          "arrival": 88,
+          "tail": 0,
+          "needed_extra_delay": 89,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67999",
+          "pin": "C",
+          "position": {
+            "x": 3526,
+            "y": 127,
+            "z": 286
+          },
+          "arrival": 53,
+          "tail": 0,
+          "needed_extra_delay": 124,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68081",
+          "pin": "C",
+          "position": {
+            "x": 4070,
+            "y": 127,
+            "z": 286
+          },
+          "arrival": 108,
+          "tail": 0,
+          "needed_extra_delay": 69,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68083",
+          "pin": "C",
+          "position": {
+            "x": 2822,
+            "y": 127,
+            "z": 286
+          },
+          "arrival": 125,
+          "tail": 0,
+          "needed_extra_delay": 52,
+          "available_private_branch_extra_delay": 720,
+          "private_branch_positions": 185,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 168,
+            "straight_existing_repeaters": 22,
+            "available_extra_delay_upper_bound": 738,
+            "path_active_positions": 213
+          }
+        }
+      ]
+    },
+    {
+      "module": [
+        "domain",
+        3
+      ],
+      "net": 2,
+      "target_if_all_descendants_can_be_balanced": 464,
+      "track_base_z": 0,
+      "sinks": [
+        {
+          "sink": "boundary:net2:cluster24>cluster12:out",
+          "pin": "net2:cluster24>cluster12:out",
+          "position": {
+            "x": 3528,
+            "y": 55,
+            "z": 334
+          },
+          "arrival": 449,
+          "tail": 177,
+          "needed_extra_delay": 15,
+          "available_private_branch_extra_delay": 1289,
+          "private_branch_positions": 331,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 310,
+            "straight_existing_repeaters": 48,
+            "available_extra_delay_upper_bound": 1384,
+            "path_active_positions": 481
+          }
+        },
+        {
+          "sink": "boundary:net2:cluster24>cluster13:out",
+          "pin": "net2:cluster24>cluster13:out",
+          "position": {
+            "x": 3304,
+            "y": 79,
+            "z": 342
+          },
+          "arrival": 396,
+          "tail": 156,
+          "needed_extra_delay": 68,
+          "available_private_branch_extra_delay": 1297,
+          "private_branch_positions": 333,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 301,
+            "straight_existing_repeaters": 44,
+            "available_extra_delay_upper_bound": 1336,
+            "path_active_positions": 441
+          }
+        },
+        {
+          "sink": "boundary:net2:cluster24>cluster14:out",
+          "pin": "net2:cluster24>cluster14:out",
+          "position": {
+            "x": 3656,
+            "y": 103,
+            "z": 338
+          },
+          "arrival": 464,
+          "tail": 191,
+          "needed_extra_delay": 0,
+          "available_private_branch_extra_delay": 1282,
+          "private_branch_positions": 329,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 298,
+            "straight_existing_repeaters": 41,
+            "available_extra_delay_upper_bound": 1315,
+            "path_active_positions": 409
+          }
+        },
+        {
+          "sink": "boundary:net2:cluster24>cluster15:out",
+          "pin": "net2:cluster24>cluster15:out",
+          "position": {
+            "x": 3528,
+            "y": 127,
+            "z": 334
+          },
+          "arrival": 429,
+          "tail": 177,
+          "needed_extra_delay": 35,
+          "available_private_branch_extra_delay": 1266,
+          "private_branch_positions": 325,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 294,
+            "straight_existing_repeaters": 38,
+            "available_extra_delay_upper_bound": 1290,
+            "path_active_positions": 375
+          }
+        }
+      ]
+    },
+    {
+      "module": [
+        "domain",
+        5
+      ],
+      "net": 2,
+      "target_if_all_descendants_can_be_balanced": 992,
+      "track_base_z": 306,
+      "sinks": [
+        {
+          "sink": "boundary:net2:cluster26>cluster21:out",
+          "pin": "net2:cluster26>cluster21:out",
+          "position": {
+            "x": 0,
+            "y": -59,
+            "z": 898
+          },
+          "arrival": 783,
+          "tail": 440,
+          "needed_extra_delay": 209,
+          "available_private_branch_extra_delay": 2288,
+          "private_branch_positions": 587,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 792,
+            "straight_existing_repeaters": 114,
+            "available_extra_delay_upper_bound": 3510,
+            "path_active_positions": 1175
+          }
+        },
+        {
+          "sink": "boundary:net2:cluster26>cluster22:out",
+          "pin": "net2:cluster26>cluster22:out",
+          "position": {
+            "x": 0,
+            "y": 55,
+            "z": 692
+          },
+          "arrival": 778,
+          "tail": 452,
+          "needed_extra_delay": 214,
+          "available_private_branch_extra_delay": 1484,
+          "private_branch_positions": 381,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 344,
+            "straight_existing_repeaters": 53,
+            "available_extra_delay_upper_bound": 1535,
+            "path_active_positions": 539
+          }
+        },
+        {
+          "sink": "boundary:net2:cluster26>cluster23:out",
+          "pin": "net2:cluster26>cluster23:out",
+          "position": {
+            "x": 2176,
+            "y": -59,
+            "z": 704
+          },
+          "arrival": 992,
+          "tail": 445,
+          "needed_extra_delay": 0,
+          "available_private_branch_extra_delay": 1625,
+          "private_branch_positions": 417,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 676,
+            "straight_existing_repeaters": 100,
+            "available_extra_delay_upper_bound": 3004,
+            "path_active_positions": 1045
+          }
+        },
+        {
+          "sink": "boundary:net2:cluster26>cluster24:out",
+          "pin": "net2:cluster26>cluster24:out",
+          "position": {
+            "x": 2176,
+            "y": 55,
+            "z": 724
+          },
+          "arrival": 922,
+          "tail": 464,
+          "needed_extra_delay": 70,
+          "available_private_branch_extra_delay": 1609,
+          "private_branch_positions": 413,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 373,
+            "straight_existing_repeaters": 56,
+            "available_extra_delay_upper_bound": 1660,
+            "path_active_positions": 571
+          }
+        }
+      ]
+    },
+    {
+      "module": [
+        "domain",
+        7
+      ],
+      "net": 2,
+      "target_if_all_descendants_can_be_balanced": 2043,
+      "track_base_z": 1372,
+      "sinks": [
+        {
+          "sink": "boundary:net2:cluster28>cluster26:out",
+          "pin": "net2:cluster28>cluster26:out",
+          "position": {
+            "x": 0,
+            "y": -59,
+            "z": 2018
+          },
+          "arrival": 2043,
+          "tail": 992,
+          "needed_extra_delay": 0,
+          "available_private_branch_extra_delay": 2498,
+          "private_branch_positions": 641,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 578,
+            "straight_existing_repeaters": 92,
+            "available_extra_delay_upper_bound": 2588,
+            "path_active_positions": 957
+          }
+        }
+      ]
+    },
+    {
+      "module": [
+        "domain",
+        6
+      ],
+      "net": 2,
+      "target_if_all_descendants_can_be_balanced": 3056,
+      "track_base_z": 560,
+      "sinks": [
+        {
+          "sink": "boundary:net2:cluster27>cluster28:out",
+          "pin": "net2:cluster27>cluster28:out",
+          "position": {
+            "x": 4336,
+            "y": -59,
+            "z": 6318
+          },
+          "arrival": 3056,
+          "tail": 2043,
+          "needed_extra_delay": 0,
+          "available_private_branch_extra_delay": 22092,
+          "private_branch_positions": 5665,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 5377,
+            "straight_existing_repeaters": 614,
+            "available_extra_delay_upper_bound": 23350,
+            "path_active_positions": 6161
+          }
+        }
+      ]
+    },
+    {
+      "module": [
+        "domain",
+        4
+      ],
+      "net": 2,
+      "target_if_all_descendants_can_be_balanced": 3718,
+      "track_base_z": 1128,
+      "sinks": [
+        {
+          "sink": "boundary:net2:cluster25>cluster16:out",
+          "pin": "net2:cluster25>cluster16:out",
+          "position": {
+            "x": 5688,
+            "y": -59,
+            "z": 2302
+          },
+          "arrival": 688,
+          "tail": 177,
+          "needed_extra_delay": 3030,
+          "available_private_branch_extra_delay": 3310,
+          "private_branch_positions": 849,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 1171,
+            "straight_existing_repeaters": 143,
+            "available_extra_delay_upper_bound": 5113,
+            "path_active_positions": 1437
+          }
+        },
+        {
+          "sink": "boundary:net2:cluster25>cluster17:out",
+          "pin": "net2:cluster25>cluster17:out",
+          "position": {
+            "x": 5208,
+            "y": -35,
+            "z": 2298
+          },
+          "arrival": 524,
+          "tail": 128,
+          "needed_extra_delay": 3194,
+          "available_private_branch_extra_delay": 3247,
+          "private_branch_positions": 833,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 887,
+            "straight_existing_repeaters": 109,
+            "available_extra_delay_upper_bound": 3875,
+            "path_active_positions": 1093
+          }
+        },
+        {
+          "sink": "boundary:net2:cluster25>cluster27:out",
+          "pin": "net2:cluster25>cluster27:out",
+          "position": {
+            "x": 4336,
+            "y": -59,
+            "z": 4112
+          },
+          "arrival": 3718,
+          "tail": 3056,
+          "needed_extra_delay": 0,
+          "available_private_branch_extra_delay": 10181,
+          "private_branch_positions": 2611,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 3239,
+            "straight_existing_repeaters": 373,
+            "available_extra_delay_upper_bound": 14075,
+            "path_active_positions": 3735
+          }
+        }
+      ]
+    },
+    {
+      "module": [
+        "leaf",
+        18
+      ],
+      "net": 2,
+      "target_if_all_descendants_can_be_balanced": 3843,
+      "track_base_z": 2056,
+      "sinks": [
+        {
+          "sink": "port:net2:cluster18>cluster25:out[0]",
+          "pin": "net2:cluster18>cluster25:out",
+          "position": {
+            "x": 4716,
+            "y": -11,
+            "z": 2458
+          },
+          "arrival": 3843,
+          "tail": 3718,
+          "needed_extra_delay": 0,
+          "available_private_branch_extra_delay": 1500,
+          "private_branch_positions": 385,
+          "shortfall": 0,
+          "entire_endpoint_straight_path": {
+            "status": "geometric-upper-bound-only",
+            "straight_dust_positions": 348,
+            "straight_existing_repeaters": 42,
+            "available_extra_delay_upper_bound": 1518,
+            "path_active_positions": 413
+          }
+        }
+      ]
+    }
+  ],
+  "shortages": [],
+  "maximum_shortfall": 0,
+  "scope": "All current private-branch capacities and hypothetical balanced tails; full-path figures are upper bounds pending ownership/isolation checks",
+  "runtime_verified": false,
+  "manifest_sha256": "3dc614564d5b57c3e31acff94ecc374260d27a8e8ea17594097fb8a85d0332df",
+  "diagnostic_source_sha256": "f0b9cb8f4c00bd5adecabe682ab11438178d2278977c0ec1abe13837af531604"
+}

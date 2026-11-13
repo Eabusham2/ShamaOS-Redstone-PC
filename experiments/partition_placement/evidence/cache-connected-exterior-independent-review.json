@@ -1,0 +1,359 @@
+{
+  "all_72_host_pads_reserved_as_obstacles": true,
+  "all_bus_indices_and_directions_match_graph": true,
+  "all_host_pads_and_their_touching_faces_clear_of_routes": true,
+  "audit_source_sha256": "fc812d1d5d96c9c49f1a9834f6672744bff2d3b8cadf653a2f3ef97a53b55a31",
+  "bank_origin": {
+    "x": 8720,
+    "y": -56,
+    "z": 0
+  },
+  "controller_bounds": {
+    "max": {
+      "x": 7522,
+      "y": 199,
+      "z": 7450
+    },
+    "min": {
+      "x": 0,
+      "y": -60,
+      "z": 0
+    }
+  },
+  "controller_envelope_entries_only_exact_declared_terminals_and_supports": true,
+  "external_endpoints": 156,
+  "external_nets_sha256": "f814dd1716f935648cd652ff6ad587a56ad82296a7972de04ccd2775a95a43e0",
+  "facade_manifest_sha256": "3dc614564d5b57c3e31acff94ecc374260d27a8e8ea17594097fb8a85d0332df",
+  "facade_report_sha256": "e8f389f6d83567b3cdb0016a607bb9cd97b4c2a9deca3c8e2a1f775fc77c13d6",
+  "frozen_checkout": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-cache-native-f711",
+  "host_inputs": 72,
+  "memory_bounds": {
+    "max": {
+      "x": 8882,
+      "y": 52,
+      "z": 6152
+    },
+    "min": {
+      "x": 8546,
+      "y": -60,
+      "z": -20
+    }
+  },
+  "memory_limit_mib": 512,
+  "minimum_horizontal_component_gap": 1024,
+  "nets": 78,
+  "operation_digest_encoding": "big-endian signed 32-bit X,Y,Z and unsigned 32-bit palette index, emitted order",
+  "ordered_route_operations_sha256": "25a3b297c5c07251cd4d8d9cdc03ccf507a8d8ba608161ce0c557117c9407509",
+  "original_ports": 183,
+  "palette": [
+    {
+      "name": "minecraft:stone",
+      "properties": []
+    },
+    {
+      "name": "minecraft:redstone_wire",
+      "properties": [
+        [
+          "east",
+          "side"
+        ],
+        [
+          "north",
+          "side"
+        ],
+        [
+          "power",
+          "0"
+        ],
+        [
+          "south",
+          "side"
+        ],
+        [
+          "west",
+          "side"
+        ]
+      ]
+    },
+    {
+      "name": "minecraft:repeater",
+      "properties": [
+        [
+          "delay",
+          "1"
+        ],
+        [
+          "facing",
+          "north"
+        ],
+        [
+          "locked",
+          "false"
+        ],
+        [
+          "powered",
+          "false"
+        ]
+      ]
+    },
+    {
+      "name": "minecraft:redstone_wire",
+      "properties": [
+        [
+          "east",
+          "up"
+        ],
+        [
+          "north",
+          "side"
+        ],
+        [
+          "power",
+          "0"
+        ],
+        [
+          "south",
+          "side"
+        ],
+        [
+          "west",
+          "side"
+        ]
+      ]
+    },
+    {
+      "name": "minecraft:repeater",
+      "properties": [
+        [
+          "delay",
+          "1"
+        ],
+        [
+          "facing",
+          "west"
+        ],
+        [
+          "locked",
+          "false"
+        ],
+        [
+          "powered",
+          "false"
+        ]
+      ]
+    },
+    {
+      "name": "minecraft:repeater",
+      "properties": [
+        [
+          "delay",
+          "1"
+        ],
+        [
+          "facing",
+          "south"
+        ],
+        [
+          "locked",
+          "false"
+        ],
+        [
+          "powered",
+          "false"
+        ]
+      ]
+    },
+    {
+      "name": "minecraft:redstone_wire",
+      "properties": [
+        [
+          "east",
+          "side"
+        ],
+        [
+          "north",
+          "up"
+        ],
+        [
+          "power",
+          "0"
+        ],
+        [
+          "south",
+          "side"
+        ],
+        [
+          "west",
+          "side"
+        ]
+      ]
+    },
+    {
+      "name": "minecraft:repeater",
+      "properties": [
+        [
+          "delay",
+          "1"
+        ],
+        [
+          "facing",
+          "east"
+        ],
+        [
+          "locked",
+          "false"
+        ],
+        [
+          "powered",
+          "false"
+        ]
+      ]
+    }
+  ],
+  "peak_rss_kib": 75348,
+  "per_net_emitted_operations": {
+    "cache:bank_select:0": 52816,
+    "cache:bank_select:1": 52712,
+    "cache:read_enable:0": 51484,
+    "cache:row_address:0": 50982,
+    "cache:row_address:1": 50878,
+    "cache:row_address:2": 50774,
+    "cache:row_address:3": 50662,
+    "cache:row_address:4": 50558,
+    "cache:row_address:5": 50454,
+    "cache:row_address:6": 50350,
+    "cache:row_address:7": 50246,
+    "cache:row_address:8": 50134,
+    "cache:row_address:9": 50030,
+    "cache:selected_word:0": 61988,
+    "cache:selected_word:1": 61950,
+    "cache:selected_word:10": 61608,
+    "cache:selected_word:11": 61570,
+    "cache:selected_word:12": 61532,
+    "cache:selected_word:13": 61494,
+    "cache:selected_word:14": 61456,
+    "cache:selected_word:15": 61418,
+    "cache:selected_word:16": 61380,
+    "cache:selected_word:17": 61342,
+    "cache:selected_word:18": 61304,
+    "cache:selected_word:19": 61266,
+    "cache:selected_word:2": 61912,
+    "cache:selected_word:20": 61228,
+    "cache:selected_word:21": 61190,
+    "cache:selected_word:22": 61152,
+    "cache:selected_word:23": 61114,
+    "cache:selected_word:24": 61076,
+    "cache:selected_word:25": 61038,
+    "cache:selected_word:26": 61000,
+    "cache:selected_word:27": 60962,
+    "cache:selected_word:28": 60924,
+    "cache:selected_word:29": 60886,
+    "cache:selected_word:3": 61874,
+    "cache:selected_word:30": 60848,
+    "cache:selected_word:31": 60810,
+    "cache:selected_word:4": 61836,
+    "cache:selected_word:5": 61798,
+    "cache:selected_word:6": 61760,
+    "cache:selected_word:7": 61722,
+    "cache:selected_word:8": 61684,
+    "cache:selected_word:9": 61646,
+    "cache:write_commit:0": 49008,
+    "cache:write_data:0": 50870,
+    "cache:write_data:1": 50832,
+    "cache:write_data:10": 50490,
+    "cache:write_data:11": 50452,
+    "cache:write_data:12": 50414,
+    "cache:write_data:13": 50376,
+    "cache:write_data:14": 50338,
+    "cache:write_data:15": 50300,
+    "cache:write_data:16": 50262,
+    "cache:write_data:17": 50224,
+    "cache:write_data:18": 50186,
+    "cache:write_data:19": 50148,
+    "cache:write_data:2": 50794,
+    "cache:write_data:20": 50110,
+    "cache:write_data:21": 50072,
+    "cache:write_data:22": 50034,
+    "cache:write_data:23": 49996,
+    "cache:write_data:24": 49958,
+    "cache:write_data:25": 49920,
+    "cache:write_data:26": 49882,
+    "cache:write_data:27": 49844,
+    "cache:write_data:28": 49806,
+    "cache:write_data:29": 49768,
+    "cache:write_data:3": 50756,
+    "cache:write_data:30": 49730,
+    "cache:write_data:31": 49692,
+    "cache:write_data:4": 50718,
+    "cache:write_data:5": 50680,
+    "cache:write_data:6": 50642,
+    "cache:write_data:7": 50604,
+    "cache:write_data:8": 50566,
+    "cache:write_data:9": 50528
+  },
+  "physical_return_nets": 32,
+  "plan_sha256": "0c81a0a49d447669adfc82facb682b805fbdd72df5690acb6f22b7a6a3a30362",
+  "route_bounds": {
+    "max": {
+      "x": 9456,
+      "y": 318,
+      "z": 7456
+    },
+    "min": {
+      "x": 0,
+      "y": -60,
+      "z": -4744
+    }
+  },
+  "route_emitted_operations": 4284848,
+  "route_occupied_chunks": 62810,
+  "runtime_verified": false,
+  "schema": "connected-cache-exterior-bounds-independent-v1",
+  "scope": "Independent graph bit/direction contract, actual emitted exterior route bounds and host pad clearance. Complete native save/readback and electrical runtime are separate gates.",
+  "seconds": 15.332118850994448,
+  "source_and_input_bindings_unchanged": true,
+  "source_hashes": {
+    "configs/default.toml": "630b70f01ac7de1f1b74250f8b454c9d090e461891f347fadc4c375c27cc5b20",
+    "experiments/memory_controller_runtime/clock_reserve.py": "6a5bd0ba923dbb6aabf0046ad6a487905043373854e76bdec502432db815d8fb",
+    "experiments/memory_controller_runtime/fixture.py": "fe736701c0fdab8a544d6ec63f249505cfe4114fcf5edd84e5e20d78c72c6513",
+    "experiments/memory_controller_runtime/geometry.py": "b815a0375895c8ce31dbcffddddf8e020e538d724d7050eb1a9ff9ea5595c06c",
+    "experiments/memory_controller_runtime/interconnect.py": "159dd746d905d93a1cfecb25cc8e7645ea91fc136d772432cf7c0923486c519b",
+    "experiments/memory_controller_runtime/save_connected.py": "70c44d2fc3eee9f401911373b6a15f412a89da8cb84d4662bcfe36363bdec2ef",
+    "experiments/memory_controller_runtime/scenarios.py": "1319d9a6097909dd849ac59c855c17232fc2442624cb957fb000de37e8499b67",
+    "experiments/partition_placement/packed_parent_union.py": "a9982d5e230fb7fa4e8b4e666a42323fd59b55066564b1fbf1567d0d15281a50",
+    "experiments/partition_placement/port_egress.py": "9b9ca8e2209f4401d6c8a7783c72c4188ed9f9b018b8a57d63fb9aa1fc20c9f5",
+    "experiments/partition_placement/port_egress_interfaces.py": "e47dffef1f73ad0141a5230f3fe294e4852f13cd0cb3a10a1364d91e5f79f5a2",
+    "experiments/partition_placement/port_egress_manifest.py": "822e4d29bd605456a159e687411e829268b183a7962a09a128324ffe97e6ba1a",
+    "experiments/partition_placement/raised_exports/geometry_manifest.py": "b69fa93db92131ce3530c596efe112077027216b748f53d5a042e103bc931897",
+    "experiments/partition_placement/raised_exports/replay_manifest.py": "308075b05664930ed457ca14054943bc7370e07ac45a86f54a9716ebf2c26ddb",
+    "experiments/partition_placement/raised_exports/streamed_union.py": "4732f29067e5d7aff013a9d2a5565e8e7037e4259b6cc1b74ffb0e45fd84281d",
+    "experiments/partition_placement/run_port_egress.py": "8ec6ea064afb4d519bccb9ba2158143fdb2a2db26818a9ab5532a6c73b1c91a5",
+    "experiments/partition_placement/targeted_clock_reserve.py": "02bf1a51c40e61910efb7fbda41480ec7ce1cc1bbb8369cd731988a5d90f46b0",
+    "rtl/shama_boot_params.svh": "3ec00fbefe06958cc2b918e52caa18129384cb267453a9fc976270bc72fa8025",
+    "rtl/shama_memory_adapter.sv": "853d438ff507e4740fb6468445804ccc846378686e66d7b136952a06f93fb0af",
+    "src/shamaos/bounded_build.py": "85ca0c83d4fc1bc781a4872cadca4b4f972e35cad0a0d35d151c3f9c8e153ee8",
+    "src/shamaos/generator.py": "a165087d34d1ac86398d894212bce36f55ef82a00bb8c8b944d3b41d51b1f7d5",
+    "src/shamaos/hardware/binary_row_decoder.py": "e58837fd0858146de95eea57e87186d8e1f1b3583f891a717ae14e156a461815",
+    "src/shamaos/hardware/external_router.py": "96834193a37bb485ab225ea21dc1ae460afcc3ab9ac41a434e45660be2f7666d",
+    "src/shamaos/hardware/interfaces.py": "54d7ad897c770647d1320891c62cc82cb581cfb29031ea62cf560838ff93873e",
+    "src/shamaos/hardware/local_router.py": "63054c806442499ba0aa27f65b1ec2b35c339c0c8595521dbc3097a334307bc6",
+    "src/shamaos/hardware/logic.py": "84a4f2cc3c535628ccd4e16ae0480b3cc99310f1fb83fe28f98d98b621ab1dff",
+    "src/shamaos/hardware/memory.py": "f44923cd4376d10fb2f62d5daf3bf752fe340e269355ac3564fd26ee2b5a8517",
+    "src/shamaos/hardware/memory_backbone.py": "8a6c22218be1e0a32189817318f72aad8bd31bd365141da556578c3b4398075d",
+    "src/shamaos/hardware/memory_streaming.py": "7f784968748570f5e3d2286a5ee81a0d965a0882123cb8125169bc4d1d491a24",
+    "src/shamaos/hardware/partition_placement.py": "10c6a4b5aba6b5c4776326d0a863bf57cd1fc5b0d216115ca496d851d6a82e90",
+    "src/shamaos/hardware/partition_planner.py": "82e7f39548af7443b29ffd322a118cb42474f6f0bf3da2273b1ecdefb38164b4",
+    "src/shamaos/hardware/routing.py": "d2b885f908a5942036269992c3fff7e3eb19ffe5a4753b97f5494aaf7120ccce",
+    "src/shamaos/layout.py": "e6db5143f7b2d9c0ae477e649cfc4421e476f14038fd861e8a65b1ebec946eaa",
+    "src/shamaos/machine_spec.py": "446853768c8fdd1be7472bd3d27e2f882ab3ca5805241f3f3ab7f3d778febd59",
+    "src/shamaos/model.py": "1a0fd1f9eb9469989057e4486401e5161e7f0bb02eb69195b7a14a74e92f4b95",
+    "src/shamaos/release_io.py": "5e1f310243d2325b9e4f6987649a770d2d4d03667cb66f5d442262fae43609c1",
+    "src/shamaos/synthesis.py": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274",
+    "src/shamaos/system_build.py": "1d8fe4deca82c64b386f7c0720cf6bb58ef1eb23179a6781796809e02e568a62",
+    "src/shamaos/worldio.py": "08e163497c981357b3aa4ce444709f38769001fb512700b0ffd2a8fc4ebda69c"
+  },
+  "status": "contract-and-complete-emitted-external-route-checks-passed",
+  "unrouted_controller_contacts_clear_of_routes": 105,
+  "verified_endpoint_and_support_states": 312,
+  "whole_computer_verified": false
+}

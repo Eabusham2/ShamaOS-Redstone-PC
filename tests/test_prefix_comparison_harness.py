@@ -84,3 +84,30 @@ def test_timeout_retains_budget_abort_and_cannot_publish_comparison(tmp_path):
     assert heartbeat["status"] == "budget-aborted"
     assert heartbeat["exit_code"] is not None
     assert not (tmp_path / "comparison.json").exists()
+
+
+@pytest.mark.parametrize("exit_code", [0, 1])
+def test_already_exited_worker_cannot_bypass_elapsed_deadline(tmp_path, monkeypatch, exit_code):
+    process = SimpleNamespace(pid=123456789, returncode=exit_code, poll=lambda: exit_code)
+    monkeypatch.setattr(HARNESS.subprocess, "Popen", lambda *args, **kwargs: process)
+    monkeypatch.setattr(HARNESS, "current_rss", lambda pid: None)
+    moments = iter((0.0, 2.0, 2.0))
+    monkeypatch.setattr(HARNESS.time, "monotonic", lambda: next(moments))
+    with pytest.raises(TimeoutError, match="wall budget"):
+        HARNESS.run_one(SimpleNamespace(output=tmp_path, wall_seconds=1), "baseline")
+    heartbeat = json.loads((tmp_path / "baseline-heartbeat.json").read_bytes())
+    assert heartbeat["status"] == "budget-aborted"
+    assert heartbeat["exit_code"] == exit_code
+    assert not (tmp_path / "comparison.json").exists()
+
+
+def test_early_worker_failure_retains_its_failure_status(tmp_path, monkeypatch):
+    process = SimpleNamespace(pid=123456789, returncode=1, poll=lambda: 1)
+    monkeypatch.setattr(HARNESS.subprocess, "Popen", lambda *args, **kwargs: process)
+    monkeypatch.setattr(HARNESS, "current_rss", lambda pid: None)
+    monkeypatch.setattr(HARNESS.time, "monotonic", lambda: 0.0)
+    with pytest.raises(RuntimeError, match="exited 1"):
+        HARNESS.run_one(SimpleNamespace(output=tmp_path, wall_seconds=1), "baseline")
+    heartbeat = json.loads((tmp_path / "baseline-heartbeat.json").read_bytes())
+    assert heartbeat["status"] == "failed"
+    assert heartbeat["exit_code"] == 1

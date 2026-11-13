@@ -20,6 +20,7 @@ sys.path[:0] = [str(REPOSITORY), str(REPOSITORY / "src")]
 from experiments.memory_controller_runtime.clock_reserve import reserve_clock_tracks
 from experiments.partition_placement.port_egress import audit_egress, place_with_egress
 from experiments.partition_placement.port_egress_manifest import write_egress_manifest
+from experiments.partition_placement.targeted_clock_reserve import parse_domain_padding, reserve_targeted_clock_tracks
 from experiments.partition_placement.raised_exports.streamed_union import literal_union
 from shamaos.hardware.partition_placement import audit_placement, balance_partition_clocks
 from shamaos.hardware.partition_planner import Graph, audit_plan
@@ -32,11 +33,16 @@ def main():
     parser.add_argument("--plan", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--clock-padding", type=int, default=128)
+    parser.add_argument("--clock-domain-padding", action="append", default=[], metavar="DOMAIN=ABSOLUTE_BLOCKS")
     parser.add_argument("--maximum-y", type=int, default=285)
     parser.add_argument("--memory-limit-mib", type=int, default=1228)
     parser.add_argument("--wall-seconds", type=int, default=1800)
     parser.add_argument("--literal-union", action="store_true")
     args = parser.parse_args()
+    try:
+        domain_padding = parse_domain_padding(args.clock_domain_padding, args.clock_padding)
+    except ValueError as error:
+        parser.error(str(error))
     if args.memory_limit_mib < 128 or args.wall_seconds < 1:
         parser.error("explicit positive wall and at least128MiB memory bounds are required")
     memory_bytes = args.memory_limit_mib * 1024 * 1024
@@ -52,6 +58,8 @@ def main():
              "src/shamaos/hardware/memory.py", "src/shamaos/hardware/routing.py", "src/shamaos/hardware/logic.py",
              "experiments/memory_controller_runtime/clock_reserve.py",
              "experiments/partition_placement/port_egress.py", "experiments/partition_placement/port_egress_manifest.py",
+             "experiments/partition_placement/packed_parent_union.py",
+             "experiments/partition_placement/targeted_clock_reserve.py",
              "experiments/partition_placement/raised_exports/replay_manifest.py",
              "experiments/partition_placement/raised_exports/streamed_union.py",
              "experiments/partition_placement/run_port_egress.py"]
@@ -62,6 +70,7 @@ def main():
         raise ValueError("use a fresh facade proof output path")
     report = {"scope": "Complete partition with actual original-I/O facade; connected memory and runtime remain separate gates",
               "source_hashes": bindings, "clock_padding_blocks": args.clock_padding,
+              "clock_domain_padding": domain_padding,
               "memory_limit_mib": args.memory_limit_mib, "wall_limit_seconds": args.wall_seconds,
               "runtime_verified": False, "whole_computer_verified": False}
     try:
@@ -72,6 +81,12 @@ def main():
                       topology_sha256=plan["summary"]["topology_sha256"])
         audit_plan(graph, plan)
         clock_bits = {bit for bit, value in graph.signals.items() if any(sink.pin == "C" for sink in value.sinks)}
+        domains = {record["id"]: record for record in plan["routing_domains"]}
+        if set(domain_padding) - set(domains):
+            raise ValueError("targeted clock padding refers to an absent complete-plan domain")
+        if any(not clock_bits.intersection(segment["net"] for segment in domains[identity]["segments"])
+               for identity in domain_padding):
+            raise ValueError("targeted clock padding refers to a domain with no requested clock")
         def progress(cluster):
             record = {"cluster": cluster.cluster_id, "elapsed_seconds": time.monotonic() - started,
                       "graph_modules": len(cluster.all_modules()), "facade_modules": len(cluster.all_facade_modules()),
@@ -82,13 +97,17 @@ def main():
             with progress_path.open("a") as handle:
                 handle.write(line + "\n")
             print(line, flush=True)
-        with reserve_clock_tracks(clock_bits, args.clock_padding):
+        reservation = (reserve_targeted_clock_tracks(clock_bits, args.clock_padding, domain_padding)
+                       if domain_padding else reserve_clock_tracks(clock_bits, args.clock_padding))
+        with reservation as applications:
             placed = place_with_egress(graph, plan, maximum_y=args.maximum_y, balance_clocks=False, progress=progress)
+        report["clock_reservation_groups"] = list(applications.values()) if applications is not None else []
         report["graph_audit"] = audit_placement(graph, plan, placed)
         report["facade_audit"] = audit_egress(graph, placed)
         report.update(geometry_guards_passed=True, bounds=asdict(placed.bounds), computed_unique_blocks=placed.unique_blocks)
         provenance = {"source_hashes": bindings, "plan_sha256": report["plan_sha256"], "mapped_source": graph.source,
-                      "clock_padding_blocks": args.clock_padding}
+                      "clock_padding_blocks": args.clock_padding, "clock_domain_padding": domain_padding,
+                      "clock_reservation_groups": report["clock_reservation_groups"]}
         report["unbalanced_manifest"] = write_egress_manifest(args.output.with_name(args.output.stem + "-unbalanced.json.gz"),
                     graph, plan, placed, provenance=dict(provenance, clock_balance_verified=False))
         report["clock_matching"] = balance_partition_clocks(plan, placed)

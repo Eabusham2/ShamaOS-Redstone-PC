@@ -157,16 +157,65 @@ adapter routes to the actual outer contacts while retaining the complete
 component envelope and contact keepouts; the six-pin pipeline passes with those
 additional external routes too.
 
-The complete cache facade is still incomplete. An explicitly capped 1,228 MiB
-trial completed the 128-port ancestor before exhausting host memory. The next
-2,048 MiB trial completed the 183-port ancestor but exhausted host memory while
-copying the next parent domain's literal states into a second union dictionary.
-Neither trial reached a complete root manifest, final union or runtime proof.
-Their unchanged source-bound reports and progress are retained as
-`evidence/cache-facade-cap1228-*` and `evidence/cache-facade-cap2048-*`. The next
-step is to remove duplicate host-side state storage while preserving exact
-collision, adjacency, headroom and child-envelope checks. The small pipeline is
-not a full-cache result.
+### Complete cache facade geometry
+
+The complete cache facade now passes placement, the original clock matcher and
+an independently sorted exact literal union under the same 2,048 MiB
+address-space ceiling. The accepted source-bound result is
+`evidence/cache-facade-domain4-672-report.json`; its complete balanced manifest,
+inputs and generator-source ZIP are retained beside it. The exact artifact
+inventory is `evidence/cache-facade-domain4-672-review.json`. The ZIP is a source
+overlay for base commit `f711074956957b95f61c9db307a0d3c303af497d`; a full checkout
+of that base supplies the remaining imported package dependencies.
+
+| Accepted geometry measurement | Result |
+| --- | ---: |
+| Native cells retained | 1,144 |
+| Original pins and actual exterior contacts | 183 each |
+| Original graph modules / additional facade modules | 33 / 5 |
+| Directed original-I/O ancestor handoffs | 494 |
+| Unique blocks / emitted block operations | 27,156,924 / 27,186,360 |
+| Occupied horizontal chunks | 136,764 |
+| Bounds | (0, -60, 0) through (7,522, 199, 7,450) |
+| Matched original clock consumers | 115 |
+| Planned delay from original clock input to consumers | 3,843 RT |
+| Elapsed time / peak process RSS | 395.93 s / 928,456 KiB |
+
+These blocks and chunks cover the complete controller and its facade. The two
+memory banks, their external routes and the rest of the computer are additional.
+The facade clock delivery adds a common 3,773 RT path, giving a planned exterior
+clock delay of 7,616 RT. These are routing-model measurements; exercising the
+exterior clock, complete memory transactions and saved-world operation in the
+native engine remains a separate acceptance gate. The report keeps both
+`runtime_verified` and `whole_computer_verified` false.
+
+The host-memory fix keeps one exact parent-state inventory instead of copying
+each accepted domain into a second dictionary. It preserves literal-state
+equality, active-wire adjacency, climbing headroom, child-envelope exceptions,
+duplicate counting and height checks. An independent comparison against the
+retained original guards agrees on all 779 cases, including 608 accepted and 171
+rejected cases. The focused packed-inventory and facade cohort passes 64 tests
+without skips, including both actual saved-world timing cases. See
+`parent_union/README.md` and `evidence/port-egress-packed-review.json`.
+
+The clock reservation is an explicit experimental policy: the ordinary 128-block
+reservation remains in other groups, while domain 4 and its complete sibling
+group reserve 672 blocks before placement and all geometry checks. The original
+matcher, its rollback, and the requirement for a complete final union remain
+unchanged. Nineteen focused tests and a separate root review cover this policy,
+empty-override equivalence and successful/deliberately too-fast native pipeline
+timing. The production backend does not select this experimental policy by
+default.
+
+Earlier attempts remain separate evidence. The 1,228 MiB and original 2,048 MiB
+attempts exhausted host memory before a complete root manifest or final union
+(`evidence/cache-facade-cap1228-*` and `cache-facade-cap2048-*`). The packed
+128-block attempt completed geometry and an exact unbalanced union, but its
+clock paths lacked up to 1,904 RT of adjustment capacity
+(`cache-facade-packed-unbalanced-*`). The first targeted 640-block candidate
+still lacked 60 RT after actual repacking and was rejected before a final union
+(`cache-facade-domain4-640-*`). None of these rejected or incomplete attempts is
+counted as an accepted connected controller.
 
 ## Reproduce
 

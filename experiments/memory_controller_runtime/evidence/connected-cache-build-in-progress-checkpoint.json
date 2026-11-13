@@ -1,0 +1,1888 @@
+{
+  "available_disk_bytes_before_world": 26916634624,
+  "clock_scope": "Original input pin to all registers structurally matched; exterior facade delivery and connected data timing require native execution",
+  "complete_machine_release_eligible": false,
+  "complete_machine_runtime_verified": false,
+  "complete_route_validation_verified": false,
+  "connected_cache_runtime_verified": false,
+  "controller_clock_native_verified": false,
+  "controller_graph_audit": {
+    "clock_leaf_uses": 115,
+    "constant_terminals": 0,
+    "native_cells": 1144,
+    "native_sink_uses": 2155,
+    "original_port_bits": 183,
+    "runtime_verified": false,
+    "shared_contacts": 1484,
+    "status": "structural-contacts-passed"
+  },
+  "electrical_route_isolation_verified": false,
+  "emitted_phase_progress": {
+    "native-writer": 5000000,
+    "sort-union": 37159120,
+    "sqlite-union": 37159120
+  },
+  "execution_limits": {
+    "address_space_bytes": 2147483648,
+    "cpu_seconds": 5400,
+    "pid": 5,
+    "wall_alarm_remaining_seconds_at_start": 5399.33502
+  },
+  "external_interface": {
+    "all_memory_return_routes_are_physical": true,
+    "electrical_runtime_verified": false,
+    "host_drive_pads": 72,
+    "nets": 78,
+    "physical_return_nets": 32
+  },
+  "external_nets_sha256": "f814dd1716f935648cd652ff6ad587a56ad82296a7972de04ccd2775a95a43e0",
+  "facade_audit": {
+    "base_clock_matching_scope": "Original mapped input pin to registers; facade input delivery adds an uncounted common prefix and requires exterior runtime timing",
+    "directed_handoffs": 494,
+    "electrical_route_isolation_verified": false,
+    "facade_modules": 5,
+    "original_port_bits": 183,
+    "runtime_verified": false,
+    "scope": "Directed endpoint/contact conservation only; fresh placement isolation guards or replayed runtime remain separate evidence",
+    "status": "original-io-facade-structure-passed-runtime-unverified"
+  },
+  "facade_manifest": {
+    "compressed_bytes": 326937,
+    "facade_handoffs": 494,
+    "facade_modules": 5,
+    "graph_modules": 33,
+    "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/port-egress/full-cache-domain4-672-packed-cap2048/report-balanced.json.gz",
+    "sha256": "3dc614564d5b57c3e31acff94ecc374260d27a8e8ea17594097fb8a85d0332df",
+    "uncompressed_sha256": "20ce3953cd7d5b0525f195cc0ed89fb79e8f6bbc119b9eb82a4f0ae3901ea539"
+  },
+  "facade_report_sha256": "e8f389f6d83567b3cdb0016a607bb9cd97b4c2a9deca3c8e2a1f775fc77c13d6",
+  "independent_sort_union": {
+    "bounds": {
+      "max": {
+        "x": 9456,
+        "y": 318,
+        "z": 7456
+      },
+      "min": {
+        "x": 0,
+        "y": -60,
+        "z": -4744
+      }
+    },
+    "emitted_blocks": 37159120,
+    "identical_duplicate_blocks": 57108,
+    "initial_sort_runs": 568,
+    "intermediate_merge_passes": 1,
+    "literal_unique_blocks": 37102012,
+    "memory_scope": "Bounded run buffers/open files; exact palette and run-path inventory retained",
+    "merge_fan_in": 64,
+    "merged_records": 37159120,
+    "occupied_chunks": 192026,
+    "palette": [
+      {
+        "name": "minecraft:stone",
+        "properties": []
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "0"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "1"
+          ],
+          [
+            "facing",
+            "west"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wall_torch",
+        "properties": [
+          [
+            "facing",
+            "east"
+          ],
+          [
+            "lit",
+            "true"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "1"
+          ],
+          [
+            "facing",
+            "south"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wall_torch",
+        "properties": [
+          [
+            "facing",
+            "north"
+          ],
+          [
+            "lit",
+            "true"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "1"
+          ],
+          [
+            "facing",
+            "south"
+          ],
+          [
+            "locked",
+            "true"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "4"
+          ],
+          [
+            "facing",
+            "south"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "1"
+          ],
+          [
+            "facing",
+            "east"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "1"
+          ],
+          [
+            "facing",
+            "north"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "up"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "0"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "up"
+          ],
+          [
+            "power",
+            "0"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "4"
+          ],
+          [
+            "facing",
+            "north"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "3"
+          ],
+          [
+            "facing",
+            "north"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "2"
+          ],
+          [
+            "facing",
+            "north"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "15"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "1"
+          ],
+          [
+            "facing",
+            "west"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "true"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:target",
+        "properties": [
+          [
+            "power",
+            "0"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_torch",
+        "properties": [
+          [
+            "lit",
+            "true"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_torch",
+        "properties": [
+          [
+            "lit",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "1"
+          ],
+          [
+            "facing",
+            "west"
+          ],
+          [
+            "locked",
+            "true"
+          ],
+          [
+            "powered",
+            "true"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "1"
+          ],
+          [
+            "facing",
+            "north"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "true"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:comparator",
+        "properties": [
+          [
+            "facing",
+            "west"
+          ],
+          [
+            "mode",
+            "subtract"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "1"
+          ],
+          [
+            "facing",
+            "south"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "true"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "1"
+          ],
+          [
+            "facing",
+            "west"
+          ],
+          [
+            "locked",
+            "true"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "14"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "13"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "12"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "11"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "10"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "9"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "8"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "7"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "6"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "5"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "4"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wall_torch",
+        "properties": [
+          [
+            "facing",
+            "east"
+          ],
+          [
+            "lit",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wall_torch",
+        "properties": [
+          [
+            "facing",
+            "south"
+          ],
+          [
+            "lit",
+            "true"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "0"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "up"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "0"
+          ],
+          [
+            "south",
+            "up"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wall_torch",
+        "properties": [
+          [
+            "facing",
+            "west"
+          ],
+          [
+            "lit",
+            "true"
+          ]
+        ]
+      }
+    ],
+    "record_bytes": 12,
+    "record_encoding": "big-endian u64 chunk-X/chunk-Z/local-X/local-Z/Y key, u32 palette index",
+    "run_records": 65536,
+    "scope": "Exact emitted-block union; routing adjacency/headroom are independent checks",
+    "sorted_unique_record_sha256": "d7291152fc8dfd2ab0a575d74ae2e08d00f7cd9bbb285cc8b61112e8f9c40530"
+  },
+  "independent_union_agreement": true,
+  "mapped_source": {
+    "container_sha256": "33016917c70829684a45758a1a2164791f514803394101a6bde3ea19cafca8c0",
+    "encoding": "gzip",
+    "lowered_cells": 1144,
+    "lowering_source_sha256": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274",
+    "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-cache-native-f711/experiments/memory_controller_runtime/evidence/cache-controller-c331.json.gz",
+    "raw_cells": 1144,
+    "sha256": "d4989124e9dca8b5afa865d954ded3be680b99f0b1e2f472aed6b5ecc42dd468",
+    "top": "shama_cache_adapter"
+  },
+  "native_persistence_verified": false,
+  "peak_rss_kib": 91520,
+  "physical_memory": {
+    "bank_origin": {
+      "x": 8720,
+      "y": -56,
+      "z": 0
+    },
+    "banks": 2,
+    "binary_decoder_bits": 10,
+    "bounds": {
+      "max": {
+        "x": 8882,
+        "y": 52,
+        "z": 6152
+      },
+      "min": {
+        "x": 8546,
+        "y": -60,
+        "z": -20
+      }
+    },
+    "capacity_bytes": 8192,
+    "decoder_x_offset": -170,
+    "initial_sha256": "8e8db74c6475467e2a9f522d719244de016f0db203115a13e409040dffc565a7",
+    "layer_pitch": 12,
+    "rows_per_bank": 1024,
+    "stored_bits": 65536,
+    "word_bits": 32
+  },
+  "plan_audit": {
+    "native_cells": 1144,
+    "scope": "complete structural graph reconstruction; no physical routing or timing claim",
+    "signals": 1248,
+    "status": "passed"
+  },
+  "plan_sha256": "0c81a0a49d447669adfc82facb682b805fbdd72df5690acb6f22b7a6a3a30362",
+  "schema": "complete-connected-cache-native-world-v1",
+  "scope": "Complete mapped cache facade plus both physical banks, decoder and all external routes; native runtime remains a separate gate",
+  "seconds": 865.0401387579986,
+  "source_hashes": {
+    "configs/default.toml": "630b70f01ac7de1f1b74250f8b454c9d090e461891f347fadc4c375c27cc5b20",
+    "experiments/memory_controller_runtime/clock_reserve.py": "6a5bd0ba923dbb6aabf0046ad6a487905043373854e76bdec502432db815d8fb",
+    "experiments/memory_controller_runtime/fixture.py": "fe736701c0fdab8a544d6ec63f249505cfe4114fcf5edd84e5e20d78c72c6513",
+    "experiments/memory_controller_runtime/geometry.py": "b815a0375895c8ce31dbcffddddf8e020e538d724d7050eb1a9ff9ea5595c06c",
+    "experiments/memory_controller_runtime/interconnect.py": "159dd746d905d93a1cfecb25cc8e7645ea91fc136d772432cf7c0923486c519b",
+    "experiments/memory_controller_runtime/save_connected.py": "70c44d2fc3eee9f401911373b6a15f412a89da8cb84d4662bcfe36363bdec2ef",
+    "experiments/memory_controller_runtime/scenarios.py": "1319d9a6097909dd849ac59c855c17232fc2442624cb957fb000de37e8499b67",
+    "experiments/partition_placement/packed_parent_union.py": "a9982d5e230fb7fa4e8b4e666a42323fd59b55066564b1fbf1567d0d15281a50",
+    "experiments/partition_placement/port_egress.py": "9b9ca8e2209f4401d6c8a7783c72c4188ed9f9b018b8a57d63fb9aa1fc20c9f5",
+    "experiments/partition_placement/port_egress_interfaces.py": "e47dffef1f73ad0141a5230f3fe294e4852f13cd0cb3a10a1364d91e5f79f5a2",
+    "experiments/partition_placement/port_egress_manifest.py": "822e4d29bd605456a159e687411e829268b183a7962a09a128324ffe97e6ba1a",
+    "experiments/partition_placement/raised_exports/geometry_manifest.py": "b69fa93db92131ce3530c596efe112077027216b748f53d5a042e103bc931897",
+    "experiments/partition_placement/raised_exports/replay_manifest.py": "308075b05664930ed457ca14054943bc7370e07ac45a86f54a9716ebf2c26ddb",
+    "experiments/partition_placement/raised_exports/streamed_union.py": "4732f29067e5d7aff013a9d2a5565e8e7037e4259b6cc1b74ffb0e45fd84281d",
+    "experiments/partition_placement/run_port_egress.py": "8ec6ea064afb4d519bccb9ba2158143fdb2a2db26818a9ab5532a6c73b1c91a5",
+    "experiments/partition_placement/targeted_clock_reserve.py": "02bf1a51c40e61910efb7fbda41480ec7ce1cc1bbb8369cd731988a5d90f46b0",
+    "rtl/shama_boot_params.svh": "3ec00fbefe06958cc2b918e52caa18129384cb267453a9fc976270bc72fa8025",
+    "rtl/shama_memory_adapter.sv": "853d438ff507e4740fb6468445804ccc846378686e66d7b136952a06f93fb0af",
+    "src/shamaos/bounded_build.py": "85ca0c83d4fc1bc781a4872cadca4b4f972e35cad0a0d35d151c3f9c8e153ee8",
+    "src/shamaos/generator.py": "a165087d34d1ac86398d894212bce36f55ef82a00bb8c8b944d3b41d51b1f7d5",
+    "src/shamaos/hardware/binary_row_decoder.py": "e58837fd0858146de95eea57e87186d8e1f1b3583f891a717ae14e156a461815",
+    "src/shamaos/hardware/external_router.py": "96834193a37bb485ab225ea21dc1ae460afcc3ab9ac41a434e45660be2f7666d",
+    "src/shamaos/hardware/interfaces.py": "54d7ad897c770647d1320891c62cc82cb581cfb29031ea62cf560838ff93873e",
+    "src/shamaos/hardware/local_router.py": "63054c806442499ba0aa27f65b1ec2b35c339c0c8595521dbc3097a334307bc6",
+    "src/shamaos/hardware/logic.py": "84a4f2cc3c535628ccd4e16ae0480b3cc99310f1fb83fe28f98d98b621ab1dff",
+    "src/shamaos/hardware/memory.py": "f44923cd4376d10fb2f62d5daf3bf752fe340e269355ac3564fd26ee2b5a8517",
+    "src/shamaos/hardware/memory_backbone.py": "8a6c22218be1e0a32189817318f72aad8bd31bd365141da556578c3b4398075d",
+    "src/shamaos/hardware/memory_streaming.py": "7f784968748570f5e3d2286a5ee81a0d965a0882123cb8125169bc4d1d491a24",
+    "src/shamaos/hardware/partition_placement.py": "10c6a4b5aba6b5c4776326d0a863bf57cd1fc5b0d216115ca496d851d6a82e90",
+    "src/shamaos/hardware/partition_planner.py": "82e7f39548af7443b29ffd322a118cb42474f6f0bf3da2273b1ecdefb38164b4",
+    "src/shamaos/hardware/routing.py": "d2b885f908a5942036269992c3fff7e3eb19ffe5a4753b97f5494aaf7120ccce",
+    "src/shamaos/layout.py": "e6db5143f7b2d9c0ae477e649cfc4421e476f14038fd861e8a65b1ebec946eaa",
+    "src/shamaos/machine_spec.py": "446853768c8fdd1be7472bd3d27e2f882ab3ca5805241f3f3ab7f3d778febd59",
+    "src/shamaos/model.py": "1a0fd1f9eb9469989057e4486401e5161e7f0bb02eb69195b7a14a74e92f4b95",
+    "src/shamaos/release_io.py": "5e1f310243d2325b9e4f6987649a770d2d4d03667cb66f5d442262fae43609c1",
+    "src/shamaos/synthesis.py": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274",
+    "src/shamaos/system_build.py": "1d8fe4deca82c64b386f7c0720cf6bb58ef1eb23179a6781796809e02e568a62",
+    "src/shamaos/worldio.py": "08e163497c981357b3aa4ce444709f38769001fb512700b0ffd2a8fc4ebda69c"
+  },
+  "source_input_bundle": {
+    "bytes": 559667,
+    "files": 43,
+    "path": "/workspace/scratch/fb0eaf1c89fe/experiments/cache-controller/connected-native-domain4-672-v1/connected-source-inputs.zip",
+    "scope": "Complete source binding inventory and exact mapped, facade, plan and 8 KiB initial inputs; native world is separate",
+    "sha256": "abd95246972f78cc915f00ecd2ba8496531431863a4c617e518c18df8793d159"
+  },
+  "sqlite_union": {
+    "bounds": {
+      "max": {
+        "x": 9456,
+        "y": 318,
+        "z": 7456
+      },
+      "min": {
+        "x": 0,
+        "y": -60,
+        "z": -4744
+      }
+    },
+    "emitted_placements": 37159120,
+    "identical_duplicate_placements": 57108,
+    "method": "disk-backed-exact-literal-union",
+    "minimum_anvil_bytes": 788856832,
+    "occupied_chunks": 192026,
+    "occupied_regions": 283,
+    "palette": [
+      {
+        "name": "minecraft:stone",
+        "properties": []
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "0"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "1"
+          ],
+          [
+            "facing",
+            "west"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wall_torch",
+        "properties": [
+          [
+            "facing",
+            "east"
+          ],
+          [
+            "lit",
+            "true"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "1"
+          ],
+          [
+            "facing",
+            "south"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wall_torch",
+        "properties": [
+          [
+            "facing",
+            "north"
+          ],
+          [
+            "lit",
+            "true"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "1"
+          ],
+          [
+            "facing",
+            "south"
+          ],
+          [
+            "locked",
+            "true"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "4"
+          ],
+          [
+            "facing",
+            "south"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "1"
+          ],
+          [
+            "facing",
+            "east"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "1"
+          ],
+          [
+            "facing",
+            "north"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "up"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "0"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "up"
+          ],
+          [
+            "power",
+            "0"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "4"
+          ],
+          [
+            "facing",
+            "north"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "3"
+          ],
+          [
+            "facing",
+            "north"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "2"
+          ],
+          [
+            "facing",
+            "north"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "15"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "1"
+          ],
+          [
+            "facing",
+            "west"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "true"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:target",
+        "properties": [
+          [
+            "power",
+            "0"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_torch",
+        "properties": [
+          [
+            "lit",
+            "true"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_torch",
+        "properties": [
+          [
+            "lit",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "1"
+          ],
+          [
+            "facing",
+            "west"
+          ],
+          [
+            "locked",
+            "true"
+          ],
+          [
+            "powered",
+            "true"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "1"
+          ],
+          [
+            "facing",
+            "north"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "true"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:comparator",
+        "properties": [
+          [
+            "facing",
+            "west"
+          ],
+          [
+            "mode",
+            "subtract"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "1"
+          ],
+          [
+            "facing",
+            "south"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "true"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "1"
+          ],
+          [
+            "facing",
+            "west"
+          ],
+          [
+            "locked",
+            "true"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "14"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "13"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "12"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "11"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "10"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "9"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "8"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "7"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "6"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "5"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "4"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wall_torch",
+        "properties": [
+          [
+            "facing",
+            "east"
+          ],
+          [
+            "lit",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wall_torch",
+        "properties": [
+          [
+            "facing",
+            "south"
+          ],
+          [
+            "lit",
+            "true"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "0"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "up"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "0"
+          ],
+          [
+            "south",
+            "up"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wall_torch",
+        "properties": [
+          [
+            "facing",
+            "west"
+          ],
+          [
+            "lit",
+            "true"
+          ]
+        ]
+      }
+    ],
+    "record_encoding": "big-endian u64 chunk-X/chunk-Z/local-X/local-Z/Y key, u32 palette index",
+    "scope": "Exact partition geometry; no timing, runtime or whole-machine claim",
+    "sorted_unique_record_sha256": "d7291152fc8dfd2ab0a575d74ae2e08d00f7cd9bbb285cc8b61112e8f9c40530",
+    "status": "passed",
+    "unique_blocks": 37102012
+  },
+  "stage": "write-complete-connected-native-world",
+  "status": "running",
+  "structural_clock_matching": {
+    "2": {
+      "balanced_repeater_delay": 3843,
+      "clock_leaves": 115,
+      "runtime_verified": false,
+      "visited_modules": 27
+    }
+  }
+}

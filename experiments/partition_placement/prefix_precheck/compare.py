@@ -173,7 +173,7 @@ def run_one(args, algorithm):
                      "current_rss_kib": None, "observed_peak_rss_kib": 0,
                      "wall_budget_seconds": args.wall_seconds}
         try:
-            while process.poll() is None:
+            while True:
                 elapsed = time.monotonic() - started
                 rss = current_rss(process.pid)
                 peak = max(peak, rss or 0)
@@ -183,6 +183,11 @@ def run_one(args, algorithm):
                 write_json(heartbeat_path, heartbeat)
                 if elapsed >= args.wall_seconds:
                     raise TimeoutError(f"{algorithm} exceeded its explicit wall budget; no equivalence pass")
+                # Observe the deadline before accepting an exited worker. A
+                # child may finish during startup or between monitor polls;
+                # that does not establish completion within the wall budget.
+                if process.poll() is not None:
+                    break
                 try:
                     process.wait(timeout=min(10, max(0.1, args.wall_seconds - elapsed)))
                 except subprocess.TimeoutExpired:

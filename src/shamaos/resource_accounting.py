@@ -68,6 +68,7 @@ def router_resource_lower_bound(
     track_spacing: int = 8,
     access: Mapping[Vec3, tuple[str, ...]] | None = None,
     endpoint_bounds: Mapping[Vec3, Box] | None = None,
+    track_base_z: int | None = None,
 ) -> dict[str, object]:
     """Rigorous lower bounds for the unique-global-track router.
 
@@ -91,7 +92,9 @@ def router_resource_lower_bound(
             "exact_chunk_count": None, "route_validity_verified": False,
         }
     minimum_z = min(_position(endpoint).z for net in nets for endpoint in (net.source, *net.sinks))
-    first_track = minimum_z - (len(nets) + 1) * track_spacing - 4096
+    if track_base_z is not None and type(track_base_z) is not int:
+        raise ValueError("an explicit route track base must be an integer")
+    first_track = minimum_z - (len(nets) + 1) * track_spacing - 4096 if track_base_z is None else track_base_z
     transition = trunk_y - branch_y
     forced_levels: dict[tuple[int, str], set[int]] = {}
     wall_rows: dict[tuple[int, int], set[Vec3]] = {}
@@ -185,6 +188,9 @@ def physical_netlist_resource_lower_bound(physical) -> dict[str, object]:
 
 def prepared_system_resource_preflight(prepared, storage_report: dict[str, object]) -> dict[str, object]:
     """Include every mapped partition, shell and global net before emission."""
+    from .bounded_system import BoundedSystemLogic, MeasuredBoundedLogic
+    if isinstance(prepared.logic, (BoundedSystemLogic, MeasuredBoundedLogic)):
+        return _bounded_system_resource_preflight(prepared, storage_report)
     parts = {name: physical_netlist_resource_lower_bound(physical) for name, physical in prepared.logic.partitions}
     parts["shell"] = physical_netlist_resource_lower_bound(prepared.logic.shell)
     global_routes = router_resource_lower_bound(prepared.nets, access=prepared.routing.access,
@@ -213,3 +219,73 @@ def prepared_system_resource_preflight(prepared, storage_report: dict[str, objec
         "scope_note": "All mapped logic and global routes are included analytically; exact screen, controls, local memory decoders and shared-return footprints come from the regular-fabric profile. The exact whole-machine union still requires valid complete routing.",
         "complete_world_runtime_verified": False,
     }
+
+
+def _bounded_system_resource_preflight(prepared, storage_report):
+    """Keep real global/regular lower bounds; count bounded geometry exactly.
+
+    Before measurement this returns the conservative rejection information
+    needed by finalize_prepared_system. It never invents one flat routing
+    plane for the bounded hierarchy or treats its enclosing rectangle as
+    occupied chunks. Once measured, the actual child+shell union participates
+    in the same disk gate. The whole machine still includes regular components
+    and global wires and therefore has no exact union count here.
+    """
+    from .bounded_system import MeasuredBoundedLogic
+
+    logic = prepared.logic
+    measured = isinstance(logic, MeasuredBoundedLogic)
+    geometry = logic.geometry if measured else None
+    shell = logic.shell
+    physical = shell.physical
+    shell_routes = router_resource_lower_bound(physical.nets,
+        branch_y=physical.routing_branch_y, trunk_y=physical.routing_trunk_y,
+        track_spacing=physical.track_pitch, access=shell.routing.access,
+        endpoint_bounds=shell.routing.endpoint_bounds, track_base_z=shell.track_base_z)
+    global_routes = router_resource_lower_bound(prepared.nets, access=prepared.routing.access,
+                                                endpoint_bounds=prepared.routing.endpoint_bounds)
+
+    def cells(implementation):
+        types = Counter(implementation.cell_types.values())
+        return {"cells": len(implementation.cell_origins), "cell_types": dict(types),
+                "literal_cell_placements": sum(_cell_counts(kind)[0] * count for kind, count in types.items()),
+                "literal_unique_cell_blocks": sum(_cell_counts(kind)[1] * count for kind, count in types.items())}
+
+    parts = {name: {**part.manifest(), **cells(part),
+                   "routing_scope": "complete bounded domains; no single-plane substitute"}
+             for name, part in logic.partitions}
+    parts["shell"] = {**shell.manifest(), **cells(physical), "routing": shell_routes}
+    regular = storage_report.get("regular_fabrics", {})
+    regular_chunks = int(regular.get("regular_fabric_union_chunks", storage_report["storage_chunks"]))
+    regular_bytes = int(regular.get("minimum_regular_fabric_region_bytes", storage_report["minimum_storage_region_bytes"]))
+    logic_chunks = int(geometry["occupied_chunks"]) if measured else 0
+    # At most 1,024 occupied chunks fit in one Anvil region. This is still a
+    # lower bound on compressed files, never an allocation-size prediction.
+    logic_bytes = logic_chunks * 4096 + ((logic_chunks + 1023) // 1024) * 8192
+    route_reports = (shell_routes, global_routes)
+    minimum_chunks = max(regular_chunks, logic_chunks, *(int(r["minimum_route_chunks"]) for r in route_reports))
+    minimum_bytes = max(regular_bytes, logic_bytes, *(int(r["minimum_route_region_bytes"]) for r in route_reports))
+    available = int(storage_report["available_disk_bytes"])
+    fits = minimum_bytes < available
+    gate = ("blocked-by-proven-disk-lower-bound" if not fits else
+            "lower-bound-only-full-resource-and-route-validation-still-required" if measured else
+            "bounded-logic-exact-measurement-required")
+    return {"kind": "bounded-whole-machine-resource-lower-bound", "logic_backend": "bounded",
+        "mapped_partitions": parts, "global_routing": global_routes,
+        "bounded_logic_geometry": geometry,
+        "bounded_logic_measurement_status": "exact-union-measured" if measured else "not-run-conservative-precheck",
+        "bounded_logic_occupied_chunks": logic_chunks if measured else None,
+        "minimum_bounded_logic_region_bytes": logic_bytes if measured else None,
+        "exact_emitted_logic_placements": geometry["emitted_blocks"] if measured else None,
+        "storage_chunks": storage_report["storage_chunks"], "regular_fabrics": regular,
+        "regular_fabric_union_chunks": regular_chunks,
+        "whole_machine_chunk_lower_bound": minimum_chunks, "whole_machine_exact_chunks": None,
+        "minimum_whole_machine_region_bytes": minimum_bytes, "available_disk_bytes": available,
+        "disk_lower_bound_fits": fits, "generation_gate": gate,
+        "minimum_emitted_route_placements": sum(int(r["minimum_emitted_route_placements"]) for r in route_reports),
+        "route_placement_bound_scope": "shell and global routes; every bounded child route is additionally counted in the exact complete logic union",
+        "literal_logic_cell_placements": sum(int(part["literal_cell_placements"]) for part in parts.values()),
+        "maximum_single_net_delay_lower_bound_redstone_ticks": max(int(r["maximum_single_net_delay_lower_bound_redstone_ticks"]) for r in route_reports),
+        "timing_scope": "shell/global individual-net lower bounds; internal bounded clock/data timing and complete sequential timing remain unverified",
+        "scope_note": "Regular-fabric and global-route bounds are retained. Bounded children and the shell are measured as one exact emitted union after the conservative rejection check. Whole-world overlap, compression, loading and runtime remain separate gates.",
+        "complete_world_runtime_verified": False}

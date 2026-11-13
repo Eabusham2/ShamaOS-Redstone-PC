@@ -1,0 +1,25 @@
+{
+  "schema": "connected-cache-native-preparation-review-v1",
+  "status": "passed",
+  "tests": 15,
+  "failures": 0,
+  "errors": 0,
+  "skips": 0,
+  "source_hashes": {
+    "experiments/memory_controller_runtime/interconnect.py": "159dd746d905d93a1cfecb25cc8e7645ea91fc136d772432cf7c0923486c519b",
+    "experiments/memory_controller_runtime/save_connected.py": "70c44d2fc3eee9f401911373b6a15f412a89da8cb84d4662bcfe36363bdec2ef",
+    "tests/test_memory_controller_runtime_experiment.py": "c481a69c2d20e5ac5e51fdc7ba635bf37aaee9052856d79cfffbf58b7023610a"
+  },
+  "junit_sha256": "e586473f512c28fa097afcd012e8b6e2f359fd702447ab553a5bb10589107376",
+  "checks": [
+    "real source/plan/manifest mutation rejection",
+    "unbalanced facade rejection",
+    "existing output preservation",
+    "complete two-bank capacity guard",
+    "exact native host pads and adjacent saved blocks",
+    "independent sort/SQLite union and native-state readback on actual small memory"
+  ],
+  "scope": "Preparation and negative guards only. Complete connected generation, timing, transactions and persistence remain separate gates.",
+  "connected_cache_runtime_verified": false,
+  "complete_machine_runtime_verified": false
+}

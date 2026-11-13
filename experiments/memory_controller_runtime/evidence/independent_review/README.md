@@ -1,0 +1,11 @@
+# Independent connected-cache review
+
+These records review the physical-cache runtime wrapper and the accepted facade input. They do not report execution of the full connected cache or complete computer.
+
+- `native-review.json` records an actual small native memory run under the frozen hardened helper `faccd37e…` and canonical terrain runner `16a981ec…`. All 1,433,600 trace samples and semantic results match the retained baseline; the snapshot is byte-identical. All 192 fixture storage bits are inspected in native chunks before fresh-process initialization, and all 224 expected outputs survive that fresh process. Raw large trace output is excluded; its exact digest and original path are retained.
+- `clock-gate-review.json` records three evidence-gate gaps in historical helper `c985ff3b…` and their rejection after the fix. The guard data are explicitly synthetic and never count as physical clock proof. The focused 15-case suite also passes. Source review covers all nine runtime helpers, pinned engine and terrain identity, both retained clock sample sets, the exact functional clock period and cold-snapshot parent bindings.
+- `facade-review.json` verifies all 38 frozen generator source files and seven retained input artifacts, restores the complete graph and exterior contacts, and reproduces saved clock matching without changing any override. Its large literal-union counts are retained evidence, not a second geometry emission. Exterior clock delivery and connected memory runtime remain unverified by this review.
+
+The four Python helpers are byte-for-byte copies of those executed for these records. They take a checkout path and an output destination. They intentionally reference the exact baseline fixtures recorded under `/workspace/scratch/fb0eaf1c89fe`; those external native fixtures and the retained binaries must be restored before rerunning them. Historical `clock_gate_before_fix.py` requires the old helper identity and is preserved to explain the fixed finding; it is not intended to pass against the hardened helper.
+
+No generator or redstone-engine source changed during the independent review. Both `connected_cache_runtime_verified` and `complete_machine_runtime_verified` remain false throughout these records.

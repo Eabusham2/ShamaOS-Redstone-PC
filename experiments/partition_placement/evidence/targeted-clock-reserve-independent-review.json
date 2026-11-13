@@ -1,0 +1,35 @@
+{
+  "schema": "targeted-clock-reserve-independent-review-v1",
+  "status": "passed-for-capped-full-layout-trial",
+  "source_hashes": {
+    "experiments/partition_placement/targeted_clock_reserve.py": "02bf1a51c40e61910efb7fbda41480ec7ce1cc1bbb8369cd731988a5d90f46b0",
+    "experiments/partition_placement/clock_capacity.py": "f0b9cb8f4c00bd5adecabe682ab11438178d2278977c0ec1abe13837af531604",
+    "experiments/partition_placement/run_port_egress.py": "8ec6ea064afb4d519bccb9ba2158143fdb2a2db26818a9ab5532a6c73b1c91a5",
+    "experiments/partition_placement/parent_union/run_capped.py": "276c6ef42dd17d6bb4d525410e8d568b7c063f030112add6a0a2a2df44022b0b",
+    "tests/test_targeted_clock_reserve.py": "8159cbdd0d5d40fdf119cb0f778a804babed27ba7e251620bd3a355eae1b9e42"
+  },
+  "independent_test_counts": {
+    "tests": 19,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "independent_junit_sha256": "84021da32dd1a71a34eb7a6999afa34eec9b8619b534a618280e4e3ba72082ef",
+  "review": [
+    "The override moves actual complete sibling track groups before parent geometry checks.",
+    "Untargeted groups retain baseline padding; original clock matching and rollback are unchanged.",
+    "Source/input bundle and monitored limits remain mandatory for the full retry.",
+    "Small actual pipeline checks both a passing transfer schedule and a deliberately too-fast failure."
+  ],
+  "trial_configuration": {
+    "baseline_clock_padding_blocks": 128,
+    "absolute_domain_padding": {
+      "4": 640
+    },
+    "maximum_y": 285,
+    "memory_limit_mib": 2048
+  },
+  "complete_facade_clock_verified": false,
+  "connected_cache_runtime_verified": false,
+  "whole_machine_runtime_verified": false
+}

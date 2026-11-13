@@ -1,0 +1,18 @@
+{
+  "errors": 0,
+  "failures": 0,
+  "junit_sha256": "cd123df89ee40ee285aafe14ea2d556164e2cdd4c3333ac7aebe02c9c2cfe505",
+  "review": [
+    "The observed elapsed time is checked before an exited child can complete the parent loop.",
+    "Both already-successful and already-failed children observed past the budget leave budget-aborted evidence.",
+    "A failed child observed inside the budget preserves failed status.",
+    "The existing finally path still terminates and waits only the spawned worker and records its exit code."
+  ],
+  "scope": "Deadline observation ordering and exact worker cleanup; no physical generator or layout changes.",
+  "skipped": 0,
+  "source_sha256": "453bf2195747166ced327486f898e785c0249301f19c043bb7784b49d6a2647e",
+  "status": "independent-review-passed",
+  "test_source_sha256": "7a2bcd7d5a14f333e42afef1d58e01d8164fd4d2facc7364ed0dd5ed3f20e19f",
+  "tests": 30,
+  "whole_computer_verified": false
+}

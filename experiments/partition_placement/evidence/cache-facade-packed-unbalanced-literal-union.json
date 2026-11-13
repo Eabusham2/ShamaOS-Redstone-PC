@@ -1,0 +1,270 @@
+{
+  "status": "unbalanced-geometry-literal-union-passed-clock-matching-rejected",
+  "scope": "Every retained original and facade module; clock capacity and runtime are separate unmet gates",
+  "manifest_sha256": "eb3c544f1f0ad77d8d3ad0dc748d2176fac952202c09a54bff89e6cb3adf70ee",
+  "literal_union": {
+    "scope": "Exact emitted-block union; routing adjacency/headroom are independent checks",
+    "emitted_blocks": 25283448,
+    "merged_records": 25283448,
+    "literal_unique_blocks": 25254012,
+    "identical_duplicate_blocks": 29436,
+    "occupied_chunks": 126856,
+    "bounds": {
+      "min": {
+        "x": 0,
+        "y": -60,
+        "z": 0
+      },
+      "max": {
+        "x": 7522,
+        "y": 199,
+        "z": 6906
+      }
+    },
+    "palette": [
+      {
+        "name": "minecraft:stone",
+        "properties": []
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "0"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "1"
+          ],
+          [
+            "facing",
+            "west"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wall_torch",
+        "properties": [
+          [
+            "facing",
+            "east"
+          ],
+          [
+            "lit",
+            "true"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "1"
+          ],
+          [
+            "facing",
+            "south"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wall_torch",
+        "properties": [
+          [
+            "facing",
+            "north"
+          ],
+          [
+            "lit",
+            "true"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "1"
+          ],
+          [
+            "facing",
+            "south"
+          ],
+          [
+            "locked",
+            "true"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "4"
+          ],
+          [
+            "facing",
+            "south"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "1"
+          ],
+          [
+            "facing",
+            "east"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "1"
+          ],
+          [
+            "facing",
+            "north"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "up"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "0"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "up"
+          ],
+          [
+            "power",
+            "0"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      }
+    ],
+    "sorted_unique_record_sha256": "6e7a4e39ec5c11649452f29237cdb0570aaf6fd63f1a0e53f3d2c471b449d3d1",
+    "record_encoding": "big-endian u64 chunk-X/chunk-Z/local-X/local-Z/Y key, u32 palette index",
+    "record_bytes": 12,
+    "run_records": 65536,
+    "merge_fan_in": 64,
+    "initial_sort_runs": 386,
+    "intermediate_merge_passes": 1,
+    "memory_scope": "Bounded run buffers/open files; exact palette and run-path inventory retained"
+  },
+  "seconds": 151.50968232200103,
+  "peak_rss_kib": 50528,
+  "clock_matching_verified": false,
+  "runtime_verified": false
+}

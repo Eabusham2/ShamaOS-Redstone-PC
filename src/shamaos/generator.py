@@ -54,6 +54,10 @@ def source_provenance() -> dict[str, object]:
              "src/shamaos/hardware/external_router.py", "src/shamaos/hardware/local_router.py", "src/shamaos/system_build.py",
              "src/shamaos/memory_fixture.py", "src/shamaos/physical_resources.py",
              "src/shamaos/resource_accounting.py", "src/shamaos/machine_spec.py", "configs/default.toml",
+             "src/shamaos/bounded_system.py", "src/shamaos/literal_union.py",
+             "src/shamaos/hardware/partition_planner.py", "src/shamaos/hardware/partition_placement.py",
+             "src/shamaos/hardware/bounded_facade.py", "src/shamaos/hardware/bounded_interfaces.py",
+             "src/shamaos/hardware/packed_parent_union.py",
              "rtl/shama_display_bridge.sv", "rtl/shama_gpu.sv", "rtl/shama_soc.sv", "rtl/shama_font5x7.sv"]
     result: dict[str, object] = {
         "files_sha256": {name: hashlib.sha256((root / name).read_bytes()).hexdigest() for name in files if (root / name).is_file()},
@@ -707,12 +711,12 @@ def write_available_placements(
     named SoC ports to every physical fabric.
     """
     from .system_build import (
+        finalize_prepared_system,
         iter_interconnect,
         iter_logic,
         iter_system_infrastructure,
         prepare_system,
     )
-    from .resource_accounting import prepared_system_resource_preflight
 
     config = resolve_world_surface(config, world_path)
     save_every = max(
@@ -731,7 +735,7 @@ def write_available_placements(
     if not preflight["storage_minimum_fits_available_disk"]:
         raise WorldWriteError("insufficient disk even for the storage-only Anvil lower bound; see generation-preflight.json")
     prepared = prepare_system(config, build_dir=build_dir)
-    mapped_preflight = prepared_system_resource_preflight(prepared, preflight)
+    prepared, mapped_preflight = finalize_prepared_system(prepared, preflight, temporary_parent=build_dir)
     write_manifest(build_dir / "mapped-resource-preflight.json", mapped_preflight)
     if not mapped_preflight["disk_lower_bound_fits"]:
         raise WorldWriteError(

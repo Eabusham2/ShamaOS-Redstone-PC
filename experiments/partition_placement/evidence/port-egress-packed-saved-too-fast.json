@@ -1,0 +1,67 @@
+{
+  "clock_skew_ticks": 0,
+  "clock_edges": 16,
+  "half_period_redstone_ticks": 20,
+  "minimum_setup_ticks": 34,
+  "minimum_hold_ticks": 7,
+  "pipeline_failures": [
+    {
+      "edge": 3376,
+      "register": "b",
+      "expected": true,
+      "actual": false
+    },
+    {
+      "edge": 3416,
+      "register": "b",
+      "expected": true,
+      "actual": false
+    },
+    {
+      "edge": 5584,
+      "register": "b",
+      "expected": false,
+      "actual": true
+    },
+    {
+      "edge": 5624,
+      "register": "b",
+      "expected": false,
+      "actual": true
+    },
+    {
+      "edge": 7792,
+      "register": "b",
+      "expected": true,
+      "actual": false
+    },
+    {
+      "edge": 7832,
+      "register": "b",
+      "expected": true,
+      "actual": false
+    },
+    {
+      "edge": 9960,
+      "register": "b",
+      "expected": false,
+      "actual": true
+    },
+    {
+      "edge": 10000,
+      "register": "b",
+      "expected": false,
+      "actual": true
+    }
+  ],
+  "actual_ticks": 11904,
+  "status": "saved-facade-native-and-dense-traces-match",
+  "compared_trace_samples": 489600,
+  "exact_saved_circuit_blocks": 26422,
+  "imported_chunks": 191,
+  "imported_stream_sha256": "bb5b5e8b0630862e2606ac37f5ffc10a5c5ffa3f6bc5a48fe669a999254e435b",
+  "scenario_sha256": "e79015ec37bfb1bf22af929b52389355a3d3ff5fde4d53c4ffc3375824940511",
+  "original_port_bits": 6,
+  "facade_handoffs": 11,
+  "complete_machine_runtime_verified": false
+}

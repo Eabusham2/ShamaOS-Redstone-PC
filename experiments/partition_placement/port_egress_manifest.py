@@ -17,6 +17,7 @@ REPOSITORY = Path(__file__).resolve().parents[2]
 REQUIRED_SOURCE_BINDINGS = (*original.REQUIRED_SOURCE_BINDINGS,
     "src/shamaos/model.py", "experiments/memory_controller_runtime/clock_reserve.py",
     "experiments/partition_placement/port_egress.py",
+    "experiments/partition_placement/packed_parent_union.py",
     "experiments/partition_placement/port_egress_manifest.py",
     "experiments/partition_placement/raised_exports/replay_manifest.py")
 ORIGINAL_GEOMETRY_FIELDS = {"schema", "scope", "root_cluster", "provenance", "clusters", "modules", "shared_contacts"}

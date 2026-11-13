@@ -1,0 +1,14 @@
+{
+  "complete_geometry_verified": false,
+  "driver_peak_rss_kib": 926480,
+  "driver_report_sha256": "5483ece4a26363fb392e3bed0f92dc29fe621a666c07b9dd5c3a121b20396896",
+  "driver_status": "failed",
+  "exit_code": 1,
+  "monitored_peak_rss_kib": 926480,
+  "observed_peak_rss_kib": 926480,
+  "runtime_verified": false,
+  "seconds": 226.25415954600612,
+  "source_and_input_bindings_unchanged": true,
+  "status": "incomplete-or-rejected-see-driver-report",
+  "whole_computer_verified": false
+}

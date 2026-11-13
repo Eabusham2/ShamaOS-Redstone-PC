@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
+import json
 from pathlib import Path
 from typing import Iterator
 
@@ -243,7 +244,26 @@ def _prepare_partitioned_logic(
     base_origin: Vec3,
     yosys: str,
     minimum_build_y: int = -64,
+    logic_backend: str = "flat",
+    bounded_options: dict | None = None,
 ) -> PartitionedLogic:
+    if logic_backend == "bounded":
+        from .bounded_system import prepare_from_artifacts
+        artifacts = []
+        for instance_name, module_type in PARTITION_SPECS:
+            output = build / f"partition-{instance_name}-{module_type}.json"
+            synthesize_json([root / p for p in SOC_RTL_FILES], top=module_type,
+                output_json=output, yosys=yosys, repo_root=root,
+                mapping_mode=partition_mapping_mode(module_type))
+            artifacts.append((instance_name, module_type, output))
+        shell_output = build / "shama_soc-shell-mapped.json"
+        synthesize_json([root / p for p in SOC_RTL_FILES], top="shama_soc",
+            output_json=shell_output, yosys=yosys, repo_root=root,
+            blackbox_modules=tuple(module for _, module in PARTITION_SPECS))
+        return prepare_from_artifacts(artifacts, shell_output, base_origin=base_origin,
+            minimum_build_y=minimum_build_y, options=bounded_options)
+    if logic_backend != "flat":
+        raise ValueError(f"unknown physical logic backend: {logic_backend!r}")
     rtl_files = [root / p for p in SOC_RTL_FILES]
 
     partition_list: list[tuple[str, PhysicalNetlist]] = []
@@ -339,6 +359,8 @@ def prepare_system(
         base_origin=origins.control,
         yosys=yosys,
         minimum_build_y=g.minimum_build_y,
+        logic_backend=config.get("generator", {}).get("logic_backend", "flat"),
+        bounded_options=config.get("generator", {}).get("bounded_logic"),
     )
 
     inputs = logic.input_ports
@@ -438,6 +460,7 @@ def prepare_system(
 
     metadata = {
         "logic": logic.manifest(),
+        "logic_backend": config.get("generator", {}).get("logic_backend", "flat"),
         "external_net_count": len(nets),
         "clock_origin": vars(clock_origin),
         "constant_high": vars(constant_high),
@@ -475,6 +498,32 @@ def prepare_system(
         metadata=metadata,
         routing=system_routing_interfaces(g,inputs,outputs,clock_origin=clock_origin,constant_high=constant_high),
     )
+
+
+def finalize_prepared_system(prepared, storage_report, *, temporary_parent=None):
+    """Reject known disk failures before measuring a bounded complete union.
+
+    Bounded placement keeps its local physical checks. This final resource
+    phase measures all child/shell blocks and binds their actual full keepout
+    before global routing or native world emission can start.
+    """
+    from .bounded_system import BoundedSystemLogic, measure_logic, merge_interfaces
+    from .resource_accounting import prepared_system_resource_preflight
+
+    report = prepared_system_resource_preflight(prepared, storage_report)
+    if not isinstance(prepared.logic, BoundedSystemLogic):
+        return prepared, report
+    if temporary_parent is not None:
+        directory = Path(temporary_parent)
+        directory.mkdir(parents=True, exist_ok=True)
+        (directory / "bounded-resource-preflight-before-union.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
+    if not report["disk_lower_bound_fits"]:
+        return prepared, report
+    measured = measure_logic(prepared.logic, temporary_parent=temporary_parent)
+    prepared = replace(prepared, logic=measured,
+        routing=merge_interfaces(prepared.routing, measured.routing),
+        metadata={**prepared.metadata, "logic": measured.manifest()})
+    return prepared, prepared_system_resource_preflight(prepared, storage_report)
 
 
 def iter_system_infrastructure(
@@ -527,6 +576,9 @@ def iter_logic(prepared: PreparedSystem) -> Iterator[Placement]:
 
 
 def iter_interconnect(prepared: PreparedSystem) -> Iterator[Placement]:
+    from .bounded_system import BoundedSystemLogic
+    if isinstance(prepared.logic, BoundedSystemLogic):
+        raise ValueError("bounded logic requires resource finalization and its measured whole-component keepout before global routing")
     yield from iter_external_router(
         prepared.nets,
         component="system-interconnect",

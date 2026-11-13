@@ -1,0 +1,14 @@
+{
+  "complete_geometry_verified": true,
+  "driver_peak_rss_kib": 928456,
+  "driver_report_sha256": "e8f389f6d83567b3cdb0016a607bb9cd97b4c2a9deca3c8e2a1f775fc77c13d6",
+  "driver_status": "complete-original-io-facade-geometry-passed-runtime-pending",
+  "exit_code": 0,
+  "monitored_peak_rss_kib": 928456,
+  "observed_peak_rss_kib": 928456,
+  "runtime_verified": false,
+  "seconds": 396.36682662399835,
+  "source_and_input_bindings_unchanged": true,
+  "status": "complete-geometry-runtime-pending",
+  "whole_computer_verified": false
+}

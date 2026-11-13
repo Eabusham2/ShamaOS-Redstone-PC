@@ -1,0 +1,22 @@
+{
+  "schema": "connected-cache-integrated-helper-root-review-v1",
+  "status": "passed",
+  "counts": {
+    "tests": 64,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "sources": {
+    "experiments/memory_controller_runtime/interconnect.py": "159dd746d905d93a1cfecb25cc8e7645ea91fc136d772432cf7c0923486c519b",
+    "experiments/memory_controller_runtime/save_connected.py": "70c44d2fc3eee9f401911373b6a15f412a89da8cb84d4662bcfe36363bdec2ef",
+    "experiments/memory_controller_runtime/run_connected.py": "faccd37e13eab70a7eb8dd577501073b7f283e88ab10d081cc914f28100309d2",
+    "tests/test_memory_controller_runtime_experiment.py": "de89a3cdefd1ba98701bff7f1e1d3a86202a886240dca4661485550c63b03f73",
+    "src/shamaos/system_build.py": "26ff06d346ae30699108b823b62efe5aaa58d3e4bd6d0ada1d6bbf07b85418d5",
+    "src/shamaos/generator.py": "089bad6b69f9987c6a0ef47e9cee1e095267af4f7aee7c1a76b86ce5f630f8dd"
+  },
+  "junit_sha256": "ff8d141d77542f8312713764cb5e162a55d7da2500f05a0ba06a89a84447d706",
+  "scope": "Preparation, clock/interface contracts and runtime evidence guard checks after opt-in builder integration; full native cache execution remains pending.",
+  "connected_cache_runtime_verified": false,
+  "complete_machine_runtime_verified": false
+}
