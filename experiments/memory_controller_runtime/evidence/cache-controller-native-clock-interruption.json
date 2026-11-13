@@ -1,0 +1,32 @@
+{
+  "schema": "cache-controller-native-clock-interruption-v1",
+  "status": "execution-incomplete",
+  "native_saved_world_readback": "passed",
+  "native_clock_gate": "unverified",
+  "cause": "External SIGKILL, specific cause unconfirmed",
+  "runner_exit_code": -9,
+  "runner_wall_seconds": 123.00000507500226,
+  "runner_peak_rss_kib": 2918304,
+  "stdout_bytes": 0,
+  "stderr_bytes": 0,
+  "explicit_launcher_address_space_limit_bytes": 3221225472,
+  "explicit_launcher_cpu_or_wall_timeout": null,
+  "post_run_default_limits": {
+    "RLIMIT_CPU": "unlimited",
+    "RLIMIT_AS": "unlimited",
+    "RLIMIT_DATA": "unlimited",
+    "RLIMIT_RSS": "unlimited",
+    "scope": "Observed in subsequent fresh execution environment, not a historical measurement inside the terminated child"
+  },
+  "cgroup_limits_and_events": "/sys not present in execution environment",
+  "kernel_oom_log": "dmesg denied access; no OOM classification established",
+  "world_stream_sha256": "f716c7ca10488300f37f5498be998e603fd700b64fd780506f436167fcaf9ea4",
+  "world_stream_bytes": 351361973,
+  "runner_sha256": "996ae88a29015472f930a5a7f53dfadc9fd4bb8097e29305ea9a17bfc697c499",
+  "probe_source_sha256": "d08649c2ee06c6ae9fa4aa1341d1fb27f1c99b1d9e4fbb915cd1707d1e7146ad",
+  "scenario_sha256": "d7cfc346cfb12081c9b8f36789a63684ec490f1ab32aa064a1aec5339059ca57",
+  "too_fast_probe_executed": false,
+  "complete_machine_runtime_verified": false,
+  "connected_cache_runtime_verified": false,
+  "scope": "Preserved incomplete attempt; neither physical success nor a circuit failure is inferred from the killed process."
+}

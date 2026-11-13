@@ -87,6 +87,61 @@ if the budget expires. `--wall-seconds` changes that explicit budget. A budget
 abort preserves any completed module manifest and partial progress without
 labelling them a final proof pass or a layout rejection.
 
+## Recover a completed route manifest
+
+`replay_manifest.py` reconstructs every retained native cell, port, net, constant,
+escape, track, clock override and shared contact without running route search.
+It can complete the exact literal union from a manifest saved before an
+interruption. Supply the manifest's SHA-256 from the independently retained
+geometry report or checkpoint, together with a fresh output path:
+
+```sh
+python experiments/partition_placement/raised_exports/replay_manifest.py build/raised-parent221-manifest.json.gz --sha256 RECORDED_MANIFEST_SHA256 --output build/raised-parent221-replayed-union.json
+```
+
+The command checks the recorded source bindings and isolated snapshot, rejects
+ambiguous or lost module/cluster/endpoint inventory, re-emits the recorded route
+decisions and requires its exact union count and envelope to equal the manifest.
+This establishes recovery of the recorded geometry; it does not rerun the
+original routing guards or establish timing and runtime behavior. It cannot
+recover the earlier interrupted trial, which never wrote a complete manifest.
+
+Sixteen focused tests reproduce the small pipeline's 10,340 unique states,
+10,532 emitted operations and every input, output and handoff position against
+the independently retained positive/negative engine cases. They also enforce
+the original complete graph inventory and cover missing or duplicate modules,
+escapes, clusters, contacts, access faces, integer aliases and source bindings.
+The generic reader/restorer also works without POSIX process-measurement APIs;
+optional CLI memory reporting explicitly marks unavailable measurements.
+The interface-only selected leaf has additionally been recovered end to end:
+19,158 unique blocks in 145 chunks match its original exact union. The larger
+parent 221 recovery remains a separate gate until its manifest exists.
+
+### Resume the measured apron without accepting old geometry
+
+The separate `apron_recovery.py` helper can start the same parent and child
+packing at a previously measured apron. It requires the retained evidence's
+exact SHA-256, matching full graph/topology and every original source binding.
+The isolated placement snapshot is unchanged. All escape allocation, emitted
+block checks, export exposure, literal union and later runtime gates still run;
+the evidence supplies no routes or blocks. Other parents and packing choices
+keep their original behavior.
+
+For the interrupted parent 221 measurement, this skips the redundant 24-block
+row-apron measurement and starts that row attempt at the measured 1,874 blocks:
+
+```sh
+python experiments/partition_placement/raised_exports/run.py geometry --cluster 221 --literal-union --resume-apron-evidence experiments/partition_placement/raised_exports/evidence/parent221-interrupted.json --resume-apron-sha256 55dd207938220fae91cf1c759d35380a35e4a5954acd5b4efbcc5db746723afe --output build/raised-parent221-resumed.json
+```
+
+This command has not established a new parent-221 result. The 20 focused
+recovery tests verify source binding, exact small-hierarchy geometry, finite
+monotonic retries and propagation of all actual route/export failures. The full
+cache controller and its real memory connection have priority over another
+large compaction retry.
+
+## Runtime regressions
+
 Set `SHAMA_MCHPRS_RUNNER` to the built pinned actual redstone engine, then run the
 complete positive/negative small proof and the unchanged placement regressions:
 

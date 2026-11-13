@@ -81,15 +81,26 @@ common clock delivery latency is 2,642 redstone
 ticks; that is not a measured operating period or a complete timing result.
 The [cache integration experiment](../experiments/memory_controller_runtime/README.md)
 retains failed clock-space attempts, the accepted layout and its frozen sources.
+Its first full native clock attempt was killed externally after 123 seconds at
+2,918,304 KiB peak resident memory, before producing any result. The specific
+kill cause is unconfirmed; the 351,361,973-byte validated input stream and native
+world remain reusable. The
+[interruption record](../experiments/memory_controller_runtime/evidence/cache-controller-native-clock-interruption.json)
+keeps this execution incomplete and leaves clock/runtime acceptance false.
 
 An audit of the earlier controller placement found 87 of 183 straight external
 port approaches obstructed. Additional real wires now carry original ports
 through their ancestors to exterior contacts in a small complete pipeline;
 the original graph pins remain intact. Passing and deliberately too-fast
 engine tests exercise that circuit, and a separate manifest retains every
-added wire. The full-controller exterior and physically connected cache/memory
-execution remain the next integration gates. A resource-limited partial trial
-does not count as a complete externally connectable controller.
+added wire. A saved/reopened small pipeline also matches every positive and
+deliberately too-fast reference signal, and actual external-router wires reach
+all six exterior pins without entering the component volume. The 1,228 MiB and
+2,048 MiB capped full-controller trials both ended incomplete; the latter
+finished delivery of all 183 pins through an ancestor but exhausted its memory
+budget at the final root. The full-controller exterior and physically connected
+cache/memory execution remain the next integration gates. These partial trials
+do not count as a complete externally connectable controller.
 
 ## Current 200 KiB integration checkpoint
 
@@ -174,7 +185,11 @@ The separate [branch-column experiment](../experiments/partition_placement/branc
 removes another 116 blocks on that small pipeline, with its 74-chunk footprint
 unchanged. Its 67 original-router and 45 combined placement/clock cases pass.
 A conservative escape-prefix precheck also preserves the independently audited
-64-case geometry corpus; its full 896-endpoint equivalence run is pending.
+64-case geometry corpus. Its completed 896-endpoint comparison matches all
+8,472,352 directional block-state operations, but allocation is 3.26% slower in
+that run, so the candidate remains experimental. The retained comparison and
+its subsequent binding/worker-cleanup guards are described in the
+[experiment report](../experiments/partition_placement/prefix_precheck/README.md).
 Neither experiment weakens the existing collision, headroom or timing checks.
 
 The [native-world runner](NATIVE_RUNTIME.md) now imports every saved section into

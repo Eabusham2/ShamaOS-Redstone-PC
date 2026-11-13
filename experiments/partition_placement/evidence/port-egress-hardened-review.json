@@ -1,0 +1,54 @@
+{
+  "status": "hardened-facade-focused-tests-passed",
+  "scope": "Experimental actual ancestor I/O wiring, strict retained source/graph/schema bindings, small native saved-world and external-interface runtime; complete cache and machine remain unverified",
+  "source_hashes": {
+    "experiments/partition_placement/audit_port_egress.py": "3889d855c444b099f8d896a29f7fbee4033b1f4269bb86feee864cf60f494173",
+    "experiments/partition_placement/run_port_egress_audit.py": "7af49c81aa344663507559f4b1a428c3b220ca78c3cd91f4e70a6bf57d196a93",
+    "experiments/partition_placement/port_egress.py": "35c209b4b56b32f76309ea0337f6c346d0d65ce328fc943fe401defbd002d281",
+    "experiments/partition_placement/port_egress_manifest.py": "0878d3f589bfe6607bcd126c3ab0d58ff66c24f7be997c30d8d4596896710c6c",
+    "experiments/partition_placement/port_egress_interfaces.py": "e47dffef1f73ad0141a5230f3fe294e4852f13cd0cb3a10a1364d91e5f79f5a2",
+    "experiments/partition_placement/run_port_egress.py": "7f726e81247b3e9f642812463d8c403613eee8a9fdb5e7d95cf4ae1f52c3ec7c",
+    "tests/test_port_egress_audit.py": "442690bfd8251abb990411df1be7869c994f363bc21a573a42f90d3a936611d8",
+    "tests/test_port_egress_placement.py": "4a0a2eca4daa855f1add7773366dc76d1558afbf0f5ea0deb9e117ab3e0de9b7",
+    "tests/test_port_egress_interfaces.py": "763781c4156e7bace7b16d9d7c212939ed7fe9e07bf739a9d523fff87509de6e",
+    "tests/test_port_egress_saved_world.py": "1f2a1dbf16d2abe721210ea2ba105f064d4e9b251b8f92c006b093c009c65791"
+  },
+  "tests": [
+    {
+      "path": "experiments/partition_placement/evidence/port-egress-hardened-tests.xml",
+      "sha256": "a91fe235cfb446b7f2aa47635e8e8555c4edbcd4426af5a60f5e518850e4f0ff",
+      "tests": 45,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    },
+    {
+      "path": "experiments/partition_placement/evidence/port-egress-hardened-saved-tests.xml",
+      "sha256": "fed002ff31e62ad80ec8224bf5cfab6a667599c93161987929857f4241b364af",
+      "tests": 2,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    }
+  ],
+  "total_tests": 47,
+  "complete_cache_facade_verified": false,
+  "whole_computer_runtime_verified": false,
+  "full_cache_trials": [
+    {
+      "path": "experiments/partition_placement/evidence/cache-facade-cap1228-incomplete.json",
+      "status": "resource-incomplete",
+      "complete_geometry_verified": false
+    },
+    {
+      "path": "experiments/partition_placement/evidence/cache-facade-cap2048-incomplete.json",
+      "status": "resource-incomplete",
+      "complete_geometry_verified": false
+    }
+  ],
+  "followup_ci_runner_review": {
+    "path": "docs/evidence/terrain-reference-ci-fix-2026-11-13.json",
+    "sha256": "d3e8d307647b92da72b74938e075270eecd9825297a567c56be6945b2040e3bd",
+    "scope": "Original report remains bound to its original test sources; two saved-world cases now explicitly use reproducibly built terrain runners and pass with ordinary runners configured separately."
+  }
+}

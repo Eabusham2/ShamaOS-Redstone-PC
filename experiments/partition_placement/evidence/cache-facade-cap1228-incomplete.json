@@ -1,0 +1,43 @@
+{
+  "scope": "Complete partition with actual original-I/O facade; connected memory and runtime remain separate gates",
+  "source_hashes": {
+    "src/shamaos/model.py": "1a0fd1f9eb9469989057e4486401e5161e7f0bb02eb69195b7a14a74e92f4b95",
+    "src/shamaos/synthesis.py": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274",
+    "src/shamaos/hardware/partition_planner.py": "82e7f39548af7443b29ffd322a118cb42474f6f0bf3da2273b1ecdefb38164b4",
+    "src/shamaos/hardware/partition_placement.py": "10c6a4b5aba6b5c4776326d0a863bf57cd1fc5b0d216115ca496d851d6a82e90",
+    "src/shamaos/hardware/local_router.py": "63054c806442499ba0aa27f65b1ec2b35c339c0c8595521dbc3097a334307bc6",
+    "src/shamaos/hardware/external_router.py": "96834193a37bb485ab225ea21dc1ae460afcc3ab9ac41a434e45660be2f7666d",
+    "src/shamaos/hardware/memory.py": "f44923cd4376d10fb2f62d5daf3bf752fe340e269355ac3564fd26ee2b5a8517",
+    "src/shamaos/hardware/routing.py": "d2b885f908a5942036269992c3fff7e3eb19ffe5a4753b97f5494aaf7120ccce",
+    "src/shamaos/hardware/logic.py": "84a4f2cc3c535628ccd4e16ae0480b3cc99310f1fb83fe28f98d98b621ab1dff",
+    "experiments/memory_controller_runtime/clock_reserve.py": "6a5bd0ba923dbb6aabf0046ad6a487905043373854e76bdec502432db815d8fb",
+    "experiments/partition_placement/port_egress.py": "5200b514edf6a45736b9fe4964dc0aa07590f8f072529ced3d1e62a1bfe509d8",
+    "experiments/partition_placement/port_egress_manifest.py": "9c8e3659c2404a5d3e80b9662476fa205e80b4e8bd1745a6560e4d235efcbf0e",
+    "experiments/partition_placement/raised_exports/replay_manifest.py": "308075b05664930ed457ca14054943bc7370e07ac45a86f54a9716ebf2c26ddb",
+    "experiments/partition_placement/raised_exports/streamed_union.py": "4732f29067e5d7aff013a9d2a5565e8e7037e4259b6cc1b74ffb0e45fd84281d",
+    "experiments/partition_placement/run_port_egress.py": "4d3d52617370a2c9fa64b400c0d327510ff155c2095a6ef84f803a19b023f59f"
+  },
+  "clock_padding_blocks": 128,
+  "memory_limit_mib": 1228,
+  "wall_limit_seconds": 1800,
+  "runtime_verified": false,
+  "whole_computer_verified": false,
+  "mapped_source": {
+    "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/experiments/memory_controller_runtime/evidence/cache-controller-c331.json.gz",
+    "sha256": "d4989124e9dca8b5afa865d954ded3be680b99f0b1e2f472aed6b5ecc42dd468",
+    "container_sha256": "33016917c70829684a45758a1a2164791f514803394101a6bde3ea19cafca8c0",
+    "encoding": "gzip",
+    "top": "shama_cache_adapter",
+    "raw_cells": 1144,
+    "lowered_cells": 1144,
+    "lowering_source_sha256": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274"
+  },
+  "plan_sha256": "0c81a0a49d447669adfc82facb682b805fbdd72df5690acb6f22b7a6a3a30362",
+  "topology_sha256": "aabd37d3322b1eac9571b541e9558a9b835afeb44ece93987081a21185950e97",
+  "status": "failed",
+  "error": "",
+  "traceback": "Traceback (most recent call last):\n  File \"/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/experiments/partition_placement/run_port_egress.py\", line 86, in main\n    placed = place_with_egress(graph, plan, maximum_y=args.maximum_y, balance_clocks=False, progress=progress)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/experiments/partition_placement/port_egress.py\", line 257, in place_with_egress\n    placed = visit(plan[\"root_cluster\"], maximum_y)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/experiments/partition_placement/port_egress.py\", line 246, in visit\n    children = tuple(visit(child, limit - context.route_height(cluster_id)) for child in cluster[\"children\"])\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/experiments/partition_placement/port_egress.py\", line 246, in <genexpr>\n    children = tuple(visit(child, limit - context.route_height(cluster_id)) for child in cluster[\"children\"])\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/experiments/partition_placement/port_egress.py\", line 247, in visit\n    result = _parent(context, cluster_id, children, limit)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/experiments/partition_placement/port_egress.py\", line 79, in _parent\n    result = _connect_parent(context, cluster_id, packed, maximum_y, packing)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/experiments/partition_placement/port_egress.py\", line 96, in _connect_parent\n    placed = _connect_attempt(context, cluster_id, children, maximum_y, packing, apron)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/experiments/partition_placement/port_egress.py\", line 207, in _connect_attempt\n    states = base._literal_states(tile.iter_placements())\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/src/shamaos/hardware/partition_placement.py\", line 134, in _literal_states\n    previous = states.setdefault(placement.pos, placement.block)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nMemoryError\n",
+  "seconds": 174.58652516000438,
+  "peak_rss_kib": 1200864,
+  "recovery_classification": "resource-incomplete: explicit address-space cap raised MemoryError before full geometry or union; no layout rejection or runtime claim"
+}

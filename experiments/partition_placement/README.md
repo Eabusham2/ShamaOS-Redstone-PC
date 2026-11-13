@@ -94,6 +94,80 @@ and real saved-world execution of the complete computer. A parent exceeding the
 explicit 4,096-prefix allocation budget fails and requires real horizontal banks
 with all delivery paths; allocating empty bank boxes cannot satisfy that gate.
 
+## Original I/O requires an exterior connection
+
+`PlacedCluster.ports` records original pins in their leaf circuits. Recursive
+packing preserves their positions but does not guarantee that they sit on the
+completed partition's outside boundary. The complete graph audit intentionally
+checks those original leaf contacts. A shell must not treat them as proven
+exterior contacts or relocate their coordinates without actual connecting wire.
+
+`audit_port_egress.py` streams the actual emitted blocks to check a candidate
+straight South corridor from every original pin to a separate exterior row.
+It checks exact block conflicts, active-wire adjacency, existing climbing
+headroom and clashes between candidate corridors, retaining original port
+identity and direction. It emits no wires and makes no runtime claim. Nine
+focused tests cover valid same-net handoff, missing original pins and each
+obstruction class. A blocked corridor requires another fully checked route or
+reserved egress through its ancestors before a partition can join the shell.
+
+The full 1,144-cell cache measurement confirms that this is a real constraint:
+the scan inspected 9,791,996 emitted operations and found 87 of 183 straight
+South original-pin corridors blocked. The source-bound report is
+`evidence/cache-original-port-egress-padding64.json`; the scan does not claim
+that no alternative route exists.
+
+### Constructive original-I/O facade
+
+`port_egress.py` reserves and routes original-pin delivery through each ancestor
+while its normal graph boundary wires are being allocated. Both use the same
+shared escape allocator and the original emitted-block isolation, child-envelope
+and height guards. Original mapped pins remain in `ports`; `exposed_ports` is a
+separate map of actual outer contacts. Every additional wire-only facade module
+and directed handoff has its own conservation audit. No native cell, graph net,
+constant or original port is removed or substituted.
+
+The two-ancestor pipeline retains all 3 native cells, 6 original pins, 18 graph
+handoffs and 3 constants, and adds 6 facade modules with 11 original-I/O handoffs.
+Its complete literal union has 26,422 blocks. Real engine tests driving and
+observing the exterior contacts pass all 16 transfers at a 512 RT half-period,
+with zero register-clock skew, 850 RT minimum setup and 87 RT minimum hold.
+The 20 RT negative retains all 16 clock edges but exposes eight wrong transfers.
+The positive and negative reports are in `evidence/port-egress-pipeline-*.json`.
+
+The separate `port_egress_manifest.py` format includes every additional module,
+exposed contact and handoff. Its reader reconstructs and audits both the original
+graph and facade; the ordinary graph-only replay rejects the distinct schema.
+The ordinary writer also rejects extension-bearing clusters anywhere in the
+hierarchy, so it cannot silently omit facade wires. The specialized disk reader
+checks the recorded manifest digest, exact mapped identity, canonical plan and
+topology, and every required generator source hash within its source root. Pure
+typed reconstruction performs the graph and schema checks but does not certify
+source files or electrical isolation. Its clock audit explicitly covers the
+original input pin onward; exterior clock delivery adds a separate common path.
+
+The hardened facade, obstruction and external-interface suites pass 45 tests
+without skips, including missing/reversed/invented connections, stale or escaped
+source bindings, malformed nested data, and the actual-engine timing cases.
+Two additional saved-world tests reopen all 26,422 circuit blocks exactly and
+compare every declared signal with the dense reference engine: 1,198,080 samples
+for the passing timing case and 489,600 for the deliberately failing fast case.
+Their reports are `evidence/port-egress-saved-*.json`. The external-interface
+adapter routes to the actual outer contacts while retaining the complete
+component envelope and contact keepouts; the six-pin pipeline passes with those
+additional external routes too.
+
+The complete cache facade is still incomplete. An explicitly capped 1,228 MiB
+trial completed the 128-port ancestor before exhausting host memory. The next
+2,048 MiB trial completed the 183-port ancestor but exhausted host memory while
+copying the next parent domain's literal states into a second union dictionary.
+Neither trial reached a complete root manifest, final union or runtime proof.
+Their unchanged source-bound reports and progress are retained as
+`evidence/cache-facade-cap1228-*` and `evidence/cache-facade-cap2048-*`. The next
+step is to remove duplicate host-side state storage while preserving exact
+collision, adjacency, headroom and child-envelope checks. The small pipeline is
+not a full-cache result.
+
 ## Reproduce
 
 Run from the repository with its Python dependencies installed. The positive

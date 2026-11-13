@@ -380,14 +380,25 @@ tests/mchprs_sparse_runtime/target/release/shama-sparse-world-check \
 
 For an exact superflat import, prepare the isolated terrain build from the
 unchanged pinned MCHPRS checkout. `--build` uses already cached dependencies and
-records the patch hash in the executable. CI obtains that checkout from Cargo's
-resolved dependency metadata.
+builds both `shama-sparse-world-check-terrain` and the
+`shama-dense-world-check-terrain` reference harness from the same audited patch.
+The sparse executable records the patch hash; the build provenance also binds
+both unchanged harness sources and their original dependency locks. CI obtains
+the pinned checkout from Cargo's resolved dependency metadata. Ordinary-registry
+runners remain separate binaries and still reject unsupported native terrain.
 
 ```sh
 python tools/prepare_mchprs_terrain_registry.py \
   --source /path/to/pinned-MCHPRS-checkout \
   --output build/mchprs-terrain --build
 ```
+
+Terrain-bearing saved-world tests select `SHAMA_MCHPRS_TERRAIN_RUNNER` and
+`SHAMA_MCHPRS_DENSE_TERRAIN_RUNNER` explicitly. The
+[CI integration review](evidence/terrain-reference-ci-fix-2026-11-13.json)
+retains the initial wrong-runner failures and six passing checks after this
+reproducible build/selection correction, including both timing cases, ordinary
+logic, native memory/entities and registry preservation.
 
 Reproduce both full-bank formats, exact-state comparisons, actual-engine runs
 and external process-memory measurements with the portable benchmark. Use an

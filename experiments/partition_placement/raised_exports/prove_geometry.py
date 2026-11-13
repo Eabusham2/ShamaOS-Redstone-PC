@@ -42,9 +42,15 @@ def main() -> int:
                         help="Materialize the final block union for an independent count; uses more memory")
     parser.add_argument("--parent-north-lanes", type=int,
                         help="Diagnostic bounded-parent override;128 reproduces the retained earlier limit")
+    parser.add_argument("--resume-apron-evidence", type=Path,
+                        help="Retained source-bound completed parent emission used only as a starting-apron hint")
+    parser.add_argument("--resume-apron-sha256",
+                        help="Exact SHA-256 of --resume-apron-evidence; both arguments are required together")
     parser.add_argument("--output", type=Path,
                         default=REPOSITORY / "build/partition-placement/raised-exports/geometry.json")
     args = parser.parse_args()
+    if bool(args.resume_apron_evidence) != bool(args.resume_apron_sha256):
+        parser.error("--resume-apron-evidence and --resume-apron-sha256 are required together")
     if args.parent_north_lanes is not None and args.parent_north_lanes < 1:
         parser.error("--parent-north-lanes must be a positive integer")
     if args.parent_north_lanes is not None:
@@ -90,6 +96,14 @@ def main() -> int:
     report["effective_partition_placement_sha256"] = hashlib.sha256((Path(__file__).parent / "partition_placement.py").read_bytes()).hexdigest()
     report["proof_driver_sha256"] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
     report["streamed_union_sha256"] = hashlib.sha256((Path(__file__).parent / "streamed_union.py").read_bytes()).hexdigest()
+    if args.resume_apron_evidence:
+        from shamaos.hardware import partition_placement
+        from apron_recovery import install_recovery_hint, load_recovery_hint
+        hint = load_recovery_hint(args.resume_apron_evidence, args.resume_apron_sha256,
+                                  report, context.clusters)
+        hint["helper_sha256"] = hashlib.sha256((Path(__file__).parent / "apron_recovery.py").read_bytes()).hexdigest()
+        report["apron_recovery"] = hint
+        install_recovery_hint(partition_placement, hint)
     records = []
     started = time.monotonic()
     args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -143,7 +157,8 @@ def main() -> int:
                         "mapped_source": report["mapped_source"],
                         "source_hashes": report["source_hashes"],
                         "experimental_geometry": report["experimental_geometry"],
-                        "effective_partition_placement_sha256": report["effective_partition_placement_sha256"]})
+                        "effective_partition_placement_sha256": report["effective_partition_placement_sha256"],
+                        "apron_recovery": report.get("apron_recovery")})
         if report["complete_partition"]:
             report["structural_audit"] = audit_placement(graph, plan, placed)
             if args.balance_clocks:

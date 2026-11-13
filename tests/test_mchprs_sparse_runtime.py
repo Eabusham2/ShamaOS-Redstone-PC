@@ -79,8 +79,9 @@ def _dense_case(world, scenario):
     return case
 
 
-def _compare_dense(world, scenario, sparse):
-    result = subprocess.run([_runner("SHAMA_MCHPRS_RUNNER")], input=json.dumps(_dense_case(world, scenario)),
+def _compare_dense(world, scenario, sparse, *, runner=None):
+    selected = _runner("SHAMA_MCHPRS_RUNNER") if runner is None else runner
+    result = subprocess.run([selected], input=json.dumps(_dense_case(world, scenario)),
                             text=True, capture_output=True, timeout=60)
     assert result.returncode == 0, result.stdout[-4000:] + result.stderr[-4000:]
     reference = json.loads(result.stdout)

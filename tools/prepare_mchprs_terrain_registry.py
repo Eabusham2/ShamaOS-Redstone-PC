@@ -3,6 +3,8 @@
 The pinned engine ships the authoritative Java registry but omits these blocks
 from its implemented subset. Only generated registration/classification is
 extended. Redstone source and all pre-existing block arms are unchanged.
+Both sparse native-world and dense reference harnesses use that same extension;
+their original unmodified-registry binaries remain separate build targets.
 """
 from __future__ import annotations
 
@@ -31,6 +33,39 @@ def insert_method(text, method, anchor, added):
     assert section.count(anchor) == 1, (method, anchor)
     section = section.replace(anchor, anchor + added)
     return text[:start] + section + text[end:]
+
+
+def prepare_runner(root: Path, *, directory: str, original_manifest: Path,
+                   original_name: str, name: str, terrain_feature: bool = False) -> dict:
+    """Write a private harness project using unchanged source and lock seed."""
+    runner = root / directory
+    runner.mkdir(exist_ok=True)
+    original = original_manifest.read_text()
+    package = f'name = "{original_name}"'
+    if original.count(package) != 1:
+        raise ValueError("original terrain harness package identity is ambiguous")
+    manifest = original.replace(package, f'name = "{name}"', 1)
+    if terrain_feature:
+        feature = '[features]\nterrain_registry = []'
+        if manifest.count(feature) != 1:
+            raise ValueError("sparse harness terrain feature declaration changed")
+        manifest = manifest.replace(feature, '[features]\ndefault = ["terrain_registry"]\nterrain_registry = []', 1)
+    source = original_manifest.parent / "src/main.rs"
+    manifest += '\n[[bin]]\nname=' + json.dumps(name) + '\npath=' + json.dumps(str(source)) + '\n'
+    manifest += '\n[patch."https://github.com/MCHPR/MCHPRS"]\nmchprs_blocks={path="../vendor/mchprs/crates/blocks"}\n'
+    (runner / "Cargo.toml").write_text(manifest)
+    # Preserve every non-local dependency resolution from the pinned harness.
+    # Cargo makes the copied block crate and its pinned path dependencies local.
+    original_lock = original_manifest.with_name("Cargo.lock")
+    lock = original_lock.read_text()
+    if lock.count(package) != 1:
+        raise ValueError("original terrain harness lock identity is ambiguous")
+    (runner / "Cargo.lock").write_text(lock.replace(package, f'name = "{name}"', 1))
+    return {"manifest": str(runner / "Cargo.toml"), "binary_name": name,
+            "manifest_sha256": sha(runner / "Cargo.toml"),
+            "original_manifest_sha256": sha(original_manifest),
+            "original_lock_sha256": sha(original_lock), "unchanged_source": str(source),
+            "unchanged_source_sha256": sha(source)}
 
 
 def prepare(source: Path, output: Path) -> dict:
@@ -121,19 +156,16 @@ def prepare(source: Path, output: Path) -> dict:
     expected_patch = REPOSITORY / "tests/mchprs_sparse_runtime/native-terrain-registry.patch"
     if patch != expected_patch.read_text():
         raise ValueError("generated terrain extension differs from the audited patch")
-    runner = ROOT / "terrain-runner"
-    runner.mkdir(exist_ok=True)
-    original_manifest = REPOSITORY / "tests/mchprs_sparse_runtime/Cargo.toml"
-    manifest = original_manifest.read_text().replace('name = "shama-sparse-world-check"', 'name = "shama-sparse-world-check-terrain"')
-    manifest = manifest.replace('[features]\nterrain_registry = []', '[features]\ndefault = ["terrain_registry"]\nterrain_registry = []')
-    manifest += '\n[[bin]]\nname="shama-sparse-world-check-terrain"\npath=' + json.dumps(str(original_manifest.parent / "src/main.rs")) + '\n'
-    manifest += '\n[patch."https://github.com/MCHPR/MCHPRS"]\nmchprs_blocks={path="../vendor/mchprs/crates/blocks"}\n'
-    (runner / "Cargo.toml").write_text(manifest)
-    # Preserve the exact cached non-local dependency resolution. Cargo will add
-    # the three local patched crates when it first builds this private copy.
-    lock = original_manifest.with_name("Cargo.lock").read_text().replace('name = "shama-sparse-world-check"', 'name = "shama-sparse-world-check-terrain"')
-    (runner / "Cargo.lock").write_text(lock)
-    report["runner_manifest"] = str(runner / "Cargo.toml")
+    report["runners"] = {
+        "sparse": prepare_runner(ROOT, directory="terrain-runner",
+            original_manifest=REPOSITORY / "tests/mchprs_sparse_runtime/Cargo.toml",
+            original_name="shama-sparse-world-check", name="shama-sparse-world-check-terrain", terrain_feature=True),
+        "dense": prepare_runner(ROOT, directory="dense-terrain-runner",
+            original_manifest=REPOSITORY / "tests/mchprs_runtime/Cargo.toml",
+            original_name="shama-redstone-check", name="shama-dense-world-check-terrain"),
+    }
+    report["runner_manifest"] = report["runners"]["sparse"]["manifest"]
+    report["dense_runner_manifest"] = report["runners"]["dense"]["manifest"]
     (ROOT / "terrain-engine-provenance.json").write_text(json.dumps(report, indent=2) + "\n")
     return report
 
@@ -145,11 +177,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source", type=Path, required=True, help="unchanged pinned MCHPRS checkout")
     parser.add_argument("--output", type=Path, required=True, help="private generated engine/build directory")
-    parser.add_argument("--build", action="store_true", help="build offline using already cached Rust dependencies")
+    parser.add_argument("--build", action="store_true", help="build both terrain harnesses offline using cached Rust dependencies")
     args = parser.parse_args()
     report = prepare(args.source, args.output)
     if args.build:
         environment = dict(os.environ, SHAMA_TERRAIN_PATCH_SHA256=report["patch_sha256"])
-        subprocess.run(["cargo", "build", "--offline", "--release", "--manifest-path", report["runner_manifest"]],
-                       env=environment, check=True)
+        for runner in report["runners"].values():
+            subprocess.run(["cargo", "build", "--offline", "--release", "--manifest-path", runner["manifest"]],
+                           env=environment, check=True)
     print(json.dumps({key: value for key, value in report.items() if key != "redstone_source_unchanged_sha256"}, indent=2))

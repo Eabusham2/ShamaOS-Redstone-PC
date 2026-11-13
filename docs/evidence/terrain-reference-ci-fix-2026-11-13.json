@@ -1,0 +1,56 @@
+{
+  "schema": "terrain-reference-ci-fix-v1",
+  "created_utc": "2026-11-13T05:36:56.905951+00:00",
+  "status": "passed",
+  "scope": "Reproducible sparse/dense reference runner registration for actual terrain-bearing native fixtures; no complete cache or machine runtime acceptance",
+  "initial_root_failures": {
+    "saved_world_cases": 2,
+    "first_reason": "Ordinary sparse runner explicitly rejected native bedrock",
+    "second_reason": "After selecting sparse terrain runner, ordinary dense runner explicitly rejected native bedrock",
+    "preserved_junits": [
+      "build/port-egress-root-review.xml",
+      "build/port-egress-terrain-root-review.xml"
+    ]
+  },
+  "correction": "Build both terrain harnesses from the same existing audited registry patch and select them explicitly for the terrain-bearing saved facade. Existing ordinary comparison defaults remain unchanged.",
+  "validated_cases": [
+    "tests.test_port_egress_saved_world::test_saved_facade_matches_dense_engine_at_every_original_and_handoff_pin[512-True]",
+    "tests.test_port_egress_saved_world::test_saved_facade_matches_dense_engine_at_every_original_and_handoff_pin[20-False]",
+    "tests.test_mchprs_sparse_runtime::test_actual_sparse_saved_logic_matches_every_dense_tick",
+    "tests.test_mchprs_sparse_runtime::test_actual_terrain_sparse_world_preserves_stacked_memory_and_native_entities",
+    "tests.test_mchprs_sparse_runtime::test_unmodified_engine_explicitly_rejects_unsupported_superflat_terrain",
+    "tests.test_mchprs_sparse_runtime::test_terrain_registry_preserves_all_existing_states_and_properties"
+  ],
+  "tests": {
+    "count": 6,
+    "errors": 0,
+    "failures": 0,
+    "skips": 0,
+    "junit_sha256": "e47ec517b997ec76a5bda02ea01b87357fd9fa85f15b67d0a54366e2587eb0bf"
+  },
+  "source_sha256": {
+    "tools/prepare_mchprs_terrain_registry.py": "1a30269043b26b833ae68ff841d8b5534aa61aedc4d4bd6bd9cc56c06d84bea2",
+    ".github/workflows/ci.yml": "84947ff08a29124de6819a2a8b20a5876516c4c816d58c78caaa75ca59caf3ff",
+    "tests/test_mchprs_sparse_runtime.py": "098b73e0768a4838a82a155477a2d3d41da9d08de934a2a7d208a317feac9120",
+    "tests/test_port_egress_saved_world.py": "f7cf5b180c25ef0f32947c73411bb457ea4fc807ef4cedbfd8a581e80ce9550d",
+    "tests/mchprs_sparse_runtime/native-terrain-registry.patch": "8ebd0e097d07e93a6b2b158e08ad19c2660b0b7e2521c6b6d34a4583a10bfbdc",
+    "tests/mchprs_runtime/src/main.rs": "fe5fec86d2b25a1f6433f489f796cd63062ba8a0e0e5667fcc132dccb66b8316",
+    "tests/mchprs_sparse_runtime/src/main.rs": "90dd9714e6bd7e4f6ae1c9b9e554c213e54f51c019c33aef79d31bc900995734"
+  },
+  "build_provenance": {
+    "path": "docs/evidence/terrain-reference-build-2026-11-13.json",
+    "sha256": "e7da65fb70a768f95461d94b0086f72016e728ab601c4878768dd4fa0e62f7b4"
+  },
+  "binaries": {
+    "shama-sparse-world-check-terrain": {
+      "path": "/workspace/scratch/fb0eaf1c89fe/experiments/dense-terrain-ci-fix/target/release/shama-sparse-world-check-terrain",
+      "sha256": "729917bce424383fff256debc07eb3104afcaf0b1a46303cf387172ee75bce82"
+    },
+    "shama-dense-world-check-terrain": {
+      "path": "/workspace/scratch/fb0eaf1c89fe/experiments/dense-terrain-ci-fix/target/release/shama-dense-world-check-terrain",
+      "sha256": "4c3b0e9986ad47488ac9bd9760237b1d2e708d8ebf8a08731bf5fe64ec6145c2"
+    }
+  },
+  "complete_machine_runtime_verified": false,
+  "connected_cache_runtime_verified": false
+}

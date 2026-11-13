@@ -1,0 +1,18 @@
+{
+  "clock_skew_ticks": 0,
+  "clock_edges": 16,
+  "half_period_redstone_ticks": 512,
+  "minimum_setup_ticks": 850,
+  "minimum_hold_ticks": 87,
+  "pipeline_failures": [],
+  "actual_ticks": 27648,
+  "topology_sha256": "79b15f06c8410678c43f75f89b167154f8280633e60e4f4a40138a86b393e498",
+  "exterior_original_ports": 6,
+  "facade": {
+    "status": "original-io-facade-structure-passed-runtime-unverified",
+    "original_port_bits": 6,
+    "facade_modules": 6,
+    "directed_handoffs": 11,
+    "runtime_verified": false
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "status": "cross-worker-bindings-and-inventories-pass",
+  "compared_fields": [
+    "fixture_sha256",
+    "input_provenance",
+    "shared_source_hashes",
+    "endpoint_count",
+    "north_lane_limit",
+    "allocated_prefixes",
+    "maximum_north_run_blocks",
+    "common_track_z",
+    "branch_y",
+    "trunk_y",
+    "branch_to_trunk_transition_included",
+    "endpoint_directions",
+    "emitted_state_operations",
+    "selected_escapes_sha256",
+    "all_directional_emissions_sha256"
+  ],
+  "endpoint_inventory": 896,
+  "direction_inventory": 1792,
+  "emitted_state_operations": 8472352,
+  "fixture_sha256": "8ce13972ba0c8238a8a5536ecf54077bfed6752d648c306353544019a5d2f228",
+  "exact_payloads": {
+    "baseline": {
+      "escaped_payload_sha256": "672043d4493a0610ff78962d87a3074b5c8b95a3af2f69ad492f03289caaaa8d",
+      "directional_payload_sha256": "d3d7cd38a2c8f7634f7a14c48206738027835702d743b7d15d0438ce14843204"
+    },
+    "candidate": {
+      "escaped_payload_sha256": "672043d4493a0610ff78962d87a3074b5c8b95a3af2f69ad492f03289caaaa8d",
+      "directional_payload_sha256": "d3d7cd38a2c8f7634f7a14c48206738027835702d743b7d15d0438ce14843204"
+    }
+  },
+  "loader_binding": {
+    "path": "experiments/partition_placement/replay_prefix.py",
+    "sha256": "fdf34c97162526d638210545edcb2797ec520df84efe8e9e88199a285a0e9343",
+    "git_blob": "187e5a52e8a1c7b7614507cf960a6ffff7104192",
+    "head_blob": "187e5a52e8a1c7b7614507cf960a6ffff7104192",
+    "unchanged_tracked_file": true,
+    "measurement_timing": "Post-run; earlier workers did not capture a start-time loader hash."
+  },
+  "scope": "Independent artifact/input binding checks; complete physical parent and whole-machine runtime remain separate gates"
+}

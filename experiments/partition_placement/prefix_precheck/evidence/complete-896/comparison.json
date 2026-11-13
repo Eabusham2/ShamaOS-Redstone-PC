@@ -1,0 +1,18 @@
+{
+  "status": "exact-896-endpoint-equivalence-passed",
+  "scope": "All retained selected prefixes and both electrical-direction state emissions; no complete parent/net-trunk or Minecraft runtime claim",
+  "endpoint_count": 896,
+  "source_and_sink_paths": 1792,
+  "emitted_state_operations": 8472352,
+  "selected_escapes_sha256": "672043d4493a0610ff78962d87a3074b5c8b95a3af2f69ad492f03289caaaa8d",
+  "all_directional_emissions_sha256": "ac5b052a539f6f5d93d3d2e92767b03f32ca7698ff4f0aa72bb492dd64ed90aa",
+  "allocation_seconds": {
+    "baseline": 337.9419948870054,
+    "candidate": 348.97402688500006
+  },
+  "fixture_sha256": "8ce13972ba0c8238a8a5536ecf54077bfed6752d648c306353544019a5d2f228",
+  "source_hashes": {
+    "baseline": "96834193a37bb485ab225ea21dc1ae460afcc3ab9ac41a434e45660be2f7666d",
+    "candidate": "0e9cba0c16c7be1916a9eea4f3f5fb28f9a50f92d41866417bc713d2f088bb0e"
+  }
+}
