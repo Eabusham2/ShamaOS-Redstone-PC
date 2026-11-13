@@ -31,6 +31,9 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# Match the console entry point and `python -m pytest`: repository experiments
+# are test helpers, while installable application modules remain under src.
+pythonpath = ["src", "."]
 addopts = "-q"
 
 [tool.setuptools.package-data]

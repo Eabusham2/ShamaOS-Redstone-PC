@@ -1,0 +1,3 @@
+# Source-bound hardware evidence must use identical bytes on every platform.
+# Automatic text detection keeps compressed artifacts and binaries unchanged.
+* text=auto eol=lf

@@ -1,0 +1,35 @@
+{
+  "schema": "pytest-entrypoint-portability-review-v1",
+  "base_commit": "3262f269e029a635416a0cd92ae5bb3749ea70e2",
+  "ci_failure": {
+    "run_id": 43376652779,
+    "job_id": 131724597473,
+    "reason": "pytest console entry point could not import repository experiments",
+    "reproduced_on_clean_checkout": true
+  },
+  "changes": [
+    "Add explicit src and repository root paths to pytest configuration.",
+    "Use LF for automatically detected text so source-bound evidence has identical checkout bytes; binary artifacts remain unchanged."
+  ],
+  "full_test_collection": "passed with env -u PYTHONPATH pytest --collect-only -q",
+  "focused_tests": {
+    "tests": 90,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "focused_command": "env -u PYTHONPATH [explicit native runner paths] pytest -q tests/test_geometry_manifest_replay.py tests/test_memory_controller_runtime_experiment.py tests/test_port_egress_interfaces.py tests/test_port_egress_placement.py tests/test_port_egress_saved_world.py",
+  "junit_sha256": "e15e0fbf7ccd39dc0b37852e856adb2755dd7705239088d1e81733fa17293790",
+  "source_hashes": {
+    ".gitattributes": "3a5df7bfb05a8c3648d3a33e351fbf435d772ecdb9d0254dbdfbc7e5dc6846b1",
+    "pyproject.toml": "64f16f21a2a15a1409def2e10a8e7d756a5ee44207369baddb284eb4f9f258e8"
+  },
+  "git_checkout_conversion_check": {
+    "core.autocrlf": true,
+    "pinned_sources_checked": 4,
+    "compressed_artifacts_checked": 2,
+    "before_fix": "All four pinned source digests changed under CRLF conversion.",
+    "after_fix": "All six files retained exactly their source bytes."
+  },
+  "scope": "Test discovery and source-byte portability; no hardware or application behavior change, no complete-world runtime claim."
+}
