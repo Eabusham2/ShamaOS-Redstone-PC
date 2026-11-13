@@ -1,0 +1,119 @@
+{
+  "artifact_hash_record": "connected-cache-loading.json:official_artifacts",
+  "global_256_forced_chunk_limit_claimed": false,
+  "inner_server_jar_sha256": "cbdcda0c55a9c9c38e04e6911e06802d3dec28ca249925104b7246e240e5215d",
+  "inspected_classes": {
+    "ChunkLevel": {
+      "finding": "Entity-ticking threshold is 31; block-ticking threshold is 32; full threshold is 33.",
+      "inspected_disassembly_sha256": "f2dabacb8add606555c7eed001633f53f7cc7b75a69ce99ecd0dbec45de9a75a",
+      "mapped_name": "net.minecraft.server.level.ChunkLevel",
+      "members": [
+        "byStatus(FullChunkStatus) -> a(amw)",
+        "isEntityTicking(int) -> c(int)",
+        "isBlockTicking(int) -> d(int)"
+      ],
+      "obfuscated_class": "amm"
+    },
+    "ChunkMap": {
+      "finding": "Server view setting clamps to 2..32. Player request clamps to 2..server view. Forced ticket level is ChunkLevel.byStatus(ENTITY_TICKING), level 31.",
+      "inspected_disassembly_sha256": "7d59599b5d27b63405222cf5f82c1b78349c6f2b1d9ef5c05c669c62c3152dc9",
+      "mapped_name": "net.minecraft.server.level.ChunkMap",
+      "members": [
+        "setServerViewDistance(int) -> a(int)",
+        "getPlayerViewDistance(ServerPlayer) -> b(ServerPlayer)",
+        "FORCED_TICKET_LEVEL -> c",
+        "static initializer"
+      ],
+      "obfuscated_class": "amn"
+    },
+    "ChunkTrackingView": {
+      "finding": "Contains passes includeOuter=true; inner predicate passes false. Exact rounded integer predicate is reproduced by calculate_requirements.py.",
+      "inspected_disassembly_sha256": "e484e9a256f119581ba3267093008e54ca4323fcae08191e444cd9a4c2252b58",
+      "mapped_name": "net.minecraft.server.level.ChunkTrackingView",
+      "members": [
+        "isWithinDistance(int,int,int,int,int,boolean) -> a(int,int,int,int,int,boolean)",
+        "contains(int,int) -> a(int,int)",
+        "isInViewDistance(int,int) -> b(int,int)"
+      ],
+      "obfuscated_class": "amr"
+    },
+    "ChunkTrackingView-Positioned": {
+      "finding": "forEach tests the default two-argument contains for each possible chunk; explicit contains delegates to the same static rounded predicate.",
+      "inspected_disassembly_sha256": "aa309f687e46e655128d9c84b9f6abdd9b4f4539ee449513a1b48235f2d74aa6",
+      "mapped_name": "net.minecraft.server.level.ChunkTrackingView$Positioned",
+      "members": [
+        "forEach(Consumer<ChunkPos>) -> a(Consumer)",
+        "contains(int,int,boolean) -> a(int,int,boolean)"
+      ],
+      "obfuscated_class": "amr$a"
+    },
+    "DistanceManager": {
+      "finding": "Forced ticket added to both normal and ticking trackers. Player ticket level is max(0,31-simulationDistance), so increasing the setting beyond 31 cannot continue lowering it.",
+      "inspected_disassembly_sha256": "1111e937fcbf001b4171aaf1310f40912d44ed146a4eebf0a18db365c243d0d9",
+      "mapped_name": "net.minecraft.server.level.DistanceManager",
+      "members": [
+        "updateChunkForced(ChunkPos, boolean) -> a(csw,boolean)",
+        "getPlayerTicketLevel() -> g()",
+        "updateSimulationDistance(int) -> b(int)"
+      ],
+      "obfuscated_class": "amv"
+    },
+    "ForceLoadCommand": {
+      "finding": "The one requested inclusive chunk rectangle is compared against 256. On acceptance, each coordinate is passed to setChunkForced; no total forced-set size check occurs in this method.",
+      "inspected_disassembly_sha256": "84793dcd3c66a768b9caf7d6587781f0f9e077232e25db2854807365dbf7d609",
+      "mapped_name": "net.minecraft.server.commands.ForceLoadCommand",
+      "members": [
+        "changeForceLoad(CommandSourceStack, ColumnPos, ColumnPos, boolean) -> a(ds,amt,amt,boolean)"
+      ],
+      "obfuscated_class": "ajk"
+    },
+    "Options": {
+      "finding": "Render-distance option range is 2..32 for the 64-bit / at-least-1,000,000,000-max-heap path, otherwise 2..16. Simulation-distance option is 5..32 or 5..16. Effective render distance is limited by server distance when positive.",
+      "inspected_disassembly_sha256": "921e7fca1dad6e2d419005ba53682a53688e141ec55f9720aca4926249bb2aa7",
+      "mapped_name": "net.minecraft.client.Options",
+      "members": [
+        "constructor",
+        "renderDistance -> as",
+        "simulationDistance -> at",
+        "getEffectiveRenderDistance() -> aA()"
+      ],
+      "obfuscated_class": "evm"
+    },
+    "ServerLevel": {
+      "finding": "Adds/removes the coordinate in ForcedChunksSavedData.LongSet, marks saved data dirty, and updates chunk forced ticket. No 256-cardinality check.",
+      "inspected_disassembly_sha256": "066f7203864ac5c2ed1c6293861bf2a1c488e42ccd5a7613cfc68a079a455bec",
+      "mapped_name": "net.minecraft.server.level.ServerLevel",
+      "members": [
+        "setChunkForced(int, int, boolean) -> a(int,int,boolean)"
+      ],
+      "obfuscated_class": "and"
+    }
+  },
+  "javap_invocation": [
+    "java",
+    "-Xmx128m",
+    "-m",
+    "jdk.jdeps/com.sun.tools.javap.Main",
+    "-classpath",
+    "<official-inner-server-or-client.jar>",
+    "-p",
+    "-c",
+    "-constants",
+    "<obfuscated-class>"
+  ],
+  "method": "Manual static review of official bytecode using Mojang mappings; deterministic geometry calculation recorded separately",
+  "review_date_utc": "2026-11-13",
+  "runtime_verified": false,
+  "schema": "shamaos-official-java-loading-review-v1",
+  "scope_exclusions": [
+    "No server launch or EULA acceptance",
+    "No force-load commands installed",
+    "No JVM memory or achieved-tick-rate measurement",
+    "No live client rendering or lamp-update observation",
+    "No claim that this cache fixture is the complete computer"
+  ],
+  "server_bundler_entry": "META-INF/versions/1.20.4/server-1.20.4.jar",
+  "version": "1.20.4",
+  "version_metadata_sha1": "bd984a42a9b403c620eae6cd77a1095850ca4479",
+  "version_metadata_url": "https://piston-meta.mojang.com/v1/packages/bd984a42a9b403c620eae6cd77a1095850ca4479/1.20.4.json"
+}

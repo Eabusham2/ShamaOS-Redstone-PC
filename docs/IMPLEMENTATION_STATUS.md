@@ -151,6 +151,15 @@ underway in that immutable checkout; connected cache transactions and
 persistence have not yet passed. This is a cache-fixture measurement, not the
 complete computer's footprint.
 
+The [pinned server/client loading audit](../experiments/world_loading_audit/README.md)
+confirms that successive legal vanilla Java 1.20.4 `/forceload` commands can
+request the occupied chunk set; actual resident chunks, host memory and achieved
+tick rate remain unmeasured. The stock MCHPRS server's plot boundaries and
+idle-plot ticking need implementation changes for this geometry. The current
+viewing lip also needs a lamp tracking radius of 39, beyond vanilla's server
+limit of 32. A closer viewing position is under review; no actual client viewing
+or playable-server acceptance is claimed.
+
 ## Current 200 KiB integration checkpoint
 
 The execution workspace has been restored and the owner's latest capacity

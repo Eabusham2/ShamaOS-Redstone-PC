@@ -1,0 +1,91 @@
+{
+  "status": "passed",
+  "scope": "Real small native fixture through the corrected process deadline monitor; all native semantics and exact snapshot bytes compared",
+  "source": {
+    "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-runtime-deadline/experiments/memory_controller_runtime/run_connected.py",
+    "sha256": "52f2188ff26b71bca1161b6d7a8a152485be24bb16594b72b062f6c67711a5df",
+    "bytes": 31076
+  },
+  "runtime_helper_sources": {
+    "experiments/memory_controller_runtime/run_connected.py": "52f2188ff26b71bca1161b6d7a8a152485be24bb16594b72b062f6c67711a5df",
+    "experiments/memory_controller_runtime/scenarios.py": "1319d9a6097909dd849ac59c855c17232fc2442624cb957fb000de37e8499b67",
+    "experiments/memory_controller_runtime/probe_controller.py": "d08649c2ee06c6ae9fa4aa1341d1fb27f1c99b1d9e4fbb915cd1707d1e7146ad",
+    "experiments/memory_controller_runtime/save_connected.py": "70c44d2fc3eee9f401911373b6a15f412a89da8cb84d4662bcfe36363bdec2ef",
+    "src/shamaos/mchprs_import.py": "0680be7ad82c53561bd1401be2b8133c7cd19a55b591bba6ea18410a6d5de0ea",
+    "src/shamaos/mchprs_snapshot.py": "e0c92da3d8ced59a65879a4fcc411ffbf994f625714d0fee0ba3adae52fcb91e",
+    "src/shamaos/worldio.py": "08e163497c981357b3aa4ce444709f38769001fb512700b0ffd2a8fc4ebda69c",
+    "src/shamaos/release_io.py": "5e1f310243d2325b9e4f6987649a770d2d4d03667cb66f5d442262fae43609c1",
+    "src/shamaos/model.py": "1a0fd1f9eb9469989057e4486401e5161e7f0bb02eb69195b7a14a74e92f4b95"
+  },
+  "historical_wrapper_source": {
+    "bytes": 29694,
+    "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-cache-native-f711/experiments/memory_controller_runtime/run_connected.py",
+    "sha256": "faccd37e13eab70a7eb8dd577501073b7f283e88ab10d081cc914f28100309d2"
+  },
+  "baseline_review": {
+    "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-runtime-deadline/experiments/memory_controller_runtime/evidence/independent_review/native-review.json",
+    "sha256": "995d2a76bccf0b4cb4e35aa3d83979fae80aa62c061d83a1445144715b8706f6",
+    "bytes": 7409
+  },
+  "harness": {
+    "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-runtime-deadline/experiments/memory_controller_runtime/evidence/runtime_deadline/check.py",
+    "sha256": "c303ec0d45e6e6b7268c39a1534f3c19f1223216e4987bcbefb0d36f2d7522c5",
+    "bytes": 4023
+  },
+  "runner": {
+    "path": "/workspace/scratch/fb0eaf1c89fe/experiments/cache-controller/lazy-native-promoted/target/release/shama-sparse-world-check-terrain",
+    "sha256": "16a981eca53535e8109f22090d8afcb2e5b0870d73ac4697083c01c0a84d6691",
+    "bytes": 1325480
+  },
+  "stream": {
+    "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/lazy-native-equivalence-v2/uniform-v2-memory/world.jsonl",
+    "sha256": "56c8ab1c5ce23cfcacba32174f5adbbd81eb3578f28dcc4ab4c2755c3f17d00e",
+    "bytes": 466848
+  },
+  "scenario": {
+    "path": "/workspace/scratch/fb0eaf1c89fe/experiments/world-runtime/fixtures/memory/scenario.json",
+    "sha256": "999cd8393b9eba249d2282741c0dd37d8354545b6503e843543fd7b9cd6636ac",
+    "bytes": 89990
+  },
+  "process": {
+    "exit_code": 0,
+    "wall_seconds": 1.0033076300023822,
+    "peak_rss_kib": 51340,
+    "user_cpu_seconds": 0.43842499999999995,
+    "system_cpu_seconds": 0.250473,
+    "address_space_limit_bytes": 536870912,
+    "cpu_limit_seconds": 60,
+    "wall_limit_seconds": 60,
+    "explicit_wall_timeout_reached": false,
+    "termination_signal": null,
+    "stdout": {
+      "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-runtime-deadline/build/runtime-deadline-native-parent/small-native-runtime.json",
+      "sha256": "625d7ff99992bc00924080b57dbe9f33405eb430a79bc52ae95dca198e1e2fc6",
+      "bytes": 7968893
+    },
+    "stderr": {
+      "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-runtime-deadline/build/runtime-deadline-native-parent/small-native-progress.jsonl",
+      "sha256": "0d12f991cd3ec6c18de6822de5c961c12a12ac2dc00953fdc6feaddd8aa38dce",
+      "bytes": 5593
+    },
+    "snapshot_file": {
+      "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-runtime-deadline/build/runtime-deadline-native-parent/small-native-snapshot.jsonl",
+      "sha256": "7f9d004d70bbe22a88f41093c99f8b8d2292da7b4923284506779a7d5ebaaa7b",
+      "bytes": 721277
+    }
+  },
+  "all_semantic_fields_and_traces_equal": true,
+  "trace_samples_compared": 1433600,
+  "declared_assertions": 5408,
+  "snapshot_bytes_identical": true,
+  "ignored_fields": [
+    "import_seconds",
+    "initialization_seconds",
+    "runtime_seconds",
+    "peak_rss_kib",
+    "snapshot.seconds",
+    "snapshot.path"
+  ],
+  "connected_cache_runtime_verified": false,
+  "complete_machine_runtime_verified": false
+}

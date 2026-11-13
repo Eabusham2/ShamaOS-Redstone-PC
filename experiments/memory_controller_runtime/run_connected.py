@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 from pathlib import Path
 import shutil
@@ -190,17 +191,24 @@ def execute(runner, stream, scenario, destination, name, maximum_chunks, *,
             "wall_limit_seconds": wall_seconds, "status": "running"})
         while True:
             pid, status, usage = os.wait4(process.pid, os.WNOHANG)
+            elapsed = time.monotonic() - started
+            timed_out = elapsed >= wall_seconds
             if pid:
                 process.returncode = os.waitstatus_to_exitcode(status)
                 break
-            if time.monotonic() - started > wall_seconds:
-                timed_out = True
-                process.send_signal(signal.SIGKILL)
+            if timed_out:
+                # Popen.send_signal may reap a child that exits between polls.
+                # Keep wait4 authoritative for its real status and accounting.
+                try:
+                    os.kill(process.pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
                 _, status, usage = os.wait4(process.pid, 0)
                 process.returncode = os.waitstatus_to_exitcode(status)
+                elapsed = time.monotonic() - started
                 break
-            time.sleep(0.5)
-    result = {"exit_code": process.returncode, "wall_seconds": time.monotonic() - started,
+            time.sleep(min(0.5, wall_seconds - elapsed))
+    result = {"exit_code": process.returncode, "wall_seconds": elapsed,
               "peak_rss_kib": usage.ru_maxrss, "user_cpu_seconds": usage.ru_utime,
               "system_cpu_seconds": usage.ru_stime, "address_space_limit_bytes": limit,
               "cpu_limit_seconds": wall_seconds, "wall_limit_seconds": wall_seconds,
@@ -211,6 +219,15 @@ def execute(runner, stream, scenario, destination, name, maximum_chunks, *,
         result["snapshot_file"] = _record(snapshot_path)
     _write(destination / f"{name}-process.json", result)
     return result
+
+
+def _completed_before_wall_deadline(case):
+    """A successful exit alone does not prove completion inside its budget."""
+    elapsed, limit = case.get("wall_seconds"), case.get("wall_limit_seconds")
+    return (case.get("explicit_wall_timeout_reached") is False
+            and type(limit) is int and limit >= 1
+            and type(elapsed) in (int, float) and math.isfinite(elapsed)
+            and 0 <= elapsed < limit)
 
 
 def _validate_result(result, imported, scenario_record, expected_steps, expected_ticks, expected_assertions):
@@ -231,6 +248,8 @@ def _validate_result(result, imported, scenario_record, expected_steps, expected
 
 def _evaluate_clock_case(case, imported, drive, clock_points, ready, period, settle_ticks):
     """Recompute acceptance from bound scenarios and complete native traces."""
+    if not _completed_before_wall_deadline(case):
+        raise ValueError("retained exterior-clock case did not complete before its wall deadline")
     _same(case["scenario"])
     _same(case["stdout"])
     scenario, samples = clock_scenario(drive, clock_points, ready,
@@ -310,6 +329,9 @@ def clocks(prepared_directory, runner, destination, *, half_period, settle_ticks
             _write(path, report)
             case.update(execute(runner, Path(prepared["stream"]["path"]), scenario_path, destination,
                                 name, imported["chunks"] + 128, **limits))
+            if not _completed_before_wall_deadline(case):
+                case["status"] = "execution-incomplete"
+                raise TimeoutError(f"complete connected {name} clock execution exceeded its wall deadline")
             if case["exit_code"]:
                 case["status"] = "execution-incomplete" if case["exit_code"] < 0 else "runner-rejected"
                 raise RuntimeError(f"complete connected {name} clock execution exited {case['exit_code']}")
@@ -391,6 +413,9 @@ def transactions(prepared_directory, runner, clock_report_path, destination, *,
             _write(path, report)
             case.update(execute(runner, stream, scenario_path, destination, name,
                                 imported_case["chunks"] + 128, snapshot=snapshot, **limits))
+            if not _completed_before_wall_deadline(case):
+                case["status"] = "execution-incomplete"
+                raise TimeoutError(f"actual connected {name} transaction execution exceeded its wall deadline")
             if case["exit_code"]:
                 case["status"] = "execution-incomplete" if case["exit_code"] < 0 else "runner-rejected"
                 raise RuntimeError(f"actual connected {name} transaction execution exited {case['exit_code']}")

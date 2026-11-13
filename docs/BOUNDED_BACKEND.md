@@ -136,10 +136,15 @@ and world-generation regressions remain required.
 
 ## Remaining full-machine gates
 
-The larger controller facade and connected physical cache fixture still need
-their own accepted geometry and runtime evidence. All complete production
-partitions must then be generated, joined and timed, including generated clocks
-and input pulse capture. Whole-machine loaded/ticking coverage and native
-boot, applications, save, shutdown and reopen remain unproved. The opt-in
-backend supplies the missing production integration seam; it does not change
-those completion requirements or mark the finished world ready for release.
+The larger controller facade and connected physical cache fixture now have
+accepted geometry: the complete cache fixture contains 37,102,012 unique
+blocks across 192,026 occupied chunks. Native writing and independent readback
+are underway; its exterior clocks, memory transactions and persistence still
+need runtime evidence. The retained
+[geometry checkpoint](../experiments/memory_controller_runtime/evidence/connected-cache-union-checkpoint.json)
+records the exact scope. All complete production partitions must then be
+generated, joined and timed, including generated clocks and input pulse
+capture. Whole-machine loaded/ticking coverage and native boot, applications,
+save, shutdown and reopen remain unproved. The opt-in backend supplies the
+missing production integration seam; it does not change those completion
+requirements or mark the finished world ready for release.

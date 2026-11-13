@@ -1,0 +1,164 @@
+{
+  "actual_client_view_verified": false,
+  "actual_server_runtime_verified": false,
+  "calculation_script_sha256": "55f39fd0d9e5aaed314241e725c5a5783b862bd835cbed2a7a115e18720205c4",
+  "complete_machine_runtime_verified": false,
+  "connected_report_snapshot_sha256": "48520efa53a3358bbcb08682274dd138ebbd63782d3188b71c12f31d76e3bb0f",
+  "connected_report_status_at_read": "running",
+  "facade_manifest_sha256": "3dc614564d5b57c3e31acff94ecc374260d27a8e8ea17594097fb8a85d0332df",
+  "geometry_calculations": {
+    "block_extent": {
+      "x": 9457,
+      "y": 379,
+      "z": 12201
+    },
+    "chunk_extent": {
+      "x": 592,
+      "z": 764
+    },
+    "chunk_max": {
+      "x": 591,
+      "z": 466
+    },
+    "chunk_min": {
+      "x": 0,
+      "z": -297
+    },
+    "enclosing_chunk_rectangle": 452288,
+    "force_load_command_area_limit": 256,
+    "minimum_anvil_bytes_recomputed": 788856832,
+    "minimum_chebyshev_radius_from_best_integer_chunk_center": 382,
+    "native_import_section_records_at_24_per_chunk": 4608624,
+    "occupied_chunk_command_count_lower_bound": 751,
+    "rectangle_16_by_16_batch_count": 1776
+  },
+  "literal_union": {
+    "bounds": {
+      "max": {
+        "x": 9456,
+        "y": 318,
+        "z": 7456
+      },
+      "min": {
+        "x": 0,
+        "y": -60,
+        "z": -4744
+      }
+    },
+    "minimum_anvil_bytes": 788856832,
+    "occupied_chunks": 192026,
+    "occupied_regions": 283,
+    "sorted_unique_record_sha256": "d7291152fc8dfd2ab0a575d74ae2e08d00f7cd9bbb285cc8b61112e8f9c40530",
+    "unique_blocks": 37102012
+  },
+  "local_source_sha256": {
+    "configs/default.toml": "630b70f01ac7de1f1b74250f8b454c9d090e461891f347fadc4c375c27cc5b20",
+    "src/shamaos/hardware/display.py": "63bcbc001029ba5c7b6ceb64e2e427fe5aefea6a0eedc7e739f5c2c4099172be",
+    "src/shamaos/hardware/viewing.py": "452d860a6149e5e623245025fd41b0558d23aed40380b70c755c27652b12a1ef",
+    "src/shamaos/layout.py": "e6db5143f7b2d9c0ae477e649cfc4421e476f14038fd861e8a65b1ebec946eaa",
+    "src/shamaos/mchprs_import.py": "0680be7ad82c53561bd1401be2b8133c7cd19a55b591bba6ea18410a6d5de0ea",
+    "tests/mchprs_sparse_runtime/src/lazy_storage.rs": "2608a743c7b8f59ae90255e464a744b9492838df0dc0717dfee0272e0de5528c",
+    "tests/mchprs_sparse_runtime/src/main.rs": "907b595d253bd4891f156706fdffa6f1257b2b6abf667b2cb11ecd205e33079d",
+    "tests/mchprs_sparse_runtime/src/pending.rs": "ad8b1c89796c74a840b7535d9639d7734655726a71d91ef91c0f834121f3a20d"
+  },
+  "official_artifacts": {
+    "client": {
+      "bytes": 24445539,
+      "sha1": "fd19469fed4a4b4c15b2d5133985f0e3e7816a8a",
+      "sha256": "9221ab461a491bf9661cd8e773a5e662aaa43d600fa7970b8c12bbfb0431b838",
+      "url": "https://piston-data.mojang.com/v1/objects/fd19469fed4a4b4c15b2d5133985f0e3e7816a8a/client.jar"
+    },
+    "client_mappings": {
+      "bytes": 8897012,
+      "sha1": "be76ecc174ea25580bdc9bf335481a5192d9f3b7",
+      "sha256": "ad03c803d866062909dd378ed5f1611687dc0ed0a76cc7fd57e968a99d641e5f",
+      "url": "https://piston-data.mojang.com/v1/objects/be76ecc174ea25580bdc9bf335481a5192d9f3b7/client.txt"
+    },
+    "server": {
+      "bytes": 49150256,
+      "sha1": "8dd1a28015f51b1803213892b50b7b4fc76e594d",
+      "sha256": "c03fa6f39daa69ddf413c965a3a83084db746a7a138ce535a693293b5472d363",
+      "url": "https://piston-data.mojang.com/v1/objects/8dd1a28015f51b1803213892b50b7b4fc76e594d/server.jar"
+    },
+    "server_mappings": {
+      "bytes": 6797462,
+      "sha1": "c1cafe916dd8b58ed1fe0564fc8f786885224e62",
+      "sha256": "d8a75ea91dd9c8b83cffc7c65a4e65cc3933ded6aecdca13fd4fa52fba9770b2",
+      "url": "https://piston-data.mojang.com/v1/objects/c1cafe916dd8b58ed1fe0564fc8f786885224e62/server.txt"
+    }
+  },
+  "official_java_version": "1.20.4",
+  "official_version_metadata_sha1": "bd984a42a9b403c620eae6cd77a1095850ca4479",
+  "operator_view": {
+    "covered_lamps_by_radius": {
+      "32": {
+        "inner": 35640,
+        "tracking": 37440
+      },
+      "38": {
+        "inner": 52920,
+        "tracking": 54720
+      },
+      "39": {
+        "inner": 56520,
+        "tracking": 57600
+      },
+      "40": {
+        "inner": 57600,
+        "tracking": 57600
+      }
+    },
+    "eye": [
+      967.5,
+      -53.38,
+      64.5
+    ],
+    "lamp_chunk_count": 61,
+    "lamp_chunk_max": [
+      90,
+      32
+    ],
+    "lamp_chunk_min": [
+      30,
+      32
+    ],
+    "lamp_pixels": 57600,
+    "minimum_radius": {
+      "inner": 40,
+      "tracking": 39
+    },
+    "player_chunk": [
+      60,
+      4
+    ],
+    "scope": "Chunk delivery predicate only; no client frustum/fog/mesh/update/legibility observation"
+  },
+  "pinned_mchprs_source_sha256": {
+    "README.md": "b6dc57ea392be10d44e52e85189022eea24f4c3fddc7ab7a5621f9ec82f8e25e",
+    "crates/core/src/config.rs": "2eecb7c453487d001beefaaed2f49a2568f455c1c1e22c7a66c1389e3256ac97",
+    "crates/core/src/plot/data.rs": "63b548f350b34265539d70f79acc4b7bb0e559fb360adca07cf6196b8c0fad77",
+    "crates/core/src/plot/mod.rs": "9695d7ec7a847a1f95c66d259255ff26077f41a7a9b40ac84ec5458b10176bd0",
+    "crates/save_data/src/plot_data.rs": "1436b376a4de6cb77b27fc5352d48bb6239bf110c303110e2910c8c569aba986",
+    "crates/world/src/storage.rs": "df1ffae1af6e4c24cfc2646c5f2c8c2e1bd7e8b7e53bf9b550c9ebdf7c475b73",
+    "docs/Redpiler.md": "2817d470b8ac61c33287d698f4eeb140044fe46a1cf24c18ae2f5caa755b02cd"
+  },
+  "pinned_stock_mchprs_calculations": {
+    "default_index_array_bytes_per_chunk": 49152,
+    "default_index_array_bytes_per_section": 2048,
+    "occupied_chunks_only_index_arrays_bytes": 9438461952,
+    "plot_scale_default": 5,
+    "plot_width_blocks_default": 512,
+    "relocated_fixture_minimum_power_of_two_plot_width_chunks": 1024,
+    "relocated_fixture_plot_chunks": 1048576,
+    "relocated_fixture_plot_default_index_arrays_bytes": 51539607552,
+    "relocated_fixture_plot_scale": 10,
+    "relocated_fixture_plot_width_blocks": 16384,
+    "resource_scope": "Current eager plot representation only; not vanilla or lazy runner RAM; excludes all other objects and peak copies",
+    "revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+    "sections_per_chunk": 24
+  },
+  "recorded_utc": "2026-11-13T06:55:10.751519+00:00",
+  "repository_revision": "4637405eea77bda37b33cd8cab0fac76f80a9079",
+  "schema": "shamaos-world-loading-audit-v1",
+  "scope": "Static source inspection and arithmetic; no actual server/client loading proof"
+}

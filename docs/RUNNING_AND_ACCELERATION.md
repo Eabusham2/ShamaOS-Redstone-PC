@@ -74,6 +74,20 @@ must remain loaded and ticking, and all long routes must retain sufficient
 settling time. The generated release's manifest and validation report must state
 its tested runtime, loading arrangement, clock settings and achieved rate.
 
+The [pinned loading audit](../experiments/world_loading_audit/README.md) checks
+the current connected-cache geometry against official Java 1.20.4 artifacts
+and the pinned MCHPRS sources. Vanilla's 256-chunk `/forceload` restriction
+applies to each command rectangle; successive commands can request the complete
+occupied set. The actual resident chunk count, memory use and achieved tick rate
+still need measurement on the chosen server. Stock MCHPRS's plot boundaries and
+idle-plot ticking require implementation changes for this geometry.
+
+The audit also identifies a current viewing limitation: from the existing
+viewing lip, the whole lamp face needs a tracking radius of 39, while the stock
+Java 1.20.4 server caps view distance at 32. A closer viewing position is under
+review. Raising a configuration value to 40 alone does not bypass that cap, and
+the complete live screen has not yet been observed in a client.
+
 ## Verification before calling a world ready
 
 Boot ShamaOS, enter and save text, assemble and run a program, switch/exit apps,

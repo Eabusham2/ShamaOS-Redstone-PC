@@ -1,0 +1,65 @@
+{
+  "status": "passed",
+  "scope": "Process deadline enforcement only; no changes to native scheduling, imported blocks, trace selection or storage assertions",
+  "base_commit": "4637405eea77bda37b33cd8cab0fac76f80a9079",
+  "historical_wrapper_sha256": "faccd37e13eab70a7eb8dd577501073b7f283e88ab10d081cc914f28100309d2",
+  "sources": {
+    "experiments/memory_controller_runtime/run_connected.py": {
+      "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-runtime-deadline/experiments/memory_controller_runtime/run_connected.py",
+      "sha256": "52f2188ff26b71bca1161b6d7a8a152485be24bb16594b72b062f6c67711a5df",
+      "bytes": 31076
+    },
+    "tests/test_connected_runtime_deadline.py": {
+      "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-runtime-deadline/tests/test_connected_runtime_deadline.py",
+      "sha256": "e6a4b977daa9e00413931a91c74ff8732fe0d4b8a8b14b2a1947f2c0f4b9a50f",
+      "bytes": 5209
+    },
+    "tests/test_memory_controller_runtime_experiment.py": {
+      "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-runtime-deadline/tests/test_memory_controller_runtime_experiment.py",
+      "sha256": "76ed793fb70f33a3e3d3fbd7480199219a45dce2552b2e08699f4ce5edcf1bbb",
+      "bytes": 37057
+    }
+  },
+  "focused_regression": {
+    "command": "PYTHONPATH=src:tests:. python -m pytest -q tests/test_connected_runtime_deadline.py tests/test_memory_controller_runtime_experiment.py -k 'deadline or native_runtime_' --junitxml=build/runtime-deadline-review.xml",
+    "report": {
+      "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-runtime-deadline/build/runtime-deadline-review.xml",
+      "sha256": "0400981769119d2e7971e8517de62db98b456e7438cc73eecf5c66d35030332f",
+      "bytes": 7382
+    },
+    "tests": 43,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0
+  },
+  "real_native_regression": {
+    "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-runtime-deadline/experiments/memory_controller_runtime/evidence/runtime_deadline/native-review.json",
+    "sha256": "be04e06d9f17f52861be6eaaa145e51021e9fb675f5425884ba7e248ee2e4079",
+    "bytes": 4613
+  },
+  "failure_fixed": "A successful or failing child first observed after the wall deadline was previously accepted by the monitor without an explicit timeout flag. Both live callers and later retained-clock validation now reject late completion while preserving the actual reaped exit code.",
+  "acceptance_rule": "Elapsed observation must be finite and nonnegative, strictly less than the positive integer recorded wall limit, with explicit_wall_timeout_reached exactly false. At or after the limit the run is incomplete.",
+  "monitor_checks": [
+    "timely success and error",
+    "late already-reaped success and error",
+    "exact deadline",
+    "completion between polls",
+    "sleep bounded by remaining budget",
+    "running child killed and reaped",
+    "natural exit during deadline kill preserves real code"
+  ],
+  "caller_checks": [
+    "late clock exit 0 rejected before native result parsing",
+    "late transaction exit 0 rejected before native result parsing",
+    "safe retained clock result rejected after deadline",
+    "too-fast retained clock result rejected after deadline"
+  ],
+  "live_generation_sources_modified": false,
+  "connected_cache_runtime_verified": false,
+  "complete_machine_runtime_verified": false,
+  "comparison_baseline": {
+    "repo_path": "experiments/memory_controller_runtime/evidence/independent_review/native-review.json",
+    "wrapper_sha256": "faccd37e13eab70a7eb8dd577501073b7f283e88ab10d081cc914f28100309d2",
+    "scope": "The same committed parent-wrapper small native proof. Its retained earlier comparison to c985ff remains historical; this new run compares directly with faccd37."
+  }
+}

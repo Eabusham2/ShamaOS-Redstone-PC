@@ -1,0 +1,2401 @@
+{
+  "audit_source_sha256": "63fc1e75fa9e5ef9535a67d28451139050e7855cf6d11b5d6cb7269b3829829b",
+  "exact_route_stream_matches_prior_exterior_audit": true,
+  "external_nets_sha256": "f814dd1716f935648cd652ff6ad587a56ad82296a7972de04ccd2775a95a43e0",
+  "facade_manifest_sha256": "3dc614564d5b57c3e31acff94ecc374260d27a8e8ea17594097fb8a85d0332df",
+  "facade_report_sha256": "e8f389f6d83567b3cdb0016a607bb9cd97b4c2a9deca3c8e2a1f775fc77c13d6",
+  "maximum_series_repeater_delay_redstone_ticks": 3091,
+  "memory_limit_mib": 512,
+  "minimum_series_repeater_delay_redstone_ticks": 2440,
+  "native_runtime_verified": false,
+  "ordered_route_operations_sha256": "25a3b297c5c07251cd4d8d9cdc03ccf507a8d8ba608161ce0c557117c9407509",
+  "peak_rss_kib": 72176,
+  "per_net": {
+    "cache:bank_select:0": {
+      "emitted_operations": 52816,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 23777,
+        "minecraft:repeater": 2631,
+        "minecraft:stone": 26408
+      },
+      "physical_sink": {
+        "x": 8595,
+        "y": -56,
+        "z": -16
+      },
+      "physical_source": {
+        "x": 0,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2631
+      },
+      "repeater_facing_counts": {
+        "east": 36,
+        "north": 478,
+        "south": 1221,
+        "west": 896
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2631,
+      "unique_repeaters": 2631
+    },
+    "cache:bank_select:1": {
+      "emitted_operations": 52712,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 23729,
+        "minecraft:repeater": 2627,
+        "minecraft:stone": 26356
+      },
+      "physical_sink": {
+        "x": 8595,
+        "y": -44,
+        "z": -16
+      },
+      "physical_source": {
+        "x": 8,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2627
+      },
+      "repeater_facing_counts": {
+        "east": 35,
+        "north": 477,
+        "south": 1221,
+        "west": 894
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2627,
+      "unique_repeaters": 2627
+    },
+    "cache:read_enable:0": {
+      "emitted_operations": 51484,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 23176,
+        "minecraft:repeater": 2566,
+        "minecraft:stone": 25742
+      },
+      "physical_sink": {
+        "x": 8605,
+        "y": -52,
+        "z": -4
+      },
+      "physical_source": {
+        "x": 24,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2566
+      },
+      "repeater_facing_counts": {
+        "east": 47,
+        "north": 434,
+        "south": 1186,
+        "west": 899
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2566,
+      "unique_repeaters": 2566
+    },
+    "cache:row_address:0": {
+      "emitted_operations": 50982,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22952,
+        "minecraft:repeater": 2539,
+        "minecraft:stone": 25491
+      },
+      "physical_sink": {
+        "x": 8558,
+        "y": -56,
+        "z": -8
+      },
+      "physical_source": {
+        "x": 856,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2539
+      },
+      "repeater_facing_counts": {
+        "east": 36,
+        "north": 476,
+        "south": 1220,
+        "west": 807
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2539,
+      "unique_repeaters": 2539
+    },
+    "cache:row_address:1": {
+      "emitted_operations": 50878,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22904,
+        "minecraft:repeater": 2535,
+        "minecraft:stone": 25439
+      },
+      "physical_sink": {
+        "x": 8558,
+        "y": -44,
+        "z": -8
+      },
+      "physical_source": {
+        "x": 864,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2535
+      },
+      "repeater_facing_counts": {
+        "east": 35,
+        "north": 476,
+        "south": 1219,
+        "west": 805
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2535,
+      "unique_repeaters": 2535
+    },
+    "cache:row_address:2": {
+      "emitted_operations": 50774,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22857,
+        "minecraft:repeater": 2530,
+        "minecraft:stone": 25387
+      },
+      "physical_sink": {
+        "x": 8558,
+        "y": -32,
+        "z": -8
+      },
+      "physical_source": {
+        "x": 872,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2530
+      },
+      "repeater_facing_counts": {
+        "east": 34,
+        "north": 475,
+        "south": 1218,
+        "west": 803
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2530,
+      "unique_repeaters": 2530
+    },
+    "cache:row_address:3": {
+      "emitted_operations": 50662,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22807,
+        "minecraft:repeater": 2524,
+        "minecraft:stone": 25331
+      },
+      "physical_sink": {
+        "x": 8558,
+        "y": -20,
+        "z": -8
+      },
+      "physical_source": {
+        "x": 880,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2524
+      },
+      "repeater_facing_counts": {
+        "east": 32,
+        "north": 475,
+        "south": 1217,
+        "west": 800
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2524,
+      "unique_repeaters": 2524
+    },
+    "cache:row_address:4": {
+      "emitted_operations": 50558,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22759,
+        "minecraft:repeater": 2520,
+        "minecraft:stone": 25279
+      },
+      "physical_sink": {
+        "x": 8558,
+        "y": -8,
+        "z": -8
+      },
+      "physical_source": {
+        "x": 888,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2520
+      },
+      "repeater_facing_counts": {
+        "east": 31,
+        "north": 474,
+        "south": 1217,
+        "west": 798
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2520,
+      "unique_repeaters": 2520
+    },
+    "cache:row_address:5": {
+      "emitted_operations": 50454,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22713,
+        "minecraft:repeater": 2514,
+        "minecraft:stone": 25227
+      },
+      "physical_sink": {
+        "x": 8558,
+        "y": 4,
+        "z": -8
+      },
+      "physical_source": {
+        "x": 896,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2514
+      },
+      "repeater_facing_counts": {
+        "east": 30,
+        "north": 472,
+        "south": 1216,
+        "west": 796
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2514,
+      "unique_repeaters": 2514
+    },
+    "cache:row_address:6": {
+      "emitted_operations": 50350,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22665,
+        "minecraft:repeater": 2510,
+        "minecraft:stone": 25175
+      },
+      "physical_sink": {
+        "x": 8558,
+        "y": 16,
+        "z": -8
+      },
+      "physical_source": {
+        "x": 904,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2510
+      },
+      "repeater_facing_counts": {
+        "east": 29,
+        "north": 472,
+        "south": 1215,
+        "west": 794
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2510,
+      "unique_repeaters": 2510
+    },
+    "cache:row_address:7": {
+      "emitted_operations": 50246,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22618,
+        "minecraft:repeater": 2505,
+        "minecraft:stone": 25123
+      },
+      "physical_sink": {
+        "x": 8558,
+        "y": 28,
+        "z": -8
+      },
+      "physical_source": {
+        "x": 912,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2505
+      },
+      "repeater_facing_counts": {
+        "east": 28,
+        "north": 471,
+        "south": 1214,
+        "west": 792
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2505,
+      "unique_repeaters": 2505
+    },
+    "cache:row_address:8": {
+      "emitted_operations": 50134,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22568,
+        "minecraft:repeater": 2499,
+        "minecraft:stone": 25067
+      },
+      "physical_sink": {
+        "x": 8558,
+        "y": 40,
+        "z": -8
+      },
+      "physical_source": {
+        "x": 920,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2499
+      },
+      "repeater_facing_counts": {
+        "east": 26,
+        "north": 471,
+        "south": 1213,
+        "west": 789
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2499,
+      "unique_repeaters": 2499
+    },
+    "cache:row_address:9": {
+      "emitted_operations": 50030,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22520,
+        "minecraft:repeater": 2495,
+        "minecraft:stone": 25015
+      },
+      "physical_sink": {
+        "x": 8558,
+        "y": 52,
+        "z": -8
+      },
+      "physical_source": {
+        "x": 928,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2495
+      },
+      "repeater_facing_counts": {
+        "east": 25,
+        "north": 470,
+        "south": 1213,
+        "west": 787
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2495,
+      "unique_repeaters": 2495
+    },
+    "cache:selected_word:0": {
+      "emitted_operations": 61988,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 27903,
+        "minecraft:repeater": 3091,
+        "minecraft:stone": 30994
+      },
+      "physical_sink": {
+        "x": 944,
+        "y": -59,
+        "z": 7450
+      },
+      "physical_source": {
+        "x": 8727,
+        "y": -38,
+        "z": 6150
+      },
+      "repeater_delay_counts": {
+        "1": 3091
+      },
+      "repeater_facing_counts": {
+        "east": 813,
+        "north": 1187,
+        "south": 1057,
+        "west": 34
+      },
+      "reverse_selected_word": true,
+      "series_repeater_delay_redstone_ticks": 3091,
+      "unique_repeaters": 3091
+    },
+    "cache:selected_word:1": {
+      "emitted_operations": 61950,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 27886,
+        "minecraft:repeater": 3089,
+        "minecraft:stone": 30975
+      },
+      "physical_sink": {
+        "x": 952,
+        "y": -59,
+        "z": 7450
+      },
+      "physical_source": {
+        "x": 8732,
+        "y": -38,
+        "z": 6150
+      },
+      "repeater_delay_counts": {
+        "1": 3089
+      },
+      "repeater_facing_counts": {
+        "east": 813,
+        "north": 1186,
+        "south": 1056,
+        "west": 34
+      },
+      "reverse_selected_word": true,
+      "series_repeater_delay_redstone_ticks": 3089,
+      "unique_repeaters": 3089
+    },
+    "cache:selected_word:10": {
+      "emitted_operations": 61608,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 27732,
+        "minecraft:repeater": 3072,
+        "minecraft:stone": 30804
+      },
+      "physical_sink": {
+        "x": 1024,
+        "y": -59,
+        "z": 7450
+      },
+      "physical_source": {
+        "x": 8777,
+        "y": -38,
+        "z": 6150
+      },
+      "repeater_delay_counts": {
+        "1": 3072
+      },
+      "repeater_facing_counts": {
+        "east": 810,
+        "north": 1179,
+        "south": 1049,
+        "west": 34
+      },
+      "reverse_selected_word": true,
+      "series_repeater_delay_redstone_ticks": 3072,
+      "unique_repeaters": 3072
+    },
+    "cache:selected_word:11": {
+      "emitted_operations": 61570,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 27715,
+        "minecraft:repeater": 3070,
+        "minecraft:stone": 30785
+      },
+      "physical_sink": {
+        "x": 1032,
+        "y": -59,
+        "z": 7450
+      },
+      "physical_source": {
+        "x": 8782,
+        "y": -38,
+        "z": 6150
+      },
+      "repeater_delay_counts": {
+        "1": 3070
+      },
+      "repeater_facing_counts": {
+        "east": 810,
+        "north": 1178,
+        "south": 1048,
+        "west": 34
+      },
+      "reverse_selected_word": true,
+      "series_repeater_delay_redstone_ticks": 3070,
+      "unique_repeaters": 3070
+    },
+    "cache:selected_word:12": {
+      "emitted_operations": 61532,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 27699,
+        "minecraft:repeater": 3067,
+        "minecraft:stone": 30766
+      },
+      "physical_sink": {
+        "x": 1040,
+        "y": -59,
+        "z": 7450
+      },
+      "physical_source": {
+        "x": 8787,
+        "y": -38,
+        "z": 6150
+      },
+      "repeater_delay_counts": {
+        "1": 3067
+      },
+      "repeater_facing_counts": {
+        "east": 809,
+        "north": 1177,
+        "south": 1047,
+        "west": 34
+      },
+      "reverse_selected_word": true,
+      "series_repeater_delay_redstone_ticks": 3067,
+      "unique_repeaters": 3067
+    },
+    "cache:selected_word:13": {
+      "emitted_operations": 61494,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 27682,
+        "minecraft:repeater": 3065,
+        "minecraft:stone": 30747
+      },
+      "physical_sink": {
+        "x": 1048,
+        "y": -59,
+        "z": 7450
+      },
+      "physical_source": {
+        "x": 8792,
+        "y": -38,
+        "z": 6150
+      },
+      "repeater_delay_counts": {
+        "1": 3065
+      },
+      "repeater_facing_counts": {
+        "east": 809,
+        "north": 1176,
+        "south": 1046,
+        "west": 34
+      },
+      "reverse_selected_word": true,
+      "series_repeater_delay_redstone_ticks": 3065,
+      "unique_repeaters": 3065
+    },
+    "cache:selected_word:14": {
+      "emitted_operations": 61456,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 27665,
+        "minecraft:repeater": 3063,
+        "minecraft:stone": 30728
+      },
+      "physical_sink": {
+        "x": 1056,
+        "y": -59,
+        "z": 7450
+      },
+      "physical_source": {
+        "x": 8797,
+        "y": -38,
+        "z": 6150
+      },
+      "repeater_delay_counts": {
+        "1": 3063
+      },
+      "repeater_facing_counts": {
+        "east": 809,
+        "north": 1175,
+        "south": 1045,
+        "west": 34
+      },
+      "reverse_selected_word": true,
+      "series_repeater_delay_redstone_ticks": 3063,
+      "unique_repeaters": 3063
+    },
+    "cache:selected_word:15": {
+      "emitted_operations": 61418,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 27646,
+        "minecraft:repeater": 3063,
+        "minecraft:stone": 30709
+      },
+      "physical_sink": {
+        "x": 1064,
+        "y": -59,
+        "z": 7450
+      },
+      "physical_source": {
+        "x": 8802,
+        "y": -38,
+        "z": 6150
+      },
+      "repeater_delay_counts": {
+        "1": 3063
+      },
+      "repeater_facing_counts": {
+        "east": 809,
+        "north": 1175,
+        "south": 1045,
+        "west": 34
+      },
+      "reverse_selected_word": true,
+      "series_repeater_delay_redstone_ticks": 3063,
+      "unique_repeaters": 3063
+    },
+    "cache:selected_word:16": {
+      "emitted_operations": 61380,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 27630,
+        "minecraft:repeater": 3060,
+        "minecraft:stone": 30690
+      },
+      "physical_sink": {
+        "x": 1072,
+        "y": -59,
+        "z": 7450
+      },
+      "physical_source": {
+        "x": 8807,
+        "y": -38,
+        "z": 6150
+      },
+      "repeater_delay_counts": {
+        "1": 3060
+      },
+      "repeater_facing_counts": {
+        "east": 808,
+        "north": 1174,
+        "south": 1044,
+        "west": 34
+      },
+      "reverse_selected_word": true,
+      "series_repeater_delay_redstone_ticks": 3060,
+      "unique_repeaters": 3060
+    },
+    "cache:selected_word:17": {
+      "emitted_operations": 61342,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 27613,
+        "minecraft:repeater": 3058,
+        "minecraft:stone": 30671
+      },
+      "physical_sink": {
+        "x": 1080,
+        "y": -59,
+        "z": 7450
+      },
+      "physical_source": {
+        "x": 8812,
+        "y": -38,
+        "z": 6150
+      },
+      "repeater_delay_counts": {
+        "1": 3058
+      },
+      "repeater_facing_counts": {
+        "east": 808,
+        "north": 1173,
+        "south": 1043,
+        "west": 34
+      },
+      "reverse_selected_word": true,
+      "series_repeater_delay_redstone_ticks": 3058,
+      "unique_repeaters": 3058
+    },
+    "cache:selected_word:18": {
+      "emitted_operations": 61304,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 27596,
+        "minecraft:repeater": 3056,
+        "minecraft:stone": 30652
+      },
+      "physical_sink": {
+        "x": 1088,
+        "y": -59,
+        "z": 7450
+      },
+      "physical_source": {
+        "x": 8817,
+        "y": -38,
+        "z": 6150
+      },
+      "repeater_delay_counts": {
+        "1": 3056
+      },
+      "repeater_facing_counts": {
+        "east": 808,
+        "north": 1172,
+        "south": 1042,
+        "west": 34
+      },
+      "reverse_selected_word": true,
+      "series_repeater_delay_redstone_ticks": 3056,
+      "unique_repeaters": 3056
+    },
+    "cache:selected_word:19": {
+      "emitted_operations": 61266,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 27580,
+        "minecraft:repeater": 3053,
+        "minecraft:stone": 30633
+      },
+      "physical_sink": {
+        "x": 1096,
+        "y": -59,
+        "z": 7450
+      },
+      "physical_source": {
+        "x": 8822,
+        "y": -38,
+        "z": 6150
+      },
+      "repeater_delay_counts": {
+        "1": 3053
+      },
+      "repeater_facing_counts": {
+        "east": 807,
+        "north": 1171,
+        "south": 1041,
+        "west": 34
+      },
+      "reverse_selected_word": true,
+      "series_repeater_delay_redstone_ticks": 3053,
+      "unique_repeaters": 3053
+    },
+    "cache:selected_word:2": {
+      "emitted_operations": 61912,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 27870,
+        "minecraft:repeater": 3086,
+        "minecraft:stone": 30956
+      },
+      "physical_sink": {
+        "x": 960,
+        "y": -59,
+        "z": 7450
+      },
+      "physical_source": {
+        "x": 8737,
+        "y": -38,
+        "z": 6150
+      },
+      "repeater_delay_counts": {
+        "1": 3086
+      },
+      "repeater_facing_counts": {
+        "east": 812,
+        "north": 1185,
+        "south": 1055,
+        "west": 34
+      },
+      "reverse_selected_word": true,
+      "series_repeater_delay_redstone_ticks": 3086,
+      "unique_repeaters": 3086
+    },
+    "cache:selected_word:20": {
+      "emitted_operations": 61228,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 27561,
+        "minecraft:repeater": 3053,
+        "minecraft:stone": 30614
+      },
+      "physical_sink": {
+        "x": 1104,
+        "y": -59,
+        "z": 7450
+      },
+      "physical_source": {
+        "x": 8827,
+        "y": -38,
+        "z": 6150
+      },
+      "repeater_delay_counts": {
+        "1": 3053
+      },
+      "repeater_facing_counts": {
+        "east": 807,
+        "north": 1171,
+        "south": 1041,
+        "west": 34
+      },
+      "reverse_selected_word": true,
+      "series_repeater_delay_redstone_ticks": 3053,
+      "unique_repeaters": 3053
+    },
+    "cache:selected_word:21": {
+      "emitted_operations": 61190,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 27544,
+        "minecraft:repeater": 3051,
+        "minecraft:stone": 30595
+      },
+      "physical_sink": {
+        "x": 1112,
+        "y": -59,
+        "z": 7450
+      },
+      "physical_source": {
+        "x": 8832,
+        "y": -38,
+        "z": 6150
+      },
+      "repeater_delay_counts": {
+        "1": 3051
+      },
+      "repeater_facing_counts": {
+        "east": 807,
+        "north": 1170,
+        "south": 1040,
+        "west": 34
+      },
+      "reverse_selected_word": true,
+      "series_repeater_delay_redstone_ticks": 3051,
+      "unique_repeaters": 3051
+    },
+    "cache:selected_word:22": {
+      "emitted_operations": 61152,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 27528,
+        "minecraft:repeater": 3048,
+        "minecraft:stone": 30576
+      },
+      "physical_sink": {
+        "x": 1120,
+        "y": -59,
+        "z": 7450
+      },
+      "physical_source": {
+        "x": 8837,
+        "y": -38,
+        "z": 6150
+      },
+      "repeater_delay_counts": {
+        "1": 3048
+      },
+      "repeater_facing_counts": {
+        "east": 806,
+        "north": 1169,
+        "south": 1039,
+        "west": 34
+      },
+      "reverse_selected_word": true,
+      "series_repeater_delay_redstone_ticks": 3048,
+      "unique_repeaters": 3048
+    },
+    "cache:selected_word:23": {
+      "emitted_operations": 61114,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 27511,
+        "minecraft:repeater": 3046,
+        "minecraft:stone": 30557
+      },
+      "physical_sink": {
+        "x": 1128,
+        "y": -59,
+        "z": 7450
+      },
+      "physical_source": {
+        "x": 8842,
+        "y": -38,
+        "z": 6150
+      },
+      "repeater_delay_counts": {
+        "1": 3046
+      },
+      "repeater_facing_counts": {
+        "east": 806,
+        "north": 1168,
+        "south": 1038,
+        "west": 34
+      },
+      "reverse_selected_word": true,
+      "series_repeater_delay_redstone_ticks": 3046,
+      "unique_repeaters": 3046
+    },
+    "cache:selected_word:24": {
+      "emitted_operations": 61076,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 27494,
+        "minecraft:repeater": 3044,
+        "minecraft:stone": 30538
+      },
+      "physical_sink": {
+        "x": 1136,
+        "y": -59,
+        "z": 7450
+      },
+      "physical_source": {
+        "x": 8847,
+        "y": -38,
+        "z": 6150
+      },
+      "repeater_delay_counts": {
+        "1": 3044
+      },
+      "repeater_facing_counts": {
+        "east": 806,
+        "north": 1167,
+        "south": 1037,
+        "west": 34
+      },
+      "reverse_selected_word": true,
+      "series_repeater_delay_redstone_ticks": 3044,
+      "unique_repeaters": 3044
+    },
+    "cache:selected_word:25": {
+      "emitted_operations": 61038,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 27475,
+        "minecraft:repeater": 3044,
+        "minecraft:stone": 30519
+      },
+      "physical_sink": {
+        "x": 1144,
+        "y": -59,
+        "z": 7450
+      },
+      "physical_source": {
+        "x": 8852,
+        "y": -38,
+        "z": 6150
+      },
+      "repeater_delay_counts": {
+        "1": 3044
+      },
+      "repeater_facing_counts": {
+        "east": 806,
+        "north": 1167,
+        "south": 1037,
+        "west": 34
+      },
+      "reverse_selected_word": true,
+      "series_repeater_delay_redstone_ticks": 3044,
+      "unique_repeaters": 3044
+    },
+    "cache:selected_word:26": {
+      "emitted_operations": 61000,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 27459,
+        "minecraft:repeater": 3041,
+        "minecraft:stone": 30500
+      },
+      "physical_sink": {
+        "x": 1152,
+        "y": -59,
+        "z": 7450
+      },
+      "physical_source": {
+        "x": 8857,
+        "y": -38,
+        "z": 6150
+      },
+      "repeater_delay_counts": {
+        "1": 3041
+      },
+      "repeater_facing_counts": {
+        "east": 805,
+        "north": 1166,
+        "south": 1036,
+        "west": 34
+      },
+      "reverse_selected_word": true,
+      "series_repeater_delay_redstone_ticks": 3041,
+      "unique_repeaters": 3041
+    },
+    "cache:selected_word:27": {
+      "emitted_operations": 60962,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 27442,
+        "minecraft:repeater": 3039,
+        "minecraft:stone": 30481
+      },
+      "physical_sink": {
+        "x": 1160,
+        "y": -59,
+        "z": 7450
+      },
+      "physical_source": {
+        "x": 8862,
+        "y": -38,
+        "z": 6150
+      },
+      "repeater_delay_counts": {
+        "1": 3039
+      },
+      "repeater_facing_counts": {
+        "east": 805,
+        "north": 1165,
+        "south": 1035,
+        "west": 34
+      },
+      "reverse_selected_word": true,
+      "series_repeater_delay_redstone_ticks": 3039,
+      "unique_repeaters": 3039
+    },
+    "cache:selected_word:28": {
+      "emitted_operations": 60924,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 27425,
+        "minecraft:repeater": 3037,
+        "minecraft:stone": 30462
+      },
+      "physical_sink": {
+        "x": 1168,
+        "y": -59,
+        "z": 7450
+      },
+      "physical_source": {
+        "x": 8867,
+        "y": -38,
+        "z": 6150
+      },
+      "repeater_delay_counts": {
+        "1": 3037
+      },
+      "repeater_facing_counts": {
+        "east": 805,
+        "north": 1164,
+        "south": 1034,
+        "west": 34
+      },
+      "reverse_selected_word": true,
+      "series_repeater_delay_redstone_ticks": 3037,
+      "unique_repeaters": 3037
+    },
+    "cache:selected_word:29": {
+      "emitted_operations": 60886,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 27409,
+        "minecraft:repeater": 3034,
+        "minecraft:stone": 30443
+      },
+      "physical_sink": {
+        "x": 1176,
+        "y": -59,
+        "z": 7450
+      },
+      "physical_source": {
+        "x": 8872,
+        "y": -38,
+        "z": 6150
+      },
+      "repeater_delay_counts": {
+        "1": 3034
+      },
+      "repeater_facing_counts": {
+        "east": 804,
+        "north": 1163,
+        "south": 1033,
+        "west": 34
+      },
+      "reverse_selected_word": true,
+      "series_repeater_delay_redstone_ticks": 3034,
+      "unique_repeaters": 3034
+    },
+    "cache:selected_word:3": {
+      "emitted_operations": 61874,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 27853,
+        "minecraft:repeater": 3084,
+        "minecraft:stone": 30937
+      },
+      "physical_sink": {
+        "x": 968,
+        "y": -59,
+        "z": 7450
+      },
+      "physical_source": {
+        "x": 8742,
+        "y": -38,
+        "z": 6150
+      },
+      "repeater_delay_counts": {
+        "1": 3084
+      },
+      "repeater_facing_counts": {
+        "east": 812,
+        "north": 1184,
+        "south": 1054,
+        "west": 34
+      },
+      "reverse_selected_word": true,
+      "series_repeater_delay_redstone_ticks": 3084,
+      "unique_repeaters": 3084
+    },
+    "cache:selected_word:30": {
+      "emitted_operations": 60848,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 27390,
+        "minecraft:repeater": 3034,
+        "minecraft:stone": 30424
+      },
+      "physical_sink": {
+        "x": 1184,
+        "y": -59,
+        "z": 7450
+      },
+      "physical_source": {
+        "x": 8877,
+        "y": -38,
+        "z": 6150
+      },
+      "repeater_delay_counts": {
+        "1": 3034
+      },
+      "repeater_facing_counts": {
+        "east": 804,
+        "north": 1163,
+        "south": 1033,
+        "west": 34
+      },
+      "reverse_selected_word": true,
+      "series_repeater_delay_redstone_ticks": 3034,
+      "unique_repeaters": 3034
+    },
+    "cache:selected_word:31": {
+      "emitted_operations": 60810,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 27373,
+        "minecraft:repeater": 3032,
+        "minecraft:stone": 30405
+      },
+      "physical_sink": {
+        "x": 1192,
+        "y": -59,
+        "z": 7450
+      },
+      "physical_source": {
+        "x": 8882,
+        "y": -38,
+        "z": 6150
+      },
+      "repeater_delay_counts": {
+        "1": 3032
+      },
+      "repeater_facing_counts": {
+        "east": 804,
+        "north": 1162,
+        "south": 1032,
+        "west": 34
+      },
+      "reverse_selected_word": true,
+      "series_repeater_delay_redstone_ticks": 3032,
+      "unique_repeaters": 3032
+    },
+    "cache:selected_word:4": {
+      "emitted_operations": 61836,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 27836,
+        "minecraft:repeater": 3082,
+        "minecraft:stone": 30918
+      },
+      "physical_sink": {
+        "x": 976,
+        "y": -59,
+        "z": 7450
+      },
+      "physical_source": {
+        "x": 8747,
+        "y": -38,
+        "z": 6150
+      },
+      "repeater_delay_counts": {
+        "1": 3082
+      },
+      "repeater_facing_counts": {
+        "east": 812,
+        "north": 1183,
+        "south": 1053,
+        "west": 34
+      },
+      "reverse_selected_word": true,
+      "series_repeater_delay_redstone_ticks": 3082,
+      "unique_repeaters": 3082
+    },
+    "cache:selected_word:5": {
+      "emitted_operations": 61798,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 27817,
+        "minecraft:repeater": 3082,
+        "minecraft:stone": 30899
+      },
+      "physical_sink": {
+        "x": 984,
+        "y": -59,
+        "z": 7450
+      },
+      "physical_source": {
+        "x": 8752,
+        "y": -38,
+        "z": 6150
+      },
+      "repeater_delay_counts": {
+        "1": 3082
+      },
+      "repeater_facing_counts": {
+        "east": 812,
+        "north": 1183,
+        "south": 1053,
+        "west": 34
+      },
+      "reverse_selected_word": true,
+      "series_repeater_delay_redstone_ticks": 3082,
+      "unique_repeaters": 3082
+    },
+    "cache:selected_word:6": {
+      "emitted_operations": 61760,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 27801,
+        "minecraft:repeater": 3079,
+        "minecraft:stone": 30880
+      },
+      "physical_sink": {
+        "x": 992,
+        "y": -59,
+        "z": 7450
+      },
+      "physical_source": {
+        "x": 8757,
+        "y": -38,
+        "z": 6150
+      },
+      "repeater_delay_counts": {
+        "1": 3079
+      },
+      "repeater_facing_counts": {
+        "east": 811,
+        "north": 1182,
+        "south": 1052,
+        "west": 34
+      },
+      "reverse_selected_word": true,
+      "series_repeater_delay_redstone_ticks": 3079,
+      "unique_repeaters": 3079
+    },
+    "cache:selected_word:7": {
+      "emitted_operations": 61722,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 27784,
+        "minecraft:repeater": 3077,
+        "minecraft:stone": 30861
+      },
+      "physical_sink": {
+        "x": 1000,
+        "y": -59,
+        "z": 7450
+      },
+      "physical_source": {
+        "x": 8762,
+        "y": -38,
+        "z": 6150
+      },
+      "repeater_delay_counts": {
+        "1": 3077
+      },
+      "repeater_facing_counts": {
+        "east": 811,
+        "north": 1181,
+        "south": 1051,
+        "west": 34
+      },
+      "reverse_selected_word": true,
+      "series_repeater_delay_redstone_ticks": 3077,
+      "unique_repeaters": 3077
+    },
+    "cache:selected_word:8": {
+      "emitted_operations": 61684,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 27767,
+        "minecraft:repeater": 3075,
+        "minecraft:stone": 30842
+      },
+      "physical_sink": {
+        "x": 1008,
+        "y": -59,
+        "z": 7450
+      },
+      "physical_source": {
+        "x": 8767,
+        "y": -38,
+        "z": 6150
+      },
+      "repeater_delay_counts": {
+        "1": 3075
+      },
+      "repeater_facing_counts": {
+        "east": 811,
+        "north": 1180,
+        "south": 1050,
+        "west": 34
+      },
+      "reverse_selected_word": true,
+      "series_repeater_delay_redstone_ticks": 3075,
+      "unique_repeaters": 3075
+    },
+    "cache:selected_word:9": {
+      "emitted_operations": 61646,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 27751,
+        "minecraft:repeater": 3072,
+        "minecraft:stone": 30823
+      },
+      "physical_sink": {
+        "x": 1016,
+        "y": -59,
+        "z": 7450
+      },
+      "physical_source": {
+        "x": 8772,
+        "y": -38,
+        "z": 6150
+      },
+      "repeater_delay_counts": {
+        "1": 3072
+      },
+      "repeater_facing_counts": {
+        "east": 810,
+        "north": 1179,
+        "south": 1049,
+        "west": 34
+      },
+      "reverse_selected_word": true,
+      "series_repeater_delay_redstone_ticks": 3072,
+      "unique_repeaters": 3072
+    },
+    "cache:write_commit:0": {
+      "emitted_operations": 49008,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22064,
+        "minecraft:repeater": 2440,
+        "minecraft:stone": 24504
+      },
+      "physical_sink": {
+        "x": 8605,
+        "y": -56,
+        "z": -10
+      },
+      "physical_source": {
+        "x": 1200,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2440
+      },
+      "repeater_facing_counts": {
+        "east": 36,
+        "north": 442,
+        "south": 1185,
+        "west": 777
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2440,
+      "unique_repeaters": 2440
+    },
+    "cache:write_data:0": {
+      "emitted_operations": 50870,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22901,
+        "minecraft:repeater": 2534,
+        "minecraft:stone": 25435
+      },
+      "physical_sink": {
+        "x": 8716,
+        "y": -59,
+        "z": -4
+      },
+      "physical_source": {
+        "x": 1208,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2534
+      },
+      "repeater_facing_counts": {
+        "east": 51,
+        "north": 469,
+        "south": 1212,
+        "west": 802
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2534,
+      "unique_repeaters": 2534
+    },
+    "cache:write_data:1": {
+      "emitted_operations": 50832,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22884,
+        "minecraft:repeater": 2532,
+        "minecraft:stone": 25416
+      },
+      "physical_sink": {
+        "x": 8721,
+        "y": -59,
+        "z": -4
+      },
+      "physical_source": {
+        "x": 1216,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2532
+      },
+      "repeater_facing_counts": {
+        "east": 51,
+        "north": 468,
+        "south": 1211,
+        "west": 802
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2532,
+      "unique_repeaters": 2532
+    },
+    "cache:write_data:10": {
+      "emitted_operations": 50490,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22730,
+        "minecraft:repeater": 2515,
+        "minecraft:stone": 25245
+      },
+      "physical_sink": {
+        "x": 8766,
+        "y": -59,
+        "z": -4
+      },
+      "physical_source": {
+        "x": 1288,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2515
+      },
+      "repeater_facing_counts": {
+        "east": 51,
+        "north": 461,
+        "south": 1204,
+        "west": 799
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2515,
+      "unique_repeaters": 2515
+    },
+    "cache:write_data:11": {
+      "emitted_operations": 50452,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22713,
+        "minecraft:repeater": 2513,
+        "minecraft:stone": 25226
+      },
+      "physical_sink": {
+        "x": 8771,
+        "y": -59,
+        "z": -4
+      },
+      "physical_source": {
+        "x": 1296,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2513
+      },
+      "repeater_facing_counts": {
+        "east": 51,
+        "north": 460,
+        "south": 1203,
+        "west": 799
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2513,
+      "unique_repeaters": 2513
+    },
+    "cache:write_data:12": {
+      "emitted_operations": 50414,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22695,
+        "minecraft:repeater": 2512,
+        "minecraft:stone": 25207
+      },
+      "physical_sink": {
+        "x": 8776,
+        "y": -59,
+        "z": -4
+      },
+      "physical_source": {
+        "x": 1304,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2512
+      },
+      "repeater_facing_counts": {
+        "east": 51,
+        "north": 460,
+        "south": 1202,
+        "west": 799
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2512,
+      "unique_repeaters": 2512
+    },
+    "cache:write_data:13": {
+      "emitted_operations": 50376,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22678,
+        "minecraft:repeater": 2510,
+        "minecraft:stone": 25188
+      },
+      "physical_sink": {
+        "x": 8781,
+        "y": -59,
+        "z": -4
+      },
+      "physical_source": {
+        "x": 1312,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2510
+      },
+      "repeater_facing_counts": {
+        "east": 51,
+        "north": 459,
+        "south": 1201,
+        "west": 799
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2510,
+      "unique_repeaters": 2510
+    },
+    "cache:write_data:14": {
+      "emitted_operations": 50338,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22661,
+        "minecraft:repeater": 2508,
+        "minecraft:stone": 25169
+      },
+      "physical_sink": {
+        "x": 8786,
+        "y": -59,
+        "z": -4
+      },
+      "physical_source": {
+        "x": 1320,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2508
+      },
+      "repeater_facing_counts": {
+        "east": 51,
+        "north": 458,
+        "south": 1201,
+        "west": 798
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2508,
+      "unique_repeaters": 2508
+    },
+    "cache:write_data:15": {
+      "emitted_operations": 50300,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22644,
+        "minecraft:repeater": 2506,
+        "minecraft:stone": 25150
+      },
+      "physical_sink": {
+        "x": 8791,
+        "y": -59,
+        "z": -4
+      },
+      "physical_source": {
+        "x": 1328,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2506
+      },
+      "repeater_facing_counts": {
+        "east": 51,
+        "north": 457,
+        "south": 1200,
+        "west": 798
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2506,
+      "unique_repeaters": 2506
+    },
+    "cache:write_data:16": {
+      "emitted_operations": 50262,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22627,
+        "minecraft:repeater": 2504,
+        "minecraft:stone": 25131
+      },
+      "physical_sink": {
+        "x": 8796,
+        "y": -59,
+        "z": -4
+      },
+      "physical_source": {
+        "x": 1336,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2504
+      },
+      "repeater_facing_counts": {
+        "east": 51,
+        "north": 456,
+        "south": 1199,
+        "west": 798
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2504,
+      "unique_repeaters": 2504
+    },
+    "cache:write_data:17": {
+      "emitted_operations": 50224,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22610,
+        "minecraft:repeater": 2502,
+        "minecraft:stone": 25112
+      },
+      "physical_sink": {
+        "x": 8801,
+        "y": -59,
+        "z": -4
+      },
+      "physical_source": {
+        "x": 1344,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2502
+      },
+      "repeater_facing_counts": {
+        "east": 51,
+        "north": 456,
+        "south": 1198,
+        "west": 797
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2502,
+      "unique_repeaters": 2502
+    },
+    "cache:write_data:18": {
+      "emitted_operations": 50186,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22593,
+        "minecraft:repeater": 2500,
+        "minecraft:stone": 25093
+      },
+      "physical_sink": {
+        "x": 8806,
+        "y": -59,
+        "z": -4
+      },
+      "physical_source": {
+        "x": 1352,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2500
+      },
+      "repeater_facing_counts": {
+        "east": 51,
+        "north": 455,
+        "south": 1197,
+        "west": 797
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2500,
+      "unique_repeaters": 2500
+    },
+    "cache:write_data:19": {
+      "emitted_operations": 50148,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22575,
+        "minecraft:repeater": 2499,
+        "minecraft:stone": 25074
+      },
+      "physical_sink": {
+        "x": 8811,
+        "y": -59,
+        "z": -4
+      },
+      "physical_source": {
+        "x": 1360,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2499
+      },
+      "repeater_facing_counts": {
+        "east": 51,
+        "north": 454,
+        "south": 1197,
+        "west": 797
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2499,
+      "unique_repeaters": 2499
+    },
+    "cache:write_data:2": {
+      "emitted_operations": 50794,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22866,
+        "minecraft:repeater": 2531,
+        "minecraft:stone": 25397
+      },
+      "physical_sink": {
+        "x": 8726,
+        "y": -59,
+        "z": -4
+      },
+      "physical_source": {
+        "x": 1224,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2531
+      },
+      "repeater_facing_counts": {
+        "east": 51,
+        "north": 468,
+        "south": 1210,
+        "west": 802
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2531,
+      "unique_repeaters": 2531
+    },
+    "cache:write_data:20": {
+      "emitted_operations": 50110,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22559,
+        "minecraft:repeater": 2496,
+        "minecraft:stone": 25055
+      },
+      "physical_sink": {
+        "x": 8816,
+        "y": -59,
+        "z": -4
+      },
+      "physical_source": {
+        "x": 1368,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2496
+      },
+      "repeater_facing_counts": {
+        "east": 51,
+        "north": 453,
+        "south": 1196,
+        "west": 796
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2496,
+      "unique_repeaters": 2496
+    },
+    "cache:write_data:21": {
+      "emitted_operations": 50072,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22542,
+        "minecraft:repeater": 2494,
+        "minecraft:stone": 25036
+      },
+      "physical_sink": {
+        "x": 8821,
+        "y": -59,
+        "z": -4
+      },
+      "physical_source": {
+        "x": 1376,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2494
+      },
+      "repeater_facing_counts": {
+        "east": 51,
+        "north": 452,
+        "south": 1195,
+        "west": 796
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2494,
+      "unique_repeaters": 2494
+    },
+    "cache:write_data:22": {
+      "emitted_operations": 50034,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22524,
+        "minecraft:repeater": 2493,
+        "minecraft:stone": 25017
+      },
+      "physical_sink": {
+        "x": 8826,
+        "y": -59,
+        "z": -4
+      },
+      "physical_source": {
+        "x": 1384,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2493
+      },
+      "repeater_facing_counts": {
+        "east": 51,
+        "north": 452,
+        "south": 1194,
+        "west": 796
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2493,
+      "unique_repeaters": 2493
+    },
+    "cache:write_data:23": {
+      "emitted_operations": 49996,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22507,
+        "minecraft:repeater": 2491,
+        "minecraft:stone": 24998
+      },
+      "physical_sink": {
+        "x": 8831,
+        "y": -59,
+        "z": -4
+      },
+      "physical_source": {
+        "x": 1392,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2491
+      },
+      "repeater_facing_counts": {
+        "east": 51,
+        "north": 451,
+        "south": 1193,
+        "west": 796
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2491,
+      "unique_repeaters": 2491
+    },
+    "cache:write_data:24": {
+      "emitted_operations": 49958,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22490,
+        "minecraft:repeater": 2489,
+        "minecraft:stone": 24979
+      },
+      "physical_sink": {
+        "x": 8836,
+        "y": -59,
+        "z": -4
+      },
+      "physical_source": {
+        "x": 1400,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2489
+      },
+      "repeater_facing_counts": {
+        "east": 51,
+        "north": 450,
+        "south": 1193,
+        "west": 795
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2489,
+      "unique_repeaters": 2489
+    },
+    "cache:write_data:25": {
+      "emitted_operations": 49920,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22473,
+        "minecraft:repeater": 2487,
+        "minecraft:stone": 24960
+      },
+      "physical_sink": {
+        "x": 8841,
+        "y": -59,
+        "z": -4
+      },
+      "physical_source": {
+        "x": 1408,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2487
+      },
+      "repeater_facing_counts": {
+        "east": 51,
+        "north": 449,
+        "south": 1192,
+        "west": 795
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2487,
+      "unique_repeaters": 2487
+    },
+    "cache:write_data:26": {
+      "emitted_operations": 49882,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22456,
+        "minecraft:repeater": 2485,
+        "minecraft:stone": 24941
+      },
+      "physical_sink": {
+        "x": 8846,
+        "y": -59,
+        "z": -4
+      },
+      "physical_source": {
+        "x": 1416,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2485
+      },
+      "repeater_facing_counts": {
+        "east": 51,
+        "north": 448,
+        "south": 1191,
+        "west": 795
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2485,
+      "unique_repeaters": 2485
+    },
+    "cache:write_data:27": {
+      "emitted_operations": 49844,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22439,
+        "minecraft:repeater": 2483,
+        "minecraft:stone": 24922
+      },
+      "physical_sink": {
+        "x": 8851,
+        "y": -59,
+        "z": -4
+      },
+      "physical_source": {
+        "x": 1424,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2483
+      },
+      "repeater_facing_counts": {
+        "east": 51,
+        "north": 448,
+        "south": 1190,
+        "west": 794
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2483,
+      "unique_repeaters": 2483
+    },
+    "cache:write_data:28": {
+      "emitted_operations": 49806,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22422,
+        "minecraft:repeater": 2481,
+        "minecraft:stone": 24903
+      },
+      "physical_sink": {
+        "x": 8856,
+        "y": -59,
+        "z": -4
+      },
+      "physical_source": {
+        "x": 1432,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2481
+      },
+      "repeater_facing_counts": {
+        "east": 51,
+        "north": 447,
+        "south": 1189,
+        "west": 794
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2481,
+      "unique_repeaters": 2481
+    },
+    "cache:write_data:29": {
+      "emitted_operations": 49768,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22404,
+        "minecraft:repeater": 2480,
+        "minecraft:stone": 24884
+      },
+      "physical_sink": {
+        "x": 8861,
+        "y": -59,
+        "z": -4
+      },
+      "physical_source": {
+        "x": 1440,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2480
+      },
+      "repeater_facing_counts": {
+        "east": 51,
+        "north": 446,
+        "south": 1189,
+        "west": 794
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2480,
+      "unique_repeaters": 2480
+    },
+    "cache:write_data:3": {
+      "emitted_operations": 50756,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22849,
+        "minecraft:repeater": 2529,
+        "minecraft:stone": 25378
+      },
+      "physical_sink": {
+        "x": 8731,
+        "y": -59,
+        "z": -4
+      },
+      "physical_source": {
+        "x": 1232,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2529
+      },
+      "repeater_facing_counts": {
+        "east": 51,
+        "north": 467,
+        "south": 1209,
+        "west": 802
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2529,
+      "unique_repeaters": 2529
+    },
+    "cache:write_data:30": {
+      "emitted_operations": 49730,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22388,
+        "minecraft:repeater": 2477,
+        "minecraft:stone": 24865
+      },
+      "physical_sink": {
+        "x": 8866,
+        "y": -59,
+        "z": -4
+      },
+      "physical_source": {
+        "x": 1448,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2477
+      },
+      "repeater_facing_counts": {
+        "east": 51,
+        "north": 445,
+        "south": 1188,
+        "west": 793
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2477,
+      "unique_repeaters": 2477
+    },
+    "cache:write_data:31": {
+      "emitted_operations": 49692,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22371,
+        "minecraft:repeater": 2475,
+        "minecraft:stone": 24846
+      },
+      "physical_sink": {
+        "x": 8871,
+        "y": -59,
+        "z": -4
+      },
+      "physical_source": {
+        "x": 1456,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2475
+      },
+      "repeater_facing_counts": {
+        "east": 51,
+        "north": 444,
+        "south": 1187,
+        "west": 793
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2475,
+      "unique_repeaters": 2475
+    },
+    "cache:write_data:4": {
+      "emitted_operations": 50718,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22832,
+        "minecraft:repeater": 2527,
+        "minecraft:stone": 25359
+      },
+      "physical_sink": {
+        "x": 8736,
+        "y": -59,
+        "z": -4
+      },
+      "physical_source": {
+        "x": 1240,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2527
+      },
+      "repeater_facing_counts": {
+        "east": 51,
+        "north": 466,
+        "south": 1209,
+        "west": 801
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2527,
+      "unique_repeaters": 2527
+    },
+    "cache:write_data:5": {
+      "emitted_operations": 50680,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22815,
+        "minecraft:repeater": 2525,
+        "minecraft:stone": 25340
+      },
+      "physical_sink": {
+        "x": 8741,
+        "y": -59,
+        "z": -4
+      },
+      "physical_source": {
+        "x": 1248,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2525
+      },
+      "repeater_facing_counts": {
+        "east": 51,
+        "north": 465,
+        "south": 1208,
+        "west": 801
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2525,
+      "unique_repeaters": 2525
+    },
+    "cache:write_data:6": {
+      "emitted_operations": 50642,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22798,
+        "minecraft:repeater": 2523,
+        "minecraft:stone": 25321
+      },
+      "physical_sink": {
+        "x": 8746,
+        "y": -59,
+        "z": -4
+      },
+      "physical_source": {
+        "x": 1256,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2523
+      },
+      "repeater_facing_counts": {
+        "east": 51,
+        "north": 464,
+        "south": 1207,
+        "west": 801
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2523,
+      "unique_repeaters": 2523
+    },
+    "cache:write_data:7": {
+      "emitted_operations": 50604,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22781,
+        "minecraft:repeater": 2521,
+        "minecraft:stone": 25302
+      },
+      "physical_sink": {
+        "x": 8751,
+        "y": -59,
+        "z": -4
+      },
+      "physical_source": {
+        "x": 1264,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2521
+      },
+      "repeater_facing_counts": {
+        "east": 51,
+        "north": 464,
+        "south": 1206,
+        "west": 800
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2521,
+      "unique_repeaters": 2521
+    },
+    "cache:write_data:8": {
+      "emitted_operations": 50566,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22764,
+        "minecraft:repeater": 2519,
+        "minecraft:stone": 25283
+      },
+      "physical_sink": {
+        "x": 8756,
+        "y": -59,
+        "z": -4
+      },
+      "physical_source": {
+        "x": 1272,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2519
+      },
+      "repeater_facing_counts": {
+        "east": 51,
+        "north": 463,
+        "south": 1205,
+        "west": 800
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2519,
+      "unique_repeaters": 2519
+    },
+    "cache:write_data:9": {
+      "emitted_operations": 50528,
+      "emitted_state_name_counts": {
+        "minecraft:redstone_wire": 22746,
+        "minecraft:repeater": 2518,
+        "minecraft:stone": 25264
+      },
+      "physical_sink": {
+        "x": 8761,
+        "y": -59,
+        "z": -4
+      },
+      "physical_source": {
+        "x": 1280,
+        "y": -59,
+        "z": 7450
+      },
+      "repeater_delay_counts": {
+        "1": 2518
+      },
+      "repeater_facing_counts": {
+        "east": 51,
+        "north": 462,
+        "south": 1205,
+        "west": 800
+      },
+      "reverse_selected_word": false,
+      "series_repeater_delay_redstone_ticks": 2518,
+      "unique_repeaters": 2518
+    }
+  },
+  "plan_sha256": "0c81a0a49d447669adfc82facb682b805fbdd72df5690acb6f22b7a6a3a30362",
+  "route_emitted_operations": 4284848,
+  "schema": "connected-cache-external-route-delay-inventory-v1",
+  "scope": "One physical source/sink per route. Sum of unique actual repeater delays along that route; no invented signal values. Excludes controller/facade/memory internal response, dust event-order effects and setup/hold margins. Actual native execution remains required.",
+  "seconds": 10.665492539003026,
+  "source_hashes": {
+    "configs/default.toml": "630b70f01ac7de1f1b74250f8b454c9d090e461891f347fadc4c375c27cc5b20",
+    "experiments/memory_controller_runtime/clock_reserve.py": "6a5bd0ba923dbb6aabf0046ad6a487905043373854e76bdec502432db815d8fb",
+    "experiments/memory_controller_runtime/fixture.py": "fe736701c0fdab8a544d6ec63f249505cfe4114fcf5edd84e5e20d78c72c6513",
+    "experiments/memory_controller_runtime/geometry.py": "b815a0375895c8ce31dbcffddddf8e020e538d724d7050eb1a9ff9ea5595c06c",
+    "experiments/memory_controller_runtime/interconnect.py": "159dd746d905d93a1cfecb25cc8e7645ea91fc136d772432cf7c0923486c519b",
+    "experiments/memory_controller_runtime/save_connected.py": "70c44d2fc3eee9f401911373b6a15f412a89da8cb84d4662bcfe36363bdec2ef",
+    "experiments/memory_controller_runtime/scenarios.py": "1319d9a6097909dd849ac59c855c17232fc2442624cb957fb000de37e8499b67",
+    "experiments/partition_placement/packed_parent_union.py": "a9982d5e230fb7fa4e8b4e666a42323fd59b55066564b1fbf1567d0d15281a50",
+    "experiments/partition_placement/port_egress.py": "9b9ca8e2209f4401d6c8a7783c72c4188ed9f9b018b8a57d63fb9aa1fc20c9f5",
+    "experiments/partition_placement/port_egress_interfaces.py": "e47dffef1f73ad0141a5230f3fe294e4852f13cd0cb3a10a1364d91e5f79f5a2",
+    "experiments/partition_placement/port_egress_manifest.py": "822e4d29bd605456a159e687411e829268b183a7962a09a128324ffe97e6ba1a",
+    "experiments/partition_placement/raised_exports/geometry_manifest.py": "b69fa93db92131ce3530c596efe112077027216b748f53d5a042e103bc931897",
+    "experiments/partition_placement/raised_exports/replay_manifest.py": "308075b05664930ed457ca14054943bc7370e07ac45a86f54a9716ebf2c26ddb",
+    "experiments/partition_placement/raised_exports/streamed_union.py": "4732f29067e5d7aff013a9d2a5565e8e7037e4259b6cc1b74ffb0e45fd84281d",
+    "experiments/partition_placement/run_port_egress.py": "8ec6ea064afb4d519bccb9ba2158143fdb2a2db26818a9ab5532a6c73b1c91a5",
+    "experiments/partition_placement/targeted_clock_reserve.py": "02bf1a51c40e61910efb7fbda41480ec7ce1cc1bbb8369cd731988a5d90f46b0",
+    "rtl/shama_boot_params.svh": "3ec00fbefe06958cc2b918e52caa18129384cb267453a9fc976270bc72fa8025",
+    "rtl/shama_memory_adapter.sv": "853d438ff507e4740fb6468445804ccc846378686e66d7b136952a06f93fb0af",
+    "src/shamaos/bounded_build.py": "85ca0c83d4fc1bc781a4872cadca4b4f972e35cad0a0d35d151c3f9c8e153ee8",
+    "src/shamaos/generator.py": "a165087d34d1ac86398d894212bce36f55ef82a00bb8c8b944d3b41d51b1f7d5",
+    "src/shamaos/hardware/binary_row_decoder.py": "e58837fd0858146de95eea57e87186d8e1f1b3583f891a717ae14e156a461815",
+    "src/shamaos/hardware/external_router.py": "96834193a37bb485ab225ea21dc1ae460afcc3ab9ac41a434e45660be2f7666d",
+    "src/shamaos/hardware/interfaces.py": "54d7ad897c770647d1320891c62cc82cb581cfb29031ea62cf560838ff93873e",
+    "src/shamaos/hardware/local_router.py": "63054c806442499ba0aa27f65b1ec2b35c339c0c8595521dbc3097a334307bc6",
+    "src/shamaos/hardware/logic.py": "84a4f2cc3c535628ccd4e16ae0480b3cc99310f1fb83fe28f98d98b621ab1dff",
+    "src/shamaos/hardware/memory.py": "f44923cd4376d10fb2f62d5daf3bf752fe340e269355ac3564fd26ee2b5a8517",
+    "src/shamaos/hardware/memory_backbone.py": "8a6c22218be1e0a32189817318f72aad8bd31bd365141da556578c3b4398075d",
+    "src/shamaos/hardware/memory_streaming.py": "7f784968748570f5e3d2286a5ee81a0d965a0882123cb8125169bc4d1d491a24",
+    "src/shamaos/hardware/partition_placement.py": "10c6a4b5aba6b5c4776326d0a863bf57cd1fc5b0d216115ca496d851d6a82e90",
+    "src/shamaos/hardware/partition_planner.py": "82e7f39548af7443b29ffd322a118cb42474f6f0bf3da2273b1ecdefb38164b4",
+    "src/shamaos/hardware/routing.py": "d2b885f908a5942036269992c3fff7e3eb19ffe5a4753b97f5494aaf7120ccce",
+    "src/shamaos/layout.py": "e6db5143f7b2d9c0ae477e649cfc4421e476f14038fd861e8a65b1ebec946eaa",
+    "src/shamaos/machine_spec.py": "446853768c8fdd1be7472bd3d27e2f882ab3ca5805241f3f3ab7f3d778febd59",
+    "src/shamaos/model.py": "1a0fd1f9eb9469989057e4486401e5161e7f0bb02eb69195b7a14a74e92f4b95",
+    "src/shamaos/release_io.py": "5e1f310243d2325b9e4f6987649a770d2d4d03667cb66f5d442262fae43609c1",
+    "src/shamaos/synthesis.py": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274",
+    "src/shamaos/system_build.py": "1d8fe4deca82c64b386f7c0720cf6bb58ef1eb23179a6781796809e02e568a62",
+    "src/shamaos/worldio.py": "08e163497c981357b3aa4ce444709f38769001fb512700b0ffd2a8fc4ebda69c"
+  },
+  "status": "all-78-route-series-repeater-inventories-passed"
+}

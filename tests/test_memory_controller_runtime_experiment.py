@@ -547,6 +547,7 @@ def runtime_clock_evidence(tmp_path):
         result_path.write_text(json.dumps(result))
         report["cases"][name] = {"status": "passed" if name == "safe" else "too-fast-failure-detected",
             "half_period_ticks": period, "settle_ticks": 1, "exit_code": 0,
+            "wall_seconds": 0.1, "wall_limit_seconds": 60, "explicit_wall_timeout_reached": False,
             "trace_samples": samples, "scenario": runtime._record(scenario_path), "stdout": runtime._record(result_path)}
     arguments = (report, prepared_directory, prepared, runner, imported, inputs, outputs, clock_points)
     return runtime, arguments
@@ -558,6 +559,81 @@ def test_native_runtime_clock_gate_rechecks_both_bound_sample_sets(runtime_clock
     assert checked["safe"]["clock_gate_passed"]
     assert not checked["too-fast"]["clock_gate_passed"]
     assert checked["safe"]["register_clocks"] == 115
+
+
+@pytest.mark.parametrize("name", ["safe", "too-fast"])
+@pytest.mark.parametrize("process", [
+    {"explicit_wall_timeout_reached": True, "wall_seconds": 60.1},
+    {"explicit_wall_timeout_reached": False, "wall_seconds": 60},
+])
+def test_native_runtime_clock_gate_rejects_late_successful_exit(runtime_clock_evidence, name, process):
+    runtime, arguments = runtime_clock_evidence
+    case = arguments[0]["cases"][name]
+    assert case["exit_code"] == 0
+    case.update(process)
+    with pytest.raises(ValueError, match="wall deadline"):
+        runtime._verify_clock_report(*arguments, 2)
+
+
+@pytest.mark.parametrize("mode", ["clocks", "transactions"])
+@pytest.mark.parametrize("process", [
+    {"explicit_wall_timeout_reached": True, "wall_seconds": 1.1, "wall_limit_seconds": 1},
+    {"explicit_wall_timeout_reached": False, "wall_seconds": 1, "wall_limit_seconds": 1},
+])
+def test_native_runtime_callers_preserve_and_reject_late_success(
+        runtime_clock_evidence, monkeypatch, tmp_path, mode, process):
+    """Late native success cannot become either a clock or transaction pass."""
+    runtime, arguments = runtime_clock_evidence
+    clock_report, prepared_directory, prepared, runner, imported, inputs, outputs, points = arguments
+    # The small synthetic fixture checks the caller gate, never physical data.
+    stream = tmp_path / "unexecuted-world.jsonl"
+    stream.write_text('{"synthetic_guard_test":true}\n')
+    prepared["stream"] = runtime._record(stream)
+    clock_report["world_stream"] = prepared["stream"]
+    monkeypatch.setattr(runtime, "_load", lambda _: (prepared, imported, inputs, outputs, points))
+    calls = []
+
+    def late_success(*args, **kwargs):
+        calls.append((args, kwargs))
+        # Deliberately not a native JSON result: any attempted parsing would
+        # fail differently, proving the process guard runs before acceptance.
+        stdout = args[3] / "late-result.json"
+        stdout.write_text("late result must never be evaluated")
+        return dict(process, exit_code=0, stdout=runtime._record(stdout))
+
+    monkeypatch.setattr(runtime, "execute", late_success)
+    destination = tmp_path / f"late-{mode}"
+    if mode == "clocks":
+        action = lambda: runtime.clocks(prepared_directory, runner, destination,
+                                        half_period=2, settle_ticks=1)
+        report_name, case_name = "clock-report.json", "safe"
+    else:
+        # The retained clock report is actually revalidated before entering
+        # this transaction caller. Only the large scenario writer is replaced.
+        clock_report_path = tmp_path / "clock-report.json"
+        clock_report_path.write_text(json.dumps(clock_report))
+
+        def write_scenario(path, frames, *_args, **_kwargs):
+            path.write_text('{"synthetic_process_gate_only":true}\n')
+            return {"ticks": len(frames), "assertions": 0}
+
+        monkeypatch.setattr(runtime.scenarios, "write_scenario", write_scenario)
+        action = lambda: runtime.transactions(prepared_directory, runner, clock_report_path,
+            destination, half_period=2, initial_ticks=1, smoke=True)
+        report_name, case_name = "transaction-report.json", "smoke"
+    with pytest.raises(TimeoutError, match="wall deadline"):
+        action()
+    saved = json.loads((destination / report_name).read_text())
+    assert saved["status"] == "failed" and saved["error_type"] == "TimeoutError"
+    assert saved["connected_cache_runtime_verified"] is False
+    assert saved["complete_machine_runtime_verified"] is False
+    assert saved.get("native_clock_gate_verified", False) is False
+    assert saved.get("native_persistence_verified", False) is False
+    assert set(saved["cases"]) == {case_name}
+    assert saved["cases"][case_name]["status"] == "execution-incomplete"
+    assert saved["cases"][case_name]["exit_code"] == 0
+    assert {key: saved["cases"][case_name][key] for key in process} == process
+    assert len(calls) == 1
 
 
 @pytest.mark.parametrize("fault", ["no-cases", "missing-negative", "invented-case", "faster-period", "slower-period",
