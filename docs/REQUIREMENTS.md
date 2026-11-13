@@ -11,6 +11,10 @@ successful compile, a manifest capacity, or an opcode name is not behavioral pro
 
 ## Deliverable and architectural rules
 
+- The latest continuation accepts the current shipped-program sizes. Preserve
+  the measured capacities and all functionality, and prioritize completing the
+  physical interconnection, timing, saved-world operation and release. Further
+  optional program-size experiments are not a prerequisite for finishing.
 - One complete, disposable Minecraft Java world that can be opened in the game,
   together with the modular generator, assembler, firmware source, documentation,
   tutorial, version tags, and release artifacts. The default repository branch is

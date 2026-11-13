@@ -1,0 +1,525 @@
+{
+  "address_space_limit_mib": 200,
+  "assertions": 11252,
+  "baseline_binary": {
+    "bytes": 1274744,
+    "path": "/workspace/scratch/fb0eaf1c89fe/experiments/world-runtime/target/release/shama-sparse-world-check-terrain",
+    "sha256": "996ae88a29015472f930a5a7f53dfadc9fd4bb8097e29305ea9a17bfc697c499"
+  },
+  "candidate_binary": {
+    "bytes": 1283592,
+    "path": "/workspace/scratch/fb0eaf1c89fe/experiments/world-runtime/target/release/shama-sparse-world-check-queue",
+    "sha256": "0afae62e9871b61ceccbba61e6bc67ff0cb28129208aee420199c922aaabc904"
+  },
+  "cases": [
+    {
+      "assertions": 6,
+      "baseline": {
+        "exit_code": 0,
+        "performance": {
+          "import_seconds": 0.006721595,
+          "initialization_seconds": 0.000428144,
+          "peak_rss_kib": 2028,
+          "runtime_seconds": 8.9795e-05
+        },
+        "stderr": {
+          "bytes": 0,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/pending-queue-equivalence/logic/baseline.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "bytes": 2554,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/pending-queue-equivalence/logic/baseline.json",
+          "sha256": "fe970187078d3595b2f829ed97218c8163822d4f4e203145acf13d136a38b83b"
+        },
+        "wall_seconds": 0.016670630997396074
+      },
+      "candidate": {
+        "exit_code": 0,
+        "performance": {
+          "import_seconds": 0.004100405,
+          "initialization_seconds": 0.000448193,
+          "peak_rss_kib": 2020,
+          "runtime_seconds": 9.1127e-05
+        },
+        "stderr": {
+          "bytes": 0,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/pending-queue-equivalence/logic/candidate.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "bytes": 2554,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/pending-queue-equivalence/logic/candidate.json",
+          "sha256": "9063163dacabdf59ec63b4387db37b5595905b98fd208988ae686c66132bdd55"
+        },
+        "wall_seconds": 0.00885178799944697
+      },
+      "every_semantic_field_equal": true,
+      "exact_trace_samples": 128,
+      "name": "logic",
+      "peak_pending_ticks": 2,
+      "pending_ticks_after_scenario": 0,
+      "scenario": {
+        "bytes": 313,
+        "path": "/workspace/scratch/fb0eaf1c89fe/experiments/world-runtime/fixtures/logic/scenario.json",
+        "sha256": "a627de0e5ffbb50c570d281af6411797d3dbbf36aae01f25fa42139ef05f5b51"
+      },
+      "scheduled_ticks_total": 6,
+      "semantic_report_sha256": "3129c25a82ec245e3f8baf0495339e395fb8c98e835b270f490496ef3ec52ea5",
+      "status": "identical",
+      "ticks": 96,
+      "trace_outputs": 2,
+      "world_stream": {
+        "bytes": 62471,
+        "path": "/workspace/scratch/fb0eaf1c89fe/experiments/world-runtime/fixtures/logic/world.jsonl",
+        "sha256": "da456c0f627eaca3f412f157d9bef89ca5b8ce49ab6e775e24e5afdb2b13c5bf"
+      }
+    },
+    {
+      "assertions": 5408,
+      "baseline": {
+        "exit_code": 0,
+        "performance": {
+          "import_seconds": 0.031453705,
+          "initialization_seconds": 0.119751726,
+          "peak_rss_kib": 52884,
+          "runtime_seconds": 0.218528598
+        },
+        "snapshot": {
+          "bytes": 721277,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/pending-queue-equivalence/memory/baseline-snapshot.jsonl",
+          "sha256": "a0143a00be05d4ae1f60ed99bc5f412919862263b674da182bfccc0392efa11d"
+        },
+        "stderr": {
+          "bytes": 0,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/pending-queue-equivalence/memory/baseline.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "bytes": 7968823,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/pending-queue-equivalence/memory/baseline.json",
+          "sha256": "988467f13d7c88221803c3be6207a15b39f1db54ee5e74adb3212a7841d328be"
+        },
+        "wall_seconds": 0.7163371029964765
+      },
+      "candidate": {
+        "exit_code": 0,
+        "performance": {
+          "import_seconds": 0.025595907,
+          "initialization_seconds": 0.125912585,
+          "peak_rss_kib": 52864,
+          "runtime_seconds": 0.236421546
+        },
+        "snapshot": {
+          "bytes": 721277,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/pending-queue-equivalence/memory/candidate-snapshot.jsonl",
+          "sha256": "a0143a00be05d4ae1f60ed99bc5f412919862263b674da182bfccc0392efa11d"
+        },
+        "stderr": {
+          "bytes": 0,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/pending-queue-equivalence/memory/candidate.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "bytes": 7968823,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/pending-queue-equivalence/memory/candidate.json",
+          "sha256": "a61371e23bbf831706a981ba34a9013e0cb569679e98815eb6e33f2dd7072184"
+        },
+        "wall_seconds": 0.716979586002708
+      },
+      "every_semantic_field_equal": true,
+      "exact_snapshot_bytes_equal": true,
+      "exact_trace_samples": 1433600,
+      "name": "memory",
+      "peak_pending_ticks": 128,
+      "pending_ticks_after_scenario": 0,
+      "scenario": {
+        "bytes": 89990,
+        "path": "/workspace/scratch/fb0eaf1c89fe/experiments/world-runtime/fixtures/memory/scenario.json",
+        "sha256": "999cd8393b9eba249d2282741c0dd37d8354545b6503e843543fd7b9cd6636ac"
+      },
+      "scheduled_ticks_total": 9156,
+      "semantic_report_sha256": "66410f1f77334cc1989d9c46128f7e296e239f1fb381a1cc2d7bdff94f714f36",
+      "snapshot_state": {
+        "chunks": 50,
+        "comparators": 192,
+        "nonair": 72063,
+        "pending_scheduled_ticks": 0,
+        "sections": 1200
+      },
+      "status": "identical",
+      "ticks": 6656,
+      "trace_outputs": 224,
+      "world_stream": {
+        "bytes": 1021252,
+        "path": "/workspace/scratch/fb0eaf1c89fe/experiments/world-runtime/fixtures/memory/world.jsonl",
+        "sha256": "a3139a6e740d43dcc1f3a80249ccff5fc7c1ab267ab6b3e27b14746c41f7161f"
+      }
+    },
+    {
+      "assertions": 2430,
+      "baseline": {
+        "exit_code": 0,
+        "performance": {
+          "import_seconds": 0.022336793,
+          "initialization_seconds": 0.058150205,
+          "peak_rss_kib": 28184,
+          "runtime_seconds": 0.610964556
+        },
+        "stderr": {
+          "bytes": 0,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/pending-queue-equivalence/console/baseline.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "bytes": 4215300,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/pending-queue-equivalence/console/baseline.json",
+          "sha256": "8ecfb3dc0be11c6707904208f4c787ffea5f5ed20a0278729013e729649f147f"
+        },
+        "wall_seconds": 0.7679421119973995
+      },
+      "candidate": {
+        "exit_code": 0,
+        "performance": {
+          "import_seconds": 0.020652341,
+          "initialization_seconds": 0.055824649,
+          "peak_rss_kib": 28136,
+          "runtime_seconds": 0.571568854
+        },
+        "stderr": {
+          "bytes": 0,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/pending-queue-equivalence/console/candidate.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "bytes": 4215300,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/pending-queue-equivalence/console/candidate.json",
+          "sha256": "f53f53f4602d82699cb108b3ee1e416f5e965b48e07e2888c9dd375715552464"
+        },
+        "wall_seconds": 0.724199686999782
+      },
+      "every_semantic_field_equal": true,
+      "exact_trace_samples": 705000,
+      "name": "console",
+      "peak_pending_ticks": 8,
+      "pending_ticks_after_scenario": 0,
+      "scenario": {
+        "bytes": 33852,
+        "path": "/workspace/scratch/fb0eaf1c89fe/experiments/world-runtime/fixtures/console/scenario.json",
+        "sha256": "b5e2cb29130555152acdbb759b7ef9d145985388b7c6b64fc0fa2d7fd35c6dfa"
+      },
+      "scheduled_ticks_total": 22633,
+      "semantic_report_sha256": "c57fe961abcf00837c545593887b0bce3ab4c5def3cdf97d6350972381522c52",
+      "status": "identical",
+      "ticks": 23628,
+      "trace_outputs": 30,
+      "world_stream": {
+        "bytes": 719956,
+        "path": "/workspace/scratch/fb0eaf1c89fe/experiments/world-runtime/fixtures/console/world.jsonl",
+        "sha256": "90d1c54da00b5a3a4c344f175b147e5e728306c011a8c392c109ab2c0fcffc4f"
+      }
+    },
+    {
+      "assertions": 2430,
+      "baseline": {
+        "exit_code": 0,
+        "performance": {
+          "import_seconds": 0.021957137,
+          "initialization_seconds": 0.056524693,
+          "peak_rss_kib": 28152,
+          "runtime_seconds": 0.595191809
+        },
+        "stderr": {
+          "bytes": 0,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/pending-queue-equivalence/console-distant/baseline.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "bytes": 4215433,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/pending-queue-equivalence/console-distant/baseline.json",
+          "sha256": "b392599cb77118f042c064ab470f8bc03b5e7d5e5bf6495024bab9bd0309a9b4"
+        },
+        "wall_seconds": 0.7191662799959886
+      },
+      "candidate": {
+        "exit_code": 0,
+        "performance": {
+          "import_seconds": 0.022300392,
+          "initialization_seconds": 0.065984295,
+          "peak_rss_kib": 28088,
+          "runtime_seconds": 0.682665663
+        },
+        "stderr": {
+          "bytes": 0,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/pending-queue-equivalence/console-distant/candidate.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "bytes": 4215433,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/pending-queue-equivalence/console-distant/candidate.json",
+          "sha256": "06debd6c0363fbe47f6ca1b34e57e0742ec3d723e0211117e2c6f705e18bc260"
+        },
+        "wall_seconds": 0.9409703189958236
+      },
+      "every_semantic_field_equal": true,
+      "exact_trace_samples": 705000,
+      "name": "console-distant",
+      "peak_pending_ticks": 8,
+      "pending_ticks_after_scenario": 0,
+      "scenario": {
+        "bytes": 34740,
+        "path": "/workspace/scratch/fb0eaf1c89fe/experiments/world-runtime/fixtures/console-distant/scenario.json",
+        "sha256": "8f045a653a696b487b40894fcb1cd86459e4719b220e543c1e4639294292d017"
+      },
+      "scheduled_ticks_total": 22633,
+      "semantic_report_sha256": "d01aa614a21b380549a90883d7f561182fdb856a745c1de48b0f8d284ce3426e",
+      "status": "identical",
+      "ticks": 23628,
+      "trace_outputs": 30,
+      "world_stream": {
+        "bytes": 727936,
+        "path": "/workspace/scratch/fb0eaf1c89fe/experiments/world-runtime/fixtures/console-distant/world.jsonl",
+        "sha256": "218016b810b9420027f61cbfbc1996c8af95d0d4e0b5634b41d398f8c8c26e26"
+      }
+    },
+    {
+      "assertions": 800,
+      "baseline": {
+        "exit_code": 0,
+        "performance": {
+          "import_seconds": 0.009404628,
+          "initialization_seconds": 0.006486132,
+          "peak_rss_kib": 29152,
+          "runtime_seconds": 0.050566195
+        },
+        "stderr": {
+          "bytes": 0,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/pending-queue-equivalence/upright/baseline.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "bytes": 4643181,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/pending-queue-equivalence/upright/baseline.json",
+          "sha256": "07ff4b838f9c089da3b4e1784f9d2c87c398e34581887db5b30fe64645afded0"
+        },
+        "wall_seconds": 0.11926571100048022
+      },
+      "candidate": {
+        "exit_code": 0,
+        "performance": {
+          "import_seconds": 0.007751164,
+          "initialization_seconds": 0.006304369,
+          "peak_rss_kib": 29076,
+          "runtime_seconds": 0.049661714
+        },
+        "stderr": {
+          "bytes": 0,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/pending-queue-equivalence/upright/candidate.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "bytes": 4643181,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/pending-queue-equivalence/upright/candidate.json",
+          "sha256": "914eb71d18cd7632a6f3c53916b5585135861717a758090b212ffd64870a57d8"
+        },
+        "wall_seconds": 0.1178069579982548
+      },
+      "every_semantic_field_equal": true,
+      "exact_trace_samples": 819200,
+      "name": "upright",
+      "peak_pending_ticks": 16,
+      "pending_ticks_after_scenario": 0,
+      "scenario": {
+        "bytes": 12831,
+        "path": "/workspace/scratch/fb0eaf1c89fe/experiments/world-runtime/fixtures/upright/scenario.json",
+        "sha256": "4a254fb77b695118ea647c8d224f37f535d826b8138ee7a01fc783e175714b92"
+      },
+      "scheduled_ticks_total": 1196,
+      "semantic_report_sha256": "32070f2429b8144b953c1e186c187e219d070d5142f9b916930fd7b35f2ec16e",
+      "status": "identical",
+      "ticks": 26624,
+      "trace_outputs": 32,
+      "world_stream": {
+        "bytes": 132296,
+        "path": "/workspace/scratch/fb0eaf1c89fe/experiments/world-runtime/fixtures/upright/world.jsonl",
+        "sha256": "8dc2751e5cac4c4ce8756e937446dd27ad83d4cd817a57fac2cb172aaedda6a6"
+      }
+    },
+    {
+      "assertions": 94,
+      "baseline": {
+        "exit_code": 0,
+        "performance": {
+          "import_seconds": 0.045527639,
+          "initialization_seconds": 0.164811207,
+          "peak_rss_kib": 33896,
+          "runtime_seconds": 0.27791893
+        },
+        "stderr": {
+          "bytes": 0,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/pending-queue-equivalence/pipeline-512/baseline.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "bytes": 4171296,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/pending-queue-equivalence/pipeline-512/baseline.json",
+          "sha256": "067aa52519ff8cc7dd2ed3ee9297ed58746a96ef4c8776be665bfefb9cbd880a"
+        },
+        "wall_seconds": 0.5690691999989212
+      },
+      "candidate": {
+        "exit_code": 0,
+        "performance": {
+          "import_seconds": 0.052086921,
+          "initialization_seconds": 0.132365356,
+          "peak_rss_kib": 33912,
+          "runtime_seconds": 0.344744416
+        },
+        "stderr": {
+          "bytes": 0,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/pending-queue-equivalence/pipeline-512/candidate.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "bytes": 4171297,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/pending-queue-equivalence/pipeline-512/candidate.json",
+          "sha256": "7b7d2ad2adc8a4d9b9b6e97d4d44867b887d1e454e94b0ea9756bb2b3141ca1b"
+        },
+        "wall_seconds": 0.8481788060016697
+      },
+      "every_semantic_field_equal": true,
+      "exact_trace_samples": 745472,
+      "name": "pipeline-512",
+      "peak_pending_ticks": 5,
+      "pending_ticks_after_scenario": 0,
+      "pipeline_transfer_check": {
+        "missed_transfers": [],
+        "settled_transfer_checks": 10
+      },
+      "scenario": {
+        "bytes": 5439,
+        "path": "/workspace/scratch/fb0eaf1c89fe/experiments/world-runtime/connected-pipeline-native-v2/pipeline-512-scenario.json",
+        "sha256": "101f0e0c1b591aa8f1775d33a1f2075eb0c1356e9d22b2a105f7341b1feb7866"
+      },
+      "scheduled_ticks_total": 6463,
+      "semantic_report_sha256": "e669abe5da8b40fffab68eb2d4b32e064ddd6e67bd34d40eed0f48708338cd2f",
+      "status": "identical",
+      "ticks": 27648,
+      "trace_outputs": 28,
+      "world_stream": {
+        "bytes": 1765262,
+        "path": "/workspace/scratch/fb0eaf1c89fe/experiments/world-runtime/connected-pipeline-native-v2/world.jsonl",
+        "sha256": "feacf54f5e49d103f11caee2b8423b7d404edbaa2493285943cd3dd629559c35"
+      }
+    },
+    {
+      "assertions": 84,
+      "baseline": {
+        "exit_code": 0,
+        "performance": {
+          "import_seconds": 0.055418421,
+          "initialization_seconds": 0.131660616,
+          "peak_rss_kib": 19640,
+          "runtime_seconds": 0.248287732
+        },
+        "stderr": {
+          "bytes": 0,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/pending-queue-equivalence/pipeline-20/baseline.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "bytes": 1733192,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/pending-queue-equivalence/pipeline-20/baseline.json",
+          "sha256": "27311e4ce6d6a24e5276a756883c62dbd0bb38a3182d0c957bb49b7509c0743b"
+        },
+        "wall_seconds": 0.4707596700027352
+      },
+      "candidate": {
+        "exit_code": 0,
+        "performance": {
+          "import_seconds": 0.043868034,
+          "initialization_seconds": 0.153794464,
+          "peak_rss_kib": 19596,
+          "runtime_seconds": 0.254175154
+        },
+        "stderr": {
+          "bytes": 0,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/pending-queue-equivalence/pipeline-20/candidate.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "bytes": 1733192,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/pending-queue-equivalence/pipeline-20/candidate.json",
+          "sha256": "b5ba5f5d7c2a598751ed2eca9ddf8d0ff79bbc7bf95f26deffc589e5501f34f1"
+        },
+        "wall_seconds": 0.517856237005617
+      },
+      "every_semantic_field_equal": true,
+      "exact_trace_samples": 304640,
+      "name": "pipeline-20",
+      "peak_pending_ticks": 11,
+      "pending_ticks_after_scenario": 0,
+      "pipeline_transfer_check": {
+        "missed_transfers": [
+          {
+            "actual": false,
+            "expected": true,
+            "output": "q1",
+            "step": 33
+          },
+          {
+            "actual": true,
+            "expected": false,
+            "output": "q1",
+            "step": 41
+          }
+        ],
+        "settled_transfer_checks": 10
+      },
+      "scenario": {
+        "bytes": 5301,
+        "path": "/workspace/scratch/fb0eaf1c89fe/experiments/world-runtime/connected-pipeline-native-v2/pipeline-20-scenario.json",
+        "sha256": "efe5a2cad4497c2e3f470e908b890a0dc0a7b238e4df1f0a545d7641d2c36ed3"
+      },
+      "scheduled_ticks_total": 6288,
+      "semantic_report_sha256": "34beb53907c7e0d52d46a889cba3b5d72e98aaf33e6aa4270d06cb2f758a05c9",
+      "status": "identical",
+      "ticks": 11904,
+      "trace_outputs": 28,
+      "world_stream": {
+        "bytes": 1765262,
+        "path": "/workspace/scratch/fb0eaf1c89fe/experiments/world-runtime/connected-pipeline-native-v2/world.jsonl",
+        "sha256": "feacf54f5e49d103f11caee2b8423b7d404edbaa2493285943cd3dd629559c35"
+      }
+    }
+  ],
+  "comparison_negative_cases_rejected": [
+    "traces",
+    "scheduled_ticks_total",
+    "peak_pending_ticks",
+    "pending_ticks_after_scenario",
+    "status"
+  ],
+  "complete_machine_runtime_verified": false,
+  "created_utc": "2026-11-13T05:06:05.538358+00:00",
+  "exact_trace_samples": 4713040,
+  "excluded_process_performance_fields": [
+    "import_seconds",
+    "initialization_seconds",
+    "runtime_seconds",
+    "peak_rss_kib",
+    "snapshot.seconds"
+  ],
+  "schema": "pending-queue-native-differential-v1",
+  "scope": "Identical small saved-world traces and state; no complete-machine timing or speed claim",
+  "source_sha256": {
+    "tests/mchprs_sparse_runtime/Cargo.lock": "caf6cdc0a25e3b15e917d551d35b97800bd49e307cf0cb54094a4f40245d292b",
+    "tests/mchprs_sparse_runtime/Cargo.toml": "e4c6bd5b3602b4ee0a3bef0d1816dea6042557eaf88b07877424d6d39164d2de",
+    "tests/mchprs_sparse_runtime/native-terrain-registry.patch": "8ebd0e097d07e93a6b2b158e08ad19c2660b0b7e2521c6b6d34a4583a10bfbdc",
+    "tests/mchprs_sparse_runtime/src/main.rs": "90dd9714e6bd7e4f6ae1c9b9e554c213e54f51c019c33aef79d31bc900995734",
+    "tests/mchprs_sparse_runtime/src/pending.rs": "ad8b1c89796c74a840b7535d9639d7734655726a71d91ef91c0f834121f3a20d",
+    "tests/mchprs_sparse_runtime/src/snapshot.rs": "2a38ab18967e51ba245b41ca946e4b5fe891820ffb33a88b9f6aa4277a59b832",
+    "tools/check_pending_queue_equivalence.py": "48301b924e2ec0eaa23868ee48cb6e7fafe05143b44e3fb1bb0d4e09a0e7dc83"
+  },
+  "status": "passed"
+}

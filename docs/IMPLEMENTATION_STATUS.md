@@ -7,8 +7,13 @@ feature contract; [VALIDATION.md](VALIDATION.md) defines the evidence required.
 
 ## Owner request tracking
 
-The published implementation checkpoint is
-[`c3315eb`](https://github.com/Eabusham2/ShamaOS-Redstone-PC/commit/c3315eb35b3d52c1828e0d5c0c93dc0139ebd6e9).
+The published implementation checkpoint on `main` is
+[`1c1b3a1`](https://github.com/Eabusham2/ShamaOS-Redstone-PC/commit/1c1b3a150ec0a5abbc7cd697da35e0298298e197).
+Its [exact-commit CI run](https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/43364358101)
+was still running at the continuation audit; `c3315eb` remains the last verified
+fully green checkpoint. The owner accepts the current shipped-program sizes.
+The active priority is connecting and operating the complete physical machine,
+then producing the requested release downloads.
 The table distinguishes completed code/component work from the remaining
 complete-world deliverable; it is not a percentage-complete estimate.
 
@@ -27,6 +32,64 @@ The current regular-component union is **23,328 occupied X/Z chunks**. It
 excludes synthesized CPU/GPU/assembler/OS logic and their connecting routes.
 **No verified complete-computer chunk total or complete-world download exists
 at this checkpoint.**
+
+### Implementation gaps on the completion path
+
+These are remaining engineering tasks, not merely pending test executions:
+
+1. `system_build._prepare_partitioned_logic` still uses the flat routing backend.
+   The complete bounded graph planner and recursive placer exist, but the
+   complete machine generator does not yet use them.
+2. Original ports inside a recursively packed partition require accessible
+   external contacts and checked escape corridors. Retaining every graph port
+   does not by itself make that port connectable from outside the partition.
+3. The full cache controller is the next complete hardware integration target.
+   Its prepared request traces are RTL evidence; the physical controller,
+   decoder, two 4 KiB banks and external routes must execute together before
+   claiming a complete-cache result.
+4. Complete clock/data timing and a loaded/ticking-chunk arrangement remain
+   unproved. The existing conservative core divider is not a measured usable
+   clock rate; the raw input domain also needs its own physical timing proof.
+5. The complete-world lifecycle runner is not implemented. The empty
+   `release_acceptance._FULL_WORLD_VALIDATORS` registry deliberately prevents
+   fixture evidence or supplied pass labels from publishing a complete world.
+   Packaging scripts exist, but that is not an implemented runtime validator.
+
+A new development build path, `tools/build_bounded_partition.py`, now connects
+the complete bounded planner/placer to native world output. It requires the
+exact mapped-input digest, checks every original cell/net/port against that
+graph, forms an exact disk-backed block union, writes native Anvil regions and
+independently reopens them. Its 26 focused cases include an actual saved/reopened
+register pipeline and rejection of corrupted region data. Root independently
+reran 42 combined exporter and geometry-recovery cases and all 34 cache
+preparation/clock cases without skips; the
+[root review](evidence/completion-checkpoint-root-review-2026-11-13.json)
+records their exact sources. This path
+does not yet replace the flat complete-machine backend; electrical route
+isolation, external accessibility and full runtime acceptance remain explicit
+unverified fields in its reports.
+
+The complete 1,144-cell cache controller now has a retained placement with all
+183 original port bits and 115 register clocks. Its exact block union contains
+**10,607,088 unique blocks across 44,370 occupied chunks**, before either 4 KiB
+memory bank or their connecting routes. This standalone controller measurement
+is separate from the regular-component subtotal and cannot be added as a final
+computer footprint. All 56 native region files have now been independently
+reopened with the exact block/chunk counts and preserved terrain; this is a
+complete controller development world, not a connected cache. The planned
+common clock delivery latency is 2,642 redstone
+ticks; that is not a measured operating period or a complete timing result.
+The [cache integration experiment](../experiments/memory_controller_runtime/README.md)
+retains failed clock-space attempts, the accepted layout and its frozen sources.
+
+An audit of the earlier controller placement found 87 of 183 straight external
+port approaches obstructed. Additional real wires now carry original ports
+through their ancestors to exterior contacts in a small complete pipeline;
+the original graph pins remain intact. Passing and deliberately too-fast
+engine tests exercise that circuit, and a separate manifest retains every
+added wire. The full-controller exterior and physically connected cache/memory
+execution remain the next integration gates. A resource-limited partial trial
+does not count as a complete externally connectable controller.
 
 ## Current 200 KiB integration checkpoint
 

@@ -1,0 +1,34 @@
+{
+  "schema": "cache-controller-native-baseline-v1",
+  "status": "generated-and-readback-verified",
+  "mapped_sha256": "d4989124e9dca8b5afa865d954ded3be680b99f0b1e2f472aed6b5ecc42dd468",
+  "controller_manifest_sha256": "ae5b507dd31cc5e35330a9ed0c8fd6689e1f7dae8c43530f566871cd771ebcbb",
+  "complete_native_cells": 1144,
+  "original_pin_bits": 183,
+  "clock_registers": 115,
+  "literal_unique_blocks": 10607088,
+  "literal_union_sha256": "082d8f6c5ed8f1fdea521f80b379bf6863260a8e3b0014b4ae59d6ac710bdafd",
+  "occupied_chunks": 44370,
+  "world_validation": {
+    "assigned_blocks": 10607088,
+    "chunks": 44370,
+    "data_version": 3700,
+    "grass_surface_y": -61,
+    "method": "independent-anvil-block-state-readback",
+    "minimum_build_y": -60,
+    "region_bytes": 182198272,
+    "regions": 56,
+    "status": "passed",
+    "terrain_preserved": true
+  },
+  "world_inventory_sha256": "dfd6aca1256886561c97d778201458dde0307faa5e26ecb03eb7938a239f6303",
+  "generation_and_readback_seconds": 833.4951401779981,
+  "artifacts_sha256": {
+    "cache-controller-native-build.json": "15d819e4c3de841ba0347ca3061e498c559495765df969c8783c599c36f83663",
+    "cache-controller-native-world-inventory.json": "e7bee9723b4b325c25b2dcf91e5f4db1904a66b2c801617e5face6fbc557826b"
+  },
+  "physical_clock_probe_status": "pending",
+  "connected_cache_runtime_verified": false,
+  "complete_machine_runtime_verified": false,
+  "scope": "Complete original cache controller saved and reopened; no physical memory fabric connected and no clock/function runtime acceptance yet."
+}

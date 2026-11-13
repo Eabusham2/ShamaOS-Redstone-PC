@@ -1,0 +1,433 @@
+{
+  "available_disk_bytes_before_world": 37679915008,
+  "clock_route_matching": {
+    "2": {
+      "balanced_repeater_delay": 2642,
+      "clock_leaves": 115,
+      "runtime_verified": false,
+      "visited_modules": 27
+    }
+  },
+  "clock_scope": "Matched structural repeater routes; pulse, skew, setup/hold and intended transfers require native runtime.",
+  "complete_machine_release_eligible": false,
+  "complete_machine_runtime_verified": false,
+  "complete_route_validation_verified": false,
+  "electrical_route_isolation_verified": false,
+  "expected_mapped_sha256": "d4989124e9dca8b5afa865d954ded3be680b99f0b1e2f472aed6b5ecc42dd468",
+  "format": "shamaos-bounded-partition-build-v1",
+  "hdl_equivalence_scope": "Bound to this exact mapped input; original RTL equivalence is separate synthesis evidence.",
+  "literal_union": {
+    "bounds": {
+      "max": {
+        "x": 6486,
+        "y": 199,
+        "z": 2958
+      },
+      "min": {
+        "x": 0,
+        "y": -60,
+        "z": 0
+      }
+    },
+    "emitted_placements": 10632572,
+    "identical_duplicate_placements": 25484,
+    "method": "disk-backed-exact-literal-union",
+    "minimum_anvil_bytes": 182198272,
+    "occupied_chunks": 44370,
+    "occupied_regions": 56,
+    "palette": [
+      {
+        "name": "minecraft:stone",
+        "properties": []
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "0"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "1"
+          ],
+          [
+            "facing",
+            "west"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wall_torch",
+        "properties": [
+          [
+            "facing",
+            "east"
+          ],
+          [
+            "lit",
+            "true"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "1"
+          ],
+          [
+            "facing",
+            "south"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wall_torch",
+        "properties": [
+          [
+            "facing",
+            "north"
+          ],
+          [
+            "lit",
+            "true"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "1"
+          ],
+          [
+            "facing",
+            "south"
+          ],
+          [
+            "locked",
+            "true"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "4"
+          ],
+          [
+            "facing",
+            "south"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "1"
+          ],
+          [
+            "facing",
+            "east"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "1"
+          ],
+          [
+            "facing",
+            "north"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "up"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "0"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "up"
+          ],
+          [
+            "power",
+            "0"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "4"
+          ],
+          [
+            "facing",
+            "north"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "3"
+          ],
+          [
+            "facing",
+            "north"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "2"
+          ],
+          [
+            "facing",
+            "north"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      }
+    ],
+    "record_encoding": "big-endian u64 chunk-X/chunk-Z/local-X/local-Z/Y key, u32 palette index",
+    "scope": "Exact partition geometry; no timing, runtime or whole-machine claim",
+    "sorted_unique_record_sha256": "082d8f6c5ed8f1fdea521f80b379bf6863260a8e3b0014b4ae59d6ac710bdafd",
+    "status": "passed",
+    "unique_blocks": 10607088
+  },
+  "mapped_path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/experiments/memory_controller_runtime/evidence/cache-controller-c331.json.gz",
+  "mapped_source": {
+    "container_sha256": "33016917c70829684a45758a1a2164791f514803394101a6bde3ea19cafca8c0",
+    "encoding": "gzip",
+    "lowered_cells": 1144,
+    "lowering_source_sha256": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274",
+    "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/experiments/memory_controller_runtime/evidence/cache-controller-c331.json.gz",
+    "raw_cells": 1144,
+    "sha256": "d4989124e9dca8b5afa865d954ded3be680b99f0b1e2f472aed6b5ecc42dd468",
+    "top": "shama_cache_adapter"
+  },
+  "partition_runtime_verified": false,
+  "placement_audit": {
+    "clock_leaf_uses": 115,
+    "constant_terminals": 0,
+    "native_cells": 1144,
+    "native_sink_uses": 2155,
+    "original_port_bits": 183,
+    "runtime_verified": false,
+    "shared_contacts": 1484,
+    "status": "structural-contacts-passed"
+  },
+  "plan_audit": {
+    "native_cells": 1144,
+    "scope": "complete structural graph reconstruction; no physical routing or timing claim",
+    "signals": 1248,
+    "status": "passed"
+  },
+  "plan_sha256": "088f99677c5a5b8c81952db1857e36d190a8faeb86251427b5896f0f0d59229d",
+  "plan_summary": {
+    "all_signal_records_retained": true,
+    "bounded_router_domains": 12,
+    "clock_leaf_uses": 115,
+    "constant_terminals": 0,
+    "explicit_fanout_branches": 94,
+    "hierarchy_depth": 3,
+    "internal_clusters": 8,
+    "leaf_clusters": 21,
+    "maximum_domain_terminals": 256,
+    "maximum_domains_at_one_cluster": 2,
+    "maximum_leaf_boundary": 64,
+    "maximum_router_fanout": 4,
+    "native_cells": 1144,
+    "original_port_bits": 183,
+    "original_signal_endpoints_sha256": "916bd6d13d2c3c36de6843a274f33c34ba648c64e6e716f34724d8ccbf4af579",
+    "original_sink_uses": 2155,
+    "signal_tree_links": 1484,
+    "signals": 1248,
+    "topology_sha256": "aabd37d3322b1eac9571b541e9558a9b835afeb44ece93987081a21185950e97"
+  },
+  "ports_sha256": "be877bd05d54e3ac93d2cc639be12c144ca03bd77fa61c642ff9592ad44f03e9",
+  "remaining_gates": [
+    "complete emitted electrical route validation",
+    "external partition connections",
+    "full sequential timing",
+    "native partition runtime",
+    "complete machine generation and runtime",
+    "client controls/view and loading",
+    "release acceptance"
+  ],
+  "route_validation_scope": "Graph/contact conservation and exact literal union/readback only; electrical adjacency, climbing headroom and complete route continuity require separate validation.",
+  "scope": "complete-mapped-partition-development",
+  "seconds": 833.4951401779981,
+  "source_hashes": {
+    "bounded_build.py": "85ca0c83d4fc1bc781a4872cadca4b4f972e35cad0a0d35d151c3f9c8e153ee8",
+    "hardware/external_router.py": "96834193a37bb485ab225ea21dc1ae460afcc3ab9ac41a434e45660be2f7666d",
+    "hardware/local_router.py": "63054c806442499ba0aa27f65b1ec2b35c339c0c8595521dbc3097a334307bc6",
+    "hardware/logic.py": "84a4f2cc3c535628ccd4e16ae0480b3cc99310f1fb83fe28f98d98b621ab1dff",
+    "hardware/memory.py": "f44923cd4376d10fb2f62d5daf3bf752fe340e269355ac3564fd26ee2b5a8517",
+    "hardware/partition_placement.py": "10c6a4b5aba6b5c4776326d0a863bf57cd1fc5b0d216115ca496d851d6a82e90",
+    "hardware/partition_planner.py": "82e7f39548af7443b29ffd322a118cb42474f6f0bf3da2273b1ecdefb38164b4",
+    "hardware/routing.py": "d2b885f908a5942036269992c3fff7e3eb19ffe5a4753b97f5494aaf7120ccce",
+    "model.py": "1a0fd1f9eb9469989057e4486401e5161e7f0bb02eb69195b7a14a74e92f4b95",
+    "release_io.py": "5e1f310243d2325b9e4f6987649a770d2d4d03667cb66f5d442262fae43609c1",
+    "synthesis.py": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274",
+    "worldio.py": "08e163497c981357b3aa4ce444709f38769001fb512700b0ffd2a8fc4ebda69c"
+  },
+  "stage": "complete-development-partition",
+  "status": "generated-and-readback-verified",
+  "top": "shama_cache_adapter",
+  "world_inventory_sha256": "dfd6aca1256886561c97d778201458dde0307faa5e26ecb03eb7938a239f6303",
+  "world_validation": {
+    "assigned_blocks": 10607088,
+    "chunks": 44370,
+    "data_version": 3700,
+    "grass_surface_y": -61,
+    "method": "independent-anvil-block-state-readback",
+    "minimum_build_y": -60,
+    "region_bytes": 182198272,
+    "regions": 56,
+    "status": "passed",
+    "terrain_preserved": true
+  }
+}

@@ -1,0 +1,343 @@
+{
+  "scope": "Independent canonical literal and I/O records from the retained actual-engine positive and negative source cases",
+  "cases": [
+    {
+      "half_period": 512,
+      "source_case_sha256": "189409d548334fc232cd1035587675d19416719d3d7e4363a9300dadbc1827af",
+      "native_translation": {
+        "x": 32,
+        "y": 92,
+        "z": 32
+      },
+      "unique_blocks": 10340,
+      "emitted_operations": 10532,
+      "state_union_sha256": "4c2e490e2550c0b558360de3aec5bcf40a5314f5eb43911c51d048525c6b8799",
+      "state_operation_multiset_sha256": "42207fcb463da1edf34518fe7599e3e200de583974216edd2efc0704f6dbb9a7",
+      "ports": {
+        "inputs": {
+          "clk": [
+            -1,
+            13,
+            33
+          ],
+          "d": [
+            -1,
+            55,
+            21
+          ]
+        },
+        "outputs": {
+          "one": [
+            0,
+            79,
+            1
+          ],
+          "q0": [
+            4,
+            85,
+            22
+          ],
+          "q1": [
+            4,
+            109,
+            22
+          ],
+          "zero": [
+            0,
+            151,
+            0
+          ],
+          "a:D": [
+            0,
+            -59,
+            22
+          ],
+          "a:C": [
+            6,
+            -59,
+            22
+          ],
+          "a:Q": [
+            16,
+            -59,
+            22
+          ],
+          "b:D": [
+            0,
+            -35,
+            22
+          ],
+          "b:C": [
+            6,
+            -35,
+            22
+          ],
+          "b:Q": [
+            16,
+            -35,
+            22
+          ],
+          "handoff:net2:cluster3>cluster9": [
+            4,
+            13,
+            34
+          ],
+          "handoff:net2:cluster9>cluster0": [
+            8,
+            -59,
+            70
+          ],
+          "handoff:net2:cluster9>cluster1": [
+            8,
+            -35,
+            70
+          ],
+          "handoff:net3:cluster9>cluster2": [
+            0,
+            -11,
+            70
+          ],
+          "handoff:net4:cluster2>cluster9": [
+            20,
+            -11,
+            70
+          ],
+          "handoff:net4:cluster9>cluster0": [
+            0,
+            -59,
+            70
+          ],
+          "handoff:net5:cluster0>cluster9": [
+            16,
+            -59,
+            70
+          ],
+          "handoff:net5:cluster9>cluster1": [
+            0,
+            -35,
+            70
+          ],
+          "handoff:net6:cluster1>cluster9": [
+            16,
+            -35,
+            70
+          ],
+          "handoff:net3:cluster4>cluster10": [
+            4,
+            55,
+            22
+          ],
+          "handoff:net5:cluster10>cluster6": [
+            0,
+            85,
+            22
+          ],
+          "handoff:net6:cluster10>cluster7": [
+            0,
+            109,
+            22
+          ],
+          "handoff:net3:cluster10>cluster11": [
+            0,
+            136,
+            46
+          ],
+          "handoff:net3:cluster11>cluster9": [
+            0,
+            40,
+            94
+          ],
+          "handoff:net5:cluster9>cluster11": [
+            8,
+            40,
+            94
+          ],
+          "handoff:net5:cluster11>cluster10": [
+            8,
+            136,
+            46
+          ],
+          "handoff:net6:cluster9>cluster11": [
+            16,
+            40,
+            94
+          ],
+          "handoff:net6:cluster11>cluster10": [
+            16,
+            136,
+            46
+          ]
+        }
+      }
+    },
+    {
+      "half_period": 20,
+      "source_case_sha256": "8789e205d1f1f8baf3d1fdd4700a6b582a06c818709dc163440257082298d863",
+      "native_translation": {
+        "x": 32,
+        "y": 92,
+        "z": 32
+      },
+      "unique_blocks": 10340,
+      "emitted_operations": 10532,
+      "state_union_sha256": "4c2e490e2550c0b558360de3aec5bcf40a5314f5eb43911c51d048525c6b8799",
+      "state_operation_multiset_sha256": "42207fcb463da1edf34518fe7599e3e200de583974216edd2efc0704f6dbb9a7",
+      "ports": {
+        "inputs": {
+          "clk": [
+            -1,
+            13,
+            33
+          ],
+          "d": [
+            -1,
+            55,
+            21
+          ]
+        },
+        "outputs": {
+          "one": [
+            0,
+            79,
+            1
+          ],
+          "q0": [
+            4,
+            85,
+            22
+          ],
+          "q1": [
+            4,
+            109,
+            22
+          ],
+          "zero": [
+            0,
+            151,
+            0
+          ],
+          "a:D": [
+            0,
+            -59,
+            22
+          ],
+          "a:C": [
+            6,
+            -59,
+            22
+          ],
+          "a:Q": [
+            16,
+            -59,
+            22
+          ],
+          "b:D": [
+            0,
+            -35,
+            22
+          ],
+          "b:C": [
+            6,
+            -35,
+            22
+          ],
+          "b:Q": [
+            16,
+            -35,
+            22
+          ],
+          "handoff:net2:cluster3>cluster9": [
+            4,
+            13,
+            34
+          ],
+          "handoff:net2:cluster9>cluster0": [
+            8,
+            -59,
+            70
+          ],
+          "handoff:net2:cluster9>cluster1": [
+            8,
+            -35,
+            70
+          ],
+          "handoff:net3:cluster9>cluster2": [
+            0,
+            -11,
+            70
+          ],
+          "handoff:net4:cluster2>cluster9": [
+            20,
+            -11,
+            70
+          ],
+          "handoff:net4:cluster9>cluster0": [
+            0,
+            -59,
+            70
+          ],
+          "handoff:net5:cluster0>cluster9": [
+            16,
+            -59,
+            70
+          ],
+          "handoff:net5:cluster9>cluster1": [
+            0,
+            -35,
+            70
+          ],
+          "handoff:net6:cluster1>cluster9": [
+            16,
+            -35,
+            70
+          ],
+          "handoff:net3:cluster4>cluster10": [
+            4,
+            55,
+            22
+          ],
+          "handoff:net5:cluster10>cluster6": [
+            0,
+            85,
+            22
+          ],
+          "handoff:net6:cluster10>cluster7": [
+            0,
+            109,
+            22
+          ],
+          "handoff:net3:cluster10>cluster11": [
+            0,
+            136,
+            46
+          ],
+          "handoff:net3:cluster11>cluster9": [
+            0,
+            40,
+            94
+          ],
+          "handoff:net5:cluster9>cluster11": [
+            8,
+            40,
+            94
+          ],
+          "handoff:net5:cluster11>cluster10": [
+            8,
+            136,
+            46
+          ],
+          "handoff:net6:cluster9>cluster11": [
+            16,
+            40,
+            94
+          ],
+          "handoff:net6:cluster11>cluster10": [
+            16,
+            136,
+            46
+          ]
+        }
+      }
+    }
+  ]
+}

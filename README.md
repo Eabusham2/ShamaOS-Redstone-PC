@@ -17,6 +17,17 @@ all 20 CI jobs pass, including 986 required behavioral/redstone tests with no
 skips. Newer work and the remaining complete-world gates are tracked separately
 in the implementation status document.
 
+The published implementation on `main` is
+[`1c1b3a1`](https://github.com/Eabusham2/ShamaOS-Redstone-PC/commit/1c1b3a150ec0a5abbc7cd697da35e0298298e197),
+whose CI is tracked separately from the green predecessor above. The current
+program sizes are accepted; work is focused on complete physical routing,
+timing, saved-world execution and the final release. The bounded router still
+needs production integration, and the complete-world acceptance runner still
+needs implementation. The newer [completion checkpoint](docs/evidence/completion-checkpoint-root-review-2026-11-13.json)
+adds an audited bounded-partition world exporter and preserves the complete
+cache-controller placement. Its development world has been saved and reopened;
+connecting the controller to both physical memory banks remains unfinished.
+
 ## Agreed machine
 
 | Subsystem | Contract |

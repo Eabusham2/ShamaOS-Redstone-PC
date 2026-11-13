@@ -60,9 +60,22 @@ flat background, without inventing extra circuitry.
 All circuit behavior comes from the pinned `mchprs_redstone` implementation.
 The tick queue keeps its stable delay/priority ordering, decrement rules,
 duplicate-tick behavior and actual block-update calls. It has not been replaced
-with Boolean gates or an instruction emulator. The current queue retains the
-upstream linear `remove(0)` behavior; large pending queues need profiling before
-any performance claim or queue redesign.
+with Boolean gates or an instruction emulator. Its storage now uses a deque
+and a position-count index, avoiding linear front removal and pending-position
+searches. Sorting still occurs once before each tick's decrement; callbacks
+append in the original order, including zero-delay work and duplicate positions.
+The pinned redstone engine is unchanged.
+
+The [queue equivalence report](evidence/pending-queue-equivalence-2026-11-13.json)
+compares the frozen previous runner with the new runner on seven identical saved
+fixtures: logic, memory, both console placements, an upright display, and passing
+and deliberately too-fast connected pipelines. All **4,713,040 trace samples**
+and **11,252 assertions** match, along with every semantic report field. The
+quiescent memory snapshots are byte-identical. Six queue unit cases cover stable
+priority ties, wrapped storage, callback scheduling, duplicate positions and
+comparison with the original vector scheduler over 400 ticks. Small-fixture
+wall times vary in both directions; these results establish equivalent behavior,
+not a measured complete-machine speed improvement.
 
 The imported-byte and scenario SHA-256 values are computed from the exact byte
 streams consumed by the parser. This uses the standard `sha256sum` command with

@@ -1,0 +1,1572 @@
+{
+  "clock_target": 2534,
+  "maximum_shortfall": 90,
+  "modules": [
+    {
+      "module": [
+        "leaf",
+        16
+      ],
+      "net": 2,
+      "target": 164,
+      "track_base_z": 492,
+      "sinks": [
+        {
+          "sink": "$auto$ff.cc:266:slice$67929",
+          "arrival": 164,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 0,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67931",
+          "arrival": 92,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 72,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68001",
+          "arrival": 55,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 109,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68003",
+          "arrival": 75,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 89,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68085",
+          "arrival": 95,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 69,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68087",
+          "arrival": 112,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 52,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68089",
+          "arrival": 40,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 124,
+          "shortfall": 0
+        }
+      ]
+    },
+    {
+      "module": [
+        "leaf",
+        17
+      ],
+      "net": 2,
+      "target": 115,
+      "track_base_z": 492,
+      "sinks": [
+        {
+          "sink": "$auto$ff.cc:266:slice$67933",
+          "arrival": 115,
+          "tail": 0,
+          "available_extra_delay": 455,
+          "positions": 117,
+          "needed_extra_delay": 0,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67935",
+          "arrival": 39,
+          "tail": 0,
+          "available_extra_delay": 455,
+          "positions": 117,
+          "needed_extra_delay": 76,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68005",
+          "arrival": 86,
+          "tail": 0,
+          "available_extra_delay": 455,
+          "positions": 117,
+          "needed_extra_delay": 29,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68007",
+          "arrival": 62,
+          "tail": 0,
+          "available_extra_delay": 455,
+          "positions": 117,
+          "needed_extra_delay": 53,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68091",
+          "arrival": 79,
+          "tail": 0,
+          "available_extra_delay": 455,
+          "positions": 117,
+          "needed_extra_delay": 36,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68093",
+          "arrival": 109,
+          "tail": 0,
+          "available_extra_delay": 455,
+          "positions": 117,
+          "needed_extra_delay": 6,
+          "shortfall": 0
+        }
+      ]
+    },
+    {
+      "module": [
+        "leaf",
+        0
+      ],
+      "net": 2,
+      "target": 57,
+      "track_base_z": 176,
+      "sinks": [
+        {
+          "sink": "$auto$ff.cc:266:slice$67865",
+          "arrival": 31,
+          "tail": 0,
+          "available_extra_delay": 283,
+          "positions": 73,
+          "needed_extra_delay": 26,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67867",
+          "arrival": 57,
+          "tail": 0,
+          "available_extra_delay": 283,
+          "positions": 73,
+          "needed_extra_delay": 0,
+          "shortfall": 0
+        }
+      ]
+    },
+    {
+      "module": [
+        "leaf",
+        1
+      ],
+      "net": 2,
+      "target": 86,
+      "track_base_z": 176,
+      "sinks": [
+        {
+          "sink": "$auto$ff.cc:266:slice$67869",
+          "arrival": 86,
+          "tail": 0,
+          "available_extra_delay": 346,
+          "positions": 89,
+          "needed_extra_delay": 0,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68009",
+          "arrival": 63,
+          "tail": 0,
+          "available_extra_delay": 346,
+          "positions": 89,
+          "needed_extra_delay": 23,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68023",
+          "arrival": 34,
+          "tail": 0,
+          "available_extra_delay": 346,
+          "positions": 89,
+          "needed_extra_delay": 52,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68025",
+          "arrival": 66,
+          "tail": 0,
+          "available_extra_delay": 346,
+          "positions": 89,
+          "needed_extra_delay": 20,
+          "shortfall": 0
+        }
+      ]
+    },
+    {
+      "module": [
+        "leaf",
+        2
+      ],
+      "net": 2,
+      "target": 106,
+      "track_base_z": 176,
+      "sinks": [
+        {
+          "sink": "$auto$ff.cc:266:slice$68011",
+          "arrival": 77,
+          "tail": 0,
+          "available_extra_delay": 283,
+          "positions": 73,
+          "needed_extra_delay": 29,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68013",
+          "arrival": 53,
+          "tail": 0,
+          "available_extra_delay": 283,
+          "positions": 73,
+          "needed_extra_delay": 53,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68015",
+          "arrival": 30,
+          "tail": 0,
+          "available_extra_delay": 283,
+          "positions": 73,
+          "needed_extra_delay": 76,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68017",
+          "arrival": 51,
+          "tail": 0,
+          "available_extra_delay": 283,
+          "positions": 73,
+          "needed_extra_delay": 55,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68021",
+          "arrival": 106,
+          "tail": 0,
+          "available_extra_delay": 283,
+          "positions": 73,
+          "needed_extra_delay": 0,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68027",
+          "arrival": 74,
+          "tail": 0,
+          "available_extra_delay": 283,
+          "positions": 73,
+          "needed_extra_delay": 32,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68029",
+          "arrival": 106,
+          "tail": 0,
+          "available_extra_delay": 283,
+          "positions": 73,
+          "needed_extra_delay": 0,
+          "shortfall": 0
+        }
+      ]
+    },
+    {
+      "module": [
+        "leaf",
+        3
+      ],
+      "net": 2,
+      "target": 157,
+      "track_base_z": 176,
+      "sinks": [
+        {
+          "sink": "$auto$ff.cc:266:slice$67871",
+          "arrival": 157,
+          "tail": 0,
+          "available_extra_delay": 455,
+          "positions": 117,
+          "needed_extra_delay": 0,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67873",
+          "arrival": 85,
+          "tail": 0,
+          "available_extra_delay": 455,
+          "positions": 117,
+          "needed_extra_delay": 72,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67937",
+          "arrival": 57,
+          "tail": 0,
+          "available_extra_delay": 455,
+          "positions": 117,
+          "needed_extra_delay": 100,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67945",
+          "arrival": 39,
+          "tail": 0,
+          "available_extra_delay": 455,
+          "positions": 117,
+          "needed_extra_delay": 118,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68019",
+          "arrival": 93,
+          "tail": 0,
+          "available_extra_delay": 455,
+          "positions": 117,
+          "needed_extra_delay": 64,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68031",
+          "arrival": 127,
+          "tail": 0,
+          "available_extra_delay": 455,
+          "positions": 117,
+          "needed_extra_delay": 30,
+          "shortfall": 0
+        }
+      ]
+    },
+    {
+      "module": [
+        "domain",
+        0
+      ],
+      "net": 2,
+      "target": 415,
+      "track_base_z": 0,
+      "sinks": [
+        {
+          "sink": "boundary:net2:cluster21>cluster0:out",
+          "arrival": 359,
+          "tail": 57,
+          "available_extra_delay": 1375,
+          "positions": 353,
+          "needed_extra_delay": 56,
+          "shortfall": 0
+        },
+        {
+          "sink": "boundary:net2:cluster21>cluster1:out",
+          "arrival": 355,
+          "tail": 86,
+          "available_extra_delay": 1360,
+          "positions": 349,
+          "needed_extra_delay": 60,
+          "shortfall": 0
+        },
+        {
+          "sink": "boundary:net2:cluster21>cluster2:out",
+          "arrival": 355,
+          "tail": 106,
+          "available_extra_delay": 1352,
+          "positions": 347,
+          "needed_extra_delay": 60,
+          "shortfall": 0
+        },
+        {
+          "sink": "boundary:net2:cluster21>cluster3:out",
+          "arrival": 415,
+          "tail": 157,
+          "available_extra_delay": 1344,
+          "positions": 345,
+          "needed_extra_delay": 0,
+          "shortfall": 0
+        }
+      ]
+    },
+    {
+      "module": [
+        "leaf",
+        4
+      ],
+      "net": 2,
+      "target": 124,
+      "track_base_z": 72,
+      "sinks": [
+        {
+          "sink": "$auto$ff.cc:266:slice$67875",
+          "arrival": 124,
+          "tail": 0,
+          "available_extra_delay": 486,
+          "positions": 125,
+          "needed_extra_delay": 0,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67877",
+          "arrival": 41,
+          "tail": 0,
+          "available_extra_delay": 486,
+          "positions": 125,
+          "needed_extra_delay": 83,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67947",
+          "arrival": 94,
+          "tail": 0,
+          "available_extra_delay": 486,
+          "positions": 125,
+          "needed_extra_delay": 30,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67949",
+          "arrival": 108,
+          "tail": 0,
+          "available_extra_delay": 486,
+          "positions": 125,
+          "needed_extra_delay": 16,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68033",
+          "arrival": 61,
+          "tail": 0,
+          "available_extra_delay": 486,
+          "positions": 125,
+          "needed_extra_delay": 63,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68035",
+          "arrival": 91,
+          "tail": 0,
+          "available_extra_delay": 486,
+          "positions": 125,
+          "needed_extra_delay": 33,
+          "shortfall": 0
+        }
+      ]
+    },
+    {
+      "module": [
+        "leaf",
+        5
+      ],
+      "net": 2,
+      "target": 171,
+      "track_base_z": 72,
+      "sinks": [
+        {
+          "sink": "$auto$ff.cc:266:slice$67879",
+          "arrival": 98,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 73,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67881",
+          "arrival": 171,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 0,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67883",
+          "arrival": 99,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 72,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67951",
+          "arrival": 40,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 131,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67953",
+          "arrival": 58,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 113,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67955",
+          "arrival": 54,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 117,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68037",
+          "arrival": 78,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 93,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68039",
+          "arrival": 119,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 52,
+          "shortfall": 0
+        }
+      ]
+    },
+    {
+      "module": [
+        "leaf",
+        6
+      ],
+      "net": 2,
+      "target": 164,
+      "track_base_z": 72,
+      "sinks": [
+        {
+          "sink": "$auto$ff.cc:266:slice$67885",
+          "arrival": 164,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 0,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67887",
+          "arrival": 92,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 72,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67957",
+          "arrival": 51,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 113,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67959",
+          "arrival": 71,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 93,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68041",
+          "arrival": 91,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 73,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68043",
+          "arrival": 112,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 52,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68045",
+          "arrival": 41,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 123,
+          "shortfall": 0
+        }
+      ]
+    },
+    {
+      "module": [
+        "leaf",
+        7
+      ],
+      "net": 2,
+      "target": 165,
+      "track_base_z": 72,
+      "sinks": [
+        {
+          "sink": "$auto$ff.cc:266:slice$67889",
+          "arrival": 165,
+          "tail": 0,
+          "available_extra_delay": 486,
+          "positions": 125,
+          "needed_extra_delay": 0,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67891",
+          "arrival": 93,
+          "tail": 0,
+          "available_extra_delay": 486,
+          "positions": 125,
+          "needed_extra_delay": 72,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67939",
+          "arrival": 59,
+          "tail": 0,
+          "available_extra_delay": 486,
+          "positions": 125,
+          "needed_extra_delay": 106,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67961",
+          "arrival": 79,
+          "tail": 0,
+          "available_extra_delay": 486,
+          "positions": 125,
+          "needed_extra_delay": 86,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67963",
+          "arrival": 99,
+          "tail": 0,
+          "available_extra_delay": 486,
+          "positions": 125,
+          "needed_extra_delay": 66,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68047",
+          "arrival": 113,
+          "tail": 0,
+          "available_extra_delay": 486,
+          "positions": 125,
+          "needed_extra_delay": 52,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68049",
+          "arrival": 41,
+          "tail": 0,
+          "available_extra_delay": 486,
+          "positions": 125,
+          "needed_extra_delay": 124,
+          "shortfall": 0
+        }
+      ]
+    },
+    {
+      "module": [
+        "domain",
+        1
+      ],
+      "net": 2,
+      "target": 426,
+      "track_base_z": 0,
+      "sinks": [
+        {
+          "sink": "boundary:net2:cluster22>cluster4:out",
+          "arrival": 336,
+          "tail": 124,
+          "available_extra_delay": 993,
+          "positions": 255,
+          "needed_extra_delay": 90,
+          "shortfall": 0
+        },
+        {
+          "sink": "boundary:net2:cluster22>cluster5:out",
+          "arrival": 426,
+          "tail": 171,
+          "available_extra_delay": 977,
+          "positions": 251,
+          "needed_extra_delay": 0,
+          "shortfall": 0
+        },
+        {
+          "sink": "boundary:net2:cluster22>cluster6:out",
+          "arrival": 405,
+          "tail": 164,
+          "available_extra_delay": 954,
+          "positions": 245,
+          "needed_extra_delay": 21,
+          "shortfall": 0
+        },
+        {
+          "sink": "boundary:net2:cluster22>cluster7:out",
+          "arrival": 399,
+          "tail": 165,
+          "available_extra_delay": 970,
+          "positions": 249,
+          "needed_extra_delay": 27,
+          "shortfall": 0
+        }
+      ]
+    },
+    {
+      "module": [
+        "leaf",
+        8
+      ],
+      "net": 2,
+      "target": 164,
+      "track_base_z": 80,
+      "sinks": [
+        {
+          "sink": "$auto$ff.cc:266:slice$67893",
+          "arrival": 164,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 0,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67895",
+          "arrival": 92,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 72,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67965",
+          "arrival": 55,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 109,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67967",
+          "arrival": 75,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 89,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68051",
+          "arrival": 112,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 52,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68053",
+          "arrival": 40,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 124,
+          "shortfall": 0
+        }
+      ]
+    },
+    {
+      "module": [
+        "leaf",
+        9
+      ],
+      "net": 2,
+      "target": 132,
+      "track_base_z": 80,
+      "sinks": [
+        {
+          "sink": "$auto$ff.cc:266:slice$67897",
+          "arrival": 132,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 0,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67899",
+          "arrival": 112,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 20,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67901",
+          "arrival": 40,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 92,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67969",
+          "arrival": 87,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 45,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67971",
+          "arrival": 107,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 25,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68055",
+          "arrival": 127,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 5,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68057",
+          "arrival": 60,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 72,
+          "shortfall": 0
+        }
+      ]
+    },
+    {
+      "module": [
+        "leaf",
+        10
+      ],
+      "net": 2,
+      "target": 133,
+      "track_base_z": 80,
+      "sinks": [
+        {
+          "sink": "$auto$ff.cc:266:slice$67903",
+          "arrival": 133,
+          "tail": 0,
+          "available_extra_delay": 502,
+          "positions": 129,
+          "needed_extra_delay": 0,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67905",
+          "arrival": 61,
+          "tail": 0,
+          "available_extra_delay": 502,
+          "positions": 129,
+          "needed_extra_delay": 72,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67941",
+          "arrival": 41,
+          "tail": 0,
+          "available_extra_delay": 502,
+          "positions": 129,
+          "needed_extra_delay": 92,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67973",
+          "arrival": 124,
+          "tail": 0,
+          "available_extra_delay": 502,
+          "positions": 129,
+          "needed_extra_delay": 9,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67975",
+          "arrival": 84,
+          "tail": 0,
+          "available_extra_delay": 502,
+          "positions": 129,
+          "needed_extra_delay": 49,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68059",
+          "arrival": 104,
+          "tail": 0,
+          "available_extra_delay": 502,
+          "positions": 129,
+          "needed_extra_delay": 29,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68061",
+          "arrival": 81,
+          "tail": 0,
+          "available_extra_delay": 502,
+          "positions": 129,
+          "needed_extra_delay": 52,
+          "shortfall": 0
+        }
+      ]
+    },
+    {
+      "module": [
+        "leaf",
+        11
+      ],
+      "net": 2,
+      "target": 170,
+      "track_base_z": 80,
+      "sinks": [
+        {
+          "sink": "$auto$ff.cc:266:slice$67907",
+          "arrival": 170,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 0,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67909",
+          "arrival": 98,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 72,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67977",
+          "arrival": 95,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 75,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67979",
+          "arrival": 40,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 130,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67981",
+          "arrival": 58,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 112,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68063",
+          "arrival": 78,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 92,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68065",
+          "arrival": 118,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 52,
+          "shortfall": 0
+        }
+      ]
+    },
+    {
+      "module": [
+        "domain",
+        2
+      ],
+      "net": 2,
+      "target": 419,
+      "track_base_z": 0,
+      "sinks": [
+        {
+          "sink": "boundary:net2:cluster23>cluster8:out",
+          "arrival": 419,
+          "tail": 164,
+          "available_extra_delay": 1032,
+          "positions": 265,
+          "needed_extra_delay": 0,
+          "shortfall": 0
+        },
+        {
+          "sink": "boundary:net2:cluster23>cluster9:out",
+          "arrival": 348,
+          "tail": 132,
+          "available_extra_delay": 1009,
+          "positions": 259,
+          "needed_extra_delay": 71,
+          "shortfall": 0
+        },
+        {
+          "sink": "boundary:net2:cluster23>cluster10:out",
+          "arrival": 344,
+          "tail": 133,
+          "available_extra_delay": 1016,
+          "positions": 261,
+          "needed_extra_delay": 75,
+          "shortfall": 0
+        },
+        {
+          "sink": "boundary:net2:cluster23>cluster11:out",
+          "arrival": 413,
+          "tail": 170,
+          "available_extra_delay": 985,
+          "positions": 253,
+          "needed_extra_delay": 6,
+          "shortfall": 0
+        }
+      ]
+    },
+    {
+      "module": [
+        "leaf",
+        12
+      ],
+      "net": 2,
+      "target": 164,
+      "track_base_z": 88,
+      "sinks": [
+        {
+          "sink": "$auto$ff.cc:266:slice$67911",
+          "arrival": 164,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 0,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67913",
+          "arrival": 92,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 72,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67983",
+          "arrival": 55,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 109,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67985",
+          "arrival": 75,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 89,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68067",
+          "arrival": 101,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 63,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68069",
+          "arrival": 112,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 52,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68071",
+          "arrival": 40,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 124,
+          "shortfall": 0
+        }
+      ]
+    },
+    {
+      "module": [
+        "leaf",
+        13
+      ],
+      "net": 2,
+      "target": 143,
+      "track_base_z": 88,
+      "sinks": [
+        {
+          "sink": "$auto$ff.cc:266:slice$67915",
+          "arrival": 143,
+          "tail": 0,
+          "available_extra_delay": 502,
+          "positions": 129,
+          "needed_extra_delay": 0,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67917",
+          "arrival": 93,
+          "tail": 0,
+          "available_extra_delay": 502,
+          "positions": 129,
+          "needed_extra_delay": 50,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67987",
+          "arrival": 113,
+          "tail": 0,
+          "available_extra_delay": 502,
+          "positions": 129,
+          "needed_extra_delay": 30,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67989",
+          "arrival": 94,
+          "tail": 0,
+          "available_extra_delay": 502,
+          "positions": 129,
+          "needed_extra_delay": 49,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68073",
+          "arrival": 114,
+          "tail": 0,
+          "available_extra_delay": 502,
+          "positions": 129,
+          "needed_extra_delay": 29,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68075",
+          "arrival": 41,
+          "tail": 0,
+          "available_extra_delay": 502,
+          "positions": 129,
+          "needed_extra_delay": 102,
+          "shortfall": 0
+        }
+      ]
+    },
+    {
+      "module": [
+        "leaf",
+        14
+      ],
+      "net": 2,
+      "target": 179,
+      "track_base_z": 88,
+      "sinks": [
+        {
+          "sink": "$auto$ff.cc:266:slice$67919",
+          "arrival": 97,
+          "tail": 0,
+          "available_extra_delay": 486,
+          "positions": 125,
+          "needed_extra_delay": 82,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67921",
+          "arrival": 179,
+          "tail": 0,
+          "available_extra_delay": 486,
+          "positions": 125,
+          "needed_extra_delay": 0,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67923",
+          "arrival": 107,
+          "tail": 0,
+          "available_extra_delay": 486,
+          "positions": 125,
+          "needed_extra_delay": 72,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67943",
+          "arrival": 74,
+          "tail": 0,
+          "available_extra_delay": 486,
+          "positions": 125,
+          "needed_extra_delay": 105,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67991",
+          "arrival": 41,
+          "tail": 0,
+          "available_extra_delay": 486,
+          "positions": 125,
+          "needed_extra_delay": 138,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67993",
+          "arrival": 59,
+          "tail": 0,
+          "available_extra_delay": 486,
+          "positions": 125,
+          "needed_extra_delay": 120,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68077",
+          "arrival": 79,
+          "tail": 0,
+          "available_extra_delay": 486,
+          "positions": 125,
+          "needed_extra_delay": 100,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68079",
+          "arrival": 127,
+          "tail": 0,
+          "available_extra_delay": 486,
+          "positions": 125,
+          "needed_extra_delay": 52,
+          "shortfall": 0
+        }
+      ]
+    },
+    {
+      "module": [
+        "leaf",
+        15
+      ],
+      "net": 2,
+      "target": 164,
+      "track_base_z": 88,
+      "sinks": [
+        {
+          "sink": "$auto$ff.cc:266:slice$67925",
+          "arrival": 164,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 0,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67927",
+          "arrival": 92,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 72,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67995",
+          "arrival": 55,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 109,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67997",
+          "arrival": 75,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 89,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$67999",
+          "arrival": 40,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 124,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68081",
+          "arrival": 95,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 69,
+          "shortfall": 0
+        },
+        {
+          "sink": "$auto$ff.cc:266:slice$68083",
+          "arrival": 112,
+          "tail": 0,
+          "available_extra_delay": 470,
+          "positions": 121,
+          "needed_extra_delay": 52,
+          "shortfall": 0
+        }
+      ]
+    },
+    {
+      "module": [
+        "domain",
+        3
+      ],
+      "net": 2,
+      "target": 439,
+      "track_base_z": 0,
+      "sinks": [
+        {
+          "sink": "boundary:net2:cluster24>cluster12:out",
+          "arrival": 422,
+          "tail": 164,
+          "available_extra_delay": 1040,
+          "positions": 267,
+          "needed_extra_delay": 17,
+          "shortfall": 0
+        },
+        {
+          "sink": "boundary:net2:cluster24>cluster13:out",
+          "arrival": 369,
+          "tail": 143,
+          "available_extra_delay": 1048,
+          "positions": 269,
+          "needed_extra_delay": 70,
+          "shortfall": 0
+        },
+        {
+          "sink": "boundary:net2:cluster24>cluster14:out",
+          "arrival": 439,
+          "tail": 179,
+          "available_extra_delay": 1032,
+          "positions": 265,
+          "needed_extra_delay": 0,
+          "shortfall": 0
+        },
+        {
+          "sink": "boundary:net2:cluster24>cluster15:out",
+          "arrival": 403,
+          "tail": 164,
+          "available_extra_delay": 1016,
+          "positions": 261,
+          "needed_extra_delay": 36,
+          "shortfall": 0
+        }
+      ]
+    },
+    {
+      "module": [
+        "domain",
+        5
+      ],
+      "net": 2,
+      "target": 954,
+      "track_base_z": 306,
+      "sinks": [
+        {
+          "sink": "boundary:net2:cluster26>cluster21:out",
+          "arrival": 746,
+          "tail": 415,
+          "available_extra_delay": 2038,
+          "positions": 523,
+          "needed_extra_delay": 208,
+          "shortfall": 0
+        },
+        {
+          "sink": "boundary:net2:cluster26>cluster22:out",
+          "arrival": 739,
+          "tail": 426,
+          "available_extra_delay": 1235,
+          "positions": 317,
+          "needed_extra_delay": 215,
+          "shortfall": 0
+        },
+        {
+          "sink": "boundary:net2:cluster26>cluster23:out",
+          "arrival": 954,
+          "tail": 419,
+          "available_extra_delay": 1375,
+          "positions": 353,
+          "needed_extra_delay": 0,
+          "shortfall": 0
+        },
+        {
+          "sink": "boundary:net2:cluster26>cluster24:out",
+          "arrival": 884,
+          "tail": 439,
+          "available_extra_delay": 1360,
+          "positions": 349,
+          "needed_extra_delay": 70,
+          "shortfall": 0
+        }
+      ]
+    },
+    {
+      "module": [
+        "domain",
+        7
+      ],
+      "net": 2,
+      "target": 1648,
+      "track_base_z": 1372,
+      "sinks": [
+        {
+          "sink": "boundary:net2:cluster28>cluster26:out",
+          "arrival": 1648,
+          "tail": 954,
+          "available_extra_delay": 2249,
+          "positions": 577,
+          "needed_extra_delay": 0,
+          "shortfall": 0
+        }
+      ]
+    },
+    {
+      "module": [
+        "domain",
+        6
+      ],
+      "net": 2,
+      "target": 2105,
+      "track_base_z": 172,
+      "sinks": [
+        {
+          "sink": "boundary:net2:cluster27>cluster28:out",
+          "arrival": 2105,
+          "tail": 1648,
+          "available_extra_delay": 9979,
+          "positions": 2559,
+          "needed_extra_delay": 0,
+          "shortfall": 0
+        }
+      ]
+    },
+    {
+      "module": [
+        "domain",
+        4
+      ],
+      "net": 2,
+      "target": 2421,
+      "track_base_z": 148,
+      "sinks": [
+        {
+          "sink": "boundary:net2:cluster25>cluster16:out",
+          "arrival": 420,
+          "tail": 164,
+          "available_extra_delay": 2030,
+          "positions": 521,
+          "needed_extra_delay": 2001,
+          "shortfall": 0
+        },
+        {
+          "sink": "boundary:net2:cluster25>cluster17:out",
+          "arrival": 316,
+          "tail": 115,
+          "available_extra_delay": 2015,
+          "positions": 517,
+          "needed_extra_delay": 2105,
+          "shortfall": 90
+        },
+        {
+          "sink": "boundary:net2:cluster25>cluster27:out",
+          "arrival": 2421,
+          "tail": 2105,
+          "available_extra_delay": 6047,
+          "positions": 1551,
+          "needed_extra_delay": 0,
+          "shortfall": 0
+        }
+      ]
+    },
+    {
+      "module": [
+        "leaf",
+        18
+      ],
+      "net": 2,
+      "target": 2534,
+      "track_base_z": 492,
+      "sinks": [
+        {
+          "sink": "port:net2:cluster18>cluster25:out[0]",
+          "arrival": 2534,
+          "tail": 2421,
+          "available_extra_delay": 1250,
+          "positions": 321,
+          "needed_extra_delay": 0,
+          "shortfall": 0
+        }
+      ]
+    }
+  ]
+}

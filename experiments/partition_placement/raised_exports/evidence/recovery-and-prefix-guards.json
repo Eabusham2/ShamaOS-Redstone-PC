@@ -1,0 +1,12 @@
+{
+  "scope": "Small replay and future harness acceptance/lifecycle guards; no repeated896-endpoint benchmark or complete parent221 claim",
+  "passed_tests": 43,
+  "source_hashes": {
+    "experiments/partition_placement/prefix_precheck/compare.py": "0c9fe3df7e74cb5c1487602852d66e29ed2b383077e581e11895e4018166c133",
+    "experiments/partition_placement/prefix_precheck/provenance.json": "5e1c3cfb1f483d25bfe52ce24c9be4c41b3dbef7c443cddf043952c3461dd170",
+    "experiments/partition_placement/raised_exports/replay_manifest.py": "308075b05664930ed457ca14054943bc7370e07ac45a86f54a9716ebf2c26ddb",
+    "tests/test_geometry_manifest_replay.py": "8b00e0b9fcb3b472097d7b33e25541e0767a913a94d2644f2f19253f377fc59d",
+    "tests/test_prefix_comparison_harness.py": "c85f3767a63682039734491872b5978d341e04ab61375393f181966bdd759ee7"
+  },
+  "xml_sha256": "b8654e612aab0e0624305b403d61b03ebf009c8dde1861c355210d5c81568448"
+}

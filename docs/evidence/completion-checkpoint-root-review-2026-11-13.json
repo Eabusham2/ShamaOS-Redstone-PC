@@ -1,0 +1,120 @@
+{
+  "schema": "completion-checkpoint-root-review-v1",
+  "created_utc": "2026-11-13T05:13:00.364821+00:00",
+  "base_commit": "1c1b3a150ec0a5abbc7cd697da35e0298298e197",
+  "scope": "Bounded native partition export, saved geometry replay, complete-cache preparation/placement and exact runner queue behavior; not connected-cache or full-machine acceptance",
+  "complete_machine_runtime_verified": false,
+  "connected_cache_runtime_verified": false,
+  "root_pytest_reviews": [
+    {
+      "path": "build/completion-checkpoint-root.xml",
+      "tests": 76,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "sha256": "f0bbc1b430cedad15c1f994abc083ae9b5d2409c08f75e6172b91c08237566de"
+    },
+    {
+      "path": "build/ordinary-manifest-guard-root.xml",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "sha256": "4cd1e7a706a378b8783d00ec59adfdcc05a0b220054c1e3cfae634c60decd7f3"
+    }
+  ],
+  "distinct_tests": 78,
+  "queue_root_review": {
+    "path": "build/pending-queue-root-review.json",
+    "sha256": "36abfbf22e55b25ead8eb7f5e3e61eedcd7422098dd0c23f96f9d338bd57a632",
+    "status": "passed",
+    "exact_trace_samples": 4713040,
+    "assertions": 11252,
+    "cases": [
+      {
+        "name": "logic",
+        "status": "identical",
+        "every_semantic_field_equal": true,
+        "exact_trace_samples": 128
+      },
+      {
+        "name": "memory",
+        "status": "identical",
+        "every_semantic_field_equal": true,
+        "exact_trace_samples": 1433600
+      },
+      {
+        "name": "console",
+        "status": "identical",
+        "every_semantic_field_equal": true,
+        "exact_trace_samples": 705000
+      },
+      {
+        "name": "console-distant",
+        "status": "identical",
+        "every_semantic_field_equal": true,
+        "exact_trace_samples": 705000
+      },
+      {
+        "name": "upright",
+        "status": "identical",
+        "every_semantic_field_equal": true,
+        "exact_trace_samples": 819200
+      },
+      {
+        "name": "pipeline-512",
+        "status": "identical",
+        "every_semantic_field_equal": true,
+        "exact_trace_samples": 745472
+      },
+      {
+        "name": "pipeline-20",
+        "status": "identical",
+        "every_semantic_field_equal": true,
+        "exact_trace_samples": 304640
+      }
+    ]
+  },
+  "source_sha256": {
+    "src/shamaos/bounded_build.py": "85ca0c83d4fc1bc781a4872cadca4b4f972e35cad0a0d35d151c3f9c8e153ee8",
+    "tools/build_bounded_partition.py": "e2c64b0c58f8e7f947797e2ef88d2a3cdc138581bccd7c1918e258fcf438e4e8",
+    "tools/check_pending_queue_equivalence.py": "48301b924e2ec0eaa23868ee48cb6e7fafe05143b44e3fb1bb0d4e09a0e7dc83",
+    "tests/mchprs_sparse_runtime/src/main.rs": "90dd9714e6bd7e4f6ae1c9b9e554c213e54f51c019c33aef79d31bc900995734",
+    "tests/mchprs_sparse_runtime/src/pending.rs": "ad8b1c89796c74a840b7535d9639d7734655726a71d91ef91c0f834121f3a20d",
+    "experiments/partition_placement/raised_exports/replay_manifest.py": "308075b05664930ed457ca14054943bc7370e07ac45a86f54a9716ebf2c26ddb",
+    "experiments/memory_controller_runtime/fixture.py": "fe736701c0fdab8a544d6ec63f249505cfe4114fcf5edd84e5e20d78c72c6513",
+    "experiments/memory_controller_runtime/geometry.py": "b815a0375895c8ce31dbcffddddf8e020e538d724d7050eb1a9ff9ea5595c06c",
+    "experiments/memory_controller_runtime/clock_reserve.py": "6a5bd0ba923dbb6aabf0046ad6a487905043373854e76bdec502432db815d8fb",
+    "experiments/memory_controller_runtime/scenarios.py": "1319d9a6097909dd849ac59c855c17232fc2442624cb957fb000de37e8499b67",
+    "tests/test_bounded_build.py": "b9ecdf131c9f8223b7a84bee4ed322aa37b784d77179fc53b52ca13d4bad9ee7",
+    "tests/test_geometry_manifest_replay.py": "f0f8956ab1bad4c11a9f5d6081a699b7cbf413ed366dbaec63cd2d70201419de",
+    "tests/test_memory_controller_runtime_experiment.py": "9a139342c092cee110c0a5e89b068dedcd00344fb3911d0379851a20d4206fe7",
+    "experiments/partition_placement/raised_exports/geometry_manifest.py": "b69fa93db92131ce3530c596efe112077027216b748f53d5a042e103bc931897"
+  },
+  "retained_placement": {
+    "unique_blocks": 10607088,
+    "occupied_chunks": 44370,
+    "controller_cells": 1144,
+    "original_port_bits": 183,
+    "register_clocks": 115,
+    "scope": "Controller only; excludes memory banks, added external delivery paths and their interconnect",
+    "manifest_sha256": "ae5b507dd31cc5e35330a9ed0c8fd6689e1f7dae8c43530f566871cd771ebcbb",
+    "source_archive_sha256": "f520357e3bfb85e4ef28f1fc43f0d45873a5ff89b37d7c209b63f33cddebd9fe",
+    "all_26_archived_source_hashes_verified": true
+  },
+  "remaining_gates": [
+    "externally accessible full controller",
+    "real cache decoder and two-bank interconnect runtime",
+    "complete machine generation through bounded backend",
+    "clock/data timing and loaded-chunk/client proof",
+    "full-world boot/apps/save/reopen acceptance implementation",
+    "complete release"
+  ],
+  "test_cohort_note": "The 76-case combined exporter/replay/cache run includes the final ordinary-writer guard. Two subsequently added root/descendant guard rejection cases ran separately; their addition changed no production source or existing test body.",
+  "native_generation_and_readback": {
+    "summary_path": "experiments/memory_controller_runtime/evidence/cache-controller-native-summary.json",
+    "sha256": "695bb85c3241fc88b26e69ef2e669d59020029360cca8f1d0890888f3e39d22c",
+    "status": "generated-and-readback-verified",
+    "clock_runtime_verified": false
+  }
+}

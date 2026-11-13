@@ -1,0 +1,227 @@
+{
+  "status": "retained-manifest-literal-union-passed",
+  "scope": "Exact re-emission and union of all recorded modules; original routing guards, graph audit and runtime are separate evidence",
+  "manifest_sha256": "8783076efc6eb8226e257810d661d82fb3deb763bd17ecb5a8d0403e94cc93f1",
+  "replay_source_sha256": "308075b05664930ed457ca14054943bc7370e07ac45a86f54a9716ebf2c26ddb",
+  "streamed_union_sha256": "4732f29067e5d7aff013a9d2a5565e8e7037e4259b6cc1b74ffb0e45fd84281d",
+  "original_provenance": {
+    "effective_partition_placement_sha256": "ac748b28fcff26b21dc77315d33b3ad40e2c98c83a7b8ad8142a776c643fe7a5",
+    "experimental_geometry": {
+      "all_original_access_faces_preserved": true,
+      "all_original_geometry_guards_preserved": true,
+      "apron_guard": "Every own export must lie at the actual final maximumZ; all prior geometry guards retained",
+      "baseline_path": "src/shamaos/hardware/partition_placement.py",
+      "baseline_sha256": "10c6a4b5aba6b5c4776326d0a863bf57cd1fc5b0d216115ca496d851d6a82e90",
+      "candidate_path": "experiments/partition_placement/raised_exports/partition_placement.py",
+      "candidate_sha256": "ac748b28fcff26b21dc77315d33b3ad40e2c98c83a7b8ad8142a776c643fe7a5",
+      "changes": {
+        "Vec3(8 * index, context.minimum_y + 1, front_z)": "Vec3(8 * index, roof + 9, front_z)",
+        "front_z = max(box.max.z for box in boxes) + 6 * (len(external) + len(children) + 1) + 16": "front_z = max(box.max.z for box in boxes) + export_apron; see measured retry wrapper"
+      },
+      "export_y": "highest child block Y + 9",
+      "front_z": "maximum child Z + measured apron starting at24; retry beyond emitted maximumZ+4 until every own export is on the South boundary",
+      "maximum_apron_attempts": 8,
+      "scope": "Isolated raised-parent-export and shorter-apron geometry candidate; no production/default change"
+    },
+    "full_plan_topology_sha256": "d6ddfd1b1b332d2e56c9d5dcc76d857442373a9ff1cd53ce77330a6bbbc3c24a",
+    "mapped_source": {
+      "container_sha256": "2abc0695787b7490387790563fa099cf42d4e2bd9fdc2a3dc3db5472d3184a14",
+      "encoding": "gzip",
+      "lowered_cells": 10910,
+      "lowering_source_sha256": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274",
+      "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/tests/fixtures/display_bridge_abc.json.gz",
+      "raw_cells": 10910,
+      "sha256": "bdc22086b9146cdf7ea9d58cbfddfeea09120bd19a744f704b9605ff573609a4",
+      "top": "shama_display_bridge"
+    },
+    "source_hashes": {
+      "src/shamaos/hardware/external_router.py": "96834193a37bb485ab225ea21dc1ae460afcc3ab9ac41a434e45660be2f7666d",
+      "src/shamaos/hardware/local_router.py": "63054c806442499ba0aa27f65b1ec2b35c339c0c8595521dbc3097a334307bc6",
+      "src/shamaos/hardware/logic.py": "84a4f2cc3c535628ccd4e16ae0480b3cc99310f1fb83fe28f98d98b621ab1dff",
+      "src/shamaos/hardware/memory.py": "f44923cd4376d10fb2f62d5daf3bf752fe340e269355ac3564fd26ee2b5a8517",
+      "src/shamaos/hardware/partition_placement.py": "10c6a4b5aba6b5c4776326d0a863bf57cd1fc5b0d216115ca496d851d6a82e90",
+      "src/shamaos/hardware/partition_planner.py": "82e7f39548af7443b29ffd322a118cb42474f6f0bf3da2273b1ecdefb38164b4",
+      "src/shamaos/hardware/routing.py": "d2b885f908a5942036269992c3fff7e3eb19ffe5a4753b97f5494aaf7120ccce",
+      "src/shamaos/synthesis.py": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274"
+    }
+  },
+  "cluster_id": 176,
+  "modules": 1,
+  "shared_contacts": 0,
+  "native_cells": 0,
+  "literal_union": {
+    "scope": "Exact emitted-block union; routing adjacency/headroom are independent checks",
+    "emitted_blocks": 19406,
+    "merged_records": 19406,
+    "literal_unique_blocks": 19158,
+    "identical_duplicate_blocks": 248,
+    "occupied_chunks": 145,
+    "bounds": {
+      "min": {
+        "x": 0,
+        "y": -60,
+        "z": -94
+      },
+      "max": {
+        "x": 254,
+        "y": -41,
+        "z": 48
+      }
+    },
+    "palette": [
+      {
+        "name": "minecraft:stone",
+        "properties": []
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "0"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "1"
+          ],
+          [
+            "facing",
+            "south"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "up"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "0"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "up"
+          ],
+          [
+            "power",
+            "0"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "1"
+          ],
+          [
+            "facing",
+            "north"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "1"
+          ],
+          [
+            "facing",
+            "west"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      }
+    ],
+    "sorted_unique_record_sha256": "d401938533860df056e2601cc5dccb230e169d44ef99d94a252eeabe44dd7ed9",
+    "record_encoding": "big-endian u64 chunk-X/chunk-Z/local-X/local-Z/Y key, u32 palette index",
+    "record_bytes": 12,
+    "run_records": 65536,
+    "merge_fan_in": 64,
+    "initial_sort_runs": 1,
+    "intermediate_merge_passes": 0,
+    "memory_scope": "Bounded run buffers/open files; exact palette and run-path inventory retained"
+  },
+  "seconds": 0.12275445699924603,
+  "peak_rss_kib": 16768,
+  "peak_rss_measurement": "resource.getrusage, normalized to KiB"
+}

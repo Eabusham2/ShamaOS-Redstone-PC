@@ -16,6 +16,8 @@ const SECTIONS: usize = 24;
 const Y_OFFSET: i32 = 64;
 
 mod snapshot;
+mod pending;
+use pending::PendingTicks;
 
 struct HashedReader {
     source: File,
@@ -128,7 +130,7 @@ fn register_section(chunk:[i32;2],y:i32,seen:&mut HashSet<(i32,i32,i32)>) {
 struct SparseWorld {
     chunks: HashMap<(i32,i32),Chunk>,
     background: Chunk,
-    pending: Vec<TickEntry>,
+    pending: PendingTicks,
     maximum_chunks: usize,
     scheduled_total: u64,
     pending_peak: usize,
@@ -156,7 +158,7 @@ impl SparseWorld {
                 background.sections[sy]=ChunkSection::from_raw(data,4,vec![0,bedrock,dirt,grass],nonair);
             }
         }
-        Self {chunks:HashMap::new(),background,pending:Vec::new(),maximum_chunks,
+        Self {chunks:HashMap::new(),background,pending:PendingTicks::default(),maximum_chunks,
               scheduled_total:0,pending_peak:0}
     }
 
@@ -172,10 +174,8 @@ impl SparseWorld {
 
     fn tick(&mut self) {
         // Exact stable-priority ordering used by pinned PlotWorld/TestWorld.
-        self.pending.sort_by_key(|e|(e.ticks_left,e.tick_priority));
-        for entry in &mut self.pending {entry.ticks_left=entry.ticks_left.saturating_sub(1);}
-        while self.pending.first().is_some_and(|e|e.ticks_left==0) {
-            let entry=self.pending.remove(0);
+        self.pending.begin_tick();
+        while let Some(entry)=self.pending.pop_ready() {
             mchprs_redstone::tick(self.get_block(entry.pos),self,entry.pos);
         }
     }
@@ -213,7 +213,7 @@ impl World for SparseWorld {
         self.scheduled_total+=1;
         self.pending_peak=self.pending_peak.max(self.pending.len());
     }
-    fn pending_tick_at(&mut self,pos:BlockPos)->bool {self.pending.iter().any(|entry|entry.pos==pos)}
+    fn pending_tick_at(&mut self,pos:BlockPos)->bool {self.pending.contains(pos)}
 }
 
 #[derive(Deserialize)]

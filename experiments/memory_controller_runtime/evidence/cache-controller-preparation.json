@@ -1,0 +1,1021 @@
+{
+  "schema": "complete-cache-native-fixture-v1",
+  "status": "prepared-not-placed",
+  "mapped_source": {
+    "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/experiments/memory_controller_runtime/evidence/cache-controller-c331.json.gz",
+    "sha256": "d4989124e9dca8b5afa865d954ded3be680b99f0b1e2f472aed6b5ecc42dd468",
+    "container_sha256": "33016917c70829684a45758a1a2164791f514803394101a6bde3ea19cafca8c0",
+    "encoding": "gzip",
+    "top": "shama_cache_adapter",
+    "raw_cells": 1144,
+    "lowered_cells": 1144,
+    "lowering_source_sha256": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274"
+  },
+  "source_hashes": {
+    "configs/default.toml": "630b70f01ac7de1f1b74250f8b454c9d090e461891f347fadc4c375c27cc5b20",
+    "rtl/shama_memory_adapter.sv": "853d438ff507e4740fb6468445804ccc846378686e66d7b136952a06f93fb0af",
+    "rtl/shama_boot_params.svh": "3ec00fbefe06958cc2b918e52caa18129384cb267453a9fc976270bc72fa8025",
+    "src/shamaos/synthesis.py": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274",
+    "src/shamaos/layout.py": "e6db5143f7b2d9c0ae477e649cfc4421e476f14038fd861e8a65b1ebec946eaa",
+    "src/shamaos/system_build.py": "1d8fe4deca82c64b386f7c0720cf6bb58ef1eb23179a6781796809e02e568a62",
+    "src/shamaos/model.py": "1a0fd1f9eb9469989057e4486401e5161e7f0bb02eb69195b7a14a74e92f4b95",
+    "src/shamaos/machine_spec.py": "446853768c8fdd1be7472bd3d27e2f882ab3ca5805241f3f3ab7f3d778febd59",
+    "src/shamaos/generator.py": "a165087d34d1ac86398d894212bce36f55ef82a00bb8c8b944d3b41d51b1f7d5",
+    "src/shamaos/hardware/partition_planner.py": "82e7f39548af7443b29ffd322a118cb42474f6f0bf3da2273b1ecdefb38164b4",
+    "src/shamaos/hardware/partition_placement.py": "10c6a4b5aba6b5c4776326d0a863bf57cd1fc5b0d216115ca496d851d6a82e90",
+    "src/shamaos/hardware/local_router.py": "63054c806442499ba0aa27f65b1ec2b35c339c0c8595521dbc3097a334307bc6",
+    "src/shamaos/hardware/external_router.py": "96834193a37bb485ab225ea21dc1ae460afcc3ab9ac41a434e45660be2f7666d",
+    "src/shamaos/hardware/logic.py": "84a4f2cc3c535628ccd4e16ae0480b3cc99310f1fb83fe28f98d98b621ab1dff",
+    "src/shamaos/hardware/memory.py": "f44923cd4376d10fb2f62d5daf3bf752fe340e269355ac3564fd26ee2b5a8517",
+    "src/shamaos/hardware/memory_backbone.py": "8a6c22218be1e0a32189817318f72aad8bd31bd365141da556578c3b4398075d",
+    "src/shamaos/hardware/memory_streaming.py": "7f784968748570f5e3d2286a5ee81a0d965a0882123cb8125169bc4d1d491a24",
+    "src/shamaos/hardware/binary_row_decoder.py": "e58837fd0858146de95eea57e87186d8e1f1b3583f891a717ae14e156a461815",
+    "src/shamaos/hardware/routing.py": "d2b885f908a5942036269992c3fff7e3eb19ffe5a4753b97f5494aaf7120ccce",
+    "src/shamaos/hardware/interfaces.py": "54d7ad897c770647d1320891c62cc82cb581cfb29031ea62cf560838ff93873e",
+    "experiments/partition_placement/raised_exports/geometry_manifest.py": "71aaa0cda1d33df8ee99312382f15b7a7c80607530f7bdc3c59291a743c3ebd9",
+    "experiments/partition_placement/raised_exports/replay_manifest.py": "308075b05664930ed457ca14054943bc7370e07ac45a86f54a9716ebf2c26ddb",
+    "experiments/memory_controller_runtime/fixture.py": "fe736701c0fdab8a544d6ec63f249505cfe4114fcf5edd84e5e20d78c72c6513",
+    "experiments/memory_controller_runtime/geometry.py": "b815a0375895c8ce31dbcffddddf8e020e538d724d7050eb1a9ff9ea5595c06c",
+    "experiments/memory_controller_runtime/scenarios.py": "1319d9a6097909dd849ac59c855c17232fc2442624cb957fb000de37e8499b67",
+    "experiments/memory_controller_runtime/clock_reserve.py": "6a5bd0ba923dbb6aabf0046ad6a487905043373854e76bdec502432db815d8fb"
+  },
+  "plan_sha256": "0c81a0a49d447669adfc82facb682b805fbdd72df5690acb6f22b7a6a3a30362",
+  "plan_summary": {
+    "native_cells": 1144,
+    "original_port_bits": 183,
+    "signals": 1248,
+    "original_sink_uses": 2155,
+    "clock_leaf_uses": 115,
+    "constant_terminals": 0,
+    "leaf_clusters": 21,
+    "internal_clusters": 8,
+    "hierarchy_depth": 3,
+    "bounded_router_domains": 12,
+    "signal_tree_links": 1484,
+    "explicit_fanout_branches": 94,
+    "maximum_router_fanout": 4,
+    "maximum_leaf_boundary": 64,
+    "maximum_domain_terminals": 256,
+    "maximum_domains_at_one_cluster": 2,
+    "topology_sha256": "aabd37d3322b1eac9571b541e9558a9b835afeb44ece93987081a21185950e97",
+    "original_signal_endpoints_sha256": "916bd6d13d2c3c36de6843a274f33c34ba648c64e6e716f34724d8ccbf4af579",
+    "all_signal_records_retained": true
+  },
+  "plan_audit": {
+    "status": "passed",
+    "signals": 1248,
+    "native_cells": 1144,
+    "scope": "complete structural graph reconstruction; no physical routing or timing claim"
+  },
+  "initial_bytes": 8192,
+  "initial_sha256": "8e8db74c6475467e2a9f522d719244de016f0db203115a13e409040dffc565a7",
+  "request_plan_sha256": "89e886e5b8a7a55d23cc5c09c7fc0fb2d6af756bc956f90bc4af8173a49b570e",
+  "continuation_plan_sha256": "7295b32e4d46b0ef7c1ba8d24cfdd2a3d106edcf351e28b1681da180aa8e07f3",
+  "request_summary": {
+    "frames": 595,
+    "clock_rising_edges": 248,
+    "half_period_units": 555,
+    "storage_boundaries": 47,
+    "storage_bits_per_boundary": 65536,
+    "full_storage_assertions": 3080192
+  },
+  "continuation_summary": {
+    "frames": 54,
+    "clock_rising_edges": 22,
+    "half_period_units": 56,
+    "storage_boundaries": 6,
+    "storage_bits_per_boundary": 65536,
+    "full_storage_assertions": 393216
+  },
+  "trace_preparation": {
+    "default_maximum_samples": 20000000,
+    "sample_formula": "sum(step half-period units) * half-period ticks * selected output count",
+    "cold_half_period_units": 555,
+    "continuation_half_period_units": 56,
+    "initial_ticks_are_traced": false,
+    "physical_half_period_chosen": false,
+    "scope": "Full register clock observation must use a short dedicated probe; storage boundary assertions are never narrowed by trace selection"
+  },
+  "final_expected_words_sha256": "5cc874ffc575ffb7e34e30a46d8c1156a2e32195d32d6616255f11c9ad7e3d36",
+  "controller_ceiling_y": 285,
+  "surface_y": -61,
+  "clock_track_padding_blocks": 128,
+  "external_routing_planes": {
+    "branch_y": 314,
+    "trunk_y": 318
+  },
+  "cache": {
+    "capacity_bytes": 8192,
+    "storage_bits": 65536,
+    "banks": 2,
+    "rows_per_bank": 1024,
+    "word_bits": 32,
+    "layer_pitch": 12,
+    "decoder_x_offset": -170,
+    "production_origin": {
+      "x": 2574,
+      "y": -56,
+      "z": 0
+    },
+    "production_bounds": {
+      "min": {
+        "x": 2400,
+        "y": -60,
+        "z": -20
+      },
+      "max": {
+        "x": 2736,
+        "y": 52,
+        "z": 6152
+      }
+    },
+    "ports": {
+      "bank_select": [
+        {
+          "x": 2449,
+          "y": -56,
+          "z": -16
+        },
+        {
+          "x": 2449,
+          "y": -44,
+          "z": -16
+        }
+      ],
+      "row_select": [],
+      "read_enable": {
+        "x": 2459,
+        "y": -52,
+        "z": -4
+      },
+      "write_enable": {
+        "x": 2459,
+        "y": -56,
+        "z": -10
+      },
+      "write_data": [
+        {
+          "x": 2570,
+          "y": -59,
+          "z": -4
+        },
+        {
+          "x": 2575,
+          "y": -59,
+          "z": -4
+        },
+        {
+          "x": 2580,
+          "y": -59,
+          "z": -4
+        },
+        {
+          "x": 2585,
+          "y": -59,
+          "z": -4
+        },
+        {
+          "x": 2590,
+          "y": -59,
+          "z": -4
+        },
+        {
+          "x": 2595,
+          "y": -59,
+          "z": -4
+        },
+        {
+          "x": 2600,
+          "y": -59,
+          "z": -4
+        },
+        {
+          "x": 2605,
+          "y": -59,
+          "z": -4
+        },
+        {
+          "x": 2610,
+          "y": -59,
+          "z": -4
+        },
+        {
+          "x": 2615,
+          "y": -59,
+          "z": -4
+        },
+        {
+          "x": 2620,
+          "y": -59,
+          "z": -4
+        },
+        {
+          "x": 2625,
+          "y": -59,
+          "z": -4
+        },
+        {
+          "x": 2630,
+          "y": -59,
+          "z": -4
+        },
+        {
+          "x": 2635,
+          "y": -59,
+          "z": -4
+        },
+        {
+          "x": 2640,
+          "y": -59,
+          "z": -4
+        },
+        {
+          "x": 2645,
+          "y": -59,
+          "z": -4
+        },
+        {
+          "x": 2650,
+          "y": -59,
+          "z": -4
+        },
+        {
+          "x": 2655,
+          "y": -59,
+          "z": -4
+        },
+        {
+          "x": 2660,
+          "y": -59,
+          "z": -4
+        },
+        {
+          "x": 2665,
+          "y": -59,
+          "z": -4
+        },
+        {
+          "x": 2670,
+          "y": -59,
+          "z": -4
+        },
+        {
+          "x": 2675,
+          "y": -59,
+          "z": -4
+        },
+        {
+          "x": 2680,
+          "y": -59,
+          "z": -4
+        },
+        {
+          "x": 2685,
+          "y": -59,
+          "z": -4
+        },
+        {
+          "x": 2690,
+          "y": -59,
+          "z": -4
+        },
+        {
+          "x": 2695,
+          "y": -59,
+          "z": -4
+        },
+        {
+          "x": 2700,
+          "y": -59,
+          "z": -4
+        },
+        {
+          "x": 2705,
+          "y": -59,
+          "z": -4
+        },
+        {
+          "x": 2710,
+          "y": -59,
+          "z": -4
+        },
+        {
+          "x": 2715,
+          "y": -59,
+          "z": -4
+        },
+        {
+          "x": 2720,
+          "y": -59,
+          "z": -4
+        },
+        {
+          "x": 2725,
+          "y": -59,
+          "z": -4
+        }
+      ],
+      "selected_word": [
+        {
+          "x": 2581,
+          "y": -38,
+          "z": 6150
+        },
+        {
+          "x": 2586,
+          "y": -38,
+          "z": 6150
+        },
+        {
+          "x": 2591,
+          "y": -38,
+          "z": 6150
+        },
+        {
+          "x": 2596,
+          "y": -38,
+          "z": 6150
+        },
+        {
+          "x": 2601,
+          "y": -38,
+          "z": 6150
+        },
+        {
+          "x": 2606,
+          "y": -38,
+          "z": 6150
+        },
+        {
+          "x": 2611,
+          "y": -38,
+          "z": 6150
+        },
+        {
+          "x": 2616,
+          "y": -38,
+          "z": 6150
+        },
+        {
+          "x": 2621,
+          "y": -38,
+          "z": 6150
+        },
+        {
+          "x": 2626,
+          "y": -38,
+          "z": 6150
+        },
+        {
+          "x": 2631,
+          "y": -38,
+          "z": 6150
+        },
+        {
+          "x": 2636,
+          "y": -38,
+          "z": 6150
+        },
+        {
+          "x": 2641,
+          "y": -38,
+          "z": 6150
+        },
+        {
+          "x": 2646,
+          "y": -38,
+          "z": 6150
+        },
+        {
+          "x": 2651,
+          "y": -38,
+          "z": 6150
+        },
+        {
+          "x": 2656,
+          "y": -38,
+          "z": 6150
+        },
+        {
+          "x": 2661,
+          "y": -38,
+          "z": 6150
+        },
+        {
+          "x": 2666,
+          "y": -38,
+          "z": 6150
+        },
+        {
+          "x": 2671,
+          "y": -38,
+          "z": 6150
+        },
+        {
+          "x": 2676,
+          "y": -38,
+          "z": 6150
+        },
+        {
+          "x": 2681,
+          "y": -38,
+          "z": 6150
+        },
+        {
+          "x": 2686,
+          "y": -38,
+          "z": 6150
+        },
+        {
+          "x": 2691,
+          "y": -38,
+          "z": 6150
+        },
+        {
+          "x": 2696,
+          "y": -38,
+          "z": 6150
+        },
+        {
+          "x": 2701,
+          "y": -38,
+          "z": 6150
+        },
+        {
+          "x": 2706,
+          "y": -38,
+          "z": 6150
+        },
+        {
+          "x": 2711,
+          "y": -38,
+          "z": 6150
+        },
+        {
+          "x": 2716,
+          "y": -38,
+          "z": 6150
+        },
+        {
+          "x": 2721,
+          "y": -38,
+          "z": 6150
+        },
+        {
+          "x": 2726,
+          "y": -38,
+          "z": 6150
+        },
+        {
+          "x": 2731,
+          "y": -38,
+          "z": 6150
+        },
+        {
+          "x": 2736,
+          "y": -38,
+          "z": 6150
+        }
+      ],
+      "bank_read_data": [
+        [
+          {
+            "x": 2579,
+            "y": -50,
+            "z": 6148
+          },
+          {
+            "x": 2584,
+            "y": -50,
+            "z": 6148
+          },
+          {
+            "x": 2589,
+            "y": -50,
+            "z": 6148
+          },
+          {
+            "x": 2594,
+            "y": -50,
+            "z": 6148
+          },
+          {
+            "x": 2599,
+            "y": -50,
+            "z": 6148
+          },
+          {
+            "x": 2604,
+            "y": -50,
+            "z": 6148
+          },
+          {
+            "x": 2609,
+            "y": -50,
+            "z": 6148
+          },
+          {
+            "x": 2614,
+            "y": -50,
+            "z": 6148
+          },
+          {
+            "x": 2619,
+            "y": -50,
+            "z": 6148
+          },
+          {
+            "x": 2624,
+            "y": -50,
+            "z": 6148
+          },
+          {
+            "x": 2629,
+            "y": -50,
+            "z": 6148
+          },
+          {
+            "x": 2634,
+            "y": -50,
+            "z": 6148
+          },
+          {
+            "x": 2639,
+            "y": -50,
+            "z": 6148
+          },
+          {
+            "x": 2644,
+            "y": -50,
+            "z": 6148
+          },
+          {
+            "x": 2649,
+            "y": -50,
+            "z": 6148
+          },
+          {
+            "x": 2654,
+            "y": -50,
+            "z": 6148
+          },
+          {
+            "x": 2659,
+            "y": -50,
+            "z": 6148
+          },
+          {
+            "x": 2664,
+            "y": -50,
+            "z": 6148
+          },
+          {
+            "x": 2669,
+            "y": -50,
+            "z": 6148
+          },
+          {
+            "x": 2674,
+            "y": -50,
+            "z": 6148
+          },
+          {
+            "x": 2679,
+            "y": -50,
+            "z": 6148
+          },
+          {
+            "x": 2684,
+            "y": -50,
+            "z": 6148
+          },
+          {
+            "x": 2689,
+            "y": -50,
+            "z": 6148
+          },
+          {
+            "x": 2694,
+            "y": -50,
+            "z": 6148
+          },
+          {
+            "x": 2699,
+            "y": -50,
+            "z": 6148
+          },
+          {
+            "x": 2704,
+            "y": -50,
+            "z": 6148
+          },
+          {
+            "x": 2709,
+            "y": -50,
+            "z": 6148
+          },
+          {
+            "x": 2714,
+            "y": -50,
+            "z": 6148
+          },
+          {
+            "x": 2719,
+            "y": -50,
+            "z": 6148
+          },
+          {
+            "x": 2724,
+            "y": -50,
+            "z": 6148
+          },
+          {
+            "x": 2729,
+            "y": -50,
+            "z": 6148
+          },
+          {
+            "x": 2734,
+            "y": -50,
+            "z": 6148
+          }
+        ],
+        [
+          {
+            "x": 2579,
+            "y": -38,
+            "z": 6148
+          },
+          {
+            "x": 2584,
+            "y": -38,
+            "z": 6148
+          },
+          {
+            "x": 2589,
+            "y": -38,
+            "z": 6148
+          },
+          {
+            "x": 2594,
+            "y": -38,
+            "z": 6148
+          },
+          {
+            "x": 2599,
+            "y": -38,
+            "z": 6148
+          },
+          {
+            "x": 2604,
+            "y": -38,
+            "z": 6148
+          },
+          {
+            "x": 2609,
+            "y": -38,
+            "z": 6148
+          },
+          {
+            "x": 2614,
+            "y": -38,
+            "z": 6148
+          },
+          {
+            "x": 2619,
+            "y": -38,
+            "z": 6148
+          },
+          {
+            "x": 2624,
+            "y": -38,
+            "z": 6148
+          },
+          {
+            "x": 2629,
+            "y": -38,
+            "z": 6148
+          },
+          {
+            "x": 2634,
+            "y": -38,
+            "z": 6148
+          },
+          {
+            "x": 2639,
+            "y": -38,
+            "z": 6148
+          },
+          {
+            "x": 2644,
+            "y": -38,
+            "z": 6148
+          },
+          {
+            "x": 2649,
+            "y": -38,
+            "z": 6148
+          },
+          {
+            "x": 2654,
+            "y": -38,
+            "z": 6148
+          },
+          {
+            "x": 2659,
+            "y": -38,
+            "z": 6148
+          },
+          {
+            "x": 2664,
+            "y": -38,
+            "z": 6148
+          },
+          {
+            "x": 2669,
+            "y": -38,
+            "z": 6148
+          },
+          {
+            "x": 2674,
+            "y": -38,
+            "z": 6148
+          },
+          {
+            "x": 2679,
+            "y": -38,
+            "z": 6148
+          },
+          {
+            "x": 2684,
+            "y": -38,
+            "z": 6148
+          },
+          {
+            "x": 2689,
+            "y": -38,
+            "z": 6148
+          },
+          {
+            "x": 2694,
+            "y": -38,
+            "z": 6148
+          },
+          {
+            "x": 2699,
+            "y": -38,
+            "z": 6148
+          },
+          {
+            "x": 2704,
+            "y": -38,
+            "z": 6148
+          },
+          {
+            "x": 2709,
+            "y": -38,
+            "z": 6148
+          },
+          {
+            "x": 2714,
+            "y": -38,
+            "z": 6148
+          },
+          {
+            "x": 2719,
+            "y": -38,
+            "z": 6148
+          },
+          {
+            "x": 2724,
+            "y": -38,
+            "z": 6148
+          },
+          {
+            "x": 2729,
+            "y": -38,
+            "z": 6148
+          },
+          {
+            "x": 2734,
+            "y": -38,
+            "z": 6148
+          }
+        ]
+      ],
+      "row_address": [
+        {
+          "x": 2412,
+          "y": -56,
+          "z": -8
+        },
+        {
+          "x": 2412,
+          "y": -44,
+          "z": -8
+        },
+        {
+          "x": 2412,
+          "y": -32,
+          "z": -8
+        },
+        {
+          "x": 2412,
+          "y": -20,
+          "z": -8
+        },
+        {
+          "x": 2412,
+          "y": -8,
+          "z": -8
+        },
+        {
+          "x": 2412,
+          "y": 4,
+          "z": -8
+        },
+        {
+          "x": 2412,
+          "y": 16,
+          "z": -8
+        },
+        {
+          "x": 2412,
+          "y": 28,
+          "z": -8
+        },
+        {
+          "x": 2412,
+          "y": 40,
+          "z": -8
+        },
+        {
+          "x": 2412,
+          "y": 52,
+          "z": -8
+        }
+      ]
+    }
+  },
+  "cache_routing_contract": {
+    "terminal_count": 78,
+    "literal_keepout_placements": 8852,
+    "conservative_volumes": [
+      {
+        "min": {
+          "x": 2449,
+          "y": -60,
+          "z": -20
+        },
+        "max": {
+          "x": 2736,
+          "y": -37,
+          "z": 6152
+        }
+      },
+      {
+        "min": {
+          "x": 2400,
+          "y": -57,
+          "z": -1
+        },
+        "max": {
+          "x": 2517,
+          "y": 52,
+          "z": 6145
+        }
+      },
+      {
+        "min": {
+          "x": 2412,
+          "y": -57,
+          "z": -8
+        },
+        "max": {
+          "x": 2412,
+          "y": -56,
+          "z": 6141
+        }
+      },
+      {
+        "min": {
+          "x": 2412,
+          "y": -45,
+          "z": -8
+        },
+        "max": {
+          "x": 2412,
+          "y": -44,
+          "z": 6141
+        }
+      },
+      {
+        "min": {
+          "x": 2412,
+          "y": -33,
+          "z": -8
+        },
+        "max": {
+          "x": 2412,
+          "y": -32,
+          "z": 6141
+        }
+      },
+      {
+        "min": {
+          "x": 2412,
+          "y": -21,
+          "z": -8
+        },
+        "max": {
+          "x": 2412,
+          "y": -20,
+          "z": 6141
+        }
+      },
+      {
+        "min": {
+          "x": 2412,
+          "y": -9,
+          "z": -8
+        },
+        "max": {
+          "x": 2412,
+          "y": -8,
+          "z": 6141
+        }
+      },
+      {
+        "min": {
+          "x": 2412,
+          "y": 3,
+          "z": -8
+        },
+        "max": {
+          "x": 2412,
+          "y": 4,
+          "z": 6141
+        }
+      },
+      {
+        "min": {
+          "x": 2412,
+          "y": 15,
+          "z": -8
+        },
+        "max": {
+          "x": 2412,
+          "y": 16,
+          "z": 6141
+        }
+      },
+      {
+        "min": {
+          "x": 2412,
+          "y": 27,
+          "z": -8
+        },
+        "max": {
+          "x": 2412,
+          "y": 28,
+          "z": 6141
+        }
+      },
+      {
+        "min": {
+          "x": 2412,
+          "y": 39,
+          "z": -8
+        },
+        "max": {
+          "x": 2412,
+          "y": 40,
+          "z": 6141
+        }
+      },
+      {
+        "min": {
+          "x": 2412,
+          "y": 51,
+          "z": -8
+        },
+        "max": {
+          "x": 2412,
+          "y": 52,
+          "z": 6141
+        }
+      }
+    ],
+    "minimum_y": -60,
+    "scope": "Native memory access faces and obstacles only; connected controller routing remains pending"
+  },
+  "controller_native_cells": 1144,
+  "controller_original_pins": 183,
+  "controller_DFFs": 115,
+  "externally_driven_host_bits": 72,
+  "memory_interconnect_nets": 78,
+  "geometry_verified": false,
+  "native_world_written": false,
+  "connected_cache_runtime_verified": false,
+  "complete_machine_runtime_verified": false
+}

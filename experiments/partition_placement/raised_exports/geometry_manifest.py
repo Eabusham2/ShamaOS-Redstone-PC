@@ -7,10 +7,13 @@ from pathlib import Path
 
 
 def write_manifest(path, placed, *, provenance):
+    from shamaos.hardware.partition_placement import PlacedCluster
     path = Path(path)
     clusters = []
 
     def visit(cluster):
+        if type(cluster) is not PlacedCluster:
+            raise ValueError("ordinary geometry manifest cannot retain an extended cluster; use its complete specialized writer")
         clusters.append({
             "cluster_id": cluster.cluster_id,
             "children": [child.cluster_id for child in cluster.children],
