@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 from shamaos.generator import geometry_from_config, load_config, source_provenance, write_placement_stages
-from shamaos.hardware.clock import iter_clock
+from shamaos.hardware.clock import iter_clock, system_clock_origin
 from shamaos.hardware.controls import control_bounds, control_interaction_descriptor, iter_controls
 from shamaos.hardware.debug import iter_debug_panel
 from shamaos.layout import default_origins, plan_machine
@@ -18,7 +18,7 @@ def test_compact_floorplan_preserves_surface_console_and_routing_corridors():
     geometry = geometry_from_config(load_config("configs/default.toml"))
     plan = plan_machine(geometry)
     boxes = {component.name: component.box for component in plan.components}
-    assert boxes["cache"].min.x - boxes["display"].max.x - 1 == 800
+    assert boxes["cache"].min.x - boxes["display"].max.x - 1 == 591
     assert boxes["debug-panel"].max.z == default_origins(geometry).input.z - 224
     assert boxes["input"].max.z < boxes["display"].min.z
     for name in ("cache", "ram", "flash", "vram", "input", "display", "debug-panel", "clock"):
@@ -35,7 +35,7 @@ def test_saved_compact_console_debug_clock_preserve_every_block_and_grass(tmp_pa
     origins = default_origins(geometry)
     stages = [("console", list(iter_controls(origins.input))),
               ("debug", list(iter_debug_panel(origins.input.offset(dz=-224)))),
-              ("clock", list(iter_clock(origins.input.offset(180))))]
+              ("clock", list(iter_clock(system_clock_origin(origins.input))))]
     console_box = control_bounds(origins.input)
     literal = stages[0][1]
     assert Vec3(*(min(getattr(p.pos, axis) for p in literal) for axis in ("x", "y", "z"))) == console_box.min
@@ -65,7 +65,10 @@ def test_saved_compact_console_every_actuator_in_actual_engine(tmp_path):
     origin = default_origins(geometry).input
     blocks = list(iter_controls(origin))
     report_directory = os.environ.get("SHAMA_VALIDATION_REPORT_DIR")
-    world = Path(report_directory) / "compact-console-world" if report_directory else tmp_path / "console-world"
+    # Different generator revisions must never overwrite a previously saved
+    # circuit. Keep retained fixture worlds keyed to their exact source.
+    revision = source_provenance()["files_sha256"]["src/shamaos/hardware/controls.py"][:12]
+    world = Path(report_directory) / f"compact-console-world-{revision}" if report_directory else tmp_path / "console-world"
     _, _, verification = write_placement_stages(world, [("console", blocks)], surface_y=geometry.surface_y,
                                                 spawn=Vec3(880, geometry.surface_y + 2, 160))
     reader = NativeWorldReader(world)

@@ -44,43 +44,43 @@ def test_literal_capacity_validator_rejects_scaled_spec_and_false_bank_counts(tm
 def test_full_storage_cost_is_reported_without_generating_billions_of_blocks(tmp_path):
     report = generation_preflight(load_config("configs/default.toml"), world_path=tmp_path)
     assert report["capacity_contract"]["status"] == "passed"
-    assert report["storage_bits"] == 3_031_040
-    assert report["storage_banks"] == 93
-    assert report["storage_full_banks"] == 92 and report["storage_partial_banks"] == 1
+    assert report["storage_bits"] == 2_621_440
+    assert report["storage_banks"] == 80
+    assert report["storage_full_banks"] == 80 and report["storage_partial_banks"] == 0
     assert report["sample_bank"]["bytes"] == 4096
     assert report["sample_bank"]["placements"] == 1_991_552
-    assert report["storage_placements"] == report["sample_bank"]["placements"] * 92 + 996_224
-    assert {shape["words"]: shape["bank_count"] for shape in report["sampled_bank_shapes"]} == {1024: 92, 512: 1}
-    assert report["storage_chunks"] == 16_984
-    assert report["storage_regions"] == 56
-    assert report["horizontal_memory_tiles"] == 4
-    assert report["logical_memory_tiles"] == 6
-    assert report["storage_fabric_chunk_sum"] == 25_476
+    assert report["storage_placements"] == report["sample_bank"]["placements"] * 80
+    assert {shape["words"]: shape["bank_count"] for shape in report["sampled_bank_shapes"]} == {1024: 80}
+    assert report["storage_chunks"] == 12_738
+    assert report["storage_regions"] == 42
+    assert report["horizontal_memory_tiles"] == 3
+    assert report["logical_memory_tiles"] == 5
+    assert report["storage_fabric_chunk_sum"] == 21_230
     assert report["production_packing"]["actual_max_layers"] == 30
     assert report["production_packing"]["surface_y"] == -61
     assert report["production_packing"]["minimum_build_y"] == -60
     assert report["production_packing"]["storage_base_y"] == -56
     assert report["minimum_storage_region_bytes"] >= report["storage_chunks"] * 4096
-    assert report["minimum_storage_region_bytes"] == 70_025_216
+    assert report["minimum_storage_region_bytes"] == 52_518_912
     scenarios = {item["layers"]: item for item in report["stacking_scenarios"]}
-    assert scenarios[1]["storage_chunks"] == 408_868
+    assert scenarios[1]["storage_chunks"] == 353_615
     assert scenarios[30]["storage_chunks"] == report["storage_chunks"]
     assert scenarios[30]["production_enabled"]
     assert all(item["physical_storage_placements"] == report["storage_placements"] for item in scenarios.values())
-    assert {name: detail["banks"] for name, detail in report["storage_fabrics"].items()} == {"cache": 2, "ram": 24, "flash": 63, "vram": 4}
+    assert {name: detail["banks"] for name, detail in report["storage_fabrics"].items()} == {"cache": 2, "ram": 24, "flash": 50, "vram": 4}
     assert report["storage_fabrics"]["ram"]["banks_in_final_tile"] == 24
-    assert report["storage_fabrics"]["flash"]["banks_in_final_tile"] == 3
-    assert report["storage_fabrics"]["flash"]["final_bank_bytes"] == 2048
-    assert report["storage_fabrics"]["flash"]["final_bank_words"] == 512
+    assert report["storage_fabrics"]["flash"]["banks_in_final_tile"] == 20
+    assert report["storage_fabrics"]["flash"]["final_bank_bytes"] == 4096
+    assert report["storage_fabrics"]["flash"]["final_bank_words"] == 1024
     regular = report["regular_fabrics"]
-    assert regular["storage_and_local_control_union_chunks"] == 31_390
-    assert regular["memory_fabric_chunk_sum"] == 46_477
-    assert regular["shared_memory_chunk_savings"] == 15_087
-    assert regular["regular_fabric_union_chunks"] == 36_533
-    assert regular["local_memory_control_and_return_placements"] == 44_384_910
-    assert regular["binary_row_decoder_placements"] == 4_375_248
-    assert regular["regular_fabric_emitted_placements"] == 235_478_992
-    assert regular["regular_fabric_envelope"]["envelope_chunks"] == 116_688
+    assert regular["storage_and_local_control_union_chunks"] == 23_147
+    assert regular["memory_fabric_chunk_sum"] == 38_190
+    assert regular["shared_memory_chunk_savings"] == 15_043
+    assert regular["regular_fabric_union_chunks"] == 23_328
+    assert regular["local_memory_control_and_return_placements"] == 37_144_580
+    assert regular["binary_row_decoder_placements"] == 3_662_424
+    assert regular["regular_fabric_emitted_placements"] == 202_522_304
+    assert regular["regular_fabric_envelope"]["envelope_chunks"] == 86_000
     assert report["complete_world_runtime_verified"] is False
     assert "unverified" in report["full_world_loading_strategy"]
     assert "interconnect" in report["estimate_excludes"]
@@ -100,24 +100,29 @@ def test_preflight_uses_existing_world_grass_and_reduces_layers_without_capacity
     with NativeWorldWriter(world, surface_y=63, spawn=Vec3(-16, 65, -16)):
         pass
     config = load_config("configs/default.toml")
+    # This exercises memory-layer adaptation in a high-grass world. The
+    # full upright display has a separate, intentional build-height guard.
+    config["display"].update(orientation="horizontal", pixel_pitch_x=5, pixel_pitch_y=4)
     report = generation_preflight(config, world_path=world)
     assert report["production_packing"]["surface_y"] == 63
     assert report["production_packing"]["minimum_build_y"] == 64
     assert report["production_packing"]["storage_base_y"] == 68
     assert report["production_packing"]["actual_max_layers"] == 20
-    assert report["storage_bits"] == 3_031_040
-    assert report["storage_banks"] == 93
+    assert report["storage_bits"] == 2_621_440
+    assert report["storage_banks"] == 80
     assert report["capacity_contract"]["status"] == "passed"
     assert config["world"]["surface_y"] == -61
 
 
-def test_capacity_manifest_rejects_padding_or_omitting_flash_tail():
+def test_capacity_manifest_rejects_truncated_tail_and_accepts_legacy_full_bank_default():
     claims = _capacity_claims(load_config("configs/default.toml"))
-    assert claims["memory_banks"]["flash"] == 63
-    assert claims["memory_banks"]["final_bank_bytes"]["flash"] == 2048
-    padded = copy.deepcopy(claims)
-    padded["memory_banks"]["final_bank_bytes"]["flash"] = 4096
-    assert validate_manifest_capacity(padded)["status"] == "failed"
+    assert claims["memory_banks"]["flash"] == 50
+    assert claims["memory_banks"]["final_bank_bytes"]["flash"] == 4096
+    truncated = copy.deepcopy(claims)
+    truncated["memory_banks"]["final_bank_bytes"]["flash"] = 2048
+    assert validate_manifest_capacity(truncated)["status"] == "failed"
     missing = copy.deepcopy(claims)
     del missing["memory_banks"]["final_bank_bytes"]["flash"]
-    assert validate_manifest_capacity(missing)["status"] == "failed"
+    # Older manifests omit tail sizes and mean one complete nominal bank.
+    # That is exact for 200 KiB; a declared shorter final bank is not.
+    assert validate_manifest_capacity(missing)["status"] == "passed"

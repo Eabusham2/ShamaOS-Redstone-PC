@@ -1,6 +1,7 @@
 # ShamaOS complete requirements and acceptance contract
 
-Reconciled with the planning conversation and owner instructions on 2026-11-12.
+Reconciled with the planning conversation and owner instructions; latest
+capacity amendment recorded on 2026-11-13 UTC.
 
 This is the implementation checklist for the complete promised Minecraft computer.
 It supplements `INITIAL_SPEC_AND_TRANSCRIPTS.md`; implementation shortcuts and
@@ -26,14 +27,17 @@ successful compile, a manifest capacity, or an opcode name is not behavioral pro
   physical redstone. Python/Yosys construct and verify the machine; they do not
   secretly perform its runtime computation. Command blocks must not compute the
   program or hashes on behalf of decorative circuits.
-- Preserve the owner-amended default capacities (2026-11-12): 32-bit CPU, 16
+- Preserve the owner-amended default capacities (2026-11-13 UTC): 32-bit CPU, 16
   architectural registers, 96 KiB RAM, 8 KiB cache/fast scratch,
-  250 KiB flash, 16 KiB VRAM, and a readable
+  200 KiB flash, 16 KiB VRAM, and a readable
   320x180 one-bit lamp display. Banked layout is allowed; document physical
   capacity, access latency, and the actual cache/scratchpad semantics accurately.
 - This explicit amendment replaces the earlier 1 MiB RAM / 4 MiB flash target.
-  RAM uses 24 full 4 KiB banks; flash uses 62 full 4 KiB banks plus
-  one exact 2 KiB bank, with no padded or inaccessible substitute cells. The screen, assembler, controls, all supporting circuits and
+  RAM uses 24 full 4 KiB banks; flash uses 50 full 4 KiB banks, with no
+  padded or inaccessible substitute cells. The latest owner instruction replaces
+  the intermediate 224 KiB proposal with 200 KiB, conditional on reducing the
+  history-save temporary copy to at most 8 KiB while preserving every record
+  and recovery after interrupted saves. The screen, assembler, controls, all supporting circuits and
   every software feature remain required. Seek further size and speed improvements,
   including parallel buses in unused space inside the perimeter, and validate the
   actual resulting behavior before claiming an improvement.
@@ -101,6 +105,7 @@ successful compile, a manifest capacity, or an opcode name is not behavioral pro
 | M03 | Live complete hash/target, nonce, attempts, generation, validity, execution mode and measured rate. Indicators derive from computation and elapsed ticks. |
 | M04 | Select software or native accelerated SHA and compare correct results and measured work/rate. |
 | M05 | Persist and restore run state and history, including full hash, full target, nonce, attempts, generation, status and timer/counter. App exit and shutdown use the same persistence path. |
+| M06 | Preserve all 256 complete 128-byte history records while limiting each history update's temporary copy to at most 8 KiB. A smaller journaled record update is allowed if the last committed state and idempotent interrupted-write recovery remain correct. Test the complete installed 200 KiB image, repeated saves, record boundaries, protection and recovery. |
 
 ## Generator, tests and release gates
 

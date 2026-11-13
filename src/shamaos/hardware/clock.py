@@ -13,6 +13,11 @@ CLOCK_HALF_PERIOD = 35
 CLOCK_BOUNDS = ((0,0,-30),(96,4,12))
 
 
+def system_clock_origin(console_origin: Vec3) -> Vec3:
+    """Keep the clock and its escapes north of the compact console volume."""
+    return console_origin.offset(180, 0, -48)
+
+
 @dataclass(frozen=True)
 class ClockPorts:
     enable: Vec3

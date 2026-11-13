@@ -93,15 +93,17 @@ def gpu_binary(tmp_path_factory):
     directory = tmp_path_factory.mktemp('gpu_rtl')
     binaries = {}
 
-    def build(width, height, depth):
-        key = width, height, depth
+    def build(width, height, depth, bridge=False):
+        key = width, height, depth, bridge
         if key not in binaries:
-            path = directory / f'gpu_{width}_{height}_{depth}'
+            path = directory / f'gpu_{width}_{height}_{depth}_{int(bridge)}'
             result = subprocess.run([
                 'iverilog', '-g2012', '-s', 'tb_gpu_cases',
                 f'-Ptb_gpu_cases.WIDTH={width}', f'-Ptb_gpu_cases.HEIGHT={height}',
                 f'-Ptb_gpu_cases.QUEUE_DEPTH={depth}', '-o', str(path),
+                f'-Ptb_gpu_cases.USE_UPRIGHT_BRIDGE={int(bridge)}',
                 str(ROOT / 'rtl/shama_font5x7.sv'), str(ROOT / 'rtl/shama_gpu.sv'),
+                str(ROOT / 'rtl/shama_display_bridge.sv'),
                 str(ROOT / 'rtl/tb_gpu_cases.sv'),
             ], capture_output=True, text=True, timeout=60)
             assert result.returncode == 0, result.stdout + result.stderr
@@ -111,8 +113,8 @@ def gpu_binary(tmp_path_factory):
     return build
 
 
-def run(gpu_binary, tmp_path, scenario, depth=4, queue_stall=False, direct_stall=False):
-    binary = gpu_binary(scenario.gpu.front.width, scenario.gpu.front.height, depth)
+def run(gpu_binary, tmp_path, scenario, depth=4, queue_stall=False, direct_stall=False, bridge=False, capture_rows=False):
+    binary = gpu_binary(scenario.gpu.front.width, scenario.gpu.front.height, depth, bridge)
     command_file = tmp_path / 'commands.hex'
     expected_file = tmp_path / 'expected.hex'
     command_file.write_text(''.join(f'{value & 0xffffffff:08x}\n' for row in scenario.records for value in row))
@@ -121,6 +123,7 @@ def run(gpu_binary, tmp_path, scenario, depth=4, queue_stall=False, direct_stall
         'vvp', str(binary), f'+COMMANDS={command_file}', f'+EXPECTED={expected_file}',
         f'+COUNT={len(scenario.records)}', f'+EXPECT_COUNT={scenario.checks}',
         f'+QUEUE_STALL={int(queue_stall)}', f'+DIRECT_STALL={int(direct_stall)}',
+        f'+CAPTURE_ROWS={int(capture_rows)}',
     ], capture_output=True, text=True, timeout=45)
     assert result.returncode == 0, result.stdout + result.stderr
     assert 'GPU DIFFERENTIAL PASS' in result.stdout

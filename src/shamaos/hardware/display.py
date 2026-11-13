@@ -22,20 +22,21 @@ class LampPanelSpec:
     height: int = 180
     pixel_pitch_x: int = 5
     pixel_pitch_y: int = 4
+    orientation: str = "horizontal"
 
     @property
     def physical_width(self) -> int:
-        return self.width * self.pixel_pitch_x
+        return (self.width - 1) * self.pixel_pitch_x + 1 if self.orientation == "upright" else self.width * self.pixel_pitch_x
 
     @property
     def physical_height(self) -> int:
-        # Row extent on world Z.
-        return self.height * self.pixel_pitch_y
+        # Visible Y span for upright panels; world-Z span for horizontal ones.
+        return (self.height - 1) * self.pixel_pitch_y + 1 if self.orientation == "upright" else self.height * self.pixel_pitch_y
 
     @property
     def depth(self) -> int:
         # Vertical circuit/lamp thickness on world Y.
-        return 6
+        return 18 if self.orientation == "upright" else 6
 
 
 @dataclass(frozen=True)
@@ -45,6 +46,12 @@ class LampPanelPorts:
 
 
 def panel_ports(origin: Vec3, spec: LampPanelSpec) -> LampPanelPorts:
+    if spec.orientation == "upright":
+        return LampPanelPorts(
+            tuple(origin.offset(col * 3, -5, 8) for col in range(spec.width)),
+            tuple(origin.offset(3 * (spec.width - 1) + 4 + 2 * (spec.height - 1 - row),
+                                2 * (spec.height - 1 - row), 17) for row in range(spec.height)),
+        )
     data_y = origin.y + 1
     row_y = origin.y - 2
 
@@ -68,6 +75,9 @@ def panel_ports(origin: Vec3, spec: LampPanelSpec) -> LampPanelPorts:
 
 
 def panel_bounds(origin: Vec3, spec: LampPanelSpec) -> Box:
+    if spec.orientation == "upright":
+        return Box(origin.offset(dy=-6), origin.offset(
+            3 * (spec.width - 1) + 4 + 2 * (spec.height - 1), 2 * (spec.height - 1), 17))
     return Box(origin.offset(-64,-3,-64),origin.offset(
         (spec.width-1)*spec.pixel_pitch_x+4,2,(spec.height-1)*spec.pixel_pitch_y+2))
 
@@ -75,6 +85,19 @@ def panel_bounds(origin: Vec3, spec: LampPanelSpec) -> Box:
 def iter_panel_terminal_keepouts(origin: Vec3, spec: LampPanelSpec) -> Iterator[Placement]:
     """Exact first four native cells, independent of the pixel count."""
     ports=panel_ports(origin,spec)
+    if spec.orientation == "upright":
+        target = BlockState.of("minecraft:target", power="0")
+        for pin in (*ports.data_in, *ports.row_select):
+            yield Placement(pin.offset(dy=-1), SUPPORT, "display-terminal")
+            yield Placement(pin, DUST, "display-terminal")
+            gate = pin.offset(dz=-1)
+            yield Placement(gate.offset(dy=-1), SUPPORT, "display-terminal")
+            yield Placement(gate, target, "display-terminal")
+        for pin in ports.row_select:
+            torch = pin.offset(dz=-2)
+            yield Placement(torch.offset(dy=-1), SUPPORT, "display-terminal")
+            yield Placement(torch, BlockState.of("minecraft:redstone_wall_torch", facing="north", lit="true"), "display-terminal")
+        return
     for pin in ports.data_in:
         yield from _wire_z(pin.x,pin.y,pin.z,pin.z+3,component="display-terminal",facing="south",tap_mod=spec.pixel_pitch_y)
     for pin in ports.row_select:
@@ -126,7 +149,7 @@ def _wire_z(
         )
 
 
-def iter_lamp_panel(
+def _iter_horizontal_lamp_panel(
     origin: Vec3,
     *,
     spec: LampPanelSpec = LampPanelSpec(),
@@ -292,3 +315,104 @@ def iter_lamp_panel(
                         BLACK,
                         component,
                     )
+
+
+def panel_pixel(origin: Vec3, spec: LampPanelSpec, row: int, col: int) -> Vec3:
+    """Physical lamp for a logical top-to-bottom pixel address."""
+    if not 0 <= row < spec.height or not 0 <= col < spec.width:
+        raise ValueError("pixel outside panel")
+    if spec.orientation == "upright":
+        return origin.offset(col * 3, 2 * (spec.height - 1 - row), 0)
+    return origin.offset(col * spec.pixel_pitch_x + 3, 2, row * spec.pixel_pitch_y)
+
+
+def panel_row_inverted(spec: LampPanelSpec, row: int) -> bool:
+    return spec.orientation == "upright" and (spec.height - 1 - row) % 2 == 0
+
+
+def panel_route_access(origin: Vec3, spec: LampPanelSpec) -> dict[Vec3, tuple[str, ...]]:
+    ports = panel_ports(origin, spec)
+    if spec.orientation == "upright":
+        return dict.fromkeys((*ports.data_in, *ports.row_select), ("south",))
+    return dict.fromkeys(ports.data_in, ("north",)) | dict.fromkeys(ports.row_select, ("west",))
+
+
+def _iter_upright_lamp_panel(origin: Vec3, spec: LampPanelSpec, *, component: str, backing: bool) -> Iterator[Placement]:
+    """Three-X by two-Y locked-repeater pixels, viewed from the north.
+
+    The data torch towers invert alternate physical rows. The display bridge
+    compensates each serial pixel before buffering; row zero is the top row.
+    Only the two identical bus/tap overlaps in the measured prototype are
+    omitted here, so emission needs no full-panel duplicate-position cache.
+    """
+    high = redstone_wire(power=15)
+    target = BlockState.of("minecraft:target", power="0")
+    wall_torch = BlockState.of("minecraft:redstone_wall_torch", facing="north", lit="true")
+    latch_z, row_z, inverse_z = origin.z + 5, origin.z + 11, origin.z + 16
+
+    def put(point, state):
+        return Placement(point, state, component)
+
+    def supported(point, state):
+        yield put(point.offset(dy=-1), SUPPORT)
+        yield put(point, state)
+
+    for col in range(spec.width):
+        x = origin.x + col * 3
+        base = Vec3(x, origin.y - 5, latch_z + 2)
+        yield from supported(base, target)
+        for y in range(base.y + 1, origin.y + 2 * (spec.height - 1) + 1):
+            dy = y - base.y
+            state = SUPPORT if dy % 2 == 0 else BlockState.of(
+                "minecraft:redstone_torch", lit=str(((dy - 1) // 2) % 2 == 0).lower())
+            yield put(Vec3(x, y, base.z), state)
+        yield from supported(base.offset(dz=1), DUST)
+
+    for row in range(spec.height):
+        physical_row = spec.height - 1 - row
+        y = origin.y + 2 * physical_row
+        control_x = origin.x + 3 * (spec.width - 1) + 4 + 2 * physical_row
+        gate = Vec3(control_x, y, inverse_z)
+        yield from supported(gate, target)
+        yield from supported(gate.offset(dz=-1), wall_torch)
+        yield from supported(gate.offset(dz=1), DUST)
+        # row_z itself belongs to the horizontal bus below.
+        for z in range(row_z + 1, inverse_z - 1):
+            yield from supported(Vec3(control_x, y, z), high)
+        for x in range(origin.x + 2, control_x + 1):
+            refresh = x != control_x and (x - origin.x) % 9 == 0
+            yield from supported(Vec3(x, y, row_z), repeater("west", powered=True) if refresh else high)
+        for col in range(spec.width):
+            x = origin.x + 3 * col
+            yield from supported(Vec3(x, y, latch_z + 1), repeater("north"))
+            yield from supported(Vec3(x, y, latch_z), repeater("north", locked=True))
+            yield from supported(Vec3(x + 1, y, latch_z), repeater("west", powered=True))
+            # Side-insensitive repeaters isolate the neighboring data tower.
+            # The row_z tap is already emitted by the shared row bus.
+            for z in range(latch_z, row_z):
+                yield from supported(Vec3(x + 2, y, z), target if z == latch_z else repeater("north", powered=True))
+            for z in range(origin.z + 1, latch_z):
+                yield from supported(Vec3(x, y, z), repeater("north") if z == origin.z + 1 else DUST)
+            yield put(Vec3(x, y, origin.z), LAMP_OFF)
+    if backing:
+        for dx in range(3 * (spec.width - 1) + 1):
+            for dy in range(2 * (spec.height - 1) + 1):
+                if dx % 3 or dy % 2:
+                    yield put(origin.offset(dx, dy, 0), BLACK)
+
+
+def iter_lamp_panel(origin: Vec3, *, spec: LampPanelSpec = LampPanelSpec(),
+                    component: str = "display", backing: bool = True) -> Iterator[Placement]:
+    if spec.width <= 0 or spec.height <= 0:
+        raise ValueError("invalid panel geometry")
+    if spec.orientation == "horizontal":
+        yield from _iter_horizontal_lamp_panel(origin, spec=spec, component=component, backing=backing)
+    elif spec.orientation == "upright":
+        if (spec.pixel_pitch_x, spec.pixel_pitch_y) != (3, 2):
+            raise ValueError("upright lamp-panel pitch must be exactly 3 X blocks and 2 Y blocks")
+        bounds = panel_bounds(origin, spec)
+        if bounds.min.y < -64 or bounds.max.y > 319:
+            raise ValueError("upright screen exceeds Java build height; use the compatible low-grass superflat layout")
+        yield from _iter_upright_lamp_panel(origin, spec, component=component, backing=backing)
+    else:
+        raise ValueError("display orientation must be horizontal or upright")

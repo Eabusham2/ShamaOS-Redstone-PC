@@ -160,8 +160,49 @@ the app does not resume a partially typed edit.
 
 `SYS_MINER_SAVE_STATE`/`LOAD_STATE` use this 256-byte contract. History operations
 use 128-byte records; no digest or target is truncated to fit a smaller record.
-ShamaFS performs copy-on-write data replacement and journaled metadata commit.
-See [FILESYSTEM.md](FILESYSTEM.md) for recovery and full-disk behavior.
+The state file uses copy-on-write data replacement and journaled metadata commit.
+History saves stage only one **128-byte complete record** in the filesystem's
+already reserved superblock, commit its checksum and identity, then replay it
+into its existing slot. This removes the old 32 KiB temporary history copy
+without shrinking the 32 KiB history, its 256 slots or the saved data in each
+record. The journal requires no extra allocated flash extent or app RAM buffer.
+
+Before commit, interruption preserves the old history record; after commit,
+mount replays the complete new record. Recovery checks the target's identity,
+checksum, generation and exclusive extent ownership before changing file data.
+The dedicated state/history calls reject files with an unexpected canonical
+name, type or size, including an unrelated file that reused a deleted entry's
+table slot. The 95% flash guard rejects new saves while allowing recovery of a
+previously committed record. See [FILESYSTEM.md](FILESYSTEM.md) for the exact
+journal format, recovery order and full-disk behavior.
+
+The complete installed image occupies **158.5 KiB / 79.25% of 200 KiB flash**.
+A history save does not increase that allocation. State saves temporarily need
+one additional 256-byte data block and reclaim the old block after commit.
+
+### Measured history save work
+
+A controlled RTL comparison uses the same complete 250 KiB fixture for both
+implementations so the former 32 KiB copy fits, an unaligned 128-byte RAM source,
+and a DMA model stalled for one cycle in every three. It measures one history
+save after mount:
+
+| Measurement | Former whole-history copy | Record journal |
+|---|---:|---:|
+| Simulator clock cycles | 99,919 | 805 |
+| DMA reads | 33,064 | 272 |
+| Flash DMA writes | 33,060 | 264 |
+
+That is about **124× fewer simulator cycles for this save**, with no reduction
+in history contents. These are controller-operation measurements under the
+stated DMA model, not a measured Minecraft wall-clock speedup. The complete
+200 KiB image is separately tested through every record slot, repeated saves,
+fragmentation, interruption and recovery.
+
+The [retained comparison](evidence/history-journal-2026-11-13.json) records exact
+source and fixture hashes. Reproduce it with
+`python tools/benchmark_history_save.py` from a development checkout containing
+the baseline commit and Icarus Verilog.
 
 ## Software SHA scope and validation
 

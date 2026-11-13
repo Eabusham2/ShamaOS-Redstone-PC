@@ -81,13 +81,9 @@ def stacked_tile_ports(origin: Vec3, tile: StackedMemoryTileSpec) -> StackedMemo
         tuple(origin.offset((-56 if row % 2 == 0 else -88) - 1, 0, 3 + row * tile.bank.word_pitch) for row in range(tile.words)),
         origin.offset(-115, 4, -4), origin.offset(-115, 0, -10),
         tuple(origin.offset(bit * tile.bank.bit_pitch - 4, tile.bank.data_y - 3, -4) for bit in range(tile.bank.word_bits)),
-        tuple(point.offset(2, 0, (tile.banks - 1) * _return_span(tile.layer_pitch) + 2) for point in lower_read),
+        tuple(point.offset(2, (tile.banks - 1) * tile.layer_pitch, 2) for point in lower_read),
         tuple(bank_ports(stacked_bank_origin(origin, tile, bank), tile.bank_spec(bank)).data_out for bank in range(tile.banks)),
     )
-
-
-def _return_span(layer_pitch: int) -> int:
-    return 2 + layer_pitch + 2 * (math.ceil(layer_pitch / 10) - 1)
 
 
 @dataclass(frozen=True)
@@ -124,9 +120,10 @@ class StackedMemoryFabricSpec(MemoryFabricSpec):
 
     @property
     def group_stride_z(self) -> int:
-        # Every group reserves the tallest tile's descending return tail.
-        # Its final landing must precede the next group's front controls.
-        return self.bank.depth + (min(self.layers, self.bank_count) - 1) * _return_span(self.layer_pitch) + self.bank_gap_z
+        # The vertical return ends two blocks behind the common output plane,
+        # independently of layer count. The normal gap clears the next
+        # group's front controls without reserving a descending staircase.
+        return self.bank.depth + self.bank_gap_z
 
     def tile_spec(self, group: int) -> StackedMemoryTileSpec:
         if not 0 <= group < self.group_count:
@@ -177,7 +174,7 @@ def stacked_tile_bounds(origin: Vec3, tile: StackedMemoryTileSpec, *, local_cont
     maximum = Vec3(max(point.x for point in outputs) + (2 if local_controls else 0),
                    origin.y + (tile.banks - 1) * tile.layer_pitch + (7 if local_controls else tile.bank.read_y),
                    max(origin.z + tile.common_bank.depth,
-                       max(point.z for point in outputs) + (tile.banks - 1) * _return_span(tile.layer_pitch) + 2)
+                       max(point.z for point in outputs) + 2)
                    if local_controls else max(point.z for point in outputs))
     if minimum.y < -64 or maximum.y > 319:
         raise ValueError("stacked memory tile exceeds Java 1.20.4 build height")
@@ -203,31 +200,43 @@ def iter_stacked_tile_terminal_keepouts(origin: Vec3, tile: StackedMemoryTileSpe
         yield Placement(point, repeater("north"), component)
     for pin in (*pins.write_data, pins.write_enable, pins.read_enable):
         yield from _tower(pin.offset(dx=1), 3, (3,), component)
-    # The final return descent is a translated two-bank suffix. Its very
-    # last lane cell is always refreshed, independently of the earlier tail.
-    # Restrict to the landing neighborhood where all block states coincide.
-    suffix_banks = min(2, tile.banks)
-    suffix_origin = origin.offset(dz=max(0, tile.banks - 2) * _return_span(tile.layer_pitch))
-    suffix = StackedMemoryTileSpec(tile.bank, suffix_banks, tile.layer_pitch, tile.tail_words)
-    near = {pin.offset(dx, dy, dz) for pin in pins.selected_word
-            for dx in range(-2, 3) for dy in range(-1, 3) for dz in range(-1, 2)}
-    for placement in _stacked_read_return(suffix_origin, suffix, component):
-        if placement.pos in near:
-            yield placement
+    # The router approaches the top output from the south. These are the
+    # exact buffered terminal cells, including their supports, at that Y.
+    for pin in pins.selected_word:
+        yield from _read_return_terminal(pin.offset(dz=-2), component)
+
+
+def _read_return_terminal(top: Vec3, component: str) -> Iterator[Placement]:
+    for dz, state in ((1, repeater("south")), (2, DUST)):
+        point = top.offset(dz=dz)
+        yield Placement(point.offset(dy=-1), SUPPORT, component)
+        yield Placement(point, state, component)
 
 
 def _stacked_read_return(origin: Vec3, tile: StackedMemoryTileSpec, component: str) -> Iterator[Placement]:
-    """An isolated downward OR cascade, one narrow lane per data bit.
+    """An isolated upward OR column, one narrow column per data bit.
 
-    The bank's local output follows a parallel Z lane two X blocks from the
-    descending cascade. It joins across X only at the landing, so descending
-    stair supports cannot overwrite the lower bank's horizontal conductor.
-    Repeaters isolate every source and refresh every inter-layer descent.
+    Every bank injects through its own repeater into a target block. The
+    column's even number of torch inversions per layer preserves polarity;
+    a lower selected bank and the local output are ORed at each target.
+    The word exits beside the highest bank, below its local control ceiling.
+    This removes the growing horizontal return tail. Read and clear delays
+    differ from a downward cascade and retain a separate settling contract.
     """
-    span = _return_span(tile.layer_pitch)
-    for bank in range(tile.banks - 1, -1, -1):
+    top_height = (tile.banks - 1) * tile.layer_pitch
+    for source in bank_ports(origin, tile.common_bank).data_out:
+        base = source.offset(dx=2)
+        for dy in range(top_height + 1):
+            if dy % 2:
+                state = BlockState.of("minecraft:redstone_torch",
+                                      lit="true" if dy % 4 == 1 else "false")
+            else:
+                state = (BlockState.of("minecraft:target", power="0")
+                         if dy % tile.layer_pitch == 0 else SUPPORT)
+            yield Placement(base.offset(dy=dy), state, component)
+        yield from _read_return_terminal(base.offset(dy=top_height), component)
+    for bank in range(tile.banks):
         bo = stacked_bank_origin(origin, tile, bank)
-        distance = (tile.banks - 1 - bank) * span
         actual_sources = bank_ports(bo, tile.bank_spec(bank)).data_out
         common_sources = bank_ports(bo, tile.common_bank).data_out
         for actual, source in zip(actual_sources, common_sources):
@@ -238,35 +247,9 @@ def _stacked_read_return(origin: Vec3, tile: StackedMemoryTileSpec, component: s
                 refresh = z != source.z and (step == 1 or step % 10 == 0 or z == source.z - 1)
                 yield Placement(point.offset(dy=-1), SUPPORT, component)
                 yield Placement(point, repeater("south") if refresh else DUST, component)
-            node = source.offset(2, 0, distance)
-            if distance == 0:
-                yield Placement(source.offset(1, -1, 0), SUPPORT, component)
-                yield Placement(source.offset(1, 0, 0), repeater("east"), component)
-                yield Placement(node.offset(dy=-1), SUPPORT, component)
-                yield Placement(node, DUST, component)
-            else:
-                for step in range(1, distance + 1):
-                    point = source.offset(dz=step)
-                    refresh = step < distance and (step == 1 or step % 10 == 0 or step == distance - 1)
-                    yield Placement(point.offset(dy=-1), SUPPORT, component)
-                    yield Placement(point, repeater("south") if refresh else DUST, component)
-                bridge = source.offset(1, 0, distance)
-                yield Placement(bridge.offset(dy=-1), SUPPORT, component)
-                yield Placement(bridge, DUST, component)
-                # The preceding stair owns the node's north=up block state.
-            if bank:
-                yield Placement(node.offset(0, -1, 1), SUPPORT, component)
-                yield Placement(node.offset(dz=1), repeater("south"), component)
-                yield from iter_stair(node.offset(dz=2), node.offset(0, -tile.layer_pitch, span), axis="z", signal_forward=True, component=component)
-    # Export a plain, isolated terminal after the final descending landing.
-    # Its north=up connection remains owned by the stair; the external router
-    # can share this flat terminal without rewriting that required state.
-    for source in bank_ports(origin, tile.common_bank).data_out:
-        landing = source.offset(2, 0, (tile.banks - 1) * span)
-        for dz, state in ((1, repeater("south")), (2, DUST)):
-            point = landing.offset(dz=dz)
+            point = source.offset(dx=1)
             yield Placement(point.offset(dy=-1), SUPPORT, component)
-            yield Placement(point, state, component)
+            yield Placement(point, repeater("east"), component)
 
 
 def _tower(base: Vec3, top: int, buffered_taps: tuple[int, ...], component: str) -> Iterator[Placement]:
@@ -343,8 +326,8 @@ def iter_stacked_memory_tile(
 
     Shared write-data/row/global-enable signals use vertical buffered torch
     columns. Bank selection is local; two gate planes at Y+3/Y+7 qualify each
-    row, instead of the legacy Y+116 control canopy. A descending, isolated
-    OR cascade merges selected read data onto one word-wide bottom terminal.
+    row, instead of the legacy Y+116 control canopy. Isolated upward OR
+    columns merge selected read data onto one word-wide top terminal.
     """
     stacked_tile_bounds(origin, tile)
     if initial is not None and len(initial) > tile.bytes:

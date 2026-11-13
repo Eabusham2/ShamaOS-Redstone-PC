@@ -43,8 +43,26 @@ On the console, directions are light blue; A/Power are lime; B/Reset are red;
 Home is white; Exit/Step are orange; Editor is magenta; Files/Pause are yellow;
 and Shift is cyan. These colors identify the existing button backings. The
 buttons, switches, target blocks and signal circuits keep their exact states.
-The full-screen view from the console still requires separate integration work;
-this appearance change does not resolve viewing distance or full-world routing.
+The operating-layer preview includes the short south viewing lip. The upright
+screen has a separate deterministic perspective preview, generated from the
+real lamp and console coordinates with
+`python tools/render_operator_view.py` (Pillow required). It writes
+`build/upright-display/operator-view.png` and its camera metadata. The test
+pattern uses the resident 5×7 font and is explicitly labeled as a geometry
+projection, not an in-client screenshot or a booted OS result.
+
+![Projected standing view, not a Minecraft client screenshot](images/operator-view.png)
+
+The retained [camera metadata](evidence/upright-display-camera.json) and
+[circuit/view checkpoint](evidence/upright-display-checkpoint.json) distinguish
+the measured fixture results from the remaining full-world gates.
+
+At the documented standing position, conservative rays to all 57,600 lamp
+centers clear the native console and its 30 export paths. The entire face also
+fits the documented 70° vertical-FOV, 16:9 projection. The 3×2 physical pitch
+widening is visible in that preview. See [CONTROLS.md](CONTROLS.md#screen-viewing-position)
+for exact coordinates and camera limits. Full-machine routes and in-client
+legibility remain separate gates; coloring supports does not establish either.
 
 ## Electrical preservation
 

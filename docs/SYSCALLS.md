@@ -157,7 +157,7 @@ Filesystem errors return `r2=0xFFFFFFFF` and the signed code in r1:
 | -8 | Flash write protection at the 95% allocation limit |
 | -9 | Attempt to mutate the private immutable `boot.bundle` loader image |
 
-At 950 allocated blocks (243,200 bytes), new mutations are refused with `-8`
+At 760 allocated blocks (194,560 bytes), new mutations are refused with `-8`
 and an OS popup. Copy-on-write reservations are checked before writes begin;
 an admitted transaction may finish at the limit. DELETE and truncation to zero
 remain available to free space, and journal recovery remains available at mount.

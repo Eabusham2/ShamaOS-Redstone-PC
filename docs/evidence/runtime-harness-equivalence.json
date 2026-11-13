@@ -1,0 +1,191 @@
+{
+  "kind": "bounded-memory-harness-equivalence",
+  "cases": [
+    {
+      "name": "concrete-latch-white",
+      "status": "passed",
+      "blocks": 108,
+      "outputs": 1,
+      "steps": 6,
+      "ticks": 176,
+      "complete_trace_sha256": "dee3aa4a4de755a1a1d06eb6158c1dc4108a5b89b577225225bfcf42e123056d"
+    },
+    {
+      "name": "concrete-latch-orange",
+      "status": "passed",
+      "blocks": 108,
+      "outputs": 1,
+      "steps": 6,
+      "ticks": 176,
+      "complete_trace_sha256": "dee3aa4a4de755a1a1d06eb6158c1dc4108a5b89b577225225bfcf42e123056d"
+    },
+    {
+      "name": "concrete-latch-magenta",
+      "status": "passed",
+      "blocks": 108,
+      "outputs": 1,
+      "steps": 6,
+      "ticks": 176,
+      "complete_trace_sha256": "dee3aa4a4de755a1a1d06eb6158c1dc4108a5b89b577225225bfcf42e123056d"
+    },
+    {
+      "name": "concrete-latch-light_blue",
+      "status": "passed",
+      "blocks": 108,
+      "outputs": 1,
+      "steps": 6,
+      "ticks": 176,
+      "complete_trace_sha256": "dee3aa4a4de755a1a1d06eb6158c1dc4108a5b89b577225225bfcf42e123056d"
+    },
+    {
+      "name": "concrete-latch-yellow",
+      "status": "passed",
+      "blocks": 108,
+      "outputs": 1,
+      "steps": 6,
+      "ticks": 176,
+      "complete_trace_sha256": "dee3aa4a4de755a1a1d06eb6158c1dc4108a5b89b577225225bfcf42e123056d"
+    },
+    {
+      "name": "concrete-latch-lime",
+      "status": "passed",
+      "blocks": 108,
+      "outputs": 1,
+      "steps": 6,
+      "ticks": 176,
+      "complete_trace_sha256": "dee3aa4a4de755a1a1d06eb6158c1dc4108a5b89b577225225bfcf42e123056d"
+    },
+    {
+      "name": "concrete-latch-pink",
+      "status": "passed",
+      "blocks": 108,
+      "outputs": 1,
+      "steps": 6,
+      "ticks": 176,
+      "complete_trace_sha256": "dee3aa4a4de755a1a1d06eb6158c1dc4108a5b89b577225225bfcf42e123056d"
+    },
+    {
+      "name": "concrete-latch-gray",
+      "status": "passed",
+      "blocks": 108,
+      "outputs": 1,
+      "steps": 6,
+      "ticks": 176,
+      "complete_trace_sha256": "dee3aa4a4de755a1a1d06eb6158c1dc4108a5b89b577225225bfcf42e123056d"
+    },
+    {
+      "name": "concrete-latch-light_gray",
+      "status": "passed",
+      "blocks": 108,
+      "outputs": 1,
+      "steps": 6,
+      "ticks": 176,
+      "complete_trace_sha256": "dee3aa4a4de755a1a1d06eb6158c1dc4108a5b89b577225225bfcf42e123056d"
+    },
+    {
+      "name": "concrete-latch-cyan",
+      "status": "passed",
+      "blocks": 108,
+      "outputs": 1,
+      "steps": 6,
+      "ticks": 176,
+      "complete_trace_sha256": "dee3aa4a4de755a1a1d06eb6158c1dc4108a5b89b577225225bfcf42e123056d"
+    },
+    {
+      "name": "concrete-latch-purple",
+      "status": "passed",
+      "blocks": 108,
+      "outputs": 1,
+      "steps": 6,
+      "ticks": 176,
+      "complete_trace_sha256": "dee3aa4a4de755a1a1d06eb6158c1dc4108a5b89b577225225bfcf42e123056d"
+    },
+    {
+      "name": "concrete-latch-blue",
+      "status": "passed",
+      "blocks": 108,
+      "outputs": 1,
+      "steps": 6,
+      "ticks": 176,
+      "complete_trace_sha256": "dee3aa4a4de755a1a1d06eb6158c1dc4108a5b89b577225225bfcf42e123056d"
+    },
+    {
+      "name": "concrete-latch-brown",
+      "status": "passed",
+      "blocks": 108,
+      "outputs": 1,
+      "steps": 6,
+      "ticks": 176,
+      "complete_trace_sha256": "dee3aa4a4de755a1a1d06eb6158c1dc4108a5b89b577225225bfcf42e123056d"
+    },
+    {
+      "name": "concrete-latch-green",
+      "status": "passed",
+      "blocks": 108,
+      "outputs": 1,
+      "steps": 6,
+      "ticks": 176,
+      "complete_trace_sha256": "dee3aa4a4de755a1a1d06eb6158c1dc4108a5b89b577225225bfcf42e123056d"
+    },
+    {
+      "name": "concrete-latch-red",
+      "status": "passed",
+      "blocks": 108,
+      "outputs": 1,
+      "steps": 6,
+      "ticks": 176,
+      "complete_trace_sha256": "dee3aa4a4de755a1a1d06eb6158c1dc4108a5b89b577225225bfcf42e123056d"
+    },
+    {
+      "name": "concrete-latch-black",
+      "status": "passed",
+      "blocks": 108,
+      "outputs": 1,
+      "steps": 6,
+      "ticks": 176,
+      "complete_trace_sha256": "dee3aa4a4de755a1a1d06eb6158c1dc4108a5b89b577225225bfcf42e123056d"
+    },
+    {
+      "name": "saved-colored-memory",
+      "status": "passed",
+      "blocks": 2240,
+      "outputs": 40,
+      "steps": 25,
+      "ticks": 1632,
+      "complete_trace_sha256": "581268ac1b73b9af3acc7d4e4a7337a247a88f24349f4c1dc0d620db586b3b32"
+    },
+    {
+      "name": "saved-colored-display",
+      "status": "passed",
+      "blocks": 2856,
+      "outputs": 32,
+      "steps": 19,
+      "ticks": 1248,
+      "complete_trace_sha256": "676a66fa6fe7413a6ddd83bb95ee27313ce50ae44f52f8b39ec280d9300f9c96"
+    },
+    {
+      "name": "saved-colored-input",
+      "status": "passed",
+      "blocks": 13254,
+      "outputs": 30,
+      "steps": 81,
+      "ticks": 23628,
+      "complete_trace_sha256": "c573a80cd567dccf4b433852c3ee58330773ef180c9cef3c2cf49a8251755fa6"
+    }
+  ],
+  "deliberate_failure": {
+    "status": "same-assertion-failure",
+    "details": {
+      "returncode": 101,
+      "assertion": "step=5 tick=24 output=Q block=RedstoneWire(RedstoneWire { north: Side, south: Side, east: Side, west: Side, power: 0 })",
+      "values": [
+        "left: false",
+        "right: true"
+      ]
+    }
+  },
+  "runner_sha256": {
+    "old": "d7bee74c6a34c67826ac9b658bfbc09f81c9dcd342f2f6caffb91d13ef86b605",
+    "new": "ae21133d3f83c0c96776931f17ac963b71a4becf168eef61ba9450c8d42a3116"
+  }
+}

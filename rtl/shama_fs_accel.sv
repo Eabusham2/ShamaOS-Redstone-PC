@@ -6,9 +6,11 @@
 `define SHAMA_MINER_STATE_ENTRY 14
 `endif
 
-// Streaming ShamaFS controller. Every durable file-table change is copy-on-write
-// with a single-entry redo journal in superblock bytes 64..139. Mount replays a
-// committed journal and rebuilds the allocation bitmap from validated extents.
+// Streaming ShamaFS controller. General file changes use extent copy-on-write
+// and a metadata redo journal in superblock bytes 64..139. A Miner history save
+// instead journals one complete 128-byte record in bytes 88..215, then replays
+// it in place. The two journal types share a final, atomic commit marker.
+// Mount validates and replays a committed journal, then rebuilds allocation.
 // Reset may interrupt between acknowledged DMA words without losing either the
 // old or the complete new file. Corrupt metadata fails mount explicitly.
 module shama_fs_accel #(
@@ -52,6 +54,9 @@ module shama_fs_accel #(
     localparam integer NAME_STORAGE_BYTES=64;
     localparam integer BITMAP_FLASH_OFFSET=256, TABLE_FLASH_OFFSET=`SHAMA_FS_TABLE_FLASH_OFFSET;
     localparam [31:0] JOURNAL_MAGIC=32'h314e524a, JOURNAL_SEED=32'h53464a31;
+    localparam [31:0] HISTORY_JOURNAL_MAGIC=32'h324e524a, HISTORY_JOURNAL_SEED=32'h53464a32;
+    localparam integer HISTORY_RECORD_BYTES=128, HISTORY_RECORD_COUNT=256;
+    localparam integer HISTORY_JOURNAL_DATA=88;
     localparam [63:0] E_HANDLE=64'hffffffffffffffff,
         E_RANGE=64'hfffffffffffffffe, E_FULL=64'hfffffffffffffffd,
         E_EXISTS=64'hfffffffffffffffc, E_IO=64'hfffffffffffffffb,
@@ -70,7 +75,12 @@ module shama_fs_accel #(
         ST_COPY_READ, ST_COPY_WRITE, ST_LIST_WRITE,
         ST_JINDEX_WRITE, ST_JPAYLOAD_WRITE, ST_JCHECKSUM_WRITE, ST_JCOMMIT,
         ST_ENTRY_FLUSH, ST_JCLEAR, ST_ENTRY_FLUSH_DONE, ST_NS_LOAD, ST_NS_PREP,
-        ST_NS_BEGIN, ST_NS_SCAN, ST_NS_CHECK, ST_DONE, ST_ERROR
+        ST_NS_BEGIN, ST_NS_SCAN, ST_NS_CHECK,
+        ST_HJ_SLOT_READ, ST_HJ_START_READ, ST_HJ_GENERATION_READ,
+        ST_HJ_CHECKSUM_READ, ST_HJ_DATA_READ, ST_HJ_DATA_CHECK,
+        ST_HJ_ENTRY_LOAD, ST_HJ_ENTRY_CHECK, ST_HJ_OWNER_LOAD, ST_HJ_OWNER_CHECK, ST_HJ_HEADER_WRITE,
+        ST_HJ_COMMIT, ST_HJ_GENERATION_WRITE, ST_HJ_CLEAR,
+        ST_DONE, ST_ERROR
     } state_t;
     typedef enum logic [4:0] {
         ACT_NONE,ACT_OPEN,ACT_CREATE,ACT_READ,ACT_WRITE,ACT_TRUNCATE,
@@ -88,7 +98,7 @@ module shama_fs_accel #(
     logic [31:0] used_blocks;
     logic [9:0] bitmap_index;
     logic [3:0] super_word;
-    logic entry_used;
+    logic entry_used,entry_bad_used_flag;
     logic [7:0] entry_type,entry_name_len;
     logic [15:0] entry_flags;
     logic [31:0] entry_size,entry_start,entry_blocks,entry_generation;
@@ -101,9 +111,9 @@ module shama_fs_accel #(
     logic [31:0] query_ptr;
     logic leading_slash;
     logic [31:0] copy_src,copy_dst,copy_count,copy_index;
-    logic [31:0] copy_keep,copy_overlay,copy_payload_len;
+    logic [31:0] copy_keep;
     logic [7:0] copy_byte;
-    logic copy_src_flash,copy_dst_flash,copy_commit,copy_overlay_mode;
+    logic copy_src_flash,copy_dst_flash,copy_commit;
     logic [31:0] old_start,old_blocks,old_size,new_size;
     logic [31:0] alloc_needed,alloc_word_index,alloc_word_cache;
     logic [5:0] alloc_bit_index,bitmap_modify_bit;
@@ -111,6 +121,11 @@ module shama_fs_accel #(
     logic [31:0] bitmap_modify_word,free_start,free_count,free_offset;
     logic [7:0] list_name_index;
     logic [31:0] journal_checksum;
+    // 0: ordinary copy, 1: stage history journal, 2: replay committed record.
+    logic [1:0] history_copy_phase;
+    logic journal_history;
+    logic [7:0] history_slot;
+    logic [31:0] history_start,history_generation,history_checksum_expected;
     logic recovering;
     logic boot_bundle_seen;
     logic [31:0] copy_read_address;
@@ -125,14 +140,14 @@ module shama_fs_accel #(
     endfunction
     function automatic logic valid_entry(input logic live);
         begin
-            valid_entry = !entry_used ||
+            valid_entry = !entry_bad_used_flag && (!entry_used ||
                 (entry_type<=7 && entry_name_len>0 && entry_name_len<=NAME_BYTES &&
                  entry_size<=`SHAMA_FLASH_BYTES &&
                  entry_blocks==((entry_size+255)>>8) &&
                  ((entry_blocks==0 && entry_start==0) ||
                   (entry_blocks!=0 && entry_start>=DATA_START_BLOCK &&
                    entry_start<BLOCK_COUNT && entry_blocks<=BLOCK_COUNT-entry_start)) &&
-                 (entry_type!=7 || entry_size==0));
+                 (entry_type!=7 || entry_size==0)));
         end
     endfunction
     function automatic logic is_boot_bundle(input logic live);
@@ -141,6 +156,21 @@ module shama_fs_accel #(
             entry_name[3]=="t" && entry_name[4]=="." && entry_name[5]=="b" &&
             entry_name[6]=="u" && entry_name[7]=="n" && entry_name[8]=="d" &&
             entry_name[9]=="l" && entry_name[10]=="e";
+    endfunction
+    function automatic logic is_miner_history(input logic live);
+        is_miner_history=entry_used && entry_type==5 && entry_size==32768 && entry_name_len==17 &&
+            entry_name[0]=="m" && entry_name[1]=="i" && entry_name[2]=="n" && entry_name[3]=="e" &&
+            entry_name[4]=="r" && entry_name[5]=="-" && entry_name[6]=="h" && entry_name[7]=="i" &&
+            entry_name[8]=="s" && entry_name[9]=="t" && entry_name[10]=="o" && entry_name[11]=="r" &&
+            entry_name[12]=="y" && entry_name[13]=="." && entry_name[14]=="l" && entry_name[15]=="o" &&
+            entry_name[16]=="g";
+    endfunction
+    function automatic logic is_miner_state(input logic live);
+        is_miner_state=entry_used && entry_type==6 && entry_size==256 && entry_name_len==15 &&
+            entry_name[0]=="m" && entry_name[1]=="i" && entry_name[2]=="n" && entry_name[3]=="e" &&
+            entry_name[4]=="r" && entry_name[5]=="-" && entry_name[6]=="s" && entry_name[7]=="t" &&
+            entry_name[8]=="a" && entry_name[9]=="t" && entry_name[10]=="e" && entry_name[11]=="." &&
+            entry_name[12]=="c" && entry_name[13]=="f" && entry_name[14]=="g";
     endfunction
     function automatic logic names_equal(input logic live);
         logic ok;
@@ -218,7 +248,7 @@ module shama_fs_accel #(
         integer b;
         begin
             case(idx)
-                0:begin entry_used<=v[0];entry_type<=v[15:8];entry_flags<=v[31:16];end
+                0:begin entry_used<=v[0];entry_bad_used_flag<=|v[7:1];entry_type<=v[15:8];entry_flags<=v[31:16];end
                 1:entry_size<=v;
                 2:entry_start<=v;
                 3:entry_blocks<=v;
@@ -235,7 +265,7 @@ module shama_fs_accel #(
     endtask
     task automatic clear_entry;
         begin
-            entry_used<=0;entry_type<=0;entry_flags<=0;entry_size<=0;
+            entry_used<=0;entry_bad_used_flag<=0;entry_type<=0;entry_flags<=0;entry_size<=0;
             entry_start<=0;entry_blocks<=0;entry_generation<=0;entry_name_len<=0;
             for(integer k=0;k<NAME_STORAGE_BYTES;k=k+1) entry_name[k]<=0;
         end
@@ -248,6 +278,16 @@ module shama_fs_accel #(
             after_flush_action<=next_action;entry_word<=0;
             journal_checksum<=JOURNAL_SEED ^ entry_index;
             recovering<=0;state<=ST_JINDEX_WRITE;
+        end
+    endtask
+    task automatic replay_history_record;
+        begin
+            copy_src<=HISTORY_JOURNAL_DATA;
+            copy_dst<=history_start*BLOCK_SIZE+{17'd0,history_slot,7'd0};
+            copy_count<=HISTORY_RECORD_BYTES;copy_keep<=HISTORY_RECORD_BYTES;
+            copy_index<=0;copy_src_flash<=1;copy_dst_flash<=1;
+            copy_commit<=0;history_copy_phase<=2;
+            state<=ST_COPY_READ;
         end
     endtask
     task automatic start_search;
@@ -304,11 +344,6 @@ module shama_fs_accel #(
         copy_read_address=copy_src+copy_index;
         copy_read_flash=copy_src_flash;
         copy_zero=copy_index>=copy_keep;
-        if(copy_overlay_mode && copy_index>=copy_overlay && copy_index<copy_overlay+128) begin
-            copy_read_flash=0;
-            copy_read_address=a1+copy_index-copy_overlay;
-            copy_zero=(copy_index-copy_overlay>=copy_payload_len);
-        end
         successful_result=0;
         case(after_flush_action)
             ACT_WRITE:successful_result={32'd0,entry_size};
@@ -330,7 +365,7 @@ module shama_fs_accel #(
                 for(integer b=0;b<32;b=b+1)
                     if(bitmap_index*32+b<DATA_START_BLOCK || bitmap_index*32+b>=BLOCK_COUNT) dma_wdata[b]=1;
             end
-            ST_REBUILD_LOAD,ST_SEARCH_LOAD,ST_ENTRY_LOAD,ST_NS_LOAD,ST_NS_SCAN:begin
+            ST_REBUILD_LOAD,ST_SEARCH_LOAD,ST_ENTRY_LOAD,ST_NS_LOAD,ST_NS_SCAN,ST_HJ_ENTRY_LOAD,ST_HJ_OWNER_LOAD:begin
                 dma_valid=1;dma_flash=1;dma_addr=TABLE_FLASH_OFFSET+(entry_index<<6)+(entry_word<<2);
             end
             ST_REBUILD_MARK_READ,ST_REBUILD_MARK_WRITE:begin
@@ -384,6 +419,28 @@ module shama_fs_accel #(
                 dma_addr=TABLE_FLASH_OFFSET+(entry_index<<6)+(entry_word<<2);dma_wdata=encode_entry_word(entry_word);
             end
             ST_JCLEAR:begin dma_valid=1;dma_we=1;dma_flash=1;dma_addr=64;dma_wdata=0;end
+            ST_HJ_SLOT_READ:begin dma_valid=1;dma_flash=1;dma_addr=72;end
+            ST_HJ_START_READ:begin dma_valid=1;dma_flash=1;dma_addr=76;end
+            ST_HJ_GENERATION_READ:begin dma_valid=1;dma_flash=1;dma_addr=80;end
+            ST_HJ_CHECKSUM_READ:begin dma_valid=1;dma_flash=1;dma_addr=84;end
+            ST_HJ_DATA_READ:begin dma_valid=1;dma_flash=1;dma_addr=HISTORY_JOURNAL_DATA+(entry_word<<2);end
+            ST_HJ_HEADER_WRITE:begin
+                dma_valid=1;dma_we=1;dma_flash=1;dma_addr=68+(entry_word<<2);
+                case(entry_word)
+                    0:dma_wdata=entry_index;
+                    1:dma_wdata={24'd0,history_slot};
+                    2:dma_wdata=history_start;
+                    3:dma_wdata=history_generation;
+                    default:dma_wdata=journal_checksum;
+                endcase
+            end
+            ST_HJ_COMMIT:begin dma_valid=1;dma_we=1;dma_flash=1;dma_addr=64;dma_wdata=HISTORY_JOURNAL_MAGIC;end
+            ST_HJ_GENERATION_WRITE:begin
+                dma_valid=1;dma_we=1;dma_flash=1;
+                dma_addr=TABLE_FLASH_OFFSET+(entry_index<<6)+16;
+                dma_wdata=history_generation+1'b1;
+            end
+            ST_HJ_CLEAR:begin dma_valid=1;dma_we=1;dma_flash=1;dma_addr=64;dma_wdata=0;end
             default:begin end
         endcase
     end
@@ -397,14 +454,16 @@ module shama_fs_accel #(
             first_free_index<=0;first_free_valid<=0;parent_found<=0;
             query_len<=0;query_ptr<=0;leading_slash<=0;
             copy_src<=0;copy_dst<=0;copy_count<=0;copy_index<=0;copy_byte<=0;
-            copy_src_flash<=0;copy_dst_flash<=0;copy_commit<=0;copy_overlay_mode<=0;
-            copy_keep<=0;copy_overlay<=0;copy_payload_len<=0;
+            copy_src_flash<=0;copy_dst_flash<=0;copy_commit<=0;
+            copy_keep<=0;
             old_start<=0;old_blocks<=0;old_size<=0;new_size<=0;
             alloc_needed<=0;alloc_word_index<=0;alloc_bit_index<=0;
             alloc_word_cache<=0;alloc_run_start<=0;alloc_run_len<=0;alloc_start<=0;alloc_mark_offset<=0;
             bitmap_modify_word<=0;bitmap_modify_bit<=0;
             free_start<=0;free_count<=0;free_offset<=0;list_name_index<=0;
             journal_checksum<=0;recovering<=0;boot_bundle_seen<=0;
+            history_copy_phase<=0;journal_history<=0;history_slot<=0;
+            history_start<=0;history_generation<=0;history_checksum_expected<=0;
             clear_entry();
             for(i=0;i<NAME_BYTES;i=i+1) query_name[i]<=0;
             for(i=0;i<MAX_FILES;i=i+1) handle_owners[i]<=0;
@@ -416,7 +475,8 @@ module shama_fs_accel #(
                         for(i=0;i<MAX_FILES;i=i+1) handle_owners[i][cleanup_owner]<=0;
                     end else if(req_valid) begin
                         a1<=req_args[31:0];a2<=req_args[63:32];a3<=req_args[95:64];
-                        owner<=req_owner;response<=0;copy_commit<=0;copy_overlay_mode<=0;
+                        owner<=req_owner;response<=0;copy_commit<=0;
+                        history_copy_phase<=0;journal_history<=0;recovering<=0;
                         if(req_id==SYS_BOOT_MOUNT) begin
                             mounted<=0;super_word<=0;boot_bundle_seen<=0;state<=ST_SUPER;
                             for(i=0;i<MAX_FILES;i=i+1) handle_owners[i]<=0;
@@ -481,12 +541,17 @@ module shama_fs_accel #(
                 end
                 ST_JCHECK:if(dma_ready) begin
                     if(dma_rdata==0) begin bitmap_index<=0;used_blocks<=DATA_START_BLOCK;state<=ST_REBUILD_CLEAR;end
-                    else if(dma_rdata==JOURNAL_MAGIC) state<=ST_JINDEX_READ;
+                    else if(dma_rdata==JOURNAL_MAGIC) begin journal_history<=0;state<=ST_JINDEX_READ;end
+                    else if(dma_rdata==HISTORY_JOURNAL_MAGIC) begin journal_history<=1;recovering<=1;state<=ST_JINDEX_READ;end
                     else begin response<=E_IO;state<=ST_ERROR;end
                 end
                 ST_JINDEX_READ:if(dma_ready) begin
                     if(dma_rdata>=MAX_FILES) begin response<=E_IO;state<=ST_ERROR;end
-                    else begin entry_index<=dma_rdata[6:0];entry_word<=0;journal_checksum<=JOURNAL_SEED^dma_rdata;state<=ST_JPAYLOAD_READ;end
+                    else begin
+                        entry_index<=dma_rdata[6:0];entry_word<=0;
+                        journal_checksum<=(journal_history?HISTORY_JOURNAL_SEED:JOURNAL_SEED)^dma_rdata;
+                        state<=journal_history?ST_HJ_SLOT_READ:ST_JPAYLOAD_READ;
+                    end
                 end
                 ST_JPAYLOAD_READ:if(dma_ready) begin
                     decode_entry_word(entry_word,dma_rdata);journal_checksum<=journal_checksum^dma_rdata;
@@ -500,6 +565,64 @@ module shama_fs_accel #(
                 ST_RECOVER_WRITE:if(dma_ready) begin
                     if(entry_word==15) state<=ST_JCLEAR;
                     else entry_word<=entry_word+1'b1;
+                end
+                ST_HJ_SLOT_READ:if(dma_ready) begin
+                    if(dma_rdata>=HISTORY_RECORD_COUNT) begin response<=E_IO;state<=ST_ERROR;end
+                    else begin history_slot<=dma_rdata[7:0];journal_checksum<=journal_checksum^dma_rdata;state<=ST_HJ_START_READ;end
+                end
+                ST_HJ_START_READ:if(dma_ready) begin
+                    if(dma_rdata<DATA_START_BLOCK || dma_rdata>=BLOCK_COUNT ||
+                       128>BLOCK_COUNT-dma_rdata) begin response<=E_IO;state<=ST_ERROR;end
+                    else begin history_start<=dma_rdata;journal_checksum<=journal_checksum^dma_rdata;state<=ST_HJ_GENERATION_READ;end
+                end
+                ST_HJ_GENERATION_READ:if(dma_ready) begin
+                    history_generation<=dma_rdata;journal_checksum<=journal_checksum^dma_rdata;state<=ST_HJ_CHECKSUM_READ;
+                end
+                ST_HJ_CHECKSUM_READ:if(dma_ready) begin
+                    history_checksum_expected<=dma_rdata;entry_word<=0;state<=ST_HJ_DATA_READ;
+                end
+                ST_HJ_DATA_READ:if(dma_ready) begin
+                    journal_checksum<=journal_checksum^dma_rdata;
+                    if(entry_word==31) state<=ST_HJ_DATA_CHECK;
+                    else entry_word<=entry_word+1'b1;
+                end
+                ST_HJ_DATA_CHECK:begin
+                    if(journal_checksum!=history_checksum_expected) begin response<=E_IO;state<=ST_ERROR;end
+                    else begin entry_word<=0;state<=ST_HJ_ENTRY_LOAD;end
+                end
+                ST_HJ_ENTRY_LOAD:if(dma_ready) begin
+                    decode_entry_word(entry_word,dma_rdata);
+                    if(entry_word==15) state<=ST_HJ_ENTRY_CHECK;
+                    else entry_word<=entry_word+1'b1;
+                end
+                ST_HJ_ENTRY_CHECK:begin
+                    // A replay after its generation write is still the same
+                    // committed transaction. Reject a stale/wrong-file journal
+                    // before issuing any target write.
+                    if(!valid_entry(1'b1) || !is_miner_history(1'b1) ||
+                       entry_index!=`SHAMA_MINER_HISTORY_ENTRY || entry_start!=history_start ||
+                       (entry_generation!=history_generation &&
+                        entry_generation!=(history_generation+1'b1))) begin response<=E_IO;state<=ST_ERROR;end
+                    else begin
+                        original_index<=entry_index;entry_index<=0;entry_word<=0;state<=ST_HJ_OWNER_LOAD;
+                    end
+                end
+                ST_HJ_OWNER_LOAD:if(dma_ready) begin
+                    decode_entry_word(entry_word,dma_rdata);
+                    if(entry_word==15) state<=ST_HJ_OWNER_CHECK;
+                    else entry_word<=entry_word+1'b1;
+                end
+                ST_HJ_OWNER_CHECK:begin
+                    // Validate target ownership without changing the bitmap or
+                    // any file data. A corrupt overlapping file must not have
+                    // its bytes overwritten before the later full mount fails.
+                    if(!valid_entry(1'b1) ||
+                       (entry_used && entry_index!=original_index && entry_blocks!=0 &&
+                        entry_start<history_start+128 && history_start<entry_start+entry_blocks)) begin
+                        response<=E_IO;state<=ST_ERROR;
+                    end else if(entry_index==MAX_FILES-1) begin
+                        entry_index<=original_index;replay_history_record();
+                    end else begin entry_index<=entry_index+1'b1;entry_word<=0;state<=ST_HJ_OWNER_LOAD;end
                 end
                 ST_REBUILD_CLEAR:if(dma_ready) begin
                     if(bitmap_index==BITMAP_WORDS-1) begin entry_index<=0;entry_word<=0;state<=ST_REBUILD_LOAD;end
@@ -679,15 +802,30 @@ module shama_fs_accel #(
                         ACT_STAT:begin response<={entry_size,entry_start[15:0],entry_name_len,entry_type};state<=ST_DONE;end
                         ACT_LIST:begin list_name_index<=0;state<=ST_LIST_WRITE;end
                         ACT_MINER_SAVE:begin
-                            if(a2>256 || !ram_range(a1,a2) || entry_type==7) begin response<=E_RANGE;state<=ST_ERROR;end
+                            if(!is_miner_state(1'b1)) begin response<=E_IO;state<=ST_ERROR;end
+                            else if(a2>256 || !ram_range(a1,a2)) begin response<=E_RANGE;state<=ST_ERROR;end
                             else start_allocation(256);
                         end
                         ACT_MINER_LOG:begin
-                            if(a3>=256 || a2>128 || !ram_range(a1,a2) || entry_size!=32768) begin response<=E_RANGE;state<=ST_ERROR;end
-                            else start_allocation(entry_size);
+                            if(!is_miner_history(1'b1)) begin response<=E_IO;state<=ST_ERROR;end
+                            else if(a3>=256 || a2>128 || !ram_range(a1,a2)) begin response<=E_RANGE;state<=ST_ERROR;end
+                            else if(used_blocks>=WRITE_LIMIT_BLOCKS) begin response<=E_PROTECTED;state<=ST_ERROR;end
+                            else begin
+                                // The whole history extent remains allocated.
+                                // Stage one complete record in reserved metadata
+                                // before committing, so no 32 KiB COW is needed.
+                                history_slot<=a3[7:0];history_start<=entry_start;
+                                history_generation<=entry_generation;
+                                journal_checksum<=HISTORY_JOURNAL_SEED^entry_index^a3^entry_start^entry_generation;
+                                copy_src<=a1;copy_dst<=HISTORY_JOURNAL_DATA;
+                                copy_count<=HISTORY_RECORD_BYTES;copy_keep<=a2;copy_index<=0;
+                                copy_src_flash<=0;copy_dst_flash<=1;copy_commit<=0;
+                                history_copy_phase<=1;recovering<=0;state<=ST_COPY_READ;
+                            end
                         end
                         ACT_MINER_LOAD:begin
-                            if(a1>=256 || a3>128 || !ram_range(a2,a3) || entry_size!=32768) begin response<=E_RANGE;state<=ST_ERROR;end
+                            if(!is_miner_history(1'b1)) begin response<=E_IO;state<=ST_ERROR;end
+                            else if(a1>=256 || a3>128 || !ram_range(a2,a3)) begin response<=E_RANGE;state<=ST_ERROR;end
                             else begin
                                 copy_src<=entry_start*BLOCK_SIZE+(a1<<7);copy_dst<=a2;copy_count<=a3;copy_keep<=a3;
                                 copy_index<=0;copy_src_flash<=1;copy_dst_flash<=0;copy_commit<=0;
@@ -695,7 +833,8 @@ module shama_fs_accel #(
                             end
                         end
                         ACT_MINER_LOAD_STATE:begin
-                            if(a2>256 || !ram_range(a1,a2) || entry_size!=256) begin response<=E_RANGE;state<=ST_ERROR;end
+                            if(!is_miner_state(1'b1)) begin response<=E_IO;state<=ST_ERROR;end
+                            else if(a2>256 || !ram_range(a1,a2)) begin response<=E_RANGE;state<=ST_ERROR;end
                             else begin
                                 copy_src<=entry_start*BLOCK_SIZE;copy_dst<=a1;copy_count<=a2;copy_keep<=a2;
                                 copy_index<=0;copy_src_flash<=1;copy_dst_flash<=0;copy_commit<=0;
@@ -727,8 +866,7 @@ module shama_fs_accel #(
                     if(alloc_mark_offset+1>=alloc_needed) begin
                         entry_start<=alloc_start;entry_blocks<=alloc_needed;entry_size<=new_size;entry_generation<=entry_generation+1'b1;
                         copy_dst<=alloc_start*BLOCK_SIZE;copy_count<=new_size;copy_index<=0;copy_dst_flash<=1;copy_commit<=1;
-                        copy_overlay_mode<=action==ACT_MINER_LOG;copy_overlay<=a3<<7;copy_payload_len<=a2;
-                        if(action==ACT_TRUNCATE || action==ACT_MINER_LOG) begin
+                        if(action==ACT_TRUNCATE) begin
                             copy_src<=old_start*BLOCK_SIZE;copy_src_flash<=1;copy_keep<=old_size<new_size?old_size:new_size;
                         end else begin
                             copy_src<=action==ACT_MINER_SAVE?a1:a2;copy_src_flash<=0;
@@ -739,8 +877,12 @@ module shama_fs_accel #(
                 end
                 ST_COPY_READ:if(copy_zero || dma_ready) begin copy_byte<=copy_zero?8'd0:selected_byte;state<=ST_COPY_WRITE;end
                 ST_COPY_WRITE:if(dma_ready) begin
+                    if(history_copy_phase==1)
+                        journal_checksum<=journal_checksum^({24'd0,copy_byte}<<(copy_index[1:0]*8));
                     if(copy_index+1>=copy_count) begin
-                        if(copy_commit) begin_journal(action);
+                        if(history_copy_phase==1) begin entry_word<=0;state<=ST_HJ_HEADER_WRITE;end
+                        else if(history_copy_phase==2) state<=ST_HJ_GENERATION_WRITE;
+                        else if(copy_commit) begin_journal(action);
                         else begin response<=copy_count;state<=ST_DONE;end
                     end else begin copy_index<=copy_index+1'b1;state<=ST_COPY_READ;end
                 end
@@ -771,6 +913,17 @@ module shama_fs_accel #(
                 ST_JCLEAR:if(dma_ready) begin
                     if(recovering) begin recovering<=0;bitmap_index<=0;used_blocks<=DATA_START_BLOCK;state<=ST_REBUILD_CLEAR;end
                     else state<=ST_ENTRY_FLUSH_DONE;
+                end
+                ST_HJ_HEADER_WRITE:if(dma_ready) begin
+                    if(entry_word==4) state<=ST_HJ_COMMIT;
+                    else entry_word<=entry_word+1'b1;
+                end
+                ST_HJ_COMMIT:if(dma_ready) replay_history_record();
+                ST_HJ_GENERATION_WRITE:if(dma_ready) state<=ST_HJ_CLEAR;
+                ST_HJ_CLEAR:if(dma_ready) begin
+                    history_copy_phase<=0;
+                    if(recovering) begin recovering<=0;bitmap_index<=0;used_blocks<=DATA_START_BLOCK;state<=ST_REBUILD_CLEAR;end
+                    else begin response<={32'd0,a2};state<=ST_DONE;end
                 end
                 ST_ENTRY_FLUSH_DONE:begin
                     case(after_flush_action)

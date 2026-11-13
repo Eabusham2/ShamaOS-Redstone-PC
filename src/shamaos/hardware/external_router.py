@@ -143,6 +143,14 @@ def _plan_escapes(
     for z,y in {(point.z,point.y) for point in points if is_wall(point)}:
         row=[point for point in points if point.z==z and point.y==y and is_wall(point)]
         wall_runs.update({point:6*(index+1) for index,point in enumerate(row)})
+    # Tall components can consume more than 128 staggered corridors before
+    # their lowest data pins reach the common branch plane. Keep the existing
+    # northbound limit (and its analytical branch-length bound), but let south
+    # escapes search one corridor per endpoint when necessary: an earlier
+    # endpoint can occupy a distinct stair/landing lane at the common height.
+    # These extra lanes extend away from the global trunks, so they cannot
+    # shorten a guaranteed long branch or cross behind its target track.
+    south_lane_limit=max(128,len(points))
     for p in points:
         if p.y-1 < minimum_y or p.y > maximum_y:
             raise ValueError(f"endpoint {p} support would violate build height {minimum_y}..{maximum_y}")
@@ -180,7 +188,8 @@ def _plan_escapes(
             # as well as the riser west when searching another corridor.
             if mode not in ("west","east") else
             (p.z-vertical-plateaus*2-6*lane,p.x+(1 if mode=="east" else -1)*(clearance(mode)+6*lane),None)
-            for lane in range(128) for mode in modes
+            for lane in range(south_lane_limit) for mode in modes
+            if lane<128 or mode in ("south","wall-south")
         )
         for escape_z,escape_x,wall_lead_z in alternatives:
             branch_direction=-1

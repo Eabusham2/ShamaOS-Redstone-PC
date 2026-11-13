@@ -201,3 +201,41 @@ show/dismiss, restrictive clips, black drawing color, active cursors and pending
 back-buffer edits. Kernel/GPU integration verifies the modal input and retained
 application state through the actual warning path.
 RTL tests alone do not establish the generated world's redstone timing.
+
+## Upright physical display
+
+The default generator uses an upright X/Y lamp face viewed from the north,
+with **3×2 physical pixel pitch**. Every logical pixel still has its own lamp
+and locked storage repeater. The native 320×180 panel has **2,371,162 unique
+blocks** and occupies **108 horizontal chunks**, versus 5,084 chunks for the
+previous 5×4 horizontal panel at its production alignment. This is a 97.88%
+reduction in native screen chunks; the external interconnect has its own
+footprint. The visible face is 958×359 blocks and the full circuit bounds are
+(489,−60,512)..(1808,304,529) in the default classic-superflat world.
+
+Logical row 0 maps to the top of the face. Alternating stages in the vertical
+column torch tower invert alternate physical rows. The display bridge applies
+one XOR to the incoming serial pixel before it enters the row buffer. For the
+180-row production panel, logical odd rows are inverted on the wire. Row
+selection and VRAM bit order stay unchanged. Encoding follows the actual pixel
+address, including after skipped clean rows, and remains stable under row-ready
+backpressure. `UPRIGHT_PANEL=1` is the bridge module default itself, so the
+separately synthesized bridge partition and its unparameterized SoC instance
+agree. Complete-system generation requires upright mode; the horizontal panel
+API remains available for standalone regression fixtures.
+
+[`test_upright_display.py`](../tests/test_upright_display.py) runs real GPU
+commands through the RTL bridge, checks the initial 180-row clear and 24 dirty
+row commits, then replays their encoded data into the complete native lamp
+panel in MCHPRS. All 57,600 lamp outputs are checked after every one of 73
+steps (75,776 redstone ticks), covering top/bottom and odd/even rows with
+checkerboard, all-one and all-zero values. Saved/reopened 8×3, 8×4 and 8×180
+panels verify native block states, row order, parity and preserved ground.
+Separate full-height/full-width fixtures verify the panel's native ports at
+70-tick setup and 70-tick commit pulses.
+
+These are circuit and protocol proofs. The long external routes, complete
+machine timing and in-client OS view still require their own acceptance runs.
+The physical 3×2 pitch stretches the image horizontally; see
+[CONTROLS.md](CONTROLS.md#screen-viewing-position) for the measured standing
+position, complete-view projection and its practical limits.

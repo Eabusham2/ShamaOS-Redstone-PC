@@ -41,11 +41,13 @@ def test_rtl_boot_parameters_match_generated_flash_image():
     assert d["SHAMA_VRAM_BYTES"] == 16 << 10
     assert d["SHAMA_CACHE_BANKS"] == 2
     assert d["SHAMA_VRAM_BANKS"] == 4
-    assert d["SHAMA_FLASH_BYTES"] == len(image.image) == 250 << 10
+    assert d["SHAMA_FLASH_BYTES"] == len(image.image) == 200 << 10
     assert d["SHAMA_RAM_BANKS"] == 24
-    assert d["SHAMA_FLASH_BANKS"] == 63
-    assert d["SHAMA_FS_BLOCK_COUNT"] == fs.block_count == 1000
-    assert d["SHAMA_FS_BITMAP_WORDS"] == (fs.block_count + 31) // 32 == 32
+    assert d["SHAMA_FLASH_BANKS"] == 50
+    assert d["SHAMA_FS_BLOCK_COUNT"] == fs.block_count == 800
+    assert d["SHAMA_FS_WRITE_LIMIT_BLOCKS"] == fs.write_limit_bytes // fs.block_size == 760
+    assert fs.write_limit_bytes == 190 << 10
+    assert d["SHAMA_FS_BITMAP_WORDS"] == (fs.block_count + 31) // 32 == 25
     assert d["SHAMA_FS_TABLE_FLASH_OFFSET"] == fs.table_start * fs.block_size == 512
     assert d["SHAMA_FS_DATA_START_BLOCK"] == fs.data_start == 18
 

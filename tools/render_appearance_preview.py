@@ -50,10 +50,10 @@ def render() -> str:
     text(50, 145, "Console operating layer", 22, font_weight="bold")
     text(50, 170, "Actual emitted positions; overhead circuits omitted", 14, "muted")
 
-    tile = 27
-    px, pz = 72, 231
+    tile = 23
+    px, pz = 90, 205
     for x in range(17):
-        for z in range(-2, 16):
+        for z in range(-2, 21):
             pos = kb.offset(x, 0, z)
             state = blocks.get(pos)
             color = RGB.get(state.name.removeprefix("minecraft:").removesuffix("_concrete"), "#111822") if state else "#111822"
@@ -76,7 +76,8 @@ def render() -> str:
             text(px + x * tile + 13, pz + z * tile + 17, name, 8, "key", text_anchor="middle")
         else:
             text(px + (x + 1) * tile + 5, pz + z * tile + 17, name, 10)
-    text(50, 695, "64 keys + 15 perimeter controls; the 16 × 16 interaction area is unchanged.", 13, "muted")
+    text(px+7*tile, pz+20*tile+17, "VIEW", 10, "key")
+    text(50, 713, "64 keys + 15 perimeter controls in 16 × 16; walk south to the viewing lip.", 13, "muted")
     text(690, 145, "Component body / alignment accent", 22, font_weight="bold")
     for index, (name, (body, accent)) in enumerate(PALETTE.items()):
         x = 690 + (index // 8) * 278

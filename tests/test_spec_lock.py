@@ -13,9 +13,9 @@ def test_locked_machine_capacities_and_display():
 
     assert memory["logical_ram_bytes"] == 96 << 10
     assert memory["cache_bytes"] == 8 << 10
-    assert memory["flash_bytes"] == 250 << 10
+    assert memory["flash_bytes"] == 200 << 10
     assert memory["logical_ram_bytes"] == 24 * 4096
-    assert memory["flash_bytes"] == 62 * 4096 + 2048
+    assert memory["flash_bytes"] == 50 * 4096
     assert memory["vram_bytes"] == 16 << 10
 
     assert display["width"] == 320
@@ -30,13 +30,13 @@ def test_canonical_document_matches_locked_spec():
 
     assert "**96 KiB main RAM**" in spec
     assert "**8 KiB cache / fast scratch**" in spec
-    assert "**250 KiB flash**" in spec
-    assert "Owner-approved capacity amendment — 2026-11-12" in spec
+    assert "**200 KiB flash**" in spec
+    assert "Owner-approved capacity amendment — 2026-11-13" in spec
     assert "95%" in spec
     assert "**16 KiB VRAM**" in spec
     assert "- **320×180**." in spec
     assert "must not be reduced or changed without explicit owner approval" in spec
     assert "Implementation difficulty alone is not permission to shrink it." in spec
 
-    assert "| Flash | **250 KiB**" in readme
+    assert "| Flash | **200 KiB**" in readme
     assert "| Display | **320×180**" in readme

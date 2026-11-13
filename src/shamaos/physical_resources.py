@@ -6,12 +6,12 @@ small controls are sampled literally; no complete memory fabric is emitted.
 from dataclasses import replace
 from functools import lru_cache
 
-from .hardware.clock import iter_clock
+from .hardware.clock import iter_clock, system_clock_origin
 from .hardware.controls import iter_controls
 from .hardware.debug import iter_debug_panel
 from .hardware.display import LampPanelSpec, panel_bounds
 from .hardware.memory import MemoryBankSpec, bank_ports
-from .hardware.memory_backbone import StackedMemoryTileSpec, _return_span, iter_stacked_memory_tile
+from .hardware.memory_backbone import StackedMemoryTileSpec, iter_stacked_memory_tile
 from .layout import MachineGeometry, PhysicalOrigins, default_origins, memory_specs, vram_spec
 from .model import Box, Vec3
 
@@ -24,6 +24,25 @@ def _line_chunks(chunks: set[tuple[int, int]], x0: int, x1: int, z0: int, z1: in
 def panel_resources(origin: Vec3, panel: LampPanelSpec) -> tuple[int, frozenset[tuple[int, int]]]:
     """Count the authoritative panel's columns, row buses and pixel cells."""
     width, height, px, pz = panel.width, panel.height, panel.pixel_pitch_x, panel.pixel_pitch_y
+    if panel.orientation == "upright":
+        if width <= 0 or height <= 0 or (px, pz) != (3, 2):
+            raise ValueError("unsupported upright panel geometry")
+        # Data towers, isolated pixel cells, diagonal row leads, and the
+        # solid black front surround. Shared bus taps are emitted once.
+        count = 2 * height * height + 40 * width * height + 4 * width + 6 * height + 2
+        chunks: set[tuple[int, int]] = set()
+        _line_chunks(chunks, origin.x, origin.x + 3 * (width - 1), origin.z, origin.z)
+        for col in range(width):
+            x = origin.x + 3 * col
+            _line_chunks(chunks, x, x, origin.z, origin.z + 8)
+            _line_chunks(chunks, x + 1, x + 1, origin.z + 5, origin.z + 5)
+            _line_chunks(chunks, x + 2, x + 2, origin.z + 5, origin.z + 10)
+        last_control_x = origin.x + 3 * (width - 1) + 4 + 2 * (height - 1)
+        _line_chunks(chunks, origin.x + 2, last_control_x, origin.z + 11, origin.z + 11)
+        for row in range(height):
+            x = origin.x + 3 * (width - 1) + 4 + 2 * row
+            _line_chunks(chunks, x, x, origin.z + 12, origin.z + 17)
+        return count, frozenset(chunks)
     if width <= 0 or height <= 0 or px < 5 or pz < 4:
         raise ValueError("unsupported physical panel geometry")
     count = 2 * width * ((height - 1) * pz + 67)
@@ -66,18 +85,17 @@ def _control_placement_count(tile: StackedMemoryTileSpec) -> int:
         even_rows = (words + 1) // 2 - (tile.tail_words + 1) // 2
         odd_rows = words - tile.tail_words - even_rows
         controls -= even_rows * missing_even + odd_rows * missing_odd
-    # Each return descent occupies one full span, each lower bank contributes
-    # a parallel isolated lead, and the bottom exports a buffered flat pin.
-    span = _return_span(tile.layer_pitch)
-    per_bit = 8 + (tile.banks - 1) * (span * (tile.banks + 2) + 2)
+    # Each bit has one vertical column, a two-cell buffered output with
+    # supports, and one isolated repeater/support pair for every bank.
+    per_bit = (tile.banks - 1) * tile.layer_pitch + 5 + 2 * tile.banks
     extension = sum(tile.words - tile.bank_spec(index).words for index in range(tile.banks))
     return controls + tile.bank.word_bits * (per_bit + 2 * extension * tile.bank.word_pitch)
 
 
 @lru_cache(maxsize=64)
 def _control_prefix_chunks(bank: MemoryBankSpec, x_mod: int, z_mod: int) -> frozenset[tuple[int, int]]:
-    # All vertical layers repeat the same X/Z local controls. Only their
-    # shared return grows horizontally with layer count; add that below.
+    # All vertical layers repeat the same X/Z local controls. Add their
+    # separate output columns and any partial-bank extension below.
     tile = StackedMemoryTileSpec(bank=bank, banks=1, layer_pitch=12)
     return frozenset((placement.pos.x // 16, placement.pos.z // 16)
                      for placement in iter_stacked_memory_tile(Vec3(x_mod, 0, z_mod), tile=tile,
@@ -87,19 +105,14 @@ def _control_prefix_chunks(bank: MemoryBankSpec, x_mod: int, z_mod: int) -> froz
 def tile_control_chunks(origin: Vec3, tile: StackedMemoryTileSpec) -> frozenset[tuple[int, int]]:
     chunks = {(origin.x // 16 + x, origin.z // 16 + z)
               for x, z in _control_prefix_chunks(tile.common_bank, origin.x & 15, origin.z & 15)}
-    distance = (tile.banks - 1) * _return_span(tile.layer_pitch)
     for actual_bank in range(tile.banks):
         for actual, source in zip(bank_ports(origin, tile.bank_spec(actual_bank)).data_out,
                                   bank_ports(origin, tile.common_bank).data_out):
             if actual.z < source.z:
                 _line_chunks(chunks, actual.x, actual.x, actual.z + 1, source.z)
     for source in bank_ports(origin, tile.common_bank).data_out:
-        _line_chunks(chunks, source.x + 2, source.x + 2, source.z, source.z + distance + 2)
-        if distance:
-            _line_chunks(chunks, source.x, source.x, source.z + 1, source.z + distance)
-        for layer in range(tile.banks):
-            z = source.z + layer * _return_span(tile.layer_pitch)
-            _line_chunks(chunks, source.x + 1, source.x + 1, z, z)
+        _line_chunks(chunks, source.x + 1, source.x + 2, source.z, source.z)
+        _line_chunks(chunks, source.x + 2, source.x + 2, source.z, source.z + 2)
     return frozenset(chunks)
 
 
@@ -145,13 +158,14 @@ def regular_fabric_resources(geometry: MachineGeometry, origins: PhysicalOrigins
     from .generator import _bank_chunk_footprint
 
     origins = default_origins(geometry) if origins is None else origins
-    panel = LampPanelSpec(geometry.display_width, geometry.display_height, geometry.pixel_pitch_x, geometry.pixel_pitch_y)
+    panel = LampPanelSpec(geometry.display_width, geometry.display_height, geometry.pixel_pitch_x, geometry.pixel_pitch_y,
+                          orientation=geometry.display_orientation)
     activation_points: list[Vec3] = []
     regular = {
         "screen": (*panel_resources(origins.display, panel), panel_bounds(origins.display, panel)),
         "controls": _small_profile(iter_controls(origins.input), activation_points=activation_points),
         "debug_panel": _small_profile(iter_debug_panel(origins.input.offset(0, 0, -224))),
-        "clock": _small_profile(iter_clock(origins.input.offset(180, 0, 0))),
+        "clock": _small_profile(iter_clock(system_clock_origin(origins.input))),
     }
     regular_chunks = set().union(*(footprint for _, footprint, _ in regular.values()))
     boxes = [box for _, _, box in regular.values()]

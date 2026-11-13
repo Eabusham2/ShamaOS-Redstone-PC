@@ -16,12 +16,14 @@ def _position(endpoint) -> Vec3:
 
 
 def _minimum_escape_high_z(point: Vec3, branch_y: int, modes: tuple[str, ...], box: Box | None,
-                           minimum_clearance: int = 6) -> int:
+                           minimum_clearance: int = 6, wall_run: int = 6) -> int:
     """Earliest possible start of the long Z branch in this router.
 
-    The current planner tries 128 six-block escape lanes. Its final small
-    staircase ends six Z blocks north of the chosen escape. Component bounds
-    can require a longer initial lead; include that declared clearance.
+    Northbound searches retain 128 six-block lanes. Southbound searches may
+    extend beyond those for tall terminal groups, which only lengthens the
+    branch to global tracks and leaves its earliest possible start unchanged.
+    The final small staircase ends six Z blocks north of the chosen escape.
+    Component bounds can require a longer initial lead; include that clearance.
     """
     vertical = abs(branch_y - 4 - point.y)
     plateaus = max(0, (vertical + 9) // 10 - 1) * 2
@@ -31,7 +33,8 @@ def _minimum_escape_high_z(point: Vec3, branch_y: int, modes: tuple[str, ...], b
             return minimum_clearance
         distance = {"south": box.max.z - point.z + 3,
                     "north": point.z - box.min.z + 3,
-                    "west": point.x - box.min.x + 3}[mode]
+                    "west": point.x - box.min.x + 3,
+                    "east": box.max.x - point.x + 3}[mode]
         return max(minimum_clearance, ((distance + 5) // 6) * 6)
 
     possible = []
@@ -40,12 +43,16 @@ def _minimum_escape_high_z(point: Vec3, branch_y: int, modes: tuple[str, ...], b
             possible.append(point.z + clearance(mode))
         elif mode == "north":
             possible.append(point.z - clearance(mode) - 6 * 127)
-        elif mode == "west":
+        elif mode in ("west", "east"):
             possible.append(point.z - vertical - plateaus - 6 * 127)
         elif mode == "wall-south":
-            # The wall's bounded initial lead is at least six blocks. Its
-            # northward riser then consumes the normal height/plateau run.
-            possible.append(point.z + 6 - vertical - plateaus)
+            # Wall terminals have successively longer flat leads within a
+            # row. The northward riser consumes the normal height/plateau run.
+            possible.append(point.z + wall_run - vertical - plateaus)
+        elif mode == "wall-north":
+            # Unlike a south lead, both the row stagger and the latest lane
+            # shorten the guaranteed long branch. Include the complete run.
+            possible.append(point.z - wall_run - 6 * 127 - vertical - plateaus)
         else:
             raise ValueError(f"unknown routing access direction: {mode}")
     if not possible:
@@ -87,15 +94,23 @@ def router_resource_lower_bound(
     first_track = minimum_z - (len(nets) + 1) * track_spacing - 4096
     transition = trunk_y - branch_y
     forced_levels: dict[tuple[int, str], set[int]] = {}
+    wall_rows: dict[tuple[int, int], set[Vec3]] = {}
     for net in nets:
         for endpoint in (net.source, *net.sinks):
             point = _position(endpoint)
             modes = (access or {}).get(point, ())
             if len(modes) == 1 and modes[0] in ("south", "north"):
                 forced_levels.setdefault((point.z, modes[0]), set()).add(point.y)
+            elif modes in (("wall-south",), ("wall-north",)):
+                wall_rows.setdefault((point.z, point.y), set()).add(point)
     level_runs = {(z, mode, y): 6 * (index + 1)
                   for (z, mode), levels in forced_levels.items()
                   for index, y in enumerate(sorted(levels, reverse=True))}
+    # Match the emitter's descending-X order for terminals sharing a wall row.
+    # Repeated endpoints still receive only one lead, as in _plan_escapes.
+    wall_runs = {point: 6 * (index + 1)
+                 for points in wall_rows.values()
+                 for index, point in enumerate(sorted(points, key=lambda p: p.x, reverse=True))}
     unique_lengths: dict[Vec3, int] = {}
     emitted_long_wires = 0
     maximum_delay = 0
@@ -109,7 +124,8 @@ def router_resource_lower_bound(
             modes = (access or {}).get(point, ("south", "north", "west"))
             high_z = _minimum_escape_high_z(point, branch_y, modes,
                                            (endpoint_bounds or {}).get(point),
-                                           level_runs.get((point.z, modes[0], point.y), 6))
+                                           level_runs.get((point.z, modes[0], point.y), 6),
+                                           wall_runs.get(point, 6))
             # Both ends of the long straight segment belong to its joined
             # stair sections and are excluded by _wire_z in the emitter.
             guaranteed = max(0, high_z - (track + transition) - 1)

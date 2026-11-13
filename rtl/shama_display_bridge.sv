@@ -1,6 +1,7 @@
 module shama_display_bridge #(
     parameter integer WIDTH = 320,
-    parameter integer HEIGHT = 180
+    parameter integer HEIGHT = 180,
+    parameter bit UPRIGHT_PANEL = 1'b1
 )(
     input  logic                  clk,
     input  logic                  rst,
@@ -18,6 +19,12 @@ module shama_display_bridge #(
     logic [$clog2(WIDTH)-1:0] column;
     logic [$clog2(HEIGHT)-1:0] active_row;
     logic waiting_commit;
+    // The upright column torch tower alternates polarity with physical Y.
+    // Encode one serial bit before buffering, rather than adding an XOR to
+    // every parallel column output. Pixel address remains the authority when
+    // the GPU skips clean rows; logical row zero is the top of the panel.
+    wire row_inverted = UPRIGHT_PANEL && (((HEIGHT-1)-(pixel_index/WIDTH)) % 2 == 0);
+    wire encoded_pixel = pixel_bit ^ row_inverted;
 
     assign pixel_ready = !waiting_commit;
 
@@ -47,11 +54,11 @@ module shama_display_bridge #(
             end else if (pixel_valid) begin
                 // The GPU may skip clean rows. Use the actual pixel address
                 // instead of assuming every presentation starts at row zero.
-                row_buffer[pixel_index % WIDTH] <= pixel_bit;
+                row_buffer[pixel_index % WIDTH] <= encoded_pixel;
                 active_row <= pixel_index / WIDTH;
                 if (pixel_index % WIDTH == WIDTH-1) begin
                     row_data <= {
-                        pixel_bit,
+                        encoded_pixel,
                         row_buffer[WIDTH-2:0]
                     };
                     row_index <= pixel_index / WIDTH;

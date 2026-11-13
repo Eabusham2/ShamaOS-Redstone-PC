@@ -1,7 +1,8 @@
 module tb_gpu_cases #(
     parameter integer WIDTH=37,
     parameter integer HEIGHT=23,
-    parameter integer QUEUE_DEPTH=4
+    parameter integer QUEUE_DEPTH=4,
+    parameter bit USE_UPRIGHT_BRIDGE=0
 );
     localparam integer PIXELS=WIDTH*HEIGHT;
     localparam integer FRAME_WORDS=(PIXELS+31)/32;
@@ -23,7 +24,28 @@ module tb_gpu_cases #(
     wire [15:0] disp_index;
     integer cycle=0;
     wire vram_ready=vram_valid && (cycle%5!=1) && (cycle%5!=2);
-    wire disp_ready=(cycle%7!=2) && (cycle%7!=3);
+    wire disp_ready;
+    wire bridge_ready;
+    wire [WIDTH-1:0] bridge_data;
+    wire [$clog2(HEIGHT)-1:0] bridge_row;
+    wire bridge_commit;
+    wire row_ready=(cycle%19>=6);
+    integer bridge_col;
+    integer capture_rows=0;
+    generate if(USE_UPRIGHT_BRIDGE) begin: upright
+        shama_display_bridge #(.WIDTH(WIDTH),.HEIGHT(HEIGHT)) bridge(
+            .clk,.rst,.pixel_valid(disp_valid),.pixel_index(disp_index[$clog2(PIXELS)-1:0]),
+            .pixel_bit(disp_bit),.pixel_ready(bridge_ready),.row_data(bridge_data),
+            .row_index(bridge_row),.row_commit(bridge_commit),.row_ready
+        );
+        assign disp_ready=bridge_ready;
+    end else begin
+        assign disp_ready=(cycle%7!=2) && (cycle%7!=3);
+        assign bridge_ready=1'b1;
+        assign bridge_commit=1'b0;
+        assign bridge_data='0;
+        assign bridge_row='0;
+    end endgenerate
     reg [7:0] mem[0:16383];
     reg screen[0:PIXELS-1];
     wire [31:0] vram_rdata={mem[{vram_addr[14:2],2'b00}+3],mem[{vram_addr[14:2],2'b00}+2],
@@ -65,8 +87,13 @@ module tb_gpu_cases #(
             end
             if(disp_valid && disp_ready) begin
                 if(disp_index>=PIXELS) $fatal(1,"out-of-bounds display index %d",disp_index);
-                screen[disp_index]<=disp_bit;
+                if(!USE_UPRIGHT_BRIDGE) screen[disp_index]<=disp_bit;
                 display_updates<=display_updates+1;
+            end
+            if(USE_UPRIGHT_BRIDGE && bridge_commit) begin
+                for(bridge_col=0;bridge_col<WIDTH;bridge_col=bridge_col+1)
+                    screen[bridge_row*WIDTH+bridge_col]<=bridge_data[bridge_col] ^ ((HEIGHT-1-bridge_row)%2==0);
+                if(capture_rows) $display("BRIDGE_ROW %0d %h",bridge_row,bridge_data);
             end
             if(mmio_valid && !mmio_ready) begin
                 if(mmio_addr==12'h028) queue_stalls<=queue_stalls+1;
@@ -109,6 +136,7 @@ module tb_gpu_cases #(
             watchdog=0;
             while(busy && watchdog<2000000) begin @(negedge clk);watchdog=watchdog+1;end
             if(busy) $fatal(1,"GPU command failed to terminate at checkpoint %d state=%d",check_index,dut.state);
+            while(!bridge_ready || bridge_commit) @(negedge clk);
             @(negedge clk);
             offset=check_index*EXPECT_STRIDE;
             if(dut.front_sel!==expected[offset][0] || dut.readback!==expected[offset+1] ||
@@ -138,6 +166,7 @@ module tb_gpu_cases #(
             $fatal(1,"missing GPU fixture arguments");
         if($value$plusargs("QUEUE_STALL=%d",need_queue_stall)) begin end
         if($value$plusargs("DIRECT_STALL=%d",need_direct_stall)) begin end
+        if($value$plusargs("CAPTURE_ROWS=%d",capture_rows)) begin end
         $readmemh(command_path,commands,0,command_count*10-1);
         $readmemh(expected_path,expected,0,expected_count*EXPECT_STRIDE-1);
         for(n=0;n<16384;n=n+1) mem[n]=0;

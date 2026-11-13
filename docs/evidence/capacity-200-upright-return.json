@@ -1,0 +1,1179 @@
+{
+  "kind": "full-capacity-generation-preflight",
+  "capacity_contract": {
+    "status": "passed",
+    "scope": "declared-literal-capacity-contract",
+    "errors": [],
+    "complete_world_runtime_verified": false
+  },
+  "source": {
+    "files_sha256": {
+      "src/shamaos/generator.py": "a165087d34d1ac86398d894212bce36f55ef82a00bb8c8b944d3b41d51b1f7d5",
+      "src/shamaos/worldio.py": "c7f4eb8da11b4c19f02046224a40a19619d58c5172351106bd3b7ec6964af607",
+      "src/shamaos/layout.py": "e6db5143f7b2d9c0ae477e649cfc4421e476f14038fd861e8a65b1ebec946eaa",
+      "src/shamaos/model.py": "1a0fd1f9eb9469989057e4486401e5161e7f0bb02eb69195b7a14a74e92f4b95",
+      "src/shamaos/hardware/logic.py": "84a4f2cc3c535628ccd4e16ae0480b3cc99310f1fb83fe28f98d98b621ab1dff",
+      "src/shamaos/hardware/memory.py": "f44923cd4376d10fb2f62d5daf3bf752fe340e269355ac3564fd26ee2b5a8517",
+      "src/shamaos/hardware/appearance.py": "aaf80f35a2b4e4b8920bf360c14be734fe39c58ea1797651cabdae2fb5bb4323",
+      "src/shamaos/hardware/memory_backbone.py": "8a6c22218be1e0a32189817318f72aad8bd31bd365141da556578c3b4398075d",
+      "src/shamaos/hardware/memory_streaming.py": "7f784968748570f5e3d2286a5ee81a0d965a0882123cb8125169bc4d1d491a24",
+      "src/shamaos/hardware/binary_row_decoder.py": "e58837fd0858146de95eea57e87186d8e1f1b3583f891a717ae14e156a461815",
+      "src/shamaos/hardware/vertical_wiring.py": "734ba19ed845ea1d8c05475f1bb5f3de5f47f4842591e911cd813f3f618deb1a",
+      "src/shamaos/hardware/memory_interfaces.py": "755e560ca0bd547d401cd2321b43785b3d21a62a6d5a76915c3fec96f80e775f",
+      "src/shamaos/hardware/interfaces.py": "54d7ad897c770647d1320891c62cc82cb581cfb29031ea62cf560838ff93873e",
+      "src/shamaos/hardware/controls.py": "1b83d5f5cb4da372e9c2055060712eb609eb094270c9bf27961ac981683d1514",
+      "src/shamaos/hardware/display.py": "63bcbc001029ba5c7b6ceb64e2e427fe5aefea6a0eedc7e739f5c2c4099172be",
+      "src/shamaos/hardware/viewing.py": "452d860a6149e5e623245025fd41b0558d23aed40380b70c755c27652b12a1ef",
+      "src/shamaos/hardware/debug.py": "c2ac5e78bf151454ea09bf259a357dea381d4317bbae849ff680e10cdd4136b8",
+      "src/shamaos/hardware/clock.py": "e979cc68c2e5b170b94772a33bd68f95383e59f01ac97246762cab82a69fb3c7",
+      "src/shamaos/hardware/routing.py": "d2b885f908a5942036269992c3fff7e3eb19ffe5a4753b97f5494aaf7120ccce",
+      "src/shamaos/hardware/external_router.py": "d71a2166ca78a4073bbde95cee5fe16e1e4ed952ee445f156a158ab7c771415d",
+      "src/shamaos/hardware/local_router.py": "c088615933141ac4f27fb80619267306e4e89f8b80a956fb99d2e13e73a019c5",
+      "src/shamaos/system_build.py": "1d8fe4deca82c64b386f7c0720cf6bb58ef1eb23179a6781796809e02e568a62",
+      "src/shamaos/memory_fixture.py": "ee1ad247cdc33b64aa260f0fb0132b345c7d911cd3fb7e046baf60e7f680564e",
+      "src/shamaos/physical_resources.py": "29aca2a5895a0444aef12970a7360b821bc682f2eb9aa285f408a7985dd70bd7",
+      "src/shamaos/resource_accounting.py": "c5dc0e39058f0c1b9f02943cbf54d073abf94672428d916b97bdf74d42edd3a6",
+      "src/shamaos/machine_spec.py": "446853768c8fdd1be7472bd3d27e2f882ab3ca5805241f3f3ab7f3d778febd59",
+      "configs/default.toml": "630b70f01ac7de1f1b74250f8b454c9d090e461891f347fadc4c375c27cc5b20",
+      "rtl/shama_display_bridge.sv": "c5753e43857b62cb97f8ef6bd5c98e0f8fcf2f69a707450215453c6f282234bb",
+      "rtl/shama_gpu.sv": "817ddbb03248bae2ba816f754eceb4c0a6d3b3fe4463fae550ad7b3a1ea1d4c2",
+      "rtl/shama_soc.sv": "5387762f974450c8b33fd67c77b49ede0107c69ecd6930e07f8fdc30f9ed8c26",
+      "rtl/shama_font5x7.sv": "b04981885905696d604c8923dd2350ee6e2c5b56c3226597bdb42ee8ff2f1505"
+    },
+    "base_revision": "538606cc0f34f5b041935e276b8ba295f7d00b83",
+    "working_tree_dirty": true
+  },
+  "sample_bank": {
+    "method": "counted-real-memory-bank-emitter",
+    "words": 1024,
+    "word_bits": 32,
+    "bytes": 4096,
+    "placements": 1991552,
+    "chunks_at_aligned_origin": 4630,
+    "storage_repeaters": 32768,
+    "other_cell_and_wiring_blocks": 1958784,
+    "block_types": {
+      "minecraft:stone": 963008,
+      "minecraft:redstone_wire": 668096,
+      "minecraft:repeater": 161792,
+      "minecraft:redstone_wall_torch": 2048,
+      "minecraft:target": 32768,
+      "minecraft:redstone_torch": 131072,
+      "minecraft:comparator": 32768
+    },
+    "bounds_relative_to_origin": {
+      "min": [
+        -6,
+        -1,
+        -2
+      ],
+      "max": [
+        160,
+        6,
+        6148
+      ]
+    }
+  },
+  "sampled_bank_shapes": [
+    {
+      "bank_count": 80,
+      "method": "counted-real-memory-bank-emitter",
+      "words": 1024,
+      "word_bits": 32,
+      "bytes": 4096,
+      "placements": 1991552,
+      "chunks_at_aligned_origin": 4630,
+      "storage_repeaters": 32768,
+      "other_cell_and_wiring_blocks": 1958784,
+      "block_types": {
+        "minecraft:stone": 963008,
+        "minecraft:redstone_wire": 668096,
+        "minecraft:repeater": 161792,
+        "minecraft:redstone_wall_torch": 2048,
+        "minecraft:target": 32768,
+        "minecraft:redstone_torch": 131072,
+        "minecraft:comparator": 32768
+      },
+      "bounds_relative_to_origin": {
+        "min": [
+          -6,
+          -1,
+          -2
+        ],
+        "max": [
+          160,
+          6,
+          6148
+        ]
+      }
+    }
+  ],
+  "storage_fabrics": {
+    "cache": {
+      "bytes": 8192,
+      "banks": 2,
+      "layers": 2,
+      "full_banks": 2,
+      "final_bank_bytes": 4096,
+      "final_bank_words": 1024,
+      "tiles": 1,
+      "banks_in_final_tile": 2,
+      "chunks": 4246,
+      "origin": {
+        "x": 2574,
+        "y": -56,
+        "z": 0
+      },
+      "bounds_with_local_controls": {
+        "min": {
+          "x": 2400,
+          "y": -60,
+          "z": -20
+        },
+        "max": {
+          "x": 2736,
+          "y": 52,
+          "z": 6152
+        }
+      }
+    },
+    "ram": {
+      "bytes": 98304,
+      "banks": 24,
+      "layers": 24,
+      "full_banks": 24,
+      "final_bank_bytes": 4096,
+      "final_bank_words": 1024,
+      "tiles": 1,
+      "banks_in_final_tile": 24,
+      "chunks": 4246,
+      "origin": {
+        "x": 2574,
+        "y": 24,
+        "z": 0
+      },
+      "bounds_with_local_controls": {
+        "min": {
+          "x": 2432,
+          "y": 20,
+          "z": -20
+        },
+        "max": {
+          "x": 2736,
+          "y": 307,
+          "z": 6152
+        }
+      }
+    },
+    "flash": {
+      "bytes": 204800,
+      "banks": 50,
+      "layers": 30,
+      "full_banks": 50,
+      "final_bank_bytes": 4096,
+      "final_bank_words": 1024,
+      "tiles": 2,
+      "banks_in_final_tile": 20,
+      "chunks": 8492,
+      "origin": {
+        "x": 3391,
+        "y": -56,
+        "z": 0
+      },
+      "bounds_with_local_controls": {
+        "min": {
+          "x": 3249,
+          "y": -60,
+          "z": -20
+        },
+        "max": {
+          "x": 3913,
+          "y": 299,
+          "z": 6152
+        }
+      }
+    },
+    "vram": {
+      "bytes": 16384,
+      "banks": 4,
+      "layers": 4,
+      "full_banks": 4,
+      "final_bank_bytes": 4096,
+      "final_bank_words": 1024,
+      "tiles": 1,
+      "banks_in_final_tile": 4,
+      "chunks": 4246,
+      "origin": {
+        "x": 2574,
+        "y": -28,
+        "z": 0
+      },
+      "bounds_with_local_controls": {
+        "min": {
+          "x": 2416,
+          "y": -32,
+          "z": -20
+        },
+        "max": {
+          "x": 2736,
+          "y": 80,
+          "z": 6152
+        }
+      }
+    }
+  },
+  "storage_chunks": 12738,
+  "storage_regions": 42,
+  "minimum_storage_region_bytes": 52518912,
+  "storage_banks": 80,
+  "storage_bits": 2621440,
+  "storage_full_banks": 80,
+  "storage_partial_banks": 0,
+  "horizontal_memory_tiles": 3,
+  "logical_memory_tiles": 5,
+  "storage_fabric_chunk_sum": 21230,
+  "regular_fabrics": {
+    "method": "exact-regular-geometry-footprints-and-periodic-row-counts",
+    "screen_controls_debug_clock": {
+      "screen": {
+        "emitted_placements": 2371162,
+        "horizontal_chunks": 108,
+        "bounds": {
+          "min": {
+            "x": 489,
+            "y": -60,
+            "z": 512
+          },
+          "max": {
+            "x": 1808,
+            "y": 304,
+            "z": 529
+          }
+        }
+      },
+      "controls": {
+        "emitted_placements": 13254,
+        "horizontal_chunks": 47,
+        "bounds": {
+          "min": {
+            "x": 902,
+            "y": -60,
+            "z": -8
+          },
+          "max": {
+            "x": 1106,
+            "y": -17,
+            "z": 126
+          }
+        }
+      },
+      "debug_panel": {
+        "emitted_placements": 5958,
+        "horizontal_chunks": 9,
+        "bounds": {
+          "min": {
+            "x": 900,
+            "y": -56,
+            "z": -235
+          },
+          "max": {
+            "x": 1024,
+            "y": 97,
+            "z": -232
+          }
+        }
+      },
+      "clock": {
+        "emitted_placements": 766,
+        "horizontal_chunks": 17,
+        "bounds": {
+          "min": {
+            "x": 1080,
+            "y": -56,
+            "z": -86
+          },
+          "max": {
+            "x": 1176,
+            "y": -52,
+            "z": -44
+          }
+        }
+      }
+    },
+    "screen_controls_debug_clock_union_chunks": 181,
+    "player_interaction": {
+      "keyboard_buttons": 64,
+      "perimeter_controls": 15,
+      "activation_count": 79,
+      "activation_bounds": {
+        "min": {
+          "x": 960,
+          "y": -55,
+          "z": 43
+        },
+        "max": {
+          "x": 975,
+          "y": -54,
+          "z": 58
+        }
+      },
+      "activation_span_xz": [
+        16,
+        16
+      ],
+      "within_16_by_16_envelope": true,
+      "deck_entry": {
+        "x": 961,
+        "y": -55,
+        "z": 43
+      },
+      "deck_feet_y": -55,
+      "stairs_lowest_support_y": -60,
+      "screen_viewing_feet": {
+        "x": 967,
+        "y": -55,
+        "z": 64
+      },
+      "screen_viewing_eye": [
+        967.5,
+        -53.38,
+        64.5
+      ],
+      "dedicated_shift_duplicates_matrix_key": [
+        7,
+        7
+      ],
+      "verification": "actual-engine all-input regression and connected two-block player-clearance deck test",
+      "activation_width_blocks": 16,
+      "activation_depth_blocks": 16,
+      "walkability_verified": true,
+      "scope": "literal button/lever positions and verified console clearance; backend routing footprint is reported separately; full-screen viewing is a separate concern"
+    },
+    "memory_local_controls": {
+      "cache": {
+        "local_control_and_return_placements": 926448,
+        "binary_row_decoder_placements": 778360,
+        "storage_and_local_control_chunks": 8100,
+        "bounds": {
+          "min": {
+            "x": 2400,
+            "y": -60,
+            "z": -20
+          },
+          "max": {
+            "x": 2736,
+            "y": 52,
+            "z": 6152
+          }
+        }
+      },
+      "ram": {
+        "local_control_and_return_placements": 11144612,
+        "binary_row_decoder_placements": 712824,
+        "storage_and_local_control_chunks": 7330,
+        "bounds": {
+          "min": {
+            "x": 2432,
+            "y": 20,
+            "z": -20
+          },
+          "max": {
+            "x": 2736,
+            "y": 307,
+            "z": 6152
+          }
+        }
+      },
+      "flash": {
+        "local_control_and_return_placements": 23218148,
+        "binary_row_decoder_placements": 1425648,
+        "storage_and_local_control_chunks": 15045,
+        "bounds": {
+          "min": {
+            "x": 3249,
+            "y": -60,
+            "z": -20
+          },
+          "max": {
+            "x": 3913,
+            "y": 299,
+            "z": 6152
+          }
+        }
+      },
+      "vram": {
+        "local_control_and_return_placements": 1855372,
+        "binary_row_decoder_placements": 745592,
+        "storage_and_local_control_chunks": 7715,
+        "bounds": {
+          "min": {
+            "x": 2416,
+            "y": -32,
+            "z": -20
+          },
+          "max": {
+            "x": 2736,
+            "y": 80,
+            "z": 6152
+          }
+        }
+      }
+    },
+    "local_memory_control_and_return_placements": 37144580,
+    "binary_row_decoder_placements": 3662424,
+    "storage_and_local_control_union_chunks": 23147,
+    "memory_fabric_chunk_sum": 38190,
+    "shared_memory_chunk_savings": 15043,
+    "regular_fabric_union_chunks": 23328,
+    "regular_fabric_regions": 64,
+    "minimum_regular_fabric_region_bytes": 96075776,
+    "regular_fabric_envelope": {
+      "min": {
+        "x": 489,
+        "y": -60,
+        "z": -235
+      },
+      "max": {
+        "x": 3913,
+        "y": 307,
+        "z": 6152
+      },
+      "width_blocks": 3425,
+      "depth_blocks": 6388,
+      "height_blocks": 368,
+      "horizontal_area_blocks": 21878900,
+      "rectangle_perimeter_blocks": 19626,
+      "chunk_x_min": 30,
+      "chunk_x_max": 244,
+      "chunk_z_min": -15,
+      "chunk_z_max": 384,
+      "chunk_width": 215,
+      "chunk_depth": 400,
+      "envelope_chunks": 86000
+    },
+    "scope": "storage, local bank decoders and shared returns, screen, controls, debug and clock; synthesized logic and external routes are separate",
+    "physical_storage_placements": 159324160,
+    "regular_fabric_emitted_placements": 202522304
+  },
+  "storage_placements": 159324160,
+  "available_disk_bytes": 51230646272,
+  "storage_minimum_fits_available_disk": true,
+  "estimate_excludes": [
+    "synthesized logic",
+    "interconnect",
+    "validation ledger",
+    "temporary compaction space"
+  ],
+  "regular_fabric_minimum_fits_available_disk": true,
+  "minimum_region_bytes_note": "Anvil sector/header lower bound only; dense stacked chunks may require several sectors. Physical block count is unchanged by sharing X/Z chunks.",
+  "production_packing": {
+    "requested_layers": "auto",
+    "maximum_safe_layers": 30,
+    "actual_max_layers": 30,
+    "layer_pitch": 12,
+    "surface_y": -61,
+    "minimum_build_y": -60,
+    "storage_base_y": -56,
+    "control_ceiling_y": 307,
+    "shared_fabrics": {
+      "cache": {
+        "y_offset": 0,
+        "decoder_x_offset": -170
+      },
+      "vram": {
+        "y_offset": 28,
+        "decoder_x_offset": -154
+      },
+      "ram": {
+        "y_offset": 80,
+        "decoder_x_offset": -138
+      }
+    },
+    "scope": "complete literal banks with above-ground local decode and shared isolated read return"
+  },
+  "resident_chunk_memory_scenarios": [
+    {
+      "assumed_bytes_per_chunk": 16384,
+      "total_bytes": 208699392
+    },
+    {
+      "assumed_bytes_per_chunk": 65536,
+      "total_bytes": 834797568
+    },
+    {
+      "assumed_bytes_per_chunk": 262144,
+      "total_bytes": 3339190272
+    }
+  ],
+  "resident_memory_note": "Illustrative assumptions, not measured Java heap requirements. Loading all storage would additionally require logic/routes and engine overhead.",
+  "full_world_loading_strategy": "unverified: no proven complete loaded/ticking-chunk plan or routed clock-skew bound",
+  "complete_generation_feasibility": "not-established-until-logic-routes-and-loading-are-validated",
+  "complete_world_runtime_verified": false,
+  "stacking_scenarios": [
+    {
+      "layers": 1,
+      "layer_pitch": 12,
+      "physical_storage_bytes": 327680,
+      "physical_storage_placements": 159324160,
+      "storage_fabrics": {
+        "cache": {
+          "bytes": 8192,
+          "banks": 2,
+          "layers": 1,
+          "full_banks": 2,
+          "final_bank_bytes": 4096,
+          "final_bank_words": 1024,
+          "tiles": 2,
+          "banks_in_final_tile": 1,
+          "chunks": 8492,
+          "origin": {
+            "x": 2542,
+            "y": -56,
+            "z": 0
+          },
+          "bounds_with_local_controls": {
+            "min": {
+              "x": 2400,
+              "y": -60,
+              "z": -20
+            },
+            "max": {
+              "x": 3064,
+              "y": 52,
+              "z": 6152
+            }
+          }
+        },
+        "ram": {
+          "bytes": 98304,
+          "banks": 24,
+          "layers": 1,
+          "full_banks": 24,
+          "final_bank_bytes": 4096,
+          "final_bank_words": 1024,
+          "tiles": 24,
+          "banks_in_final_tile": 1,
+          "chunks": 106428,
+          "origin": {
+            "x": 5616,
+            "y": -56,
+            "z": 0
+          },
+          "bounds_with_local_controls": {
+            "min": {
+              "x": 5474,
+              "y": -60,
+              "z": -20
+            },
+            "max": {
+              "x": 11178,
+              "y": 52,
+              "z": 12432
+            }
+          }
+        },
+        "flash": {
+          "bytes": 204800,
+          "banks": 50,
+          "layers": 1,
+          "full_banks": 50,
+          "final_bank_bytes": 4096,
+          "final_bank_words": 1024,
+          "tiles": 50,
+          "banks_in_final_tile": 1,
+          "chunks": 221711,
+          "origin": {
+            "x": 11833,
+            "y": -56,
+            "z": 0
+          },
+          "bounds_with_local_controls": {
+            "min": {
+              "x": 11691,
+              "y": -60,
+              "z": -20
+            },
+            "max": {
+              "x": 17395,
+              "y": 52,
+              "z": 24992
+            }
+          }
+        },
+        "vram": {
+          "bytes": 16384,
+          "banks": 4,
+          "layers": 1,
+          "full_banks": 4,
+          "final_bank_bytes": 4096,
+          "final_bank_words": 1024,
+          "tiles": 4,
+          "banks_in_final_tile": 1,
+          "chunks": 16984,
+          "origin": {
+            "x": 3719,
+            "y": -56,
+            "z": 0
+          },
+          "bounds_with_local_controls": {
+            "min": {
+              "x": 3577,
+              "y": -60,
+              "z": -20
+            },
+            "max": {
+              "x": 4961,
+              "y": 52,
+              "z": 6152
+            }
+          }
+        }
+      },
+      "storage_chunks": 353615,
+      "storage_regions": 764,
+      "minimum_storage_region_bytes": 1454665728,
+      "storage_banks": 80,
+      "storage_bits": 2621440,
+      "storage_full_banks": 80,
+      "storage_partial_banks": 0,
+      "horizontal_memory_tiles": 80,
+      "logical_memory_tiles": 80,
+      "storage_fabric_chunk_sum": 353615,
+      "production_enabled": false,
+      "scope": "storage chunks only; bounds include local control and shared return geometry; global routes are additional",
+      "validation": "representative local decode, shared return and first/middle/last bank read/write/retention proven through 32 layers; complete-machine timing remains unverified"
+    },
+    {
+      "layers": 8,
+      "layer_pitch": 12,
+      "physical_storage_bytes": 327680,
+      "physical_storage_placements": 159324160,
+      "storage_fabrics": {
+        "cache": {
+          "bytes": 8192,
+          "banks": 2,
+          "layers": 2,
+          "full_banks": 2,
+          "final_bank_bytes": 4096,
+          "final_bank_words": 1024,
+          "tiles": 1,
+          "banks_in_final_tile": 2,
+          "chunks": 4246,
+          "origin": {
+            "x": 2542,
+            "y": -56,
+            "z": 0
+          },
+          "bounds_with_local_controls": {
+            "min": {
+              "x": 2400,
+              "y": -60,
+              "z": -20
+            },
+            "max": {
+              "x": 2704,
+              "y": 52,
+              "z": 6152
+            }
+          }
+        },
+        "ram": {
+          "bytes": 98304,
+          "banks": 24,
+          "layers": 8,
+          "full_banks": 24,
+          "final_bank_bytes": 4096,
+          "final_bank_words": 1024,
+          "tiles": 3,
+          "banks_in_final_tile": 8,
+          "chunks": 13506,
+          "origin": {
+            "x": 4176,
+            "y": -56,
+            "z": 0
+          },
+          "bounds_with_local_controls": {
+            "min": {
+              "x": 4034,
+              "y": -60,
+              "z": -20
+            },
+            "max": {
+              "x": 5058,
+              "y": 52,
+              "z": 6152
+            }
+          }
+        },
+        "flash": {
+          "bytes": 204800,
+          "banks": 50,
+          "layers": 8,
+          "full_banks": 50,
+          "final_bank_bytes": 4096,
+          "final_bank_words": 1024,
+          "tiles": 7,
+          "banks_in_final_tile": 2,
+          "chunks": 31258,
+          "origin": {
+            "x": 5713,
+            "y": -56,
+            "z": 0
+          },
+          "bounds_with_local_controls": {
+            "min": {
+              "x": 5571,
+              "y": -60,
+              "z": -20
+            },
+            "max": {
+              "x": 8035,
+              "y": 52,
+              "z": 6152
+            }
+          }
+        },
+        "vram": {
+          "bytes": 16384,
+          "banks": 4,
+          "layers": 4,
+          "full_banks": 4,
+          "final_bank_bytes": 4096,
+          "final_bank_words": 1024,
+          "tiles": 1,
+          "banks_in_final_tile": 4,
+          "chunks": 4246,
+          "origin": {
+            "x": 3359,
+            "y": -56,
+            "z": 0
+          },
+          "bounds_with_local_controls": {
+            "min": {
+              "x": 3217,
+              "y": -60,
+              "z": -20
+            },
+            "max": {
+              "x": 3521,
+              "y": 52,
+              "z": 6152
+            }
+          }
+        }
+      },
+      "storage_chunks": 53256,
+      "storage_regions": 140,
+      "minimum_storage_region_bytes": 219283456,
+      "storage_banks": 80,
+      "storage_bits": 2621440,
+      "storage_full_banks": 80,
+      "storage_partial_banks": 0,
+      "horizontal_memory_tiles": 12,
+      "logical_memory_tiles": 12,
+      "storage_fabric_chunk_sum": 53256,
+      "production_enabled": false,
+      "scope": "storage chunks only; bounds include local control and shared return geometry; global routes are additional",
+      "validation": "representative local decode, shared return and first/middle/last bank read/write/retention proven through 32 layers; complete-machine timing remains unverified"
+    },
+    {
+      "layers": 16,
+      "layer_pitch": 12,
+      "physical_storage_bytes": 327680,
+      "physical_storage_placements": 159324160,
+      "storage_fabrics": {
+        "cache": {
+          "bytes": 8192,
+          "banks": 2,
+          "layers": 2,
+          "full_banks": 2,
+          "final_bank_bytes": 4096,
+          "final_bank_words": 1024,
+          "tiles": 1,
+          "banks_in_final_tile": 2,
+          "chunks": 4246,
+          "origin": {
+            "x": 2542,
+            "y": -56,
+            "z": 0
+          },
+          "bounds_with_local_controls": {
+            "min": {
+              "x": 2400,
+              "y": -60,
+              "z": -20
+            },
+            "max": {
+              "x": 2704,
+              "y": 52,
+              "z": 6152
+            }
+          }
+        },
+        "ram": {
+          "bytes": 98304,
+          "banks": 24,
+          "layers": 16,
+          "full_banks": 24,
+          "final_bank_bytes": 4096,
+          "final_bank_words": 1024,
+          "tiles": 2,
+          "banks_in_final_tile": 8,
+          "chunks": 8876,
+          "origin": {
+            "x": 4176,
+            "y": -56,
+            "z": 0
+          },
+          "bounds_with_local_controls": {
+            "min": {
+              "x": 4034,
+              "y": -60,
+              "z": -20
+            },
+            "max": {
+              "x": 4698,
+              "y": 131,
+              "z": 6152
+            }
+          }
+        },
+        "flash": {
+          "bytes": 204800,
+          "banks": 50,
+          "layers": 16,
+          "full_banks": 50,
+          "final_bank_bytes": 4096,
+          "final_bank_words": 1024,
+          "tiles": 4,
+          "banks_in_final_tile": 2,
+          "chunks": 17752,
+          "origin": {
+            "x": 5353,
+            "y": -56,
+            "z": 0
+          },
+          "bounds_with_local_controls": {
+            "min": {
+              "x": 5211,
+              "y": -60,
+              "z": -20
+            },
+            "max": {
+              "x": 6595,
+              "y": 131,
+              "z": 6152
+            }
+          }
+        },
+        "vram": {
+          "bytes": 16384,
+          "banks": 4,
+          "layers": 4,
+          "full_banks": 4,
+          "final_bank_bytes": 4096,
+          "final_bank_words": 1024,
+          "tiles": 1,
+          "banks_in_final_tile": 4,
+          "chunks": 4246,
+          "origin": {
+            "x": 3359,
+            "y": -56,
+            "z": 0
+          },
+          "bounds_with_local_controls": {
+            "min": {
+              "x": 3217,
+              "y": -60,
+              "z": -20
+            },
+            "max": {
+              "x": 3521,
+              "y": 52,
+              "z": 6152
+            }
+          }
+        }
+      },
+      "storage_chunks": 35120,
+      "storage_regions": 112,
+      "minimum_storage_region_bytes": 144769024,
+      "storage_banks": 80,
+      "storage_bits": 2621440,
+      "storage_full_banks": 80,
+      "storage_partial_banks": 0,
+      "horizontal_memory_tiles": 8,
+      "logical_memory_tiles": 8,
+      "storage_fabric_chunk_sum": 35120,
+      "production_enabled": false,
+      "scope": "storage chunks only; bounds include local control and shared return geometry; global routes are additional",
+      "validation": "representative local decode, shared return and first/middle/last bank read/write/retention proven through 32 layers; complete-machine timing remains unverified"
+    },
+    {
+      "layers": 24,
+      "layer_pitch": 12,
+      "physical_storage_bytes": 327680,
+      "physical_storage_placements": 159324160,
+      "storage_fabrics": {
+        "cache": {
+          "bytes": 8192,
+          "banks": 2,
+          "layers": 2,
+          "full_banks": 2,
+          "final_bank_bytes": 4096,
+          "final_bank_words": 1024,
+          "tiles": 1,
+          "banks_in_final_tile": 2,
+          "chunks": 4246,
+          "origin": {
+            "x": 2542,
+            "y": -56,
+            "z": 0
+          },
+          "bounds_with_local_controls": {
+            "min": {
+              "x": 2400,
+              "y": -60,
+              "z": -20
+            },
+            "max": {
+              "x": 2704,
+              "y": 52,
+              "z": 6152
+            }
+          }
+        },
+        "ram": {
+          "bytes": 98304,
+          "banks": 24,
+          "layers": 24,
+          "full_banks": 24,
+          "final_bank_bytes": 4096,
+          "final_bank_words": 1024,
+          "tiles": 1,
+          "banks_in_final_tile": 24,
+          "chunks": 4630,
+          "origin": {
+            "x": 4176,
+            "y": -56,
+            "z": 0
+          },
+          "bounds_with_local_controls": {
+            "min": {
+              "x": 4034,
+              "y": -60,
+              "z": -20
+            },
+            "max": {
+              "x": 4338,
+              "y": 227,
+              "z": 6152
+            }
+          }
+        },
+        "flash": {
+          "bytes": 204800,
+          "banks": 50,
+          "layers": 24,
+          "full_banks": 50,
+          "final_bank_bytes": 4096,
+          "final_bank_words": 1024,
+          "tiles": 3,
+          "banks_in_final_tile": 2,
+          "chunks": 13506,
+          "origin": {
+            "x": 4993,
+            "y": -56,
+            "z": 0
+          },
+          "bounds_with_local_controls": {
+            "min": {
+              "x": 4851,
+              "y": -60,
+              "z": -20
+            },
+            "max": {
+              "x": 5875,
+              "y": 227,
+              "z": 6152
+            }
+          }
+        },
+        "vram": {
+          "bytes": 16384,
+          "banks": 4,
+          "layers": 4,
+          "full_banks": 4,
+          "final_bank_bytes": 4096,
+          "final_bank_words": 1024,
+          "tiles": 1,
+          "banks_in_final_tile": 4,
+          "chunks": 4246,
+          "origin": {
+            "x": 3359,
+            "y": -56,
+            "z": 0
+          },
+          "bounds_with_local_controls": {
+            "min": {
+              "x": 3217,
+              "y": -60,
+              "z": -20
+            },
+            "max": {
+              "x": 3521,
+              "y": 52,
+              "z": 6152
+            }
+          }
+        }
+      },
+      "storage_chunks": 26628,
+      "storage_regions": 98,
+      "minimum_storage_region_bytes": 109871104,
+      "storage_banks": 80,
+      "storage_bits": 2621440,
+      "storage_full_banks": 80,
+      "storage_partial_banks": 0,
+      "horizontal_memory_tiles": 6,
+      "logical_memory_tiles": 6,
+      "storage_fabric_chunk_sum": 26628,
+      "production_enabled": false,
+      "scope": "storage chunks only; bounds include local control and shared return geometry; global routes are additional",
+      "validation": "representative local decode, shared return and first/middle/last bank read/write/retention proven through 32 layers; complete-machine timing remains unverified"
+    },
+    {
+      "layers": 30,
+      "layer_pitch": 12,
+      "physical_storage_bytes": 327680,
+      "physical_storage_placements": 159324160,
+      "storage_fabrics": {
+        "cache": {
+          "bytes": 8192,
+          "banks": 2,
+          "layers": 2,
+          "full_banks": 2,
+          "final_bank_bytes": 4096,
+          "final_bank_words": 1024,
+          "tiles": 1,
+          "banks_in_final_tile": 2,
+          "chunks": 4246,
+          "origin": {
+            "x": 2574,
+            "y": -56,
+            "z": 0
+          },
+          "bounds_with_local_controls": {
+            "min": {
+              "x": 2400,
+              "y": -60,
+              "z": -20
+            },
+            "max": {
+              "x": 2736,
+              "y": 52,
+              "z": 6152
+            }
+          }
+        },
+        "ram": {
+          "bytes": 98304,
+          "banks": 24,
+          "layers": 24,
+          "full_banks": 24,
+          "final_bank_bytes": 4096,
+          "final_bank_words": 1024,
+          "tiles": 1,
+          "banks_in_final_tile": 24,
+          "chunks": 4246,
+          "origin": {
+            "x": 2574,
+            "y": 24,
+            "z": 0
+          },
+          "bounds_with_local_controls": {
+            "min": {
+              "x": 2432,
+              "y": 20,
+              "z": -20
+            },
+            "max": {
+              "x": 2736,
+              "y": 307,
+              "z": 6152
+            }
+          }
+        },
+        "flash": {
+          "bytes": 204800,
+          "banks": 50,
+          "layers": 30,
+          "full_banks": 50,
+          "final_bank_bytes": 4096,
+          "final_bank_words": 1024,
+          "tiles": 2,
+          "banks_in_final_tile": 20,
+          "chunks": 8492,
+          "origin": {
+            "x": 3391,
+            "y": -56,
+            "z": 0
+          },
+          "bounds_with_local_controls": {
+            "min": {
+              "x": 3249,
+              "y": -60,
+              "z": -20
+            },
+            "max": {
+              "x": 3913,
+              "y": 299,
+              "z": 6152
+            }
+          }
+        },
+        "vram": {
+          "bytes": 16384,
+          "banks": 4,
+          "layers": 4,
+          "full_banks": 4,
+          "final_bank_bytes": 4096,
+          "final_bank_words": 1024,
+          "tiles": 1,
+          "banks_in_final_tile": 4,
+          "chunks": 4246,
+          "origin": {
+            "x": 2574,
+            "y": -28,
+            "z": 0
+          },
+          "bounds_with_local_controls": {
+            "min": {
+              "x": 2416,
+              "y": -32,
+              "z": -20
+            },
+            "max": {
+              "x": 2736,
+              "y": 80,
+              "z": 6152
+            }
+          }
+        }
+      },
+      "storage_chunks": 12738,
+      "storage_regions": 42,
+      "minimum_storage_region_bytes": 52518912,
+      "storage_banks": 80,
+      "storage_bits": 2621440,
+      "storage_full_banks": 80,
+      "storage_partial_banks": 0,
+      "horizontal_memory_tiles": 3,
+      "logical_memory_tiles": 5,
+      "storage_fabric_chunk_sum": 21230,
+      "production_enabled": true,
+      "scope": "storage chunks only; bounds include local control and shared return geometry; global routes are additional",
+      "validation": "representative local decode, shared return and first/middle/last bank read/write/retention proven through 32 layers; complete-machine timing remains unverified"
+    }
+  ]
+}

@@ -21,19 +21,42 @@ level must not be presented as a result at another.
 
 The integrated lifecycle scenario is a behavioral integration test, not a
 pre-recorded UI animation. It drives the actual input path and verifies data
-written by the filesystem across shutdown/reboot. Its recorded successful run
+written by the filesystem across shutdown/reboot. Its historical successful run
 with the production adapters required **8,603,261 testbench clock cycles** at
 96 KiB RAM and 250 KiB flash. Observed write commits were 18,188 cache, 39,485
 RAM, 1,373 flash and 180,435 VRAM, with delayed reads covered on every fabric. Those are simulator
 transactions and cycles, not Minecraft speed. Subsequent revisions must rerun
 the scenario rather than inheriting that result.
 
-The same production-controller backend passes typed assembly/save/run in
+That same 250 KiB production-controller checkpoint passed typed assembly/save/run in
 **9,640,839 cycles**. A separate **5,137,683-cycle** case allocates the complete
 84 KiB generic heap, writes a new program into its RUN pages, self-replaces,
 executes the marker, compares both code copies and checks every released heap
 word before returning Home. It directly guards against cleanup erasing the
 staged source before the loader reads it.
+
+The 200 KiB candidate reruns these flows with the new history journal. Current
+results must come from its own report; historical cycle counts are not reused
+as proof of a later source revision.
+
+### Bounded history-save recovery
+
+The record-journal regression uses the complete installed 200 KiB image and
+passes 76 filesystem/Miner/controller cases without skips. It retains every
+256×128-byte record, checks all slots and wraparound, and interleaves state saves.
+Every one of the 264 acknowledged transaction-write prefixes is recovered by
+the independent host reader, while RTL reset tests cover staging, commit,
+in-place replay, generation update and clearing. Recovery interrupted again
+must be idempotent. Invalid checksum/payload/identity/generation, reused file
+slots and overlapping extent owners fail before any target write. Protected
+images can finish committed recovery but reject new history saves.
+
+The unchanged installed allocation is 162,304 bytes. The 128-byte payload plus
+24-byte descriptor live in existing reserved metadata; there is no additional
+flash extent or application RAM/cache allocation. [FILESYSTEM.md](FILESYSTEM.md)
+documents the order and [MINER.md](MINER.md) links the reproducible matched
+controller benchmark. Additional comparison/control logic still needs the exact
+candidate synthesis measurement.
 
 The 96 KiB map regression executes 49,152-, 49,153- and 65,535-byte source
 assembly/save/run flows and the 16,380-byte hardware-assembler output boundary.
@@ -62,6 +85,16 @@ drives documented fixture pins, and advances the engine's scheduled ticks. A
 trace can assert transitions throughout a hold period as well as final values.
 It contains no replacement implementation of the tested gates or memory cells.
 
+The harness now reads JSON through a buffered stream and resolves each block
+state as its placement is parsed. It preserves every property, placement order,
+initial update and scheduled tick, but avoids holding both a complete JSON
+string and millions of property maps beside the live world. Nineteen complete
+trace comparisons match the previous runner, including all 16 support colors
+and saved/reopened memory, display and 79-control input fixtures. A deliberate
+wrong-output case still fails with the same diagnostic. The unchanged two-bank
+full-depth fixture completes at about 928 MiB peak resident memory in the
+recorded local run, instead of being killed for memory exhaustion.
+
 Set `SHAMA_MCHPRS_RUNNER` to the built executable. The ordinary Python developer
 suite can explicitly skip unavailable external tools. The required CI behavioral
 job installs Icarus/Yosys, builds the pinned runner, and rejects any skipped
@@ -82,9 +115,9 @@ redstone updates, and rejects conflicting block placements before simulation:
 - All 79 compact-console actuators are operated in the engine. Real stone
   buttons produce continuous 94-tick controller pulses; all 64 matrix keys and
   the dedicated Shift produce 119-tick row/column pulses with at least 101 ticks
-  of native overlap. The representative 30-output routed console checks every
-  controller/switch plus corner/middle keys and requires at least 80 ticks of
-  simultaneous row/column high: one raw period plus local setup/hold.
+  of native overlap. The 30-output routed console now checks all 79 actuators
+  through 81 steps / 121,532 redstone ticks. Its minimum measured row/column
+  overlap is 81 ticks, above the required 80: one raw period plus local setup/hold.
 - Four nearby independent routes, three-way fanout across different heights,
   and forced west-side escapes preserve their signals. A placed/routed DFF and
   a lowered five-cell enabled register capture, hold and overwrite correctly
@@ -103,24 +136,41 @@ redstone updates, and rejects conflicting block placements before simulation:
   85,128 ticks. The literal fixture and its routes fit Y=-60..318 above the
   classic-flat grass. This fixture has four words and eight bits per bank;
   it does not establish full-size row-interface timing.
+- The highest shared-RAM return at Y=306 also passes actual external routing,
+  despite lying only one block below its local control ceiling. Both Y=298
+  flash and Y=306 RAM return fixtures complete 17 steps / 85,128 redstone ticks
+  with read/write/hold checks. Their million-block cases stream every literal
+  placement to the engine, retaining exact state-conflict and height checks.
 - The local binary decoder checks all 1,024 row addresses. Production memory
   interfaces expose ten address pins instead of 1,024 global row-select pins.
   External escape planning includes the complete decoder/control geometry.
 - A mixed cache2/VRAM4/RAM24 column has independent bank/control/read-return
-  paths. Its saved fixture reopens **522,568 unique circuit blocks** and passes
+  paths. The prior descending-return saved fixture reopened **522,568 unique circuit blocks** and passed
   **84 steps / 43,520 redstone ticks**, with native blocks at Y=-60..307 above
   preserved grass. This uses a reduced number of rows per bank; full 1,024-word
   storage and full-address decoding are separately exercised.
+- Upward read-return columns preserve all bits while replacing the long
+  descending tail. A two-bank 1,024×32 fixture checks all **65,536 stored bits**
+  through **44 steps / 114,960 redstone ticks**. A separate 30-bank, two-row,
+  32-bit fixture checks all 1,920 bits through 257 steps. Both use opposite-value
+  reads with read continuously asserted, explicit clear/hold boundaries and
+  first/last writes. The production/partial/saved-world memory batch passes
+  62 cases without skips; timing remains fixture-specific.
 - Exact partial flash tests cover the final 512×32-bit bank: all 16,384 bits
   are checked after each of 19 steps / 81,920 redstone ticks. A partial-stack
   return uses full-length buses, retaining 12,288 bits across 39 steps / 163,840
   ticks. A 512-row decoder exercises all 1,024 binary addresses, including high
   values that must select no row. Saved/reopened partial-bank fixtures preserve
   the same states; controller byte/halfword/word boundaries are checked separately.
-- The complete 320×180 physical panel checks all 57,600 lamps and 57,600 stored
-  bits after each of 22 actual-engine steps / 23,552 redstone ticks. Its five-by-
-  four pitch uses 2,482,200 unique placements and 5,084 horizontal chunks. Tighter
-  three-block row spacing fails isolation and is not the production setting.
+- The complete upright 320×180 panel receives 24 captured real GPU/bridge
+  dirty-row writes spanning top/bottom, odd/even rows and checkerboard/all-one/
+  all-zero data. All **57,600 lamps** are checked after each of **73 actual-engine
+  steps / 75,776 redstone ticks**. The panel contains 57,600 storage repeaters,
+  uses 2,371,162 unique placements and occupies 108 horizontal chunks. Separate
+  saved/readback tests cover 8×3, 8×4 and full-height 8×180 panels, including
+  polarity, row order and preserved ground. Reduced-width/full-height and
+  full-width/reduced-height cases also exercise 70-tick setup/commit intervals;
+  those timings do not certify a full-machine refresh rate.
 - All 16 support-concrete colors preserve powered-support and latch behavior in
   actual MCHPRS tests. Colored memory, display and all 79 console actuators are
   saved, independently reopened and exercised. The transform leaves coordinates,
@@ -134,6 +184,14 @@ redstone updates, and rejects conflicting block placements before simulation:
   the latter also reduces observed hold to one tick. These timing-sensitive
   small-circuit tests do not change the production divider or certify arbitrary
   mapped logic.
+- A 47-cell real mapped assembler state cut spans three bounded tiers while
+  preserving all original ports, drivers/sinks, constants and both clock leaves.
+  At 400-tick half-periods it loses zero of 192 register transfers; at 100 ticks
+  it loses 26 despite zero observed clock skew and complete pulse widths. All
+  seven boundary outputs eventually settle correctly in both cases, so settled
+  outputs alone would miss the too-fast cycle error. See
+  [ROUTING_PROGRESS.md](ROUTING_PROGRESS.md) for provenance and remaining
+  production hierarchy, timing and loading work.
 
 The router uses a separate endpoint landing plane and reserves stair headroom.
 Directional repeaters refresh junctions as well as straight runs. The caller
@@ -147,16 +205,25 @@ small exact terminal neighborhoods, complete memory-tile/display/console envelop
 and the selected grass surface's minimum build Y. A stair must leave its native
 envelope before rising and cannot enter another tile. These checks operate on
 terminal count and tile bounds, without materializing storage billions of times.
-The complete 993-signal diagnostic wall has a separate bounded-lead geometry
-regression; full-wall electrical behavior is not inferred from that geometry.
+The complete 993-signal diagnostic wall and 500-terminal upright screen have
+separate escape-planning regressions. Dense tall south-facing interfaces can
+search one six-block corridor per endpoint instead of stopping after 128. Every
+candidate still passes collision, electrical-neighborhood, envelope and height
+checks. This does not infer full-wall electrical behavior or complete-system
+route closure from escape geometry.
 
 The console's 79 activation positions occupy 16×16 X/Z blocks. A separate
 literal-geometry test proves a connected player deck, two-block headroom and
-four ordinary steps from above-grass supports. The backend bounds are
-`origin+(2,-4,0)..origin+(126,39,128)`, with 10,902 emitted placements and 33
-occupied chunks at the production alignment. The walking proof does not prove
-screen readability: the 320×180 lamp panel still spans 1600×720 physical blocks before its interfaces,
-and viewing it coherently from the console remains an explicit release gap.
+ordinary steps from above-grass supports. The final backend has **13,254 emitted
+placements / 13,006 unique blocks / 47 occupied chunks**, while all 79 actuators
+remain in the same 16×16 activation area. A connected nearby lip provides a
+standing eye at (967.5,-53.38,64.5). A conservative unit-cube ray model sees all
+57,600 lamps past the native console, debug/clock and thirty console export
+paths. A 1920×1080, 16:9, 70° vertical-field projection contains the whole 958×359
+visible face, with lamp widths of about 1.41–1.86 pixels. This is deterministic
+geometry evidence, not an actual Minecraft-client screenshot or a complete
+route/view acceptance result. The logical image remains 320×180; 3×2 physical
+pixel spacing stretches it horizontally.
 
 These are fixture contracts, not a measured full-SoC frequency. The enabled
 register fixture deliberately waits thousands of ticks for its long routes.
@@ -228,7 +295,7 @@ never be substituted for them.
 
 ```bash
 pytest -ra
-pytest tests/test_cpu_rtl.py tests/test_gpu_execution.py tests/test_hardware_assembler.py
+pytest tests/test_cpu_rtl.py tests/test_gpu_execution.py tests/test_hardware_assembler.py tests/test_hardware_numeric_literals.py
 pytest tests/test_soc_integration.py
 pytest tests/test_mchprs_runtime.py tests/test_memory_density.py
 pytest tests/test_native_world.py tests/test_world_generation.py tests/test_world_resources.py

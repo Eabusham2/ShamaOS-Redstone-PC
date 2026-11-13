@@ -274,6 +274,7 @@ class TileHierarchy:
 
     children: tuple[LocalTile,...]
     parent: LocalTile
+    conservation: dict = field(default_factory=dict)
 
     def iter_placements(self) -> Iterator[Placement]:
         for child in self.children:
@@ -289,7 +290,115 @@ class TileHierarchy:
             "total_placements":len(placements),
             "unique_blocks":len({p.pos for p in placements}),
             "occupied_chunks":len({(p.pos.x//16,p.pos.z//16) for p in placements}),
+            "structural_conservation":self.conservation,
         }
+
+
+def audit_hierarchy(original: PhysicalNetlist, hierarchy: TileHierarchy) -> dict:
+    """Resolve boundary links back to every original driver and sink identity.
+
+    This proves structural preservation, including clock leaves and constants.
+    It does not claim collision, electrical or timing closure for the geometry.
+    """
+    children=hierarchy.children
+    owners={}
+    for index,child in enumerate(children):
+        for name,kind in child.physical.cell_types.items():
+            if name in owners or original.cell_types.get(name)!=kind:
+                raise ValueError("hierarchy duplicated, replaced or invented a native cell")
+            owners[name]=index
+    if set(owners)!=set(original.cell_types):
+        raise ValueError("hierarchy dropped a native cell")
+    root=hierarchy.parent.physical
+    for before,after in ((original.input_ports,root.input_ports),(original.output_ports,root.output_ports)):
+        if {name:len(pins) for name,pins in before.items()}!={name:len(pins) for name,pins in after.items()}:
+            raise ValueError("hierarchy changed an original port or bus width")
+    root_positions={old:new for old_group,new_group in ((original.input_ports,root.input_ports),
+                                                       (original.output_ports,root.output_ports))
+                    for name,pins in old_group.items() for old,new in zip(pins,new_group[name])}
+    child_nets=[{net.bit:net for net in child.physical.nets} for child in children]
+    parent_nets={net.bit:net for net in root.nets}
+    terminal_sources={pins[0]:(index,name) for index,child in enumerate(children)
+                      for name,pins in child.physical.output_ports.items()}
+    resolved={}
+
+    def driver(bit: int, tile: int | None, pending: frozenset = frozenset()) -> tuple[str,str]:
+        key=(tile,bit)
+        if key in resolved:
+            return resolved[key]
+        if key in pending:
+            raise ValueError("hierarchy boundary contains a driver cycle")
+        nets=parent_nets if tile is None else child_nets[tile]
+        if bit not in nets:
+            raise ValueError("hierarchy boundary has no driver")
+        source=nets[bit].source
+        if source.name in owners:
+            child=children[owners[source.name]].physical
+            pin=template_for(child.cell_types[source.name]).pins[source.pin]
+            if tile!=owners[source.name] or source.pos!=child.cell_origins[source.name].offset(pin.x,pin.y,pin.z):
+                raise ValueError("hierarchy native driver terminal is misplaced")
+            result=(source.name,source.pin)
+        elif tile is not None:
+            pin=children[tile].physical.input_ports.get(f"n{bit}")
+            parent=parent_nets.get(bit)
+            if pin!=(source.pos,) or parent is None or not any(sink.pos==source.pos for sink in parent.sinks):
+                raise ValueError("hierarchy child input is disconnected")
+            result=driver(bit,None,pending|{key})
+        elif source.name.startswith("macro:"):
+            binding=terminal_sources.get(source.pos)
+            if binding is None or binding[1]!=f"n{bit}":
+                raise ValueError("hierarchy parent has the wrong child output")
+            result=driver(bit,binding[0],pending|{key})
+        else:
+            result=(source.name,source.pin)
+            expected=next((net.source for net in original.nets if net.bit==bit),None)
+            if expected is None or result!=(expected.name,expected.pin) or root_positions.get(expected.pos)!=source.pos:
+                raise ValueError("hierarchy changed an original input terminal")
+        resolved[key]=result
+        return result
+
+    actual=[]
+    for index,child in enumerate(children):
+        for net in child.physical.nets:
+            for sink in net.sinks:
+                if sink.name in owners:
+                    pin=template_for(child.physical.cell_types[sink.name]).pins[sink.pin]
+                    if owners[sink.name]!=index or sink.pos!=child.physical.cell_origins[sink.name].offset(pin.x,pin.y,pin.z):
+                        raise ValueError("hierarchy native sink terminal is misplaced")
+                    actual.append((net.bit,*driver(net.bit,index),sink.name,sink.pin))
+    root_outputs={pos for pins in root.output_ports.values() for pos in pins}
+    for net in root.nets:
+        for sink in net.sinks:
+            if sink.pos in root_outputs:
+                actual.append((net.bit,*driver(net.bit,None),sink.name,sink.pin))
+    expected=[(net.bit,net.source.name,net.source.pin,sink.name,sink.pin)
+              for net in original.nets for sink in net.sinks]
+    if sorted(actual)!=sorted(expected):
+        raise ValueError("hierarchy changed or dropped an original signal sink")
+    constants=[]
+    for pos in original.constant_high:
+        if pos in root_positions:
+            constants.append(root_positions[pos])
+        else:
+            found=False
+            for name,base in original.cell_origins.items():
+                for pin in template_for(original.cell_types[name]).pins.values():
+                    if pos==base.offset(pin.x,pin.y,pin.z):
+                        child=children[owners[name]].physical
+                        constants.append(child.cell_origins[name].offset(pin.x,pin.y,pin.z));found=True;break
+                if found:break
+            if not found:
+                raise ValueError("hierarchy cannot identify a constant terminal")
+    actual_constants=[*root.constant_high,*(point for child in children for point in child.physical.constant_high)]
+    if sorted(constants)!=sorted(actual_constants):
+        raise ValueError("hierarchy changed or dropped a constant terminal")
+    return {"cells":len(owners),"signal_sink_uses":len(expected),"constant_one_terminals":len(constants),
+            "clock_leaf_uses":sum(sink.pin=="C" and sink.name in original.cell_types and
+                                  template_for(original.cell_types[sink.name]).cell_type=="DFF"
+                                  for net in original.nets for sink in net.sinks),
+            "original_port_bits":sum(len(pins) for ports in (original.input_ports,original.output_ports)
+                                     for pins in ports.values()),
+            "scope":"driver/sink, cell, port and constant conservation; timing and geometry require separate checks"}
 
 
 def _placement_bounds(placements: Sequence[Placement]) -> Box:
@@ -300,7 +409,8 @@ def _placement_bounds(placements: Sequence[Placement]) -> Box:
 
 
 def stack_tiles(physical: PhysicalNetlist, groups: Sequence[Iterable[str]], *,
-                layer_pitch: int = 24, max_cells: int = 64) -> TileHierarchy:
+                layer_pitch: int = 24, max_cells: int = 64,
+                max_boundary_terminals: int = 256) -> TileHierarchy:
     """Route an explicit, exhaustive cell partition on stacked local tiers.
 
     This intentionally accepts already selected small groups. It does not run
@@ -316,6 +426,8 @@ def stack_tiles(physical: PhysicalNetlist, groups: Sequence[Iterable[str]], *,
         raise ValueError("tile groups must partition every native cell exactly once")
     if any(len(group)>max_cells for group in groups):
         raise ValueError("experimental tile exceeds its bounded cell budget")
+    if max_boundary_terminals<1:
+        raise ValueError("tile boundary budget must be positive")
     if layer_pitch<22:
         raise ValueError("stacked local tiers require at least 22 blocks of vertical pitch")
     if any(e.name.startswith("macro:") for net in physical.nets for e in (net.source,*net.sinks)):
@@ -323,6 +435,13 @@ def stack_tiles(physical: PhysicalNetlist, groups: Sequence[Iterable[str]], *,
     # Reject impossible tall stacks before allocating any escape geometry.
     if physical.origin.y+(len(groups)-1)*layer_pitch+37>319:
         raise ValueError("stacked child and parent tiers exceed world build height")
+    for net in physical.nets:
+        clock_groups={owned[sink.name] for sink in net.sinks
+                      if sink.name in owned and sink.pin=="C"
+                      and template_for(physical.cell_types[sink.name]).cell_type=="DFF"}
+        source_group=owned.get(net.source.name)
+        if source_group in clock_groups and len(clock_groups)>1:
+            raise ValueError("internally generated clock has local and cross-tile leaves; global clock closure is required")
 
     children=[]
     for index,members in enumerate(groups):
@@ -358,14 +477,38 @@ def stack_tiles(physical: PhysicalNetlist, groups: Sequence[Iterable[str]], *,
             north_constant_high=tuple(p for p in physical.north_constant_high if p in cell_points),
             minimum_build_y=physical.minimum_build_y,
         )
+        if len(incoming)+len(outgoing)>max_boundary_terminals:
+            raise ValueError("child tile exceeds its boundary terminal budget")
         child=compact_tile(child_physical,max_cells=max_cells)
         child.balance_clock_routes()
         children.append(child)
 
+    child_blocks=[];boxes=[];endpoint_bounds={};access={}
+    for child in children:
+        blocks=list(child.iter_placements());child_blocks.extend(blocks)
+        bounds=_placement_bounds(blocks);boxes.append(bounds)
+        for ports in (child.physical.input_ports,child.physical.output_ports):
+            for pins in ports.values():
+                for pin in pins:
+                    access[pin]=("south",);endpoint_bounds[pin]=bounds
+    terminal_count=sum(len(pins) for ports in (physical.input_ports,physical.output_ports)
+                       for pins in ports.values())
+    parent_terminals=terminal_count+sum(len(child.physical.input_ports)+len(child.physical.output_ports)
+                                        for child in children)
+    if parent_terminals>max_boundary_terminals:
+        raise ValueError("parent tier exceeds its boundary terminal budget")
+    # A fixed 120-block apron admits the two-register demonstration but can
+    # trap larger parent interfaces between already allocated escape stairs
+    # and the child envelopes. Reserve one six-block escape lane per root
+    # terminal, based on the actual children, while keeping this tier bounded.
+    root_port_z=max(physical.origin.z+120,
+                    max(bounds.max.z for bounds in boxes)+6*(terminal_count+len(children)+1)+16)
+
     def root_ports(original: Mapping[str,tuple[Vec3,...]], first_slot: int):
         ports={};slot=first_slot
         for name,pins in original.items():
-            ports[name]=tuple(physical.origin.offset(8*(slot+index),1,120) for index in range(len(pins)))
+            ports[name]=tuple(Vec3(physical.origin.x+8*(slot+index),physical.origin.y+1,root_port_z)
+                              for index in range(len(pins)))
             slot+=len(pins)
         return ports
 
@@ -395,14 +538,6 @@ def stack_tiles(physical: PhysicalNetlist, groups: Sequence[Iterable[str]], *,
         north_constant_high=tuple(root_positions[p] for p in physical.north_constant_high if p in root_positions),
         minimum_build_y=physical.minimum_build_y,
     )
-    child_blocks=[];boxes=[];endpoint_bounds={};access={}
-    for child in children:
-        blocks=list(child.iter_placements());child_blocks.extend(blocks)
-        bounds=_placement_bounds(blocks);boxes.append(bounds)
-        for ports in (child.physical.input_ports,child.physical.output_ports):
-            for pins in ports.values():
-                for pin in pins:
-                    access[pin]=("south",);endpoint_bounds[pin]=bounds
     for ports in (inputs,outputs):
         for pins in ports.values():
             for pin in pins:
@@ -418,4 +553,6 @@ def stack_tiles(physical: PhysicalNetlist, groups: Sequence[Iterable[str]], *,
                for child in children if net.bit in child.clock_delays and f"n{net.bit}" in child.physical.input_ports}
         if tails:
             parent.balance_net(net.bit,tails)
-    return TileHierarchy(tuple(children),parent)
+    hierarchy=TileHierarchy(tuple(children),parent)
+    hierarchy.conservation=audit_hierarchy(physical,hierarchy)
+    return hierarchy

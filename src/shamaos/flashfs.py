@@ -24,6 +24,15 @@ JOURNAL_MAGIC = 0x314E524A  # little-endian JRN1
 JOURNAL_ENTRY_OFFSET = 72
 JOURNAL_CHECKSUM_OFFSET = 136
 JOURNAL_CHECKSUM_SEED = 0x53464A31
+# Miner records use a second redo format in the same reserved superblock tail.
+# The committed marker selects the format; an uncommitted payload is ignored.
+# No new extent is needed and the complete 32 KiB history stays contiguous.
+HISTORY_JOURNAL_MAGIC = 0x324E524A  # little-endian JRN2
+HISTORY_JOURNAL_CHECKSUM_SEED = 0x53464A32
+HISTORY_JOURNAL_CHECKSUM_OFFSET = 84
+HISTORY_JOURNAL_DATA_OFFSET = 88
+HISTORY_RECORD_BYTES = 128
+HISTORY_RECORD_COUNT = 256
 
 
 class FileType(IntEnum):
@@ -314,6 +323,30 @@ class ShamaFS:
             if name == old:
                 self._handles[handle] = (owner, new)
 
+    def write_history_record(self, name: str, slot: int, data: bytes) -> None:
+        """Model the controller's bounded, journaled Miner record update.
+
+        Runtime stages one complete 128-byte record in already reserved
+        metadata and replays it only after its commit marker. The host model
+        exposes the resulting atomic update; deserialize separately handles
+        every interrupted on-disk state of that transaction.
+        """
+        name = self._normalize_name(name)
+        old = self.stat(name)
+        self._check_mutable(name)
+        if not 0 <= slot < HISTORY_RECORD_COUNT or len(data) > HISTORY_RECORD_BYTES:
+            raise ValueError("invalid history record range")
+        if (name != "miner-history.log" or old.file_type != FileType.LOG
+                or len(old.data) != HISTORY_RECORD_COUNT * HISTORY_RECORD_BYTES):
+            raise ValueError("canonical Miner history file must retain all 256 records")
+        self._check_write_reservation()
+        offset = slot * HISTORY_RECORD_BYTES
+        replacement = old.data[:offset] + bytes(data).ljust(HISTORY_RECORD_BYTES, b"\0") + old.data[offset + HISTORY_RECORD_BYTES:]
+        generation = (old.generation + 1) & 0xFFFFFFFF
+        self._files[name] = FileEntry(name, old.file_type, replacement, old.flags,
+                                      old.start_block, old.block_count, generation)
+        self.generation = max(self.generation, generation)
+
     def delete(self, name: str) -> None:
         name = self._normalize_name(name)
         entry = self.stat(name)
@@ -392,9 +425,18 @@ class ShamaFS:
             checksum ^= word
         return checksum
 
+    @staticmethod
+    def history_journal_checksum(index: int, slot: int, start: int, generation: int, record: bytes) -> int:
+        if len(record) != HISTORY_RECORD_BYTES:
+            raise ValueError("invalid history journal record length")
+        checksum = HISTORY_JOURNAL_CHECKSUM_SEED ^ index ^ slot ^ start ^ generation
+        for word in struct.unpack("<32I", record):
+            checksum ^= word
+        return checksum
+
     @classmethod
     def recover_image(cls, image: bytes) -> bytes:
-        """Replay a committed metadata entry and rebuild the allocation bitmap.
+        """Replay a committed metadata/record transaction and rebuild allocation.
 
         Each acknowledged DMA word is the transaction interruption boundary.
         The journal checksum detects incomplete/torn payloads; a malformed
@@ -420,14 +462,46 @@ class ShamaFS:
         working = bytearray(image)
         marker, journal_index = struct.unpack_from("<II", image, JOURNAL_OFFSET)
         if marker:
-            if marker != JOURNAL_MAGIC or journal_index >= MAX_FILES:
+            if marker not in (JOURNAL_MAGIC, HISTORY_JOURNAL_MAGIC) or journal_index >= MAX_FILES:
                 raise ValueError("invalid committed journal header")
-            payload = bytes(image[JOURNAL_ENTRY_OFFSET:JOURNAL_ENTRY_OFFSET + ENTRY_SIZE])
-            checksum, = struct.unpack_from("<I", image, JOURNAL_CHECKSUM_OFFSET)
-            if checksum != cls.journal_checksum(journal_index, payload):
-                raise ValueError("committed journal checksum mismatch")
             off = table_start * block_size + journal_index * ENTRY_SIZE
-            working[off:off + ENTRY_SIZE] = payload
+            if marker == JOURNAL_MAGIC:
+                payload = bytes(image[JOURNAL_ENTRY_OFFSET:JOURNAL_ENTRY_OFFSET + ENTRY_SIZE])
+                checksum, = struct.unpack_from("<I", image, JOURNAL_CHECKSUM_OFFSET)
+                if checksum != cls.journal_checksum(journal_index, payload):
+                    raise ValueError("committed journal checksum mismatch")
+                working[off:off + ENTRY_SIZE] = payload
+            else:
+                slot, start, prior_generation, checksum = struct.unpack_from("<4I", image, 72)
+                record = bytes(image[HISTORY_JOURNAL_DATA_OFFSET:HISTORY_JOURNAL_DATA_OFFSET + HISTORY_RECORD_BYTES])
+                if checksum != cls.history_journal_checksum(journal_index, slot, start, prior_generation, record):
+                    raise ValueError("committed history journal checksum mismatch")
+                fields = struct.unpack_from(ENTRY_FMT, image, off)
+                in_use, ftype, _, size, actual_start, count, fgen, name_len, name_raw = fields
+                next_generation = (prior_generation + 1) & 0xFFFFFFFF
+                if (slot >= HISTORY_RECORD_COUNT or start < data_start or start >= block_count
+                        or size != HISTORY_RECORD_COUNT * HISTORY_RECORD_BYTES
+                        or count != math.ceil(size / block_size) or start + count > block_count
+                        or in_use != 1 or ftype != FileType.LOG or actual_start != start
+                        or fgen not in (prior_generation, next_generation)
+                        or name_len != 17 or name_raw[:name_len] != b"miner-history.log"):
+                    raise ValueError("committed history journal file identity/range mismatch")
+                for other_index in range(MAX_FILES):
+                    other = struct.unpack_from(ENTRY_FMT, image, table_start * block_size + other_index * ENTRY_SIZE)
+                    live, other_type, _, other_size, other_start, other_count, _, other_len, _ = other
+                    if live:
+                        if (live != 1 or other_type > FileType.DIR or not 1 <= other_len <= 43
+                                or other_size > len(image) or other_count != math.ceil(other_size / block_size)
+                                or (other_count == 0 and other_start != 0)
+                                or (other_count and (other_start < data_start or other_start + other_count > block_count))
+                                or (other_type == FileType.DIR and other_size != 0)):
+                            raise ValueError("committed history journal ownership metadata is invalid")
+                        if (other_index != journal_index and other_count
+                                and other_start < start + count and start < other_start + other_count):
+                            raise ValueError("committed history journal target overlaps another file")
+                target = start * block_size + slot * HISTORY_RECORD_BYTES
+                working[target:target + HISTORY_RECORD_BYTES] = record
+                struct.pack_into("<I", working, off + 16, next_generation)
             fs.clean = True
 
         # The bitmap is reconstructible metadata. Never trust leaked allocations

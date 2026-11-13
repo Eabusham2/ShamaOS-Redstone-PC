@@ -46,9 +46,7 @@ class MinerMachine(FirmwareMachine):
             self.fs.write_file('miner-state.cfg',bytes(self.memory[a:a+b]));self.regs[1]=b;self.regs[2]=0
         elif sid==SYSCALLS['SYS_MINER_LOG_RESULT']:
             assert b==128 and c<256
-            history=bytearray(self.fs.read_file('miner-history.log'))
-            history[c*128:(c+1)*128]=self.memory[a:a+b]
-            self.fs.write_file('miner-history.log',bytes(history));self.regs[1]=b;self.regs[2]=0
+            self.fs.write_history_record('miner-history.log',c,bytes(self.memory[a:a+b]));self.regs[1]=b;self.regs[2]=0
         elif sid==SYSCALLS['SYS_MINER_LOAD_HISTORY']:
             data=self.fs.read_file('miner-history.log')[a*128:a*128+c]
             self.memory[b:b+len(data)]=data;self.regs[1]=len(data);self.regs[2]=0

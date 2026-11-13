@@ -49,11 +49,12 @@ def source_provenance() -> dict[str, object]:
              "src/shamaos/hardware/memory_backbone.py", "src/shamaos/hardware/memory_streaming.py",
              "src/shamaos/hardware/binary_row_decoder.py", "src/shamaos/hardware/vertical_wiring.py",
              "src/shamaos/hardware/memory_interfaces.py", "src/shamaos/hardware/interfaces.py",
-             "src/shamaos/hardware/controls.py", "src/shamaos/hardware/display.py",
+             "src/shamaos/hardware/controls.py", "src/shamaos/hardware/display.py", "src/shamaos/hardware/viewing.py",
              "src/shamaos/hardware/debug.py", "src/shamaos/hardware/clock.py", "src/shamaos/hardware/routing.py",
-             "src/shamaos/hardware/external_router.py", "src/shamaos/system_build.py",
+             "src/shamaos/hardware/external_router.py", "src/shamaos/hardware/local_router.py", "src/shamaos/system_build.py",
              "src/shamaos/memory_fixture.py", "src/shamaos/physical_resources.py",
-             "src/shamaos/resource_accounting.py", "src/shamaos/machine_spec.py", "configs/default.toml"]
+             "src/shamaos/resource_accounting.py", "src/shamaos/machine_spec.py", "configs/default.toml",
+             "rtl/shama_display_bridge.sv", "rtl/shama_gpu.sv", "rtl/shama_soc.sv", "rtl/shama_font5x7.sv"]
     result: dict[str, object] = {
         "files_sha256": {name: hashlib.sha256((root / name).read_bytes()).hexdigest() for name in files if (root / name).is_file()},
     }
@@ -334,6 +335,7 @@ def geometry_from_config(config: dict) -> MachineGeometry:
         **memory_placement_options(config),
         pixel_pitch_x=d.get("pixel_pitch_x", 5),
         pixel_pitch_y=d.get("pixel_pitch_y", 4),
+        display_orientation=d.get("orientation", "horizontal"),
     )
 
 
@@ -449,6 +451,7 @@ def physical_sections(config: dict) -> Iterator[PhysicalSection]:
             height=g.display_height,
             pixel_pitch_x=g.pixel_pitch_x,
             pixel_pitch_y=g.pixel_pitch_y,
+            orientation=g.display_orientation,
         )
 
         def display_factory() -> Iterator[Placement]:
@@ -464,6 +467,8 @@ def physical_sections(config: dict) -> Iterator[PhysicalSection]:
                 "height": panel.height,
                 "physical_width": panel.physical_width,
                 "physical_height": panel.physical_height,
+                "orientation": panel.orientation,
+                "physical_depth": panel.depth,
             },
         )
 

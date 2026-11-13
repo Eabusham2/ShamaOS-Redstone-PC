@@ -3,7 +3,7 @@ from collections import deque
 import pytest
 
 from shamaos.hardware.controls import (
-    KEYBOARD_OFFSET, control_actuators, control_bounds, control_interaction_bounds,
+    KEYBOARD_OFFSET, control_actuators, control_bounds, control_collision_bounds, control_interaction_bounds,
     control_interaction_descriptor, control_ports, control_route_access,
     iter_controls, keyboard_buttons,
 )
@@ -24,7 +24,7 @@ def test_all_79_controls_are_reachable_on_one_connected_deck_above_grass(surface
     # A standing player's two-block space is clear above every connected
     # deck position; buttons/levers have no collision box. The slim torch
     # columns occupy the deliberately omitted floor cells between keys.
-    deck={kb.offset(x,1,z) for x in range(16) for z in range(-1,15)
+    deck={kb.offset(x,1,z) for x in range(16) for z in range(-1,21)
           if kb.offset(x,0,z) in solid
           and kb.offset(x,1,z) not in solid and kb.offset(x,2,z) not in solid}
     reached={kb.offset(1,1,-1)}
@@ -36,6 +36,7 @@ def test_all_79_controls_are_reachable_on_one_connected_deck_above_grass(surface
             if neighbor in deck and neighbor not in reached:
                 reached.add(neighbor);pending.append(neighbor)
     assert reached==deck
+    assert kb.offset(7,1,20) in reached
     buttons=[point for row in keyboard_buttons(origin) for point in row]
     actuators=[*buttons,*control_actuators(origin).values()]
     assert len(set(actuators))==79
@@ -48,6 +49,9 @@ def test_all_79_controls_are_reachable_on_one_connected_deck_above_grass(surface
     assert envelope.min==Vec3(min(p.x for p in blocks),min(p.y for p in blocks),min(p.z for p in blocks))
     assert envelope.max==Vec3(max(p.x for p in blocks),max(p.y for p in blocks),max(p.z for p in blocks))
     assert envelope.min.y==surface+1
+    collision_boxes=control_collision_bounds(origin)
+    assert all(any(all(getattr(box.min,axis)<=getattr(p,axis)<=getattr(box.max,axis)
+                       for axis in ("x","y","z")) for box in collision_boxes) for p in blocks)
     interaction=control_interaction_bounds(origin)
     assert interaction.size.x==interaction.size.z==16
     assert interaction.min==Vec3(min(p.x for p in actuators),min(p.y for p in actuators),min(p.z for p in actuators))
@@ -55,7 +59,7 @@ def test_all_79_controls_are_reachable_on_one_connected_deck_above_grass(surface
     descriptor=control_interaction_descriptor(origin)
     assert descriptor["activation_count"]==79
     assert descriptor["stairs_lowest_support_y"]==surface+1
-    assert len({(point.x//16,point.z//16) for point in blocks})==33
+    assert len({(point.x//16,point.z//16) for point in blocks})==47
 
 
 def test_exported_console_ports_and_access_contract_match_literal_backend():

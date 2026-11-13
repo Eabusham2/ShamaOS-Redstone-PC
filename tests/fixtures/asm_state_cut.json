@@ -1,0 +1,5200 @@
+{
+  "modules": {
+    "asm_state_pair": {
+      "ports": {
+        "i2": {
+          "direction": "input",
+          "bits": [
+            2
+          ]
+        },
+        "i3": {
+          "direction": "input",
+          "bits": [
+            3
+          ]
+        },
+        "i69250": {
+          "direction": "input",
+          "bits": [
+            69250
+          ]
+        },
+        "i69264": {
+          "direction": "input",
+          "bits": [
+            69264
+          ]
+        },
+        "i69385": {
+          "direction": "input",
+          "bits": [
+            69385
+          ]
+        },
+        "i70803": {
+          "direction": "input",
+          "bits": [
+            70803
+          ]
+        },
+        "i70806": {
+          "direction": "input",
+          "bits": [
+            70806
+          ]
+        },
+        "i70809": {
+          "direction": "input",
+          "bits": [
+            70809
+          ]
+        },
+        "i70811": {
+          "direction": "input",
+          "bits": [
+            70811
+          ]
+        },
+        "i70838": {
+          "direction": "input",
+          "bits": [
+            70838
+          ]
+        },
+        "i70859": {
+          "direction": "input",
+          "bits": [
+            70859
+          ]
+        },
+        "i70860": {
+          "direction": "input",
+          "bits": [
+            70860
+          ]
+        },
+        "i70862": {
+          "direction": "input",
+          "bits": [
+            70862
+          ]
+        },
+        "i70863": {
+          "direction": "input",
+          "bits": [
+            70863
+          ]
+        },
+        "i70865": {
+          "direction": "input",
+          "bits": [
+            70865
+          ]
+        },
+        "i70866": {
+          "direction": "input",
+          "bits": [
+            70866
+          ]
+        },
+        "i70871": {
+          "direction": "input",
+          "bits": [
+            70871
+          ]
+        },
+        "i70878": {
+          "direction": "input",
+          "bits": [
+            70878
+          ]
+        },
+        "i70880": {
+          "direction": "input",
+          "bits": [
+            70880
+          ]
+        },
+        "i70881": {
+          "direction": "input",
+          "bits": [
+            70881
+          ]
+        },
+        "i70883": {
+          "direction": "input",
+          "bits": [
+            70883
+          ]
+        },
+        "i70884": {
+          "direction": "input",
+          "bits": [
+            70884
+          ]
+        },
+        "i70886": {
+          "direction": "input",
+          "bits": [
+            70886
+          ]
+        },
+        "i70887": {
+          "direction": "input",
+          "bits": [
+            70887
+          ]
+        },
+        "i71845": {
+          "direction": "input",
+          "bits": [
+            71845
+          ]
+        },
+        "i306595": {
+          "direction": "input",
+          "bits": [
+            306595
+          ]
+        },
+        "i646399": {
+          "direction": "input",
+          "bits": [
+            646399
+          ]
+        },
+        "i646992": {
+          "direction": "input",
+          "bits": [
+            646992
+          ]
+        },
+        "i655316": {
+          "direction": "input",
+          "bits": [
+            655316
+          ]
+        },
+        "i655320": {
+          "direction": "input",
+          "bits": [
+            655320
+          ]
+        },
+        "o362": {
+          "direction": "output",
+          "bits": [
+            362
+          ]
+        },
+        "o363": {
+          "direction": "output",
+          "bits": [
+            363
+          ]
+        },
+        "o69253": {
+          "direction": "output",
+          "bits": [
+            69253
+          ]
+        },
+        "o69442": {
+          "direction": "output",
+          "bits": [
+            69442
+          ]
+        },
+        "o69452": {
+          "direction": "output",
+          "bits": [
+            69452
+          ]
+        },
+        "o70813": {
+          "direction": "output",
+          "bits": [
+            70813
+          ]
+        },
+        "o70868": {
+          "direction": "output",
+          "bits": [
+            70868
+          ]
+        }
+      },
+      "cells": {
+        "$auto$aigmap.cc:123:execute$1302924": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              361
+            ],
+            "B": [
+              362
+            ],
+            "Y": [
+              363
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$1588932": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              70806
+            ],
+            "B": [
+              70803
+            ],
+            "Y": [
+              70810
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$1588940": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              70809
+            ],
+            "B": [
+              70811
+            ],
+            "Y": [
+              70812
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$1588948": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              69253
+            ],
+            "B": [
+              70813
+            ],
+            "Y": [
+              70814
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$1588956": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              70812
+            ],
+            "B": [
+              70810
+            ],
+            "Y": [
+              70815
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$1588964": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              70814
+            ],
+            "B": [
+              70815
+            ],
+            "Y": [
+              70816
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$1589132": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              70859
+            ],
+            "B": [
+              70860
+            ],
+            "Y": [
+              70861
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$1589140": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              70862
+            ],
+            "B": [
+              70863
+            ],
+            "Y": [
+              70864
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$1589148": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              70865
+            ],
+            "B": [
+              70866
+            ],
+            "Y": [
+              70867
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$1589156": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              70868
+            ],
+            "B": [
+              70869
+            ],
+            "Y": [
+              70870
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$1589164": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              70861
+            ],
+            "B": [
+              70871
+            ],
+            "Y": [
+              70872
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$1589172": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              70867
+            ],
+            "B": [
+              70864
+            ],
+            "Y": [
+              70873
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$1589180": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              70874
+            ],
+            "B": [
+              70870
+            ],
+            "Y": [
+              70875
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$1589188": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              70873
+            ],
+            "B": [
+              70872
+            ],
+            "Y": [
+              70876
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$1589196": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              70875
+            ],
+            "B": [
+              70876
+            ],
+            "Y": [
+              70877
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$1589204": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              70838
+            ],
+            "B": [
+              70878
+            ],
+            "Y": [
+              70879
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$1589212": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              70880
+            ],
+            "B": [
+              70881
+            ],
+            "Y": [
+              70882
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$1589220": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              70883
+            ],
+            "B": [
+              70884
+            ],
+            "Y": [
+              70885
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$1589228": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              70886
+            ],
+            "B": [
+              70887
+            ],
+            "Y": [
+              70888
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$1589236": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              70882
+            ],
+            "B": [
+              70879
+            ],
+            "Y": [
+              70889
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$1589244": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              70888
+            ],
+            "B": [
+              70885
+            ],
+            "Y": [
+              70890
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$1589252": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              70891
+            ],
+            "B": [
+              70892
+            ],
+            "Y": [
+              70893
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$1589260": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              70890
+            ],
+            "B": [
+              70889
+            ],
+            "Y": [
+              70894
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$1589268": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              70893
+            ],
+            "B": [
+              70894
+            ],
+            "Y": [
+              70895
+            ]
+          }
+        },
+        "$auto$aigmap.cc:123:execute$1594564": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              69250
+            ],
+            "B": [
+              71845
+            ],
+            "Y": [
+              70813
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$1588966": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              70816
+            ],
+            "Y": [
+              361
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$1589154": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              646399
+            ],
+            "Y": [
+              70869
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$1589176": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              646401
+            ],
+            "Y": [
+              70874
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$1589198": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              70877
+            ],
+            "Y": [
+              646402
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$1589248": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              646409
+            ],
+            "Y": [
+              70891
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$1589250": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              646410
+            ],
+            "Y": [
+              70892
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$1589270": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              70895
+            ],
+            "Y": [
+              646411
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$1594576": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              646992
+            ],
+            "Y": [
+              70868
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$1614374": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              69385
+            ],
+            "Y": [
+              69253
+            ]
+          }
+        },
+        "$auto$aigmap.cc:132:execute$2279322": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              3
+            ],
+            "Y": [
+              362
+            ]
+          }
+        },
+        "$auto$ff.cc:266:slice$1284574": {
+          "hide_name": 1,
+          "type": "$_SDFF_PN0_",
+          "parameters": {},
+          "attributes": {
+            "always_ff": "00000000000000000000000000000001",
+            "src": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-Redstone-PC/rtl/shama_asm_accel.sv:543.5-956.8"
+          },
+          "port_directions": {
+            "C": "input",
+            "D": "input",
+            "Q": "output",
+            "R": "input"
+          },
+          "connections": {
+            "C": [
+              2
+            ],
+            "D": [
+              646411
+            ],
+            "Q": [
+              69442
+            ],
+            "R": [
+              363
+            ]
+          }
+        },
+        "$auto$ff.cc:266:slice$1284575": {
+          "hide_name": 1,
+          "type": "$_SDFF_PN0_",
+          "parameters": {},
+          "attributes": {
+            "always_ff": "00000000000000000000000000000001",
+            "src": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-Redstone-PC/rtl/shama_asm_accel.sv:543.5-956.8"
+          },
+          "port_directions": {
+            "C": "input",
+            "D": "input",
+            "Q": "output",
+            "R": "input"
+          },
+          "connections": {
+            "C": [
+              2
+            ],
+            "D": [
+              646402
+            ],
+            "Q": [
+              69452
+            ],
+            "R": [
+              363
+            ]
+          }
+        },
+        "$auto$simplemap.cc:75:simplemap_bitop$782715": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {
+            "src": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-Redstone-PC/rtl/shama_asm_accel.sv:0.0-0.0|/workspace/scratch/fb0eaf1c89fe/ShamaOS-Redstone-PC/rtl/shama_asm_accel.sv:565.13-954.20|/workspace/shama-tools/hdl-tools/usr/bin/../share/yosys/techmap.v:585.44-585.84"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              655316
+            ],
+            "B": [
+              69264
+            ],
+            "Y": [
+              646410
+            ]
+          }
+        },
+        "$auto$simplemap.cc:75:simplemap_bitop$782723": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {
+            "src": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-Redstone-PC/rtl/shama_asm_accel.sv:0.0-0.0|/workspace/scratch/fb0eaf1c89fe/ShamaOS-Redstone-PC/rtl/shama_asm_accel.sv:565.13-954.20|/workspace/shama-tools/hdl-tools/usr/bin/../share/yosys/techmap.v:585.44-585.84"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              306595
+            ],
+            "B": [
+              69385
+            ],
+            "Y": [
+              646401
+            ]
+          }
+        },
+        "$auto$simplemap.cc:75:simplemap_bitop$782724": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {},
+          "attributes": {
+            "src": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-Redstone-PC/rtl/shama_asm_accel.sv:0.0-0.0|/workspace/scratch/fb0eaf1c89fe/ShamaOS-Redstone-PC/rtl/shama_asm_accel.sv:565.13-954.20|/workspace/shama-tools/hdl-tools/usr/bin/../share/yosys/techmap.v:585.44-585.84"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              655320
+            ],
+            "B": [
+              69385
+            ],
+            "Y": [
+              646409
+            ]
+          }
+        }
+      },
+      "netnames": {}
+    }
+  },
+  "cut_boundary": {
+    "selected_cells": 40,
+    "incoming": {
+      "2": {
+        "selected_consumers": [
+          {
+            "cell": "$auto$ff.cc:266:slice$1284574",
+            "pin": "C",
+            "index": 0
+          },
+          {
+            "cell": "$auto$ff.cc:266:slice$1284575",
+            "pin": "C",
+            "index": 0
+          }
+        ],
+        "parent_ports": [
+          {
+            "port": "clk",
+            "index": 0,
+            "direction": "input"
+          }
+        ]
+      },
+      "3": {
+        "selected_consumers": [
+          {
+            "cell": "$auto$aigmap.cc:132:execute$2279322",
+            "pin": "A",
+            "index": 0
+          }
+        ],
+        "parent_ports": [
+          {
+            "port": "rst",
+            "index": 0,
+            "direction": "input"
+          }
+        ]
+      },
+      "69250": {
+        "selected_consumers": [
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1594564",
+            "pin": "A",
+            "index": 0
+          }
+        ],
+        "parent_ports": []
+      },
+      "69264": {
+        "selected_consumers": [
+          {
+            "cell": "$auto$simplemap.cc:75:simplemap_bitop$782715",
+            "pin": "B",
+            "index": 0
+          }
+        ],
+        "parent_ports": []
+      },
+      "69385": {
+        "selected_consumers": [
+          {
+            "cell": "$auto$aigmap.cc:132:execute$1614374",
+            "pin": "A",
+            "index": 0
+          },
+          {
+            "cell": "$auto$simplemap.cc:75:simplemap_bitop$782723",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$simplemap.cc:75:simplemap_bitop$782724",
+            "pin": "B",
+            "index": 0
+          }
+        ],
+        "parent_ports": []
+      },
+      "70803": {
+        "selected_consumers": [
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1588932",
+            "pin": "B",
+            "index": 0
+          }
+        ],
+        "parent_ports": []
+      },
+      "70806": {
+        "selected_consumers": [
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1588932",
+            "pin": "A",
+            "index": 0
+          }
+        ],
+        "parent_ports": []
+      },
+      "70809": {
+        "selected_consumers": [
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1588940",
+            "pin": "A",
+            "index": 0
+          }
+        ],
+        "parent_ports": []
+      },
+      "70811": {
+        "selected_consumers": [
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1588940",
+            "pin": "B",
+            "index": 0
+          }
+        ],
+        "parent_ports": []
+      },
+      "70838": {
+        "selected_consumers": [
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1589204",
+            "pin": "A",
+            "index": 0
+          }
+        ],
+        "parent_ports": []
+      },
+      "70859": {
+        "selected_consumers": [
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1589132",
+            "pin": "A",
+            "index": 0
+          }
+        ],
+        "parent_ports": []
+      },
+      "70860": {
+        "selected_consumers": [
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1589132",
+            "pin": "B",
+            "index": 0
+          }
+        ],
+        "parent_ports": []
+      },
+      "70862": {
+        "selected_consumers": [
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1589140",
+            "pin": "A",
+            "index": 0
+          }
+        ],
+        "parent_ports": []
+      },
+      "70863": {
+        "selected_consumers": [
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1589140",
+            "pin": "B",
+            "index": 0
+          }
+        ],
+        "parent_ports": []
+      },
+      "70865": {
+        "selected_consumers": [
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1589148",
+            "pin": "A",
+            "index": 0
+          }
+        ],
+        "parent_ports": []
+      },
+      "70866": {
+        "selected_consumers": [
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1589148",
+            "pin": "B",
+            "index": 0
+          }
+        ],
+        "parent_ports": []
+      },
+      "70871": {
+        "selected_consumers": [
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1589164",
+            "pin": "B",
+            "index": 0
+          }
+        ],
+        "parent_ports": []
+      },
+      "70878": {
+        "selected_consumers": [
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1589204",
+            "pin": "B",
+            "index": 0
+          }
+        ],
+        "parent_ports": []
+      },
+      "70880": {
+        "selected_consumers": [
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1589212",
+            "pin": "A",
+            "index": 0
+          }
+        ],
+        "parent_ports": []
+      },
+      "70881": {
+        "selected_consumers": [
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1589212",
+            "pin": "B",
+            "index": 0
+          }
+        ],
+        "parent_ports": []
+      },
+      "70883": {
+        "selected_consumers": [
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1589220",
+            "pin": "A",
+            "index": 0
+          }
+        ],
+        "parent_ports": []
+      },
+      "70884": {
+        "selected_consumers": [
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1589220",
+            "pin": "B",
+            "index": 0
+          }
+        ],
+        "parent_ports": []
+      },
+      "70886": {
+        "selected_consumers": [
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1589228",
+            "pin": "A",
+            "index": 0
+          }
+        ],
+        "parent_ports": []
+      },
+      "70887": {
+        "selected_consumers": [
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1589228",
+            "pin": "B",
+            "index": 0
+          }
+        ],
+        "parent_ports": []
+      },
+      "71845": {
+        "selected_consumers": [
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1594564",
+            "pin": "B",
+            "index": 0
+          }
+        ],
+        "parent_ports": []
+      },
+      "306595": {
+        "selected_consumers": [
+          {
+            "cell": "$auto$simplemap.cc:75:simplemap_bitop$782723",
+            "pin": "A",
+            "index": 0
+          }
+        ],
+        "parent_ports": []
+      },
+      "646399": {
+        "selected_consumers": [
+          {
+            "cell": "$auto$aigmap.cc:132:execute$1589154",
+            "pin": "A",
+            "index": 0
+          }
+        ],
+        "parent_ports": []
+      },
+      "646992": {
+        "selected_consumers": [
+          {
+            "cell": "$auto$aigmap.cc:132:execute$1594576",
+            "pin": "A",
+            "index": 0
+          }
+        ],
+        "parent_ports": []
+      },
+      "655316": {
+        "selected_consumers": [
+          {
+            "cell": "$auto$simplemap.cc:75:simplemap_bitop$782715",
+            "pin": "A",
+            "index": 0
+          }
+        ],
+        "parent_ports": []
+      },
+      "655320": {
+        "selected_consumers": [
+          {
+            "cell": "$auto$simplemap.cc:75:simplemap_bitop$782724",
+            "pin": "A",
+            "index": 0
+          }
+        ],
+        "parent_ports": []
+      }
+    },
+    "outgoing": {
+      "362": {
+        "selected_driver": {
+          "cell": "$auto$aigmap.cc:132:execute$2279322",
+          "pin": "Y",
+          "index": 0
+        },
+        "outside_consumers": [
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1567508",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1567516",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1567524",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1567532",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1567540",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1567548",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1567556",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1567564",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1567572",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1567596",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1567612",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1567628",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1567644",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1567660",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1567676",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1567692",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1567708",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1567724",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1567740",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1567764",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1567780",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1567796",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1567812",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1567828",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1567844",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1567860",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1567876",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1567892",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1567908",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1567924",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1567940",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1567956",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1567972",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1567996",
+            "pin": "A",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1568004",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1568020",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1568036",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1568052",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1568076",
+            "pin": "A",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1568084",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1568100",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1568116",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1568132",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1568148",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1568164",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1568180",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1568196",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1568212",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1568228",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1568244",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1568260",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1568276",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1568292",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1568308",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1568324",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1572684",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1572700",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1572724",
+            "pin": "A",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1572740",
+            "pin": "A",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1572756",
+            "pin": "A",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1572772",
+            "pin": "A",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1572788",
+            "pin": "A",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1572796",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1572812",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1572828",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1572844",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1572860",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1572876",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1572892",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1572908",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1572924",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1572940",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1583612",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1583644",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1614846",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1615868",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1616918",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1617324",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1617464",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1617478",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1617492",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1617506",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1617520",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1617534",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1617548",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1617562",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1619074",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1619200",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1619494",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1619508",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1619522",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1619536",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1619550",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1619564",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1619578",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1619592",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1620950",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1621076",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1621090",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1621104",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1621118",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1621132",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1621146",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1621160",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1621174",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1623498",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1623946",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1624072",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1624086",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1624100",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1624114",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1624128",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1624142",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1624156",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1624170",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1625220",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1626606",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1627040",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1627180",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1627194",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1627208",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1627222",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1627712",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1627726",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1627740",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1627754",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1627768",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1627782",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1627796",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1627810",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1669236",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1669250",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1669264",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1669278",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1669292",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1669306",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1669320",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1669334",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1669460",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1669586",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1670720",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1670734",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1670748",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1670762",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1670776",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1670790",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1670804",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1670818",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1670930",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1731746",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1791456",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1793612",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1793626",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1793640",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1793654",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1793668",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1793682",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1793696",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1793710",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1797364",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1797378",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1797392",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1797406",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1797420",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1797434",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1797448",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1797462",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1797476",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1797490",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1797504",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1797518",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1797532",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1797546",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1797560",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1797574",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1797588",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1797602",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1797616",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1797630",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1797644",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1797658",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1797672",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1797686",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1797700",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1797714",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1797728",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1797742",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1797756",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1797770",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1797784",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1797798",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1849598",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1907586",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1909168",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1909182",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1909196",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1909210",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1909224",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1909238",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1909252",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1909266",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1912920",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1912934",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1912948",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1912962",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1912976",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1912990",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1913004",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1913018",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1913032",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1913046",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1913060",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1913074",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1913088",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1913102",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1913116",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1913130",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1913144",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1913158",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1913172",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1913186",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1913200",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1913214",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1913228",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1913242",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1913256",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1913270",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1913284",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1913298",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1913312",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1913326",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1913340",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1913354",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1971412",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2030170",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2031528",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2031542",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2031556",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2031570",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2031584",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2031598",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2031612",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2031626",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2035280",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2035294",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2035308",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2035322",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2035336",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2035350",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2035364",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2035378",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2035392",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2035406",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2035420",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2035434",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2035448",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2035462",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2035476",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2035490",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2035504",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2035518",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2035532",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2035546",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2035560",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2035574",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2035588",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2035602",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2035616",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2035630",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2035644",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2035658",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2035672",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2035686",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2035700",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2035714",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2040222",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2040236",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2040250",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2040264",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2040278",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2040292",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2040306",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2040320",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2040334",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2040348",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2040362",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2040376",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2040390",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2040404",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2040418",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2040432",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2040446",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2040474",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2047656",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2051940",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2052276",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2052962",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2052976",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2052990",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2053004",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2053018",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2053032",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2053046",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2053060",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2053158",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2053256",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2074424",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2076244",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2079086",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2079156",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2082642",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2166572",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2166586",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2166600",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2166614",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2166628",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2166642",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2166656",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2166670",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2176736",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2176750",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2176764",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2176778",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2218162",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2218176",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2218190",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2218204",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2272944",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2273406",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2273420",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2273434",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2273448",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2273462",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2273476",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2273490",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2273504",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2273518",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2273532",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2273546",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2273560",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2273574",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2273588",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2273602",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2273616",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2273630",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2273644",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2273658",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2273672",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2273686",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2273700",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2273714",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2273728",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2273742",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2273756",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2273770",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2273784",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2273798",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2273812",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2273826",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2273840",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274302",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274316",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274330",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274344",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274358",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274372",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274386",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274400",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274414",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274428",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274442",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274456",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274470",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274484",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274498",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274512",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274526",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274540",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274554",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274568",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274582",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274596",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274610",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274624",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274638",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274652",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274666",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274680",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274694",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274708",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274722",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274750",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274764",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274778",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274792",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274806",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274820",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274834",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274848",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274862",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274876",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274890",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274904",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274918",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274932",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274946",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274960",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274974",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2274988",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275002",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275016",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275030",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275044",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275058",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275072",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275086",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275100",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275114",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275128",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275142",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275156",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275170",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275184",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275198",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275212",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275226",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275240",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275254",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275268",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275282",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275296",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275310",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275324",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275338",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275352",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275366",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275380",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275394",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275408",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275422",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275436",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275450",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275464",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275478",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275492",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275506",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275520",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275534",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275548",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275562",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275576",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275590",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275604",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275618",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275632",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275646",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275660",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275674",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275688",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275702",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275716",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275730",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275744",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275758",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275772",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275786",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275800",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275814",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275828",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275842",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275856",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275870",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275884",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275898",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275912",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275926",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275940",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275954",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275968",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275982",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2275996",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276010",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276024",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276038",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276052",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276066",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276080",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276094",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276108",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276122",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276136",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276150",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276164",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276178",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276192",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276206",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276220",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276234",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276248",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276262",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276276",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276290",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276304",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276318",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276332",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276346",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276360",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276374",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276388",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276402",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276416",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276430",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276444",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276458",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276472",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276486",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276500",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276514",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276528",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276542",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276556",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276570",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276584",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276598",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276612",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276626",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276640",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276654",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276668",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276682",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276696",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276710",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276724",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276738",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276752",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276766",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276780",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276794",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276808",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276822",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276836",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276850",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276864",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276878",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276892",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276906",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276920",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276934",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276948",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276962",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276976",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2276990",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277004",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277018",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277032",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277046",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277060",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277074",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277088",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277102",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277116",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277130",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277144",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277158",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277172",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277186",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277200",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277214",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277228",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277242",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277256",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277270",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277284",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277298",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277312",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277326",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277340",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277354",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277368",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277382",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277396",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277410",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277424",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277438",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277452",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277466",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277480",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277494",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277508",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277522",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277536",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277550",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277564",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277578",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277592",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277606",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277620",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277634",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277648",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277662",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277676",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277690",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277704",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277718",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277732",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277746",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277760",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277774",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277788",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277802",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277816",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277830",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277844",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277858",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277872",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277886",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277900",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277914",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277928",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277942",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277956",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277970",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277984",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2277998",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278012",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278026",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278040",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278054",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278068",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278082",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278096",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278110",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278124",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278138",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278152",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278166",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278180",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278194",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278208",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278222",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278236",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278250",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278264",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278278",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278292",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278306",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278320",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278334",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278348",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278362",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278376",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278390",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278404",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278418",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278432",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278446",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278460",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278474",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278488",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278502",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278516",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278530",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278544",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278558",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278572",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278586",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278600",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278614",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278628",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278642",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278656",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278670",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278684",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278698",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278712",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278726",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278740",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278754",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278768",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278782",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278796",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278810",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278824",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278838",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278852",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278866",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278880",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278894",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278908",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278922",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278936",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278950",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278964",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278978",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2278992",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2279006",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2279020",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2279034",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2279048",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2279062",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2279076",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2279090",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2279104",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2279118",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2279132",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2279146",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2279160",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2279174",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2279188",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2279202",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2279216",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2279230",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2279244",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2279258",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2279272",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2279286",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2279300",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2279314",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2279328",
+            "pin": "B",
+            "index": 0
+          }
+        ],
+        "parent_ports": []
+      },
+      "363": {
+        "selected_driver": {
+          "cell": "$auto$aigmap.cc:123:execute$1302924",
+          "pin": "Y",
+          "index": 0
+        },
+        "outside_consumers": [
+          {
+            "cell": "$auto$ff.cc:266:slice$1284576",
+            "pin": "R",
+            "index": 0
+          },
+          {
+            "cell": "$auto$ff.cc:266:slice$1284577",
+            "pin": "R",
+            "index": 0
+          }
+        ],
+        "parent_ports": []
+      },
+      "69253": {
+        "selected_driver": {
+          "cell": "$auto$aigmap.cc:132:execute$1614374",
+          "pin": "Y",
+          "index": 0
+        },
+        "outside_consumers": [
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1583348",
+            "pin": "A",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1583788",
+            "pin": "A",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1583796",
+            "pin": "A",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1584228",
+            "pin": "A",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1584236",
+            "pin": "A",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1584268",
+            "pin": "A",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1584356",
+            "pin": "A",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1590756",
+            "pin": "A",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1595540",
+            "pin": "A",
+            "index": 0
+          }
+        ],
+        "parent_ports": []
+      },
+      "69442": {
+        "selected_driver": {
+          "cell": "$auto$ff.cc:266:slice$1284574",
+          "pin": "Q",
+          "index": 0
+        },
+        "outside_consumers": [
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1584428",
+            "pin": "A",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2308938",
+            "pin": "A",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:132:execute$1614360",
+            "pin": "A",
+            "index": 0
+          }
+        ],
+        "parent_ports": []
+      },
+      "69452": {
+        "selected_driver": {
+          "cell": "$auto$ff.cc:266:slice$1284575",
+          "pin": "Q",
+          "index": 0
+        },
+        "outside_consumers": [
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1584484",
+            "pin": "B",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:123:execute$2308924",
+            "pin": "A",
+            "index": 0
+          },
+          {
+            "cell": "$auto$aigmap.cc:132:execute$1614362",
+            "pin": "A",
+            "index": 0
+          }
+        ],
+        "parent_ports": []
+      },
+      "70813": {
+        "selected_driver": {
+          "cell": "$auto$aigmap.cc:123:execute$1594564",
+          "pin": "Y",
+          "index": 0
+        },
+        "outside_consumers": [
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1594572",
+            "pin": "A",
+            "index": 0
+          }
+        ],
+        "parent_ports": []
+      },
+      "70868": {
+        "selected_driver": {
+          "cell": "$auto$aigmap.cc:132:execute$1594576",
+          "pin": "Y",
+          "index": 0
+        },
+        "outside_consumers": [
+          {
+            "cell": "$auto$aigmap.cc:123:execute$1594580",
+            "pin": "A",
+            "index": 0
+          }
+        ],
+        "parent_ports": []
+      }
+    },
+    "scope": "complete boundary of selected mapped cells; not a complete parent implementation"
+  },
+  "proof_source": {
+    "partition": "shama_asm_accel",
+    "artifact_sha256": "1865d54e9b17f9961a41e5e7e144e862645f8d75bb49447a23e3f0542805d860",
+    "artifact_name": "full-asm-fixed.json",
+    "source_revision": "restored historical mapping; not current-candidate mapping",
+    "register_output_bits": [
+      69442,
+      69452
+    ],
+    "selection": "two original state registers plus breadth-first input cone, capped at 40 raw cells; stop at other registers",
+    "scope": "bounded hierarchical routing and timing regression only; all original cut boundary uses retained"
+  }
+}

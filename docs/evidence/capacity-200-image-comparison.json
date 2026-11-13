@@ -1,0 +1,21 @@
+{
+  "status": "passed",
+  "source_checkpoint": "4e933a5",
+  "old_bytes": 256000,
+  "new_bytes": 204800,
+  "unchanged_files": 32,
+  "unchanged_fields": [
+    "used_bytes",
+    "files",
+    "boot_sha256",
+    "bundle_flash_offset",
+    "bundle_bytes",
+    "slot_flash_offsets",
+    "slot_binary_lengths",
+    "file_entry_indices"
+  ],
+  "used_bytes": 162304,
+  "write_limit_bytes": 194560,
+  "remaining_before_write_limit_bytes": 32256,
+  "scope": "Final image inventory and allocation; bounded history recovery runtime is verified separately"
+}

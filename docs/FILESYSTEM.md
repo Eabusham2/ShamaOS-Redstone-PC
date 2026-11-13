@@ -13,19 +13,19 @@ The current hardware accepts this version-1 geometry:
 | Region | Blocks | Byte offset | Size |
 |---|---:|---:|---:|
 | Superblock and transaction journal | 0 | `0x000000` | 256 bytes |
-| Allocation bitmap | 1 | `0x000100` | 256 bytes (125 meaningful) |
+| Allocation bitmap | 1 | `0x000100` | 256 bytes (100 meaningful) |
 | File table | 2–17 | `0x000200` | 4,096 bytes |
-| File data | 18–999 | `0x001200` | 251,392 bytes |
+| File data | 18–799 | `0x001200` | 200,192 bytes |
 
-Flash is **250 KiB**, divided into 1,000 blocks of 256 bytes. The table contains
+Flash is **200 KiB**, divided into 800 blocks of 256 bytes. The table contains
 64 fixed-size entries, including directories. Metadata reserves 4,608 bytes;
 installed files consume additional data blocks. Used space includes reserved
 metadata and allocated file blocks, so it is not the sum of logical file sizes.
 There is no second superblock or redundant metadata copy in this format.
 
-The 1,000-bit bitmap needs 32 32-bit controller words. Only the low eight bits of
-its final word represent real blocks; the remaining bits are outside the
-physical flash and must never be allocated or counted as free capacity.
+The 800-bit bitmap occupies 25 complete 32-bit controller words. Other supported
+test capacities can end with a partial word; bits outside their physical flash
+must never be allocated or counted as free capacity.
 
 The host constructor can create other geometries for tests. That does not make
 them bootable on the default controller: mount validates the fixed hardware
@@ -41,7 +41,7 @@ Python layout `<8sIIIIIIII`:
 | 0 | 8 | Magic `SHAMAFS1` |
 | 8 | 4 | Format version: 1 |
 | 12 | 4 | Block size: 256 |
-| 16 | 4 | Block count: 1,000 |
+| 16 | 4 | Block count: 800 |
 | 20 | 4 | Bitmap start block: 1 |
 | 24 | 4 | Table start block: 2 |
 | 28 | 4 | Data start block: 18 |
@@ -141,8 +141,8 @@ use the filesystem API so allocation and journaling stay consistent.
 
 ## 95% write protection
 
-The configured threshold is **950 of 1,000 blocks**, or **243,200 bytes
-(237.5 KiB / 95%)**, including metadata. Before reserving a copy-on-write extent,
+The configured threshold is **760 of 800 blocks**, or **194,560 bytes
+(190 KiB / 95%)**, including metadata. Before reserving a copy-on-write extent,
 the controller checks current allocation plus the complete temporary extent.
 A reservation above the limit returns **`E_PROTECTED = -8`** before any bitmap,
 file data or journal write. A transaction admitted exactly at the limit can
@@ -150,7 +150,7 @@ finish; subsequent write/create/rename requests are rejected. Existing files
 remain readable, and the OS presents a visible storage warning.
 
 Explicit DELETE and TRUNCATE-to-zero remain available to reclaim space. Mount
-recovery can replay the metadata journal and rebuild allocation even when an
+recovery can replay either journal format and rebuild allocation even when an
 imported image is already above the threshold. Reclaiming enough space releases
 protection. A zero-length WRITE is still an ordinary write request; callers
 must explicitly choose the reclamation operation when protection is active.
@@ -160,10 +160,19 @@ The OS reports protection after the serialized operation completes or when a
 request is refused, avoiding a transient-reservation warning for a save that
 successfully returns below the threshold.
 
+Miner history saves allocate no new extent, but still reject new writes when
+current allocation reaches the same 95% threshold. Recovery of an already
+committed record remains permitted so protection cannot strand a partial replay.
+
 ## Transaction and recovery protocol
 
-Mutation uses copy-on-write data plus a single-entry redo journal. The journal
-occupies otherwise unused bytes in block 0:
+The controller serializes mutations through one journal in reserved block 0.
+The commit marker selects the journal format. Ordinary file replacements and
+metadata changes use `JRN1`; the bounded Miner history update uses `JRN2` below.
+
+### Ordinary file and metadata transactions (`JRN1`)
+
+Ordinary mutations use copy-on-write data plus a single-entry redo journal:
 
 | Offset | Bytes | Meaning |
 |---:|---:|---|
@@ -208,6 +217,63 @@ fail even when the final file would fit after deleting its old copy. Contiguous
 allocation can also fail despite enough total free bytes. Such failures retain
 the last valid file and return an error; the GUI retains unsaved source.
 
+### Miner history record transactions (`JRN2`)
+
+`SYS_MINER_LOG_RESULT` replaces one complete 128-byte record within the existing
+32,768-byte history extent. It stages that record in the already reserved
+superblock instead of allocating and copying another 32 KiB history file.
+The file still contains all **256 complete records** and remains contiguous.
+No additional flash data block, RAM buffer or executable-cache space is reserved.
+
+| Offset | Bytes | Meaning |
+|---:|---:|---|
+| 64 | 4 | Commit marker `0x324E524A` (`JRN2`), or zero |
+| 68 | 4 | Destination table index |
+| 72 | 4 | History record slot, 0–255 |
+| 76 | 4 | Existing history extent's first block |
+| 80 | 4 | Previous entry generation |
+| 84 | 4 | Checksum |
+| 88 | 128 | Complete replacement record |
+
+The checksum is `0x53464A32 XOR table_index XOR slot XOR first_block XOR
+previous_generation XOR each_of_the_32_record_words`. It covers the descriptor
+and the entire replacement record. The format ends at byte 215, within the
+original 256-byte superblock.
+
+For a history save, the controller:
+
+1. Validates the canonical history entry, record slot, source RAM range and 95%
+   guard without changing storage.
+2. Copies the replacement record to journal bytes 88–215. Inputs shorter than
+   128 bytes are zero-padded to a complete record.
+3. Writes the table index, slot, first block, previous generation and checksum.
+4. Writes the `JRN2` commit marker after all payload and descriptor writes finish.
+5. Copies the complete staged record into the selected existing history slot.
+6. Writes the entry generation as the previous generation plus one, modulo
+   2³², and clears the commit marker before reporting success.
+
+A reset before step 4 retains the old record. A reset after step 4 leaves a
+committed journal, which mount validates before replay. The target must be the
+generated Miner history table index with the exact name `miner-history.log`,
+LOG type, 32,768-byte size, matching extent and either the previous or next
+generation. Mount reads all 64 table entries without writing storage to validate
+extent metadata and ensure that no other live entry overlaps the history extent.
+A bad marker, checksum, identity, generation or overlapping owner fails before
+any history data or allocation bitmap write.
+
+Validated replay always copies the complete record and writes the same next
+generation, making another reset during replay, generation update or marker
+clearing safe to retry. Mount then rebuilds allocation and validates the full
+namespace as for other transactions. This guarantees complete old-or-new
+records at the acknowledged DMA-write interruption boundaries exercised by the
+tests; it does not promise recovery from arbitrary flash-bit corruption.
+
+The installed 200 KiB image uses 162,304 bytes (158.5 KiB / 79.25%). A history
+save keeps that allocation unchanged. Its previous 32 KiB temporary copy would
+have reached 195,072 bytes, exceeding the 194,560-byte guard by 512 bytes. A
+256-byte Miner state save continues to use ordinary copy-on-write and remains
+within the guard.
+
 ## Source, executables and persistent app data
 
 `boot.bundle` is private loader data at an image-derived fixed flash address.
@@ -230,6 +296,10 @@ TXT contents are plain bytes. Settings uses a versioned 16-byte `settings.cfg`
 record, restored by Settings and Paint. The canvas itself is temporary. Miner
 uses the installed `miner-history.log` and `miner-state.cfg` files; their exact
 history/state layouts and generations are documented in [MINER.md](MINER.md).
+The dedicated Miner save/load calls require their canonical name, LOG/CFG type
+and 32,768/256-byte size at the generated table indices. If one is deleted and
+an unrelated file reuses its slot, those calls return an error before reading
+or modifying that file.
 
 The supplied image contains real `documents`, `programs`, `projects`, `logs`, and
 `config` directory entries. Boot, shipped app source/binary files and the two
@@ -243,6 +313,12 @@ been relocated into a directory.
 directories, full-storage rejection, transactional recovery and metadata
 validation. `tests/test_flashfs.py` checks host image roundtrips and malformed
 images. Firmware execution tests cover complete source editing and file handoff.
+`tests/test_history_journal.py` and `tests/rtl/tb_history_journal.sv` exercise the
+complete installed 200 KiB image, all 256 history slots and wraparound, state
+save interleaving, fragmented space, every acknowledged transaction-write
+prefix, selected actual controller resets, interrupted recovery, protection,
+and corrupt or reused target identities. The corruption tests verify that
+rejected record journals issue zero flash writes.
 The integrated SoC test runs real CPU/services/filesystem/kernel/GPU/input logic
 through edit, automatic save, shutdown, cache erasure, reboot and reopening.
 The broad integration suite uses bounded wait-state test memory devices. A

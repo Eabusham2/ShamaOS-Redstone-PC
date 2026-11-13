@@ -4,15 +4,17 @@
 **Project:** ShamaOS Redstone PC  
 **Repository:** `Eabusham2/ShamaOS-Redstone-PC`
 
-## Owner-approved capacity amendment — 2026-11-12
+## Owner-approved capacity amendment — 2026-11-13 UTC
 
-The owner finalized **96 KiB main RAM**, **250 KiB flash**, **8 KiB cache /
+The owner finalized **96 KiB main RAM**, **200 KiB flash**, **8 KiB cache /
 fast scratch** and **16 KiB VRAM** to reduce the physical build. These explicit
 choices supersede the original capacities and intermediate sizing proposals.
-The latest explicit instructions halve the former 192 KiB RAM to 24 banks,
-conditional on every shipped app still fitting, and halve flash from 500 to
-250 KiB. Flash has 62 full 4 KiB banks and one exact 2 KiB bank; the unused
-half of a 63rd full bank is not installed. The complete 65,535-byte Editor
+The RAM amendment halves the former 192 KiB to 24 banks, conditional on every
+shipped app still fitting. The latest flash instruction selects 200 KiB after
+the intermediate 250 KiB and 224 KiB targets, with a history-save temporary copy
+of at most 8 KiB instead of copying the entire 32 KiB history. All 256 complete
+records and interrupted-save recovery remain required; a smaller record journal
+is permitted. Flash now requires 50 full 4 KiB banks. The complete 65,535-byte Editor
 source limit and 16,380-byte assembly/save limit remain. Its largest working set
 uses 87,208 bytes (88.71% of RAM) before optional heap allocations. Per-app
 workspace overlays and service-accessible executable backing remove address-map
@@ -20,7 +22,7 @@ waste. Cache and VRAM were also each halved by explicit owner instructions.
 
 The latest executable sizes, per-app normal/peak RAM, flash occupancy and exact
 physical footprint are recorded in [MEMORY.md](MEMORY.md) and reproduced by
-`shamaos software-usage`. The explicit 250 KiB flash size replaces the earlier
+`shamaos software-usage`. The explicit 200 KiB flash size replaces the earlier
 60%-occupancy sizing target; ordinary writes are protected at **95%** usage.
 Unused boot-record padding and the GPU's third-frame scroll scratch are removed.
 The 32-bit CPU, screen, double buffering, assembler, controls, circuits and all
@@ -203,7 +205,7 @@ Agreed target:
 - **96 KiB main RAM** (98,304 bytes; 24 × 4 KiB banks).
 - **8 KiB cache / fast scratch** (8,192 bytes).
 - **16 KiB VRAM** (16,384 bytes), sufficient for the 320×180 1-bit double-buffered display plus GPU working state.
-- **250 KiB flash** (256,000 bytes; 62 × 4 KiB banks plus one 2 KiB bank).
+- **200 KiB flash** (204,800 bytes; 50 × 4 KiB banks).
 
 
 The final implementation may use a hierarchical/banked physical arrangement to keep the world tractable. It must never label sparse/backed/logical memory as literal one-cell-per-bit physical redstone RAM without documentation.
@@ -223,7 +225,7 @@ ShamaOS requires persistent flash-like storage for:
 - settings.
 - filesystem metadata.
 
-**Agreed flash capacity: 250 KiB (256,000 bytes), with 96 KiB main RAM.** This incorporates the owner's 2026-11-12 amendment and is the canonical default/final target. It must not be reduced or changed without explicit owner approval.
+**Agreed flash capacity: 200 KiB (204,800 bytes), with 96 KiB main RAM.** This incorporates the latest owner amendment recorded on 2026-11-13 UTC, including the bounded history-save requirement, and is the canonical default/final target. It must not be reduced or changed without explicit owner approval.
 
 ### 3.6 GPU
 

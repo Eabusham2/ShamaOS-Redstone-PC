@@ -88,7 +88,7 @@ A return/pop from an empty stack also faults.
 The actual assembler syntax is three operands, without brackets:
 
 ```asm
-LDI r4, 0x20000
+LDI r4, 0x3000
 LDI r5, 0x12345678
 STW r4, r5, 0
 LDB r6, r4, 1       // r6 = 0x56

@@ -1,0 +1,24 @@
+{
+  "fixture": "same250KiBinstalledimage,unaligned128byterecord,1in3DMAwait",
+  "baseline_commit": "4e933a5b6f37894cc333dde3d57d10e3e78de047",
+  "image_sha256": "f034a908d019593d2d8e307ff7396e52e546a54bb1bef8f3b05c12b222dd4633",
+  "bench_sha256": "8830cb539dd2da89590c8693fd3adb8b59cc22347d97f7c578f2d5d212acccea",
+  "results": {
+    "old32KiBcow": {
+      "slot": 63,
+      "bytes": 128,
+      "cycles": 99919,
+      "reads": 33064,
+      "writes": 33060,
+      "source_sha256": "8e81b7bd43be426b738aaac2871aec26f00a8b62901a4af8f6760e768a9a552a"
+    },
+    "new128Byteredojournal": {
+      "slot": 63,
+      "bytes": 128,
+      "cycles": 805,
+      "reads": 272,
+      "writes": 264,
+      "source_sha256": "f6022d374ed0197d9c61d41a2b742d70600aa135d4ec4861d83a80fabfd20671"
+    }
+  }
+}

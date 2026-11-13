@@ -19,20 +19,21 @@ been released. See [implementation status](docs/IMPLEMENTATION_STATUS.md) and th
 | SHA | Native SHA-256/double-SHA execution plus programmable primitives and an independent software implementation |
 | Main RAM | **96 KiB physical**, 24 × 4 KiB banks |
 | Fast/executable memory | **8 KiB physical**, 2 × 4 KiB banks |
-| Flash | **250 KiB** physical persistent storage, 62 × 4 KiB banks plus one 2 KiB bank |
+| Flash | **200 KiB** physical persistent storage, 50 × 4 KiB banks |
 | VRAM | **16 KiB physical**, 4 × 4 KiB banks |
 | Display | **320×180** monochrome, double buffered, 57,600 lamps |
 | Input | 8×8 keyboard with Shift, controller, Home/Exit/Editor/Files, power/reset/pause/manual step |
 | OS | Resident kernel, one foreground app, persistent files, in-world assembler/editor |
 | Diagnostics | PC, instruction, registers, flags, CPU/stall state, native SHA state/round, faults and usage counters |
 
-The owner finalized **96 KiB RAM, 250 KiB flash, 8 KiB cache and 16 KiB
-VRAM** on 2026-11-12, including the latest instructions to halve RAM if every
-app still fits and then halve flash. Editor uses **72.05% normally and 88.71%
+The owner finalized **96 KiB RAM, 200 KiB flash, 8 KiB cache and 16 KiB
+VRAM**. History updates now stage a **128-byte record** in existing reserved
+metadata, below the requested 8 KiB temporary-copy budget, while retaining all
+256 complete records and interrupted-save recovery. Editor uses **72.05% normally and 88.71%
 at its largest assembly peak**; Explorer uses **72.68%**. Shared workspaces and
 compact executable backing preserve the complete 65,535-byte source and
 16,380-byte assembly/save limits. Miner now uses **8.44% RAM and 84.28% cache**.
-The initial flash allocates **158.5 KiB (63.40%)**. All complete editable source
+The initial flash allocates **158.5 KiB (79.25%)**. All complete editable source
 files, binaries and persistent records remain. Two full screen buffers plus
 text/sprites fit in **15,680 bytes**; scrolling reserves no third frame.
 
@@ -52,15 +53,15 @@ installed persistent data; shared metadata and documents are counted separately.
 
 | App | RAM bytes | RAM | Cache bytes | Cache | Attributed flash |
 |---|---:|---:|---:|---:|---:|
-| Desktop | 244 | 0.25% | 232 | 2.83% | 0.69% |
-| Editor | 70,824 | 72.05%; peak 88.71% | 4,696 | 57.32% | 9.64% |
-| File Explorer | 71,448 | 72.68% | 5,320 | 64.94% | 11.28% |
-| Bitcoin Miner | 8,292 | 8.44% | 6,904 | 84.28% | 27.10% |
-| System Monitor | 64 | 0.07% | 52 | 0.63% | 0.32% |
-| Terminal | 2,956 | 3.01% | 1,920 | 23.44% | 3.95% |
-| Calculator | 1,836 | 1.87% | 1,824 | 22.27% | 4.11% |
-| Paint | 1,152 | 1.17% | 868 | 10.60% | 1.84% |
-| Settings | 1,056 | 1.07% | 772 | 9.42% | 1.70% |
+| Desktop | 244 | 0.25% | 232 | 2.83% | 0.87% |
+| Editor | 70,824 | 72.05%; peak 88.71% | 4,696 | 57.32% | 12.04% |
+| File Explorer | 71,448 | 72.68% | 5,320 | 64.94% | 14.10% |
+| Bitcoin Miner | 8,292 | 8.44% | 6,904 | 84.28% | 33.87% |
+| System Monitor | 64 | 0.07% | 52 | 0.63% | 0.40% |
+| Terminal | 2,956 | 3.01% | 1,920 | 23.44% | 4.94% |
+| Calculator | 1,836 | 1.87% | 1,824 | 22.27% | 5.14% |
+| Paint | 1,152 | 1.17% | 868 | 10.60% | 2.30% |
+| Settings | 1,056 | 1.07% | 772 | 9.42% | 2.13% |
 
 Editor additionally has 4 KiB of allocatable heap, Explorer 20 KiB and Miner
 80 KiB. Other apps have 80–84 KiB depending on their workspace. The allocator
@@ -68,9 +69,10 @@ protects overlapping workspaces; free bytes are not all interchangeable heap.
 
 Flash's 158.5 KiB consists of **74.75 KiB sources, 23.75 KiB separate executables,
 22.25 KiB packed loader, 32 KiB Miner history, 0.25 KiB Miner state, 1 KiB welcome
-documents and 4.5 KiB metadata**. It leaves **91.5 KiB free**, with **79 KiB**
-of allocation headroom before the **237.5 KiB / 95% write guard**. Copy-on-write
-saves also need their temporary replacement extent to fit. At this capacity,
+documents and 4.5 KiB metadata**. It leaves **41.5 KiB free**, with **31.5 KiB**
+of allocation headroom before the **190 KiB / 95% write guard**. Copy-on-write
+saves also need their temporary replacement extent to fit. Miner history uses
+its bounded record journal and needs no replacement extent. At this capacity,
 saving a maximum-size source and maximum-size output together can require
 reclaiming space first; the OS preserves the previous file if a save cannot fit.
 Full byte counts, per-app flash attribution and address maps are in
@@ -80,34 +82,40 @@ the actual image.
 ### Current measured footprint
 
 The default superflat layout starts one block above grass. A shared column
-stacks cache's 2 banks, VRAM's 4 and RAM's 24; flash uses three more columns.
+stacks cache's 2 banks, VRAM's 4 and RAM's 24; flash uses two more columns.
 The top support/control geometry reaches Y=307 in the grass-at-Y=-61 world.
 All local bank selectors, binary row decoders and read-return wiring are counted.
 
 | Component | Physical capacity | Bank modules | Occupied X/Z chunks |
 |---|---:|---:|---:|
-| Shared cache + RAM + VRAM column and local wiring | 8 + 96 + 16 KiB | 30 | 8,355 |
-| Flash and local wiring | 250 KiB | 62 full + one half | 23,035 |
-| Screen | 320×180 pixels | — | 5,084 |
-| Keyboard / controller circuitry | — | — | 33 |
+| Shared cache + RAM + VRAM column and local wiring | 8 + 96 + 16 KiB | 30 | 8,102 |
+| Flash and local wiring | 200 KiB | 50 | 15,045 |
+| Screen | 320×180 pixels | — | 108 |
+| Keyboard / controller circuitry | — | — | 47 |
 | Debug panel | — | — | 9 |
 | Clock | — | — | 17 |
-| **Measured regular-component subtotal** | **370 KiB memory** | **93** | **36,533** |
+| **Measured regular-component subtotal** | **320 KiB memory** | **80** | **23,328** |
 | Synthesized CPU/GPU/assembler/OS logic and connecting routes | — | — | **Not yet established** |
 
-The regular-component envelope is **4,338×6,850 blocks**, or
-**272×429 = 116,688 chunks**, including gaps. Compared with the previous
-96 KiB RAM / 500 KiB flash checkpoint, occupied chunks fall **31.69%** and the
-envelope **14.20%**. The tighter screen rows save 1,244 occupied chunks while
-retaining all 57,600 pixels. These counts include decoders and count shared X/Z
-chunks once. Placement emits **235,478,992 regular-component operations**;
+The regular-component envelope is **3,425×6,388 blocks**, or
+**215×400 = 86,000 chunks**, including gaps. Compared with the previous
+250 KiB flash / horizontal-screen checkpoint, occupied chunks fall **36.15%**
+and the envelope **26.30%**. The upright screen retains all 57,600 pixels in
+108 occupied chunks; upward memory-return columns remove the long descending
+tails. These counts include local decoders and count shared X/Z chunks once.
+Placement emits **202,522,304 regular-component operations**;
 complete-world logic and routing remain additional.
 
+The [retained geometry report](docs/evidence/capacity-200-upright-return.json)
+includes exact source hashes and the excluded full-machine costs.
+
 All 79 input actuators fit a connected, walkable **16×16 activation area**;
-33 chunks is their backend circuitry, not a keyboard spread over 33 chunks.
-Saved-console input replay and the shared 30-bank memory fixture pass actual
-redstone tests. Full-screen viewing, global routing/timing and complete-world
-boot remain release gates. See [MEMORY.md](docs/MEMORY.md) for per-fabric counts
+47 chunks is the separate backend circuitry. A nearby walking lip provides the
+standing view. Conservative ray tests see every lamp past the console and its
+30 export paths, and a documented 16:9 perspective contains the whole screen.
+The full GPU/bridge/panel replay checks every lamp through 73 actual-engine
+steps. In-client legibility with complete-machine routes, global timing and
+complete-world boot remain release gates. See [MEMORY.md](docs/MEMORY.md) for per-fabric counts
 and [VALIDATION.md](docs/VALIDATION.md) for evidence boundaries.
 
 ### Component colors
@@ -130,7 +138,7 @@ references](docs/APPEARANCE.md) for the complete palette and GitHub inspiration.
 - RAM, executable-cache and VRAM faults stop invalid transfers, show the cause
   and perform graceful OS recovery/reboot, preserving committed files and
   completing or recovering active storage transactions.
-- Flash becomes write protected at **237.5 KiB / 95%**. A temporary copy-on-write
+- Flash becomes write protected at **190 KiB / 95%**. A temporary copy-on-write
   reservation beyond that limit is refused before mutation and produces an OS
   warning. Explicit deletion or zero-length truncation can reclaim space;
   filesystem journal recovery remains available.
@@ -182,7 +190,11 @@ The native Java 1.20.4 Anvil backend creates a grass superflat world without Amu
 preserves the ground, writes exact block properties, and reads the saved chunks
 back independently. Every part of the full build stays above the grass. Stacking
 uses the available height and leaves room for the upper routing planes; higher
-grass presets automatically fit fewer layers with the same memory capacity. An optional
+grass presets automatically fit fewer memory layers with the same capacity.
+The full upright screen has a separate height requirement: its top is 365 blocks
+above grass, so the complete default build requires grass at Y=-46 or lower.
+A grass-at-Y=63 world cannot hold this screen; generation rejects it before
+placing blocks. An optional
 Amulet path remains available for existing unrelated saves. Conflicting block
 assignments are errors. Full generation also runs a resource/capacity preflight.
 Large-scale routing/timing and a workable full-world loading configuration remain

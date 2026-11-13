@@ -1,0 +1,36 @@
+{
+  "eye": [
+    967.5,
+    -53.38,
+    64.5
+  ],
+  "yaw_degrees": 0.0,
+  "pitch_degrees": -21.788163234687097,
+  "vertical_fov_degrees": 70.0,
+  "horizontal_fov_degrees": 102.44785777798825,
+  "viewport": [
+    1920,
+    1080
+  ],
+  "aspect_ratio": "16:9",
+  "screen_inside_viewport": true,
+  "screen_bounds_px": [
+    71.4429573787445,
+    305.67244315527853,
+    1850.4140061377054,
+    849.5130593821954
+  ],
+  "lamp_horizontal_width_px_range": [
+    1.4068303218684832,
+    1.8569635164496958
+  ],
+  "logical_resolution": [
+    320,
+    180
+  ],
+  "physical_pitch": [
+    3,
+    2
+  ],
+  "scope": "deterministic pinhole projection; in-client legibility and full-machine routing are unverified"
+}

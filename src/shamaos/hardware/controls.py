@@ -13,8 +13,8 @@ from .routing import iter_stair
 BUTTON_FLOOR = BlockState.of("minecraft:stone_button", face="floor", facing="north", powered="false")
 CONTROLLER_NAMES = ("UP","DOWN","LEFT","RIGHT","A","B","HOME","EXIT","EDITOR","FILES")
 SIDE_NAMES = ("EDITOR","FILES","RESET","STEP","POWER","PAUSE","SHIFT")
-CONTROL_SIZE = (156,44,144)
-CONTROL_BOUNDS = ((2,-4,0),(126,39,128))
+CONTROL_SIZE = (205,44,135)
+CONTROL_BOUNDS = ((2,-4,0),(206,39,134))
 KEYBOARD_OFFSET = Vec3(60,0,52)
 KEYBOARD_PULSE_TAPS = 26
 
@@ -36,6 +36,17 @@ def _keyboard_origin(origin: Vec3) -> Vec3:
 
 def control_bounds(origin: Vec3) -> Box:
     return Box(origin.offset(*CONTROL_BOUNDS[0]),origin.offset(*CONTROL_BOUNDS[1]))
+
+
+def control_collision_bounds(origin: Vec3) -> tuple[Box, ...]:
+    """Two occupied districts leave the clock's northeast corner clear.
+
+    The farther-east column and side-control circuits start south of the
+    operating surface. Their large bounding rectangle contains an empty
+    corner that must not be mistaken for occupied clock space.
+    """
+    return (Box(origin.offset(2,-4,0),origin.offset(126,39,134)),
+            Box(origin.offset(127,-4,53),origin.offset(206,39,134)))
 
 
 def control_interaction_bounds(origin: Vec3) -> Box:
@@ -72,6 +83,8 @@ def control_interaction_descriptor(origin: Vec3) -> dict[str,object]:
             "activation_span_xz":[bounds.size.x,bounds.size.z],
             "within_16_by_16_envelope":True,"deck_entry":vars(kb.offset(1,1,-1)),
             "deck_feet_y":kb.y+1,"stairs_lowest_support_y":kb.y-4,
+            "screen_viewing_feet":vars(kb.offset(7,1,20)),
+            "screen_viewing_eye":[kb.x+7.5,kb.y+2.62,kb.z+20.5],
             "dedicated_shift_duplicates_matrix_key":[7,7],
             "verification":"actual-engine all-input regression and connected two-block player-clearance deck test"}
 
@@ -79,10 +92,10 @@ def control_interaction_descriptor(origin: Vec3) -> dict[str,object]:
 def control_ports(origin: Vec3) -> ControlPorts:
     kb=_keyboard_origin(origin)
     momentary={name:kb.offset(2*i+3,5+4*i,-10) for i,name in enumerate(CONTROLLER_NAMES[:8])}
-    momentary.update({name:kb.offset(24,5+4*i,2*i+4) for i,name in enumerate(SIDE_NAMES[:4])})
+    momentary.update({name:kb.offset(104,5+4*i,2*i+4) for i,name in enumerate(SIDE_NAMES[:4])})
     return ControlPorts(tuple(momentary[name] for name in CONTROLLER_NAMES),
         tuple(kb.offset(-4,2+4*i,2*i-3) for i in range(8)),
-        tuple(kb.offset(2*i-3,11+4*i,22) for i in range(8)),
+        tuple(kb.offset(2*i-3+96,11+4*i,28) for i in range(8)),
         kb.offset(21,21,9),momentary["RESET"],kb.offset(21,25,11),momentary["STEP"])
 
 
@@ -124,7 +137,11 @@ def iter_keyboard_matrix(origin: Vec3, *, component: str = "keyboard") -> Iterat
     for row in range(8):
         z=2*row
         for x in range(-2,15):
-            yield from _wire(origin.offset(x,-1,z),component,repeater("west") if x in (-1,3,11) else DUST)
+            # Fourteen RT of common row delay balances the longer column
+            # approach without changing pulse width or consuming more cells.
+            state = (repeater("west",delay=4) if x in (-2,-1) else
+                     repeater("west") if x in (3,11) else DUST)
+            yield from _wire(origin.offset(x,-1,z),component,state)
         for col in range(8):
             x=2*col
             yield Placement(origin.offset(x,0,z),SUPPORT,component)
@@ -140,16 +157,22 @@ def iter_keyboard_matrix(origin: Vec3, *, component: str = "keyboard") -> Iterat
     for row in range(8):
         base=origin.offset(-3,-1,2*row);height=4*row+3;top=base.offset(dy=height)
         yield from _tower(base,height,component)
-        yield from _wire(top.offset(dx=-1),component,repeater("west"))
-        yield from _wire(top.offset(dx=-2),component)
+        yield from _wire(top.offset(dx=-1),component,repeater("west",delay=4))
+        yield from _wire(top.offset(dx=-2),component,repeater("west",delay=4))
         yield from iter_pulse_stretcher(top.offset(-3,-1,0),quarter_turns=3,taps=KEYBOARD_PULSE_TAPS,component=component)
     for col in range(8):
         base=origin.offset(2*col,8,19);height=4*col+3;top=base.offset(dy=height)
         yield from _tower(base,height,component)
-        yield from _wire(top.offset(dz=1),component,repeater("south"))
-        for z in (2,3,4):
-            yield from _wire(top.offset(dz=z),component)
-        yield from iter_pulse_stretcher(top.offset(0,-1,5),quarter_turns=2,taps=KEYBOARD_PULSE_TAPS,component=component)
+        for z in range(1,6):
+            # The dedicated Shift diode joins column seven at z+3.
+            yield from _wire(top.offset(dz=z),component,DUST if z==3 else repeater("south"))
+        # Move the pulse circuits east of the operator's sightline. Keep
+        # their output two blocks away from the long input lead so the
+        # stretched pulse cannot feed back into its own input.
+        yield from _wire_x(top.offset(dz=6),top.offset(96,0,6),signal_forward=True,component=component)
+        for z in (7,8,9,10):
+            yield from _wire(top.offset(96,0,z),component)
+        yield from iter_pulse_stretcher(top.offset(96,-1,11),quarter_turns=2,taps=KEYBOARD_PULSE_TAPS,component=component)
 
 
 def iter_controller_panel(origin: Vec3, *, component: str = "controller") -> Iterator[Placement]:
@@ -183,9 +206,10 @@ def iter_controller_panel(origin: Vec3, *, component: str = "controller") -> Ite
         yield from _wire(top.offset(dx=1),component,repeater("east"))
         yield from _wire(top.offset(dx=2),component)
         if name not in ("POWER","PAUSE"):
-            for distance in range(3,7):
-                yield from _wire(top.offset(dx=distance),component)
-            yield from iter_pulse_stretcher(top.offset(7,-1,0),quarter_turns=1,component=component)
+            # Export these four low signals outside the viewing cone. Their
+            # routed south legs must not become bars across the monitor.
+            yield from _wire_x(top.offset(dx=3),top.offset(dx=86),signal_forward=True,component=component)
+            yield from iter_pulse_stretcher(top.offset(87,-1,0),quarter_turns=1,component=component)
     # Independent diodes prevent ordinary matrix events back-feeding Shift.
     base=raw["SHIFT"].offset(dx=1);yield from _tower(base,27,component)
     start=base.offset(1,27);end=start.offset(dy=1,dz=3)
@@ -211,5 +235,10 @@ def iter_controls(origin: Vec3, *, component: str = "input") -> Iterator[Placeme
     yield from iter_controller_panel(origin,component=component)
     for x in range(16):
         yield Placement(kb.offset(x,0,-1),SUPPORT,component)
+        # A short extension beyond the keyboard roof provides a clear view
+        # below both native circuits and the thirty routed console outputs.
+        # Leave the existing odd-Z key-torch cells at z+15 untouched.
+        for z in range(16,21):
+            yield Placement(kb.offset(x,0,z),SUPPORT,component)
     for distance in range(1,5):
         yield Placement(kb.offset(1,-distance,-1-distance),SUPPORT,component)

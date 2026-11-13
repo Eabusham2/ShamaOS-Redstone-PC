@@ -14,7 +14,7 @@ from shamaos.system_build import memory_fabric_nets
 
 
 @pytest.mark.parametrize("banks,layers,columns", [(4, 32, 1), (8, 32, 1), (7, 3, 2), (35, 32, 1)])
-def test_complete_tile_envelopes_include_return_tail_and_short_final_group(banks, layers, columns):
+def test_complete_tile_envelopes_include_top_return_and_short_final_group(banks, layers, columns):
     spec = MemoryBankSpec(words=2, word_bits=8)
     fabric = StackedMemoryFabricSpec(banks * spec.bytes, spec, columns, layers=layers)
     origin = Vec3(256, -60, 128)

@@ -1,5 +1,6 @@
 // Real320x180 GPU plus kernel notice overlay. Preserve both app frames,
 // drawing resources and style, even with an unfinished frame and custom clip.
+`include "shama_boot_params.svh"
 module tb_kernel_popup;
     localparam integer WIDTH=320,HEIGHT=180,PIXELS=WIDTH*HEIGHT,FRAME_WORDS=PIXELS/32;
     logic clk=0,rst=1;
@@ -24,7 +25,7 @@ module tb_kernel_popup;
     shama_kernel_accel kernel(
         .clk,.rst,.req_valid(1'b0),.req_id(12'd0),.req_args(192'd0),
         .req_ready,.req_ret,.req_jump_valid,.req_jump_pc,.req_load_app,.req_app_id,
-        .ram_used_bytes(32'd0),.cache_used_bytes(32'd0),.flash_used_bytes(32'd243200),
+        .ram_used_bytes(32'd0),.cache_used_bytes(32'd0),.flash_used_bytes(`SHAMA_FS_WRITE_LIMIT_BLOCKS * 32'd256),
         .cpu_halted(1'b0),.sha_busy(1'b0),.gpu_busy,.gpu_capacity_fault,
         .notice_code,.notice_busy,.notice_ready,
         .gpu_valid,.gpu_we,.gpu_addr,.gpu_wdata,.gpu_wstrb,.gpu_ready,.gpu_rdata,

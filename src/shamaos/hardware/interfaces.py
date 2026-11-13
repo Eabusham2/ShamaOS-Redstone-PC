@@ -7,7 +7,7 @@ from ..model import Box, Placement, Vec3
 from .clock import clock_ports, iter_clock
 from .controls import control_bounds, control_route_access, iter_controls
 from .debug import debug_ports, iter_debug_panel
-from .display import LampPanelSpec, iter_panel_terminal_keepouts, panel_bounds, panel_ports
+from .display import LampPanelSpec, iter_panel_terminal_keepouts, panel_bounds, panel_route_access
 from .memory import DUST
 from .logic import REDSTONE_BLOCK
 from .memory_backbone import fabric_tile_ports, iter_stacked_tile_terminal_keepouts, stacked_tile_bounds
@@ -82,13 +82,12 @@ def system_routing_interfaces(
                     access[pin]=(direction,)
                     endpoint_bounds[pin]=bounds
     panel=LampPanelSpec(geometry.display_width,geometry.display_height,
-                       geometry.pixel_pitch_x,geometry.pixel_pitch_y)
-    display=panel_ports(origins.display,panel)
+                       geometry.pixel_pitch_x,geometry.pixel_pitch_y,
+                       orientation=geometry.display_orientation)
     bounds=panel_bounds(origins.display,panel)
     obstacle_bounds.append(bounds)
     obstacles.extend(iter_panel_terminal_keepouts(origins.display,panel))
-    for terminals,direction in ((display.data_in,"north"),(display.row_select,"west")):
-        for pin in terminals:
-            access[pin]=(direction,)
-            endpoint_bounds[pin]=bounds
+    display_access=panel_route_access(origins.display,panel)
+    access.update(display_access)
+    endpoint_bounds.update(dict.fromkeys(display_access,bounds))
     return RoutingInterfaces(access,tuple(obstacles),endpoint_bounds,tuple(obstacle_bounds),geometry.minimum_build_y)

@@ -8,7 +8,7 @@ flowchart TD
     E --> C["32-bit CPU and native SHA"]
     C <--> R["96 KiB RAM and 8 KiB fast memory"]
     C <--> O["OS services, filesystem and assembler"]
-    O <--> F["250 KiB persistent flash"]
+    O <--> F["200 KiB persistent flash"]
     C --> G["Independent GPU"]
     O --> G
     G <--> V["16 KiB VRAM"]
@@ -37,12 +37,13 @@ Literal default capacities:
 
 - cache 8 KiB / 2 banks;
 - RAM 96 KiB / 24 banks;
-- flash 250 KiB / 62 full banks plus one 2 KiB bank;
+- flash 200 KiB / 50 full banks;
 - VRAM 16 KiB / 4 banks.
 
-Each full bank contains 4 KiB (1,024 × 32-bit words). Flash's final bank contains
-512 words / 2 KiB, so its 63 bank modules provide exactly 250 KiB without padded
-storage. The owner approved the current capacities on 2026-11-12; screen, input,
+Each default bank contains 4 KiB (1,024 × 32-bit words). Flash's 50 banks provide
+exactly 200 KiB without padded storage. The latest owner amendment also requires
+history updates to use at most an 8 KiB temporary copy. The implemented record
+journal stages 128 bytes in reserved metadata with no additional extent; screen, input,
 assembler, compute and OS functionality remain required.
 
 The controller checks each requested byte address against the exact installed
@@ -56,7 +57,15 @@ row-select wires.
 
 ## GPU/display
 
-Large GPU state is external VRAM. The 320×180 panel is a horizontal X/Z latch matrix viewed from above and receives 320 data bits plus 180 one-hot row selects.
+Large GPU state is external VRAM. The production 320×180 panel stands in the
+X/Y plane, with three-block column pitch, two-block row pitch and a latch per
+pixel. It receives 320 parallel data bits and 180 one-hot row selects. Alternating
+physical row polarity is corrected once in the serial display-bridge load path,
+before the row buffer, rather than adding 320 parallel output inversions. The
+logical framebuffer remains 320×180. Its physical pixel spacing stretches the
+image horizontally; console viewing and routed timing have their own acceptance
+checks. Horizontal panels remain supported as isolated fixture geometry, but
+the full production builder requires the upright panel and matching bridge.
 
 ## OS/storage
 

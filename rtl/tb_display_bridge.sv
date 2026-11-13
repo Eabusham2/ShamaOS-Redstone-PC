@@ -19,7 +19,9 @@ module tb_display_bridge;
     integer commits=0;
     always @(posedge clk) if(row_commit) begin
         commits=commits+1;
-        if(row_index==0 && row_data!==8'b10101010) begin
+        // H=3 has its top physical row at even Y, so rows zero and two
+        // invert. The real H=180 panel instead inverts logical odd rows.
+        if(row_index==0 && row_data!==8'b01010101) begin
             $display("bridge row0 fail %b",row_data);$fatal(1);
         end
         if(row_index==1 && row_data!==8'b01010101) begin

@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterator
 
-from .hardware.clock import clock_ports, iter_clock
+from .hardware.clock import clock_ports, iter_clock, system_clock_origin
 from .hardware.controls import control_ports
 from .hardware.debug import debug_ports,iter_debug_panel
 from .hardware.display import LampPanelSpec, panel_ports
@@ -153,6 +153,7 @@ def _geometry_from_config(config: dict) -> MachineGeometry:
         **memory_placement_options(config),
         pixel_pitch_x=d.get("pixel_pitch_x", 5),
         pixel_pitch_y=d.get("pixel_pitch_y", 4),
+        display_orientation=d.get("orientation", "horizontal"),
     )
 
 
@@ -323,6 +324,8 @@ def prepare_system(
 ) -> PreparedSystem:
     root = _repo_root()
     g = _geometry_from_config(config)
+    if g.display_orientation != "upright":
+        raise ValueError("the complete computer requires the upright display bridge; horizontal panels are standalone fixtures")
     origins = default_origins(g)
     cache_spec, ram_spec, flash_spec = memory_specs(g)
     vram_fabric = vram_spec(g)
@@ -345,7 +348,7 @@ def prepare_system(
 
     # ---------- Physical controls / clock ----------
     controls = control_ports(origins.input)
-    clock_origin = origins.input.offset(180, 0, 0)
+    clock_origin = system_clock_origin(origins.input)
     clock = clock_ports(clock_origin)
 
     power_switch = _require_port(inputs, "power_switch", 1)[0]
@@ -405,6 +408,7 @@ def prepare_system(
         height=g.display_height,
         pixel_pitch_x=g.pixel_pitch_x,
         pixel_pitch_y=g.pixel_pitch_y,
+        orientation=g.display_orientation,
     )
     display = panel_ports(origins.display, panel)
 

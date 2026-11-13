@@ -5,13 +5,32 @@ use mchprs_blocks::{BlockFace, BlockPos};
 use mchprs_world::{testing::TestWorld, World};
 use serde::Deserialize;
 use std::collections::HashMap;
-use std::io::{self, Read};
+use std::io::{self, BufReader};
 
 #[derive(Deserialize)]
-struct Placement {
+struct JsonPlacement {
     pos: [i32; 3],
     name: String,
     properties: HashMap<String, String>,
+}
+
+#[derive(Deserialize)]
+#[serde(from = "JsonPlacement")]
+struct Placement {
+    pos: [i32; 3],
+    block: Block,
+}
+
+impl From<JsonPlacement> for Placement {
+    fn from(placement: JsonPlacement) -> Self {
+        // Resolve the actual engine block state while reading each JSON
+        // object. Do not retain millions of identical names and property
+        // HashMaps alongside the initialized world.
+        let mut block = Block::from_name(&placement.name)
+            .unwrap_or_else(|| panic!("MCHPRS does not implement {}", placement.name));
+        block.set_properties(placement.properties.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect());
+        Self { pos: placement.pos, block }
+    }
 }
 
 #[derive(Deserialize)]
@@ -73,9 +92,10 @@ fn verify(world: &TestWorld, case: &Case, expected: &HashMap<String, bool>, inde
 }
 
 fn main() {
-    let mut input = String::new();
-    io::stdin().read_to_string(&mut input).expect("read stdin");
-    let case: Case = serde_json::from_str(&input).expect("case JSON");
+    // Streaming input avoids retaining a second full-sized JSON copy during
+    // world construction. Placement order and every block property remain
+    // unchanged, including repeated writes to the same position.
+    let mut case: Case = serde_json::from_reader(BufReader::new(io::stdin().lock())).expect("case JSON");
     assert!(!case.blocks.is_empty());
     let max_x = case.blocks.iter().map(|b| b.pos[0]).max().unwrap() + 32;
     let max_y = case.blocks.iter().map(|b| b.pos[1]).max().unwrap() + 32;
@@ -83,9 +103,7 @@ fn main() {
     let mut world = TestWorld::new(max_x / 16 + 1, max_y / 16 + 1, max_z / 16 + 1);
     for placement in &case.blocks {
         assert!(placement.pos.iter().all(|coordinate| *coordinate >= 0), "negative fixture coordinate");
-        let mut block = Block::from_name(&placement.name).unwrap_or_else(|| panic!("MCHPRS does not implement {}", placement.name));
-        block.set_properties(placement.properties.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect());
-        world.set_block(pos(placement.pos), block);
+        world.set_block(pos(placement.pos), placement.block);
     }
     // A complete neighbor-update pass starts preplaced clocks/torches and
     // normalizes wire states, followed by the simulator's scheduled tick queue.
@@ -94,6 +112,8 @@ fn main() {
         mchprs_redstone::update(world.get_block(p), &mut world, p);
         mchprs_redstone::update_surrounding_blocks(&mut world, p);
     }
+    case.blocks.clear();
+    case.blocks.shrink_to_fit();
     for _ in 0..case.initial_ticks { tick(&mut world); }
     let mut total_ticks = case.initial_ticks;
     let mut traces: HashMap<String, Vec<bool>> = case.outputs.keys().map(|name| (name.clone(), Vec::new())).collect();

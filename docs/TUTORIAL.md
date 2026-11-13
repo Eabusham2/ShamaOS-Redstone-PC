@@ -103,7 +103,7 @@ shamaos plan --config configs/default.toml --manifest build/plan.json
 shamaos generation-preflight --config configs/default.toml --world build/ShamaOS --report build/resource-preflight.json
 ```
 
-The flash image is exactly 250 KiB and contains packed, length-prefixed boot/application records,
+The flash image is exactly 200 KiB and contains packed, length-prefixed boot/application records,
 complete editable sources, documents, directories, settings/miner data and
 filesystem metadata. The preflight reports physical storage bits, banks,
 placements, touched chunks, disk lower bounds, source identity and unverified
@@ -150,13 +150,17 @@ world verification. The spawn platform is also above the grass.
 
 Memory stacking is automatic. The default surface allows 30 layers at a
 12-block pitch while reserving the upper routing canopy. A grass surface at
-Y=63 allows 20 layers. All 185 physical banks remain present; the generator
+Y=63 allows 20 memory layers in memory-only profiles. All 80 physical banks remain present; the generator
 uses more horizontal groups when fewer layers fit. The final group contains
-only its actual banks and retains their original address order.
+only its actual banks and retains their original address order. The full upright
+screen is a separate constraint: its top is 365 blocks above grass, so the
+complete build requires grass at Y=-46 or lower. Use the default grass-at-Y=-61
+superflat profile for the complete computer. A grass-at-Y=63 save cannot hold
+this screen and is rejected before any placement.
 
 `generate` and `generation-preflight --world ...` read an existing world's flat
 layer settings from `level.dat` instead of assuming the grass height. For a new
-custom-height grass world, set `world.surface_y` to the grass-block coordinate
+custom-height grass world within those limits, set `world.surface_y` to the grass-block coordinate
 and `world.origin_y` to five blocks above it; keep `memory.stack_layers` and
 `memory.storage_base_y` automatic. Unsafe explicit heights/layer counts fail
 validation. The standalone mechanism fixture remains a small isolated test save.

@@ -6,20 +6,21 @@
 |---|---:|---:|
 | Executable cache / fast region | 8,192 | 2 |
 | Main RAM | 98,304 | 24 |
-| Persistent flash | 256,000 | 62 full + one 2 KiB |
+| Persistent flash | 204,800 | 50 |
 | VRAM | 16,384 | 4 |
-| **Total** | **378,880 (370 KiB)** | **93 modules, one half-size** |
+| **Total** | **327,680 (320 KiB)** | **80 full banks** |
 
-That total contains **3,031,040 physical stored bits**. The owner explicitly
-halved RAM to **96 KiB**, conditional on every shipped app still fitting, then
-halved flash to **250 KiB**. Cache remains 8 KiB and VRAM 16 KiB. These are the
-2026-11-12 amended capacities; the screen and application feature contract remain
-intact. The generator models every bit as physical storage.
+That total contains **2,621,440 physical stored bits**. The latest owner
+instruction selects **200 KiB flash** with a history-save temporary-copy budget
+of at most 8 KiB. The implemented 128-byte record journal uses existing reserved
+metadata, preserves every record and supports interrupted-save recovery without
+allocating a replacement history extent. RAM remains 96 KiB, cache 8 KiB and VRAM 16 KiB. The screen and
+application feature contract remain intact; every bit is physical storage.
 
-A full bank contains 1,024 words of 32 bits. Flash has 62 full banks and a final
-512-word bank, for exactly 256,000 bytes. The final bank contains no inaccessible
-padding cells; its decoder rejects high rows instead of aliasing them onto valid
-addresses. Physical capacity does not change when banks are stacked vertically.
+Each default bank contains 1,024 words of 32 bits. Flash therefore has exactly
+204,800 bytes in 50 full banks. The generic half-bank implementation and its
+250 KiB regression fixtures remain supported, but the default machine no longer
+needs a partial bank. Capacity does not change when banks are stacked vertically.
 
 ## Compact bit cell
 
@@ -52,11 +53,11 @@ CPU/GPU logic and external routes.
 | Capacity | 4,096 bytes | 4,096 bytes |
 
 The cell change removes **520,192 blocks per full 4 KiB bank**, about **20.7%**
-of the corrected same-capacity baseline. The exact final 2 KiB bank emits
-**996,224 placements** and contains only 16,384 stored bits. Across 92 full banks
-and this half-size bank, storage cells/internal buses emit **184,219,008
-placements**. With the compact cell held fixed, the authorized capacity
-reductions remove 2,388,866,176 placements from the original 1 MiB RAM / 4 MiB flash design's
+of the corrected same-capacity baseline. The current 80 full banks emit
+**159,324,160 storage-cell/internal-bus placements**. Generic 2 KiB banks remain
+supported and emit 996,224 placements for 16,384 stored bits; the default 200 KiB
+flash contains no half bank. With the compact cell held fixed, the authorized
+capacity reductions remove 2,413,761,024 placements from the original 1 MiB RAM / 4 MiB flash design's
 2,573,085,184 compact-cell placements, including its original fast memory and
 VRAM. Capacity reduction and cell efficiency are distinct savings; fewer stored
 bits do not make an individual bit cheaper.
@@ -79,14 +80,32 @@ also shorten shared wiring if the bank-selection, data and read-return
 backbones are redesigned around the stack.
 
 The default world has grass at Y=-61 and the lowest circuit support at Y=-60.
-The revised **93-module** layout uses **four horizontal memory columns**. Three
-hold flash (30 + 30 + 2 full banks plus the final half-size bank). The fourth
+The revised **80-bank** layout uses **three horizontal memory columns**. Two
+hold flash (30 + 20 full banks). The third
 stacks cache's two banks, VRAM's four and RAM's 24, with four-block separators
 between independent fabrics. It reaches Y=307; flash reaches Y=299. Grass, dirt
 and bedrock remain intact. Higher grass presets fall back to fewer layers or
 separate columns when the shared stack cannot satisfy world-height and routing
-clearance. The final flash bank's shorter storage rows connect to the same
-full-length shared return plane, and that extension is included in the counts.
+clearance. The complete upright screen separately requires grass at Y=-46 or
+lower; fitting the memories alone is not sufficient for a complete build.
+
+Each data bit now has an isolated upward read-return column. Every bank injects
+through its own repeater, and the selected word exits beside the top bank.
+This replaces the descending return stairs and per-bank horizontal tails while
+preserving all stored bits. The local control ceiling does not increase. At the
+same 200 KiB capacity and final console geometry, this change removes **781
+occupied chunks**, **6,235 envelope chunks** and **977,952 placements**. The
+tradeoff is different settling behavior: some paths improve while return-to-zero
+and other bank paths take longer. Actual tests enforce explicit settle/clear
+boundaries; no whole-machine speedup or shorter production clock is inferred.
+
+The matched 30-bank, two-row, eight-bit comparison measures worst read settling
+at 265→208 redstone ticks, mean read at 172.63→207.03, and worst clear at 92→200.
+These figures explain why the new circuit is a footprint improvement with a
+timing tradeoff. Full-depth and tall-column tests use their own conservative
+settling phases; the complete clock still requires route-derived timing closure.
+The [matched read/clear report](evidence/upward-return-read-clear.json) retains
+the per-bank observations and comparison scope.
 
 The production memory interface uses **10 binary row-address wires per fabric**
 plus bank selection and data/read/write signals. Each full tile contains a real
@@ -105,65 +124,75 @@ wall-clock measurements.
 
 | Fabric | Bank modules | Logical tiles | Storage-only chunks | With local controls and decoder |
 |---|---:|---:|---:|---:|
-| Cache | 2 | 1 | 4,246 | 8,111 |
-| Main RAM | 24 | 1 | 4,246 | 7,583 |
-| Flash | 62 full + one half | 3 | 12,738 | 23,035 |
-| VRAM | 4 | 1 | 4,246 | 7,748 |
-| **Occupied union, sharing cache/RAM/VRAM X/Z** | **93** | **4 horizontal columns** | **16,984** | **31,390** |
+| Cache | 2 | 1 | 4,246 | 8,100 |
+| Main RAM | 24 | 1 | 4,246 | 7,330 |
+| Flash | 50 | 2 | 8,492 | 15,045 |
+| VRAM | 4 | 1 | 4,246 | 7,715 |
+| **Occupied union, sharing cache/RAM/VRAM X/Z** | **80** | **3 horizontal columns** | **12,738** | **23,147** |
 
 The three non-flash fabrics share horizontal chunks at different heights.
-Their occupied union is **8,355 chunks** with local wiring; adding their separate
-counts would overcount **15,087 chunks**. Storage alone occupies 56 region files
-and has a **70,025,216-byte** minimum Anvil sector/header cost. That is a lower
+Their occupied union is **8,102 chunks** with local wiring; adding their separate
+counts would overcount **15,043 chunks**. Storage alone occupies 42 region files
+and has a **52,518,912-byte** minimum Anvil sector/header cost. That is a lower
 bound, not a forecast of the compressed world file size.
 
-Storage cells/internal bank buses emit **184,219,008 placement operations**.
-Local selectors/returns add **44,384,910**, binary decoders **4,375,248** and
-screen/controls/debug/clock **2,499,826**, producing **235,478,992 regular-component
+Storage cells/internal bank buses emit **159,324,160 placement operations**.
+Local selectors/returns add **37,144,580**, binary decoders **3,662,424** and
+screen/controls/debug/clock **2,391,140**, producing **202,522,304 regular-component
 placement operations**. These are emission operations, not a claim of that many
-unique blocks in a complete world. Flash's exact half bank avoids 995,328
-storage/internal-bus placements that padding it to 4 KiB would have introduced.
+unique blocks in a complete world. Every default bank is full; the smaller
+capacity is implemented by fewer literal banks, without inaccessible padding.
 
 | Measured regular component | Occupied horizontal chunks |
 |---|---:|
-| Cache + RAM + VRAM shared column, including local wiring | 8,355 |
-| Flash, including local wiring | 23,035 |
-| Screen | 5,084 |
-| Keyboard/controller circuitry | 33 |
+| Cache + RAM + VRAM shared column, including local wiring | 8,102 |
+| Flash, including local wiring | 15,045 |
+| Screen | 108 |
+| Keyboard/controller circuitry | 47 |
 | Debug panel | 9 |
 | Clock | 17 |
-| **Regular-component union** | **36,533** |
+| **Regular-component union** | **23,328** |
 
-The full 320×180 panel now uses five-block column pitch and four-block row pitch.
-Its 2,482,200 placements and 5,084 occupied chunks are checked against the actual
-emitter. Compared with the previous five-by-five panel, it saves 114,560
-placements and 1,244 occupied chunks (19.66%) without changing screen resolution
-or VRAM. All 57,600 lamps and stored bits pass the full-panel actual-engine
-retention/isolation trace. This does not establish a readable console view.
+The full 320×180 panel now stands upright, with three-block column pitch and
+two-block row pitch. Its **2,371,162 placements / 108 occupied chunks** are
+checked against the actual emitter. The previous horizontal five-by-four panel
+used 2,482,200 placements and 5,084 chunks: the new panel saves **111,038
+placements / 4,976 occupied chunks (97.88%)** without changing logical resolution
+or VRAM. Real GPU dirty-row writes pass through the production bridge into the
+full physical panel, checking all 57,600 lamps after each of 73 steps. The bridge
+corrects alternating row polarity. Rectangular physical pitch widens the image;
+the standing-view projection and obstruction checks are distinct from actual
+Minecraft-client legibility and complete-world routing.
 
-The regular-component union uses **87 region files** with a **150,351,872-byte**
-minimum Anvil sector/header cost. Its envelope is X=-64..4273, Z=-235..6614:
-**4,338×6,850 blocks**, or **272×429 = 116,688 envelope chunks**. The rectangle's
-perimeter is **22,376 blocks**. Only 36,533 chunks in that rectangle contain these
+The regular-component union uses **64 region files** with a **96,075,776-byte**
+minimum Anvil sector/header cost. Its envelope is X=489..3913, Z=-235..6152:
+**3,425×6,388 blocks**, or **215×400 = 86,000 envelope chunks**. The rectangle's
+perimeter is **19,626 blocks**. Only 23,328 chunks in that rectangle contain these
 components. Coloring their existing supports adds zero placements or chunks.
 
 | Checkpoint | Regular occupied chunks | Envelope chunks | Regular placement operations |
 |---|---:|---:|---:|
 | 192 KiB RAM / 500 KiB flash | 67,192 | 186,615 | 444,728,976 |
 | 96 KiB RAM / 500 KiB flash, shared memory column | 53,482 | 135,993 | 391,253,772 |
-| **96 KiB RAM / 250 KiB flash, compact screen** | **36,533** | **116,688** | **235,478,992** |
+| 96 KiB RAM / 250 KiB flash, horizontal 5×4 screen | 36,533 | 116,688 | 235,478,992 |
+| 96 KiB RAM / 200 KiB flash, upright screen, final console, descending returns | 24,109 | 92,235 | 203,500,256 |
+| **96 KiB RAM / 200 KiB flash, upright screen and upward returns** | **23,328** | **86,000** | **202,522,304** |
 
-The latest step removes **16,949 occupied chunks (31.69%)**, **19,305 envelope
-chunks (14.20%)** and **155,774,780 placement operations (39.81%)** from the
-96 KiB/500 KiB checkpoint. Against the earlier 192 KiB checkpoint, occupied and
-envelope chunks are down **45.63%** and **37.47%**, respectively.
+Against the 250 KiB/horizontal-screen checkpoint, the current build removes
+**13,205 occupied chunks (36.15%)**, **30,688 envelope chunks (26.30%)** and
+**32,956,688 placement operations (14.00%)**. Against the 96 KiB RAM / 500 KiB
+flash checkpoint, occupied chunks fall **56.38%** and envelope chunks **36.76%**.
 
 Counts come from the real geometry and exact X/Z chunk union, including overlaps
 between independent fabrics. **Synthesized CPU/GPU/assembler/OS logic and their
 internal/global routes remain additional.** A complete-machine chunk total and
 verified running world remain open release gates. The console's 79 actuators fit
-a connected, walkable 16×16 area; full-screen viewing from that station also
-remains a gate. Regenerate the report after any geometry changes.
+a connected, walkable 16×16 area, with a nearby viewing lip. Geometry tests see
+every screen lamp past the native console and its 30 export routes. In-client
+legibility with all final routes remains a gate. Regenerate the report after any
+geometry changes.
+The [retained 200 KiB profile](evidence/capacity-200-upright-return.json) contains
+the exact counts and source hashes for this checkpoint.
 
 Production placement requires world-height bounds, no block collisions or
 unintended electrical joins, isolated reads/writes across layers, initialization
@@ -214,8 +243,8 @@ VRAM independently and maintains dirty-row/cursor state. CPU byte/halfword write
 to the memory fabric perform read-modify-write so untouched lanes survive.
 
 Flash contains ShamaFS metadata, boot/app/source data, documents, directories,
-settings and complete miner records. Data replacement is copy-on-write; the
-metadata journal permits recovery after an interrupted commit. Flash is writable
+settings and complete miner records. Ordinary data replacement is copy-on-write; history records use a bounded redo
+journal. Both paths preserve recovery after an interrupted commit. Flash is writable
 persistent redstone storage, not a read-only program ROM.
 
 ### Current software usage snapshot
@@ -264,44 +293,48 @@ staging uses 256 and sprite staging 1,024. Scrolling needs no extra frame.
 VRAM use is a reserved capacity, not a count of lit pixels or a new reservation
 for every app. The screen, double buffering and GPU primitives remain intact.
 
-The four pools total **370 KiB**. With Explorer active, the initial flash image
-and shared VRAM included, counted allocation is **254,752 bytes / 67.2382%**.
-Editor with its largest assembly staging reaches **269,888 bytes / 71.2331%**
+The four pools total **320 KiB**. With Explorer active, the initial flash image
+and shared VRAM included, counted allocation is **254,752 bytes / 77.7441%**.
+Editor with its largest assembly staging reaches **269,888 bytes / 82.3633%**
 before optional heap allocations. These physically separate pools cannot lend
 capacity to one another. OS services, filesystem, assembler and GPU also have
 physical logic registers that are not charged to RAM or cache.
 
 ### What occupies flash
 
-The initial image allocates **162,304 bytes (158.5 KiB), or 63.40% of 250 KiB**.
+The initial image allocates **162,304 bytes (158.5 KiB), or 79.25% of 200 KiB**.
 Allocation includes metadata, whole-file block rounding and zero-filled files.
 
-| Category | Allocated bytes | KiB | Of 250 KiB flash |
+| Category | Allocated bytes | KiB | Of 200 KiB flash |
 |---|---:|---:|---:|
-| Filesystem metadata and journal | 4,608 | 4.50 | 1.80% |
-| Complete editable program sources | 76,544 | 74.75 | 29.90% |
-| Separate program executable files | 24,320 | 23.75 | 9.50% |
-| Packed boot and application loader bundle | 22,784 | 22.25 | 8.90% |
-| Miner history: 256 complete records | 32,768 | 32.00 | 12.80% |
-| Miner saved state | 256 | 0.25 | 0.10% |
-| Welcome documents | 1,024 | 1.00 | 0.40% |
-| **Total** | **162,304** | **158.50** | **63.40%** |
+| Filesystem metadata and journal | 4,608 | 4.50 | 2.25% |
+| Complete editable program sources | 76,544 | 74.75 | 37.38% |
+| Separate program executable files | 24,320 | 23.75 | 11.88% |
+| Packed boot and application loader bundle | 22,784 | 22.25 | 11.12% |
+| Miner history: 256 complete records | 32,768 | 32.00 | 16.00% |
+| Miner saved state | 256 | 0.25 | 0.12% |
+| Welcome documents | 1,024 | 1.00 | 0.50% |
+| **Total** | **162,304** | **158.50** | **79.25%** |
 
 There are **32 of 64 entries used**: 27 files and five real directories.
-**93,696 bytes (91.5 KiB)** remain unallocated. Ordinary writes stop at
-**243,200 bytes (237.5 KiB / 95%)**, leaving **80,896 bytes (79 KiB)** of
-allocation headroom before that limit. Copy-on-write replacement also needs its
-temporary second extent to fit; the guard rejects an excessive reservation
-before changing the original file. DELETE and zero-length truncation can reclaim
-space even at the limit. An OS popup explains protection.
+**42,496 bytes (41.5 KiB)** remain unallocated. Ordinary writes stop at
+**194,560 bytes (190 KiB / 95%)**, leaving **32,256 bytes (31.5 KiB)** of
+allocation headroom. Ordinary copy-on-write replacement still needs its second
+extent to fit; the guard refuses an excessive reservation before changing the
+original file. DELETE and zero-length truncation can reclaim space at the limit.
+An OS popup explains protection.
 
-At this smaller capacity, the full 65,535-byte source and 16,380-byte executable
-limits still apply, but they are not a promise that every maximum-size file and
-its temporary replacement fit alongside all shipped data. A new 64 KiB-rounded
-source fits; adding a new 16 KiB-rounded output too would reach 238.5 KiB, one
-KiB over the write limit. Reclaim space in Explorer first when required. A
-replacement save can need more free space than a new file because the previous
-good copy is retained until commit. Failed saves preserve it and the live app.
+History updates use a separate 128-byte record redo journal in already reserved
+metadata space. The complete 32 KiB history stays installed; updating one record
+no longer reserves a second 32 KiB extent. This is below the owner's 8 KiB
+transaction budget. It does not create extra capacity for unrelated files.
+
+The full 65,535-byte source and 16,380-byte assembly/save limits remain, but
+31.5 KiB of initial allocation headroom cannot hold a new 64 KiB-rounded maximum
+source beside all shipped data. Reclaim space in Explorer when required. A
+replacement save can need more free space than a new file because its previous
+good copy remains until commit. Failed saves preserve that copy and the live
+app; they do not truncate the document to fit.
 
 The packed loader file contains **22,640 logical bytes**, allocated in 22,784
 bytes of filesystem blocks. Packing removes 141,200 bytes of unused old record
@@ -315,17 +348,17 @@ not create a separate saved file.
 
 | Installed program | Source allocated bytes | Executable allocated bytes | Packed loader record bytes | Persistent bytes | Total attributed flash bytes | Of flash |
 |---|---:|---:|---:|---:|---:|---:|
-| Boot | 512 | 256 | 0 | 0 | 768 | 0.3000% |
-| Kernel | 256 | 256 | 16 | 0 | 528 | 0.2062% |
-| Desktop | 1,280 | 256 | 236 | 0 | 1,772 | 0.6922% |
-| Editor | 15,104 | 4,864 | 4,700 | 0 | 24,668 | 9.6359% |
-| File Explorer | 18,176 | 5,376 | 5,324 | 0 | 28,876 | 11.2797% |
-| Bitcoin Miner | 22,528 | 6,912 | 6,908 | 33,024 | 69,372 | 27.0984% |
-| System Monitor | 512 | 256 | 56 | 0 | 824 | 0.3219% |
-| Terminal | 6,144 | 2,048 | 1,924 | 0 | 10,116 | 3.9516% |
-| Calculator | 6,656 | 2,048 | 1,828 | 0 | 10,532 | 4.1141% |
-| Paint | 2,816 | 1,024 | 872 | 0 | 4,712 | 1.8406% |
-| Settings | 2,560 | 1,024 | 776 | 0 | 4,360 | 1.7031% |
+| Boot | 512 | 256 | 0 | 0 | 768 | 0.3750% |
+| Kernel | 256 | 256 | 16 | 0 | 528 | 0.2578% |
+| Desktop | 1,280 | 256 | 236 | 0 | 1,772 | 0.8652% |
+| Editor | 15,104 | 4,864 | 4,700 | 0 | 24,668 | 12.0449% |
+| File Explorer | 18,176 | 5,376 | 5,324 | 0 | 28,876 | 14.0996% |
+| Bitcoin Miner | 22,528 | 6,912 | 6,908 | 33,024 | 69,372 | 33.8730% |
+| System Monitor | 512 | 256 | 56 | 0 | 824 | 0.4023% |
+| Terminal | 6,144 | 2,048 | 1,924 | 0 | 10,116 | 4.9395% |
+| Calculator | 6,656 | 2,048 | 1,828 | 0 | 10,532 | 5.1426% |
+| Paint | 2,816 | 1,024 | 872 | 0 | 4,712 | 2.3008% |
+| Settings | 2,560 | 1,024 | 776 | 0 | 4,360 | 2.1289% |
 
 These program shares are attribution, not additional copies on top of the
 category table. They count each source, separate binary, exact loader record and

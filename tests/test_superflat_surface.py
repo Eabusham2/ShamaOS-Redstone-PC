@@ -49,7 +49,7 @@ def test_saved_ground_is_complete_and_all_placements_stay_above_it(tmp_path, sur
     assert validate_native_world(world)["assigned_blocks"] == 83
 
 
-def test_existing_higher_flat_preset_relocates_and_reduces_stack_without_losing_capacity(tmp_path):
+def test_existing_higher_flat_preset_rejects_upright_screen_before_placement(tmp_path):
     world = tmp_path / "high-flat"
     with NativeWorldWriter(world, surface_y=63, spawn=Vec3(-16, 65, -16)):
         pass
@@ -60,6 +60,11 @@ def test_existing_higher_flat_preset_relocates_and_reduces_stack_without_losing_
     assert resolved["world"]["origin_y"] == 68
     assert resolved["world"]["minimum_build_y"] == 64
     assert resolve_world_surface(resolved, world) == resolved
+    with pytest.raises(ValueError, match="upright display reaches Y428"):
+        geometry_from_config(resolved)
+    # Storage still supports high-grass presets independently. A small
+    # diagnostic panel fits there; the full upright computer must not clip.
+    resolved["display"]["height"] = 4
     g = geometry_from_config(resolved)
     cache, ram, flash = memory_specs(g)
     assert (cache.total_bytes, ram.total_bytes, flash.total_bytes) == (CACHE_BYTES, RAM_BYTES, FLASH_BYTES)

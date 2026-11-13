@@ -6,7 +6,7 @@ build the pinned runner and execute these tests without skips.
 """
 import json
 import os
-from itertools import product
+from itertools import chain, product
 from pathlib import Path
 import subprocess
 
@@ -39,7 +39,7 @@ def coordinates(p):
     return [p.x, p.y, p.z]
 
 
-def run_case(placements, inputs, outputs, steps, *, initial_ticks=32, capture_trace=False):
+def run_case(placements, inputs, outputs, steps, *, initial_ticks=32, capture_trace=False, timeout=60):
     runner = os.environ.get("SHAMA_MCHPRS_RUNNER")
     if not runner or not Path(runner).is_file():
         pytest.skip("actual MCHPRS runner not available; do not claim runtime validation")
@@ -54,7 +54,7 @@ def run_case(placements, inputs, outputs, steps, *, initial_ticks=32, capture_tr
         "outputs": {name: coordinates(p) for name, p in outputs.items()},
         "steps": steps, "initial_ticks": initial_ticks, "capture_trace": capture_trace,
     }
-    result = subprocess.run([runner], input=json.dumps(case), capture_output=True, text=True, timeout=60)
+    result = subprocess.run([runner], input=json.dumps(case), capture_output=True, text=True, timeout=timeout)
     assert result.returncode == 0, result.stdout + result.stderr
     data = json.loads(result.stdout.strip())
     assert data["status"] == "passed"
@@ -469,9 +469,12 @@ def test_actual_partition_shell_and_global_tiers_preserve_register_semantics(tmp
     run_case(blocks,{name:west_driver(pin) for name,pin in sources.items()},{"Q":result_pin},steps)
 
 
-def test_actual_global_routes_reach_all_faces_of_a_thirty_layer_memory_tile():
-    origin=Vec3(512,-56,6000)
-    tile=StackedMemoryTileSpec(MemoryBankSpec(words=4,word_bits=8),banks=30,layer_pitch=12)
+def _actual_global_routes_reach_stacked_memory(tmp_path, *, banks, base_y):
+    runner=os.environ.get("SHAMA_MCHPRS_RUNNER")
+    if not runner or not Path(runner).is_file():
+        pytest.skip("actual MCHPRS runner not available; do not claim runtime validation")
+    origin=Vec3(512,base_y,6000)
+    tile=StackedMemoryTileSpec(MemoryBankSpec(words=4,word_bits=8),banks=banks,layer_pitch=12)
     pins=stacked_tile_ports(origin,tile)
     bounds=stacked_tile_bounds(origin,tile)
     native_inputs=({f"B{i}":pin for i,pin in enumerate(pins.bank_select)}
@@ -485,32 +488,81 @@ def test_actual_global_routes_reach_all_faces_of_a_thirty_layer_memory_tile():
     access={pin:("north",) if name.startswith("D") else ("west",) for name,pin in native_inputs.items()}
     access.update({pin:("south",) for pin in pins.selected_word})
     endpoint_bounds=dict.fromkeys((*native_inputs.values(),*pins.selected_word),bounds)
-    initial=bytes((bank*37+word*13)&255 for bank in range(30) for word in range(4))
-    blocks=list(iter_stacked_memory_tile(origin,tile=tile,initial=initial))
-    blocks+=list(iter_external_router(nets,access=access,endpoint_bounds=endpoint_bounds,
-        obstacle_bounds=(bounds,),obstacles=iter_stacked_tile_terminal_keepouts(origin,tile),minimum_y=-60))
-    assert min(placement.pos.y for placement in blocks) >= -60
-    assert max(placement.pos.y for placement in blocks) <= 318
+    initial=bytes((bank*37+word*13)&255 for bank in range(banks) for word in range(4))
+    blocks=chain(iter_stacked_memory_tile(origin,tile=tile,initial=initial),
+        iter_external_router(nets,access=access,endpoint_bounds=endpoint_bounds,
+            obstacle_bounds=(bounds,),obstacles=iter_stacked_tile_terminal_keepouts(origin,tile),minimum_y=-60))
     bits=lambda value:{f"Q{i}":bool(value>>i&1) for i in range(8)}
     steps=[{"ticks":5000,"expect":bits(0)}]
-    for bank in (0,15,29):
+    for bank in (0,banks//2,banks-1):
         for row in (0,3):
             steps += [
                 {"drive":{f"B{bank}":True,f"R{row}":True,"READ":True},"ticks":5000,"expect":bits(initial[bank*4+row])},
                 {"drive":{f"B{bank}":False,f"R{row}":False,"READ":False},"ticks":5000,"expect":bits(0)},
             ]
     steps += [
-        {"drive":{"B29":True,"R3":True,"READ":True,**{f"D{i}":bool(0xA5>>i&1) for i in range(8)}},"ticks":5000,"expect":bits(initial[-1])},
+        {"drive":{f"B{banks-1}":True,"R3":True,"READ":True,**{f"D{i}":bool(0xA5>>i&1) for i in range(8)}},"ticks":5000,"expect":bits(initial[-1])},
         {"drive":{"WRITE":True},"ticks":5000,"expect":bits(0xA5)},
         {"drive":{"WRITE":False},"ticks":5000,"expect":bits(0xA5)},
         {"drive":{f"D{i}":bool(0x5A>>i&1) for i in range(8)},"ticks":5000,"expect":bits(0xA5)},
     ]
-    # TestWorld has an unbounded positive-Y test grid. The actual generated
-    # geometry was checked above against Java and the preserved grass datum.
-    shift=lambda point:point.offset(dy=64)
-    run_case((Placement(shift(p.pos),p.block,p.component) for p in blocks),
-             {name:west_driver(shift(pin)) for name,pin in sources.items()},
-             {name:shift(pin) for name,pin in outputs.items()},steps,initial_ticks=128)
+    # Stream the long global routes rather than retaining Placement objects,
+    # a second object graph for JSON, and a huge encoded string together.
+    # Every emitted coordinate/state still undergoes conflict and height
+    # checks before the unchanged literal block fixture reaches the engine.
+    coord=lambda point:[point.x,point.y+64,point.z]
+    path=tmp_path/"routed-memory-case.json"
+    occupied,states={},{}
+    count=0
+    with path.open("w") as handle:
+        handle.write('{"blocks":[')
+        for placement in blocks:
+            point=coord(placement.pos)
+            assert -60 <= placement.pos.y <= 318
+            assert point[0]>=0 and 0<=point[2]<(1<<24)
+            key=point[0]<<40 | point[1]<<24 | point[2]
+            state=states.setdefault(placement.block,len(states))
+            assert occupied.setdefault(key,state)==state,f"conflicting physical blocks at {placement.pos}"
+            if count:
+                handle.write(",")
+            json.dump({"pos":point,"name":placement.block.name,
+                       "properties":dict(placement.block.properties)},handle,separators=(",",":"))
+            count+=1
+        handle.write("]")
+        for key,value in {"inputs":{name:coord(west_driver(pin)) for name,pin in sources.items()},
+                          "outputs":{name:coord(pin) for name,pin in outputs.items()},
+                          "steps":steps,"initial_ticks":128}.items():
+            handle.write(","+json.dumps(key)+":")
+            json.dump(value,handle,separators=(",",":"))
+        handle.write("}")
+    unique=len(occupied)
+    del occupied
+    with path.open() as handle:
+        result=subprocess.run([runner],stdin=handle,capture_output=True,text=True,timeout=120)
+    assert result.returncode==0,result.stdout[-4000:]+result.stderr[-4000:]
+    runtime=json.loads(result.stdout)
+    runtime.pop("traces",None)
+    assert runtime["status"]=="passed"
+    from shamaos.generator import source_provenance
+    report={"kind":"routed-stacked-memory-runtime","banks":banks,"base_y":base_y,
+            "selected_word_y":pins.selected_word[0].y,"emitted_placements":count,
+            "unique_blocks":unique,"runtime":runtime,"source":source_provenance(),
+            "complete_machine_runtime_verified":False}
+    destination=Path(os.environ.get("SHAMA_VALIDATION_REPORT_DIR",tmp_path))
+    destination.mkdir(parents=True,exist_ok=True)
+    (destination/f"routed-memory-{banks}-banks-y{base_y}.json").write_text(json.dumps(report,indent=2)+"\n")
+    path.unlink()
+
+
+def test_actual_global_routes_reach_all_faces_of_a_thirty_layer_memory_tile(tmp_path):
+    _actual_global_routes_reach_stacked_memory(tmp_path,banks=30,base_y=-56)
+
+
+def test_actual_global_routes_reach_the_shared_ram_top_return_at_y306(tmp_path):
+    # The highest return in the actual cache/VRAM/RAM column lies only one
+    # block below its local control ceiling; its south escape must remain
+    # routable without crossing another bank or Java's build-height limit.
+    _actual_global_routes_reach_stacked_memory(tmp_path,banks=24,base_y=24)
 
 
 def test_actual_router_honors_forced_west_escapes_for_source_and_sink():
@@ -563,7 +615,7 @@ def test_actual_routed_console_preserves_row_column_overlap_and_all_output_isola
         access=control_route_access(origin),endpoint_bounds=dict.fromkeys(sources.values(),bounds),
         obstacle_bounds=(bounds,)))
     _,_,all_selected=compact_console_case(origin)
-    selected=[all_selected[index] for index in (0,7,56,63,28,35,*range(64,77))]
+    selected=all_selected
     steps=[{"use_blocks":[coordinates(button)],"ticks":1500,"expect":dict.fromkeys(outputs,False)}
            for _,button,_ in selected]
     for name,position in control_switches(origin).items():
@@ -571,8 +623,9 @@ def test_actual_routed_console_preserves_row_column_overlap_and_all_output_isola
             {"use_blocks":[coordinates(position)],"ticks":1500,"expect":{out:out==name for out in outputs}},
             {"use_blocks":[coordinates(position)],"ticks":1500,"expect":dict.fromkeys(outputs,False)},
         ]
-    result=run_case(blocks,{},outputs,steps,capture_trace=True)
+    result=run_case(blocks,{},outputs,steps,capture_trace=True,timeout=120)
     minimum=2*CLOCK_HALF_PERIOD+TEMPLATES["DFF"].setup_ticks+TEMPLATES["DFF"].hold_ticks
+    overlaps=[]
     for index,(signals,_,width) in enumerate(selected):
         traces={name:trace[index*1500:(index+1)*1500] for name,trace in result["traces"].items()}
         assert all(high_runs(trace)==([width] if name in signals else []) for name,trace in traces.items()),signals
@@ -580,6 +633,18 @@ def test_actual_routed_console_preserves_row_column_overlap_and_all_output_isola
             first,second=sorted(signals)
             overlap=sum(a and b for a,b in zip(traces[first],traces[second]))
             assert overlap>=minimum,(signals,overlap)
+            overlaps.append(overlap)
+    report_directory=os.environ.get("SHAMA_VALIDATION_REPORT_DIR")
+    if report_directory:
+        from shamaos.generator import source_provenance
+        result.pop("traces",None)
+        directory=Path(report_directory)
+        directory.mkdir(parents=True,exist_ok=True)
+        report={"kind":"routed-console-all-79-actuators","runtime":result,
+                "actuators":79,"minimum_row_column_overlap_rt":min(overlaps),
+                "required_overlap_rt":minimum,"matrix_pulse_rt":119,"controller_pulse_rt":94,
+                "source":source_provenance(),"complete_machine_runtime_verified":False}
+        (directory/"routed-console-runtime.json").write_text(json.dumps(report,indent=2)+"\n")
 
 
 def test_actual_routed_display_uses_clear_front_and_side_approaches():

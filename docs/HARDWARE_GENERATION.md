@@ -20,23 +20,29 @@ DataVersion 3700, with all physical computation performed by emitted redstone.
 
 ## Regular fabrics
 
-The default image reserves 2 cache, 24 RAM, 63 flash and 4 VRAM bank modules.
-All are 4 KiB except the final flash bank, which contains exactly 512 words /
-2 KiB. Flash is initialized from the assembled 250 KiB ShamaFS image. Compact
+The default image reserves 2 cache, 24 RAM, 50 flash and 4 VRAM bank modules.
+All 80 banks contain exactly 1,024 words / 4 KiB. Flash is initialized from
+the assembled 200 KiB ShamaFS image. Compact
 memory cells use locked repeaters and isolated read/write buses; see
 [MEMORY.md](MEMORY.md) for counts, stacking work and initialization details.
 
 The superflat grass surface is a protected lower boundary. Storage begins with
 its lowest support one block above grass, and automatic stacking reserves the
 upper routing canopy. The default four-layer grass world fits 30 layers at
-12-block spacing; a Y=63 grass preset fits 20. Fewer layers create more
+12-block spacing; a Y=63 grass preset fits 20 memory layers. Fewer layers create more
 horizontal groups without changing capacity. All component and route supports
 must pass the same above-ground check as the memory cells.
 
-The display is a horizontal 320×180 X/Z panel, viewed from above, with a locked
-latch per lamp, five-block column pitch and four-block row pitch. The full
-57,600-pixel panel passes actual-engine retention/isolation checks. Its view
-from the operator console still needs integration. Physical keyboard/controller, Shift,
+The production display is an upright 320×180 X/Y panel with a locked latch per
+lamp, three-block column pitch and two-block row pitch. The full 57,600-pixel
+panel passes actual-engine retention/isolation checks; the bridge compensates
+alternating physical row polarity while loading its serial row buffer. This
+geometry spans Y=surface+1 through surface+365, so the full build requires grass
+at Y=-46 or lower under the Java 1.20.4 height limit. Higher ground is rejected
+before emission even if memory alone could fit. The logical resolution is
+unchanged, but rectangular physical pixel spacing stretches the visible image.
+The console, its complete input routes and the standing view are separate
+integration checks. Physical keyboard/controller, Shift,
 power/reset/pause/step, clock and architectural debug lamps form the interface.
 
 ## Logic mapping

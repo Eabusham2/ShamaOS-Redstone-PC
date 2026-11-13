@@ -76,7 +76,7 @@ module tb_kernel_ui;
         if(cacheline[191:120]!==72'h30303030313230302f) $fatal(1,"cache bytes: %s",cacheline);
         if(cacheline[119:56]!=="00002000") $fatal(1,"cache total: %s",cacheline);
         if(flashline[191:120]!==72'h30303034353637382f) $fatal(1,"flash bytes: %s",flashline);
-        if(flashline[119:56]!=="0003E800") $fatal(1,"flash total: %s",flashline);
+        if(flashline[119:56]!=="00032000") $fatal(1,"flash total: %s",flashline);
         view(12'h048,5,0,0);
         if(title!=="DELETE > CANCEL   A SELECT      ") $fatal(1,"delete default is not Cancel: %s",title);
         view(12'h048,5,1,0);

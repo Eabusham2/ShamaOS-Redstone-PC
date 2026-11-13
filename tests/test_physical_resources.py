@@ -18,6 +18,18 @@ def test_panel_count_and_chunk_formula_matches_actual_blocks(width, height, px, 
     assert chunks == {(block.pos.x // 16, block.pos.z // 16) for block in blocks}
 
 
+@pytest.mark.parametrize("width,height,x,z", [(1, 1, 0, 0), (8, 4, 7, 9), (7, 9, -17, -17),
+                                            (8, 180, 489, 512), (320, 4, 489, 512)])
+def test_upright_panel_resources_match_unique_emission(width, height, x, z):
+    origin = Vec3(x, -54, z)
+    spec = LampPanelSpec(width, height, 3, 2, orientation="upright")
+    blocks = list(iter_lamp_panel(origin, spec=spec))
+    assert len({p.pos for p in blocks}) == len(blocks)
+    count, chunks = panel_resources(origin, spec)
+    assert count == len(blocks)
+    assert chunks == {(p.pos.x // 16, p.pos.z // 16) for p in blocks}
+
+
 @pytest.mark.parametrize("words,x,z", [(1, 0, 0), (2, 7, 9), (8, 15, 15), (17, 4, 8), (32, 0, 0)])
 @pytest.mark.parametrize("decoder_offset", [-170, -154, -138])
 def test_binary_row_profile_matches_literal_decoder(words, x, z, decoder_offset):

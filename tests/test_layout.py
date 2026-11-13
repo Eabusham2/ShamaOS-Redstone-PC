@@ -30,7 +30,7 @@ def test_auto_stacking_preserves_surface_and_routing_canopy(surface, base, layer
         bounds = fabric.bounds(origin)
         assert bounds.min.y >= surface + 1
         assert bounds.max.y <= 307
-    assert [fabric.bank_count for fabric in fabrics] == [2, 24, 63, 4]
+    assert [fabric.bank_count for fabric in fabrics] == [2, 24, 50, 4]
     assert [fabric.layers for fabric in fabrics] == [2, min(24, layers), layers, 4]
     if surface == -61:
         assert shared_memory_tile(geometry) == {"cache": (0, -170), "vram": (28, -154), "ram": (80, -138)}
@@ -96,6 +96,10 @@ def test_production_sections_manifest_and_capacity_match_shared_placement(surfac
     config["world"]["surface_y"] = surface
     config["world"]["origin_y"] = surface + 5
     config["memory"]["stack_layers"] = layers
+    if surface == 63:
+        # This case checks independent memory tiles on a higher grass
+        # surface; the full upright display has its own height rejection.
+        config["display"].update(orientation="horizontal", pixel_pitch_x=5, pixel_pitch_y=4)
     geometry = geometry_from_config(config)
     origins = default_origins(geometry)
     exported = manifest(config, plan_machine(geometry))
@@ -103,9 +107,9 @@ def test_production_sections_manifest_and_capacity_match_shared_placement(surfac
     assert bool(packing["shared_fabrics"]) is shared
     assert packing["horizontal_tiles"] == _storage_layout_cost(geometry)["horizontal_memory_tiles"]
     sections = [section for section in physical_sections(config) if section.metadata.get("kind") == "stacked-memory-tile"]
-    assert sum(section.metadata["banks"] for section in sections) == 93
+    assert sum(section.metadata["banks"] for section in sections) == 80
     ram_sections = [section for section in sections if section.name.startswith("ram-")]
     assert sum(section.metadata["bytes"] for section in ram_sections) == RAM_BYTES
     assert ram_sections[0].metadata["origin"] == vars(origins.ram)
-    assert exported["memory_banks"] == {"cache": 2, "ram": 24, "flash": 63, "vram": 4, "bytes_per_bank": 4096,
-                                        "final_bank_bytes": {"cache": 4096, "ram": 4096, "flash": 2048, "vram": 4096}}
+    assert exported["memory_banks"] == {"cache": 2, "ram": 24, "flash": 50, "vram": 4, "bytes_per_bank": 4096,
+                                        "final_bank_bytes": {"cache": 4096, "ram": 4096, "flash": 4096, "vram": 4096}}

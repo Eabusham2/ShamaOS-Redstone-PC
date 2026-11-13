@@ -112,8 +112,9 @@ controller/reset/step signals to **94 ticks** and keyboard row/column signals to
 **119 ticks**. Wait for the stretched release before another key. The longer
 keyboard pulse allows the two independently routed matrix lines to overlap at
 the sampling clock. All 64 native keys and the dedicated Shift button have at
-least **101 ticks** of simultaneous row/column high. The representative routed
-console test requires at least 80 ticks: one raw period plus the DFF's eight-tick
+least **101 ticks** of simultaneous row/column high. The all-actuator routed
+console test measures a minimum **81 ticks** against the required 80 ticks:
+one raw period plus the DFF's eight-tick
 setup and two-tick hold budget. Full-system routes must preserve that margin too. Tick-rate
 acceleration advances these same circuits; it does not bypass the input FIFO.
 
@@ -123,17 +124,59 @@ The dedicated Shift duplicates matrix key R7/C7; it does not remove any key.
 A connected deck and four ordinary steps provide access from the grass, with
 two blocks of player headroom. The physical pulse circuits are stacked behind
 and above the controls. Their exact bounds relative to the input origin are
-`(2,-4,0)` through `(126,39,128)` (**125×44×129**); the lowest support is one block
-above the selected grass surface. This backend emits 10,902 placements and
-occupies 33 X/Z chunks at the production alignment, separately from the small
+`(2,-4,0)` through `(206,39,134)` (**205×44×135**); the lowest support is one block
+above the selected grass surface. This backend emits **13,254 placements** at
+**13,006 unique block positions** and occupies **47 X/Z chunks** at the production alignment, separately from the small
 player activation area. Exports use explicit open faces and climb outside the
 backend envelope; input-tower and pulse-output clearance is tested.
 
-This establishes walking access to the controls. The unchanged **320×180 lamp
-display**, currently 1600×720 blocks at five-block column/four-block row pitch
-(before external panel interfaces), has not been
-demonstrated readable from this console. A coherent screen view remains a
-separate operating-station requirement.
+Eight column pulse circuits sit 96 blocks farther east, and four side-control
+pulse circuits sit 80 blocks farther east. This clears their native bodies and
+their export leads from the screen view. Existing repeaters add 14 ticks of
+common row delay to balance the longer column path; neither pulse widths nor
+the 79 activation positions change. The clock sits 48 blocks north of its old
+position, outside the console envelope, with unchanged occupied chunk count.
+
+## Screen viewing position
+
+The production screen is an upright **320×180** array with **57,600 lamps and
+57,600 independent pixel latches**. Its visible face is **958×359 blocks**,
+using a three-block horizontal and two-block vertical pixel pitch. Its complete
+native circuit occupies **108 horizontal chunks**; external routes are counted
+separately. Logical row 0 is the top row. The physical 3×2 pitch makes the image
+about 50% wider than square logical pixels; resolution remains 320×180.
+
+For the default origin, walk south from the keyboard onto the connected viewing
+lip. Stand at **X967.5, feet Y−55, Z64.5**, looking toward **+Z**. A standing eye
+height of 1.62 gives eye Y−53.38. The 16×16 activation area stays unchanged; the
+viewing extension is a short walk beyond its south edge and has two-block
+standing clearance. All **57,600 lamp-center rays** are clear from this exact
+position, including the native console, debug/clock cells and all 30 planned
+console export paths. Other key positions are not guaranteed to show every
+pixel unobstructed.
+
+The farthest lamp center is about **656 horizontal blocks** from the viewing
+position; the farthest native panel circuit is about **961 horizontal blocks**
+away. These are geometric distances, not claims about a particular client's
+render or simulation-distance setting. Render distance must actually include
+the whole face, and the operating screen requires all of its circuit chunks
+loaded. A distant-geometry visual mod alone is not proof that those redstone
+chunks are ticking. Full-world loading and in-client rendering remain required
+checks even when the camera projection and sightlines pass.
+
+The deterministic camera check uses **yaw 0°, pitch −21.788°, 70° vertical
+field of view and a 16:9 viewport**. At 1920×1080 the entire face projects inside
+X71.44..1850.41 and Y305.67..849.51; a lamp is approximately 1.41..1.86 pixels
+wide. This establishes the geometry of a complete view. It does not claim an
+observed Minecraft client FOV-slider mapping or in-client text legibility.
+Generate the labeled perspective preview with
+`python tools/render_operator_view.py` (Pillow required).
+
+The default native panel bounds are **(489,−60,512)..(1808,304,529)**, above
+intact classic-superflat grass at Y−61. A full upright panel cannot fit above
+grass at Y63; generation rejects it before placement instead of clipping pixels
+or digging into terrain. Complete-machine routing, client rendering and
+saved-world OS execution remain separate release gates.
 
 The debug lamps form a vertical north-facing wall, with four-block column
 and row pitch and input terminals facing south. Its relative bounds are
@@ -150,8 +193,13 @@ These local and routed properties are exercised by
 `tests/test_mchprs_runtime.py` in the actual MCHPRS engine, including cold-clock
 startup, every clock start/stop phase, all 79 console actuators, and independently
 driven debug lamps. `tests/test_compact_controls.py` checks the connected deck,
-player clearance, exact bounds and grass protection. Saved-world OS execution remains a
-separate release requirement.
+player clearance, exact bounds and grass protection.
+[`test_upright_display.py`](../tests/test_upright_display.py) checks full-frame
+projection, every sightline, the 500 native panel escapes, actual GPU/bridge
+rows, full-resolution lamp state, and reopened panel polarity/ground. Its
+native-clock fixtures also retain writes with 70-tick data setup and a
+70-tick commit pulse across the full height and full width; complete-machine
+route skew remains a separate release requirement.
 
 ## Desktop and Editor
 

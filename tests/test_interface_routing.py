@@ -5,7 +5,7 @@ from shamaos.hardware.external_router import ExternalNet, iter_external_router
 from shamaos.hardware.external_router import _plan_escapes
 from shamaos.hardware.debug import debug_ports, iter_debug_panel
 from shamaos.hardware.controls import control_bounds, control_route_access, iter_controls
-from shamaos.hardware.clock import iter_clock
+from shamaos.hardware.clock import clock_ports, iter_clock, system_clock_origin
 from shamaos.hardware.interfaces import system_routing_interfaces
 from shamaos.layout import MachineGeometry, default_origins, memory_specs
 from shamaos.hardware.memory_backbone import fabric_tile_ports
@@ -28,7 +28,7 @@ def test_interface_contracts_are_derived_from_surface_and_native_tiles(surface):
     origins=default_origins(geometry)
     shell_pin=Vec3(10000,surface+6,0)
     interfaces=system_routing_interfaces(geometry,{"a":(shell_pin,)},{},
-        clock_origin=origins.input.offset(180),constant_high=origins.input.offset(300,1))
+        clock_origin=system_clock_origin(origins.input),constant_high=origins.input.offset(300,1))
     assert interfaces.minimum_y==surface+1
     assert min(p.pos.y for p in interfaces.obstacles)>=interfaces.minimum_y
     assert interfaces.access[shell_pin]==("south",)
@@ -56,6 +56,20 @@ def test_complete_console_export_clears_its_stacked_backend():
     for pin,escape in escapes.items():
         if access[pin]==("wall-south",):
             assert escape.branch_x>=bounds.max.x+3
+
+
+def test_clock_and_all_console_exports_clear_the_wider_native_console():
+    origin=Vec3(900,-56,-8)
+    access=control_route_access(origin)
+    console_pins=tuple(access)
+    clock_base=system_clock_origin(origin)
+    clock=clock_ports(clock_base)
+    access.update(dict.fromkeys((clock.enable,clock.hold,clock.clock),("south",)))
+    bounds=control_bounds(origin)
+    obstacles=[*iter_controls(origin),*iter_clock(clock_base)]
+    escapes=_plan_escapes(access,314,obstacles,access=access,minimum_y=-60,
+        endpoint_bounds=dict.fromkeys(console_pins,bounds),obstacle_bounds=(bounds,))
+    assert len(escapes)==33
 
 
 def test_complete_debug_wall_escape_geometry_clears_console_and_clock():

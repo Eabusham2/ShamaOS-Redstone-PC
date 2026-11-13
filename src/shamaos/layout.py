@@ -4,9 +4,9 @@ from dataclasses import dataclass
 import math
 
 from .hardware.display import LampPanelSpec, panel_bounds
-from .hardware.clock import CLOCK_BOUNDS
+from .hardware.clock import CLOCK_BOUNDS, system_clock_origin
 from .hardware.debug import DEBUG_BOUNDS
-from .hardware.controls import control_bounds, control_interaction_descriptor
+from .hardware.controls import control_bounds, control_collision_bounds, control_interaction_descriptor
 from .hardware.memory import MemoryBankSpec, MemoryFabricSpec, bank_ports
 from .hardware.memory_backbone import BINARY_ROW_X_OFFSET, StackedMemoryFabricSpec
 from .machine_spec import VRAM_BYTES
@@ -34,6 +34,7 @@ class MachineGeometry:
     memory_share_small_tile: bool = True
     pixel_pitch_x: int = 5
     pixel_pitch_y: int = 4
+    display_orientation: str = "horizontal"
 
     def __post_init__(self) -> None:
         if not -64 <= self.surface_y <= 314:
@@ -44,6 +45,17 @@ class MachineGeometry:
             raise ValueError("component origin would place console stair supports below the grass surface")
         if self.origin.y + DEBUG_BOUNDS[1][1] > 319:
             raise ValueError("component origin would place the debug wall above Java build height")
+        if self.display_orientation not in ("horizontal", "upright"):
+            raise ValueError("display orientation must be 'horizontal' or 'upright'")
+        if self.display_orientation == "upright":
+            if (self.pixel_pitch_x, self.pixel_pitch_y) != (3, 2):
+                raise ValueError("upright display requires the validated 3 by 2 pixel pitch")
+            highest_pixel = self.origin.y + 2 + 2 * (self.display_height - 1)
+            if highest_pixel > 319:
+                raise ValueError(
+                    f"upright display reaches Y{highest_pixel}, above Java build height Y319; "
+                    "use the classic superflat grass surface at Y-61 for the full 320x180 computer"
+                )
         if self.memory_layer_pitch < 12 or self.memory_layer_pitch % 4:
             raise ValueError("memory layer pitch must be at least 12 and divisible by 4")
         if self.storage_origin_y - 4 < self.minimum_build_y:
@@ -174,7 +186,8 @@ def default_origins(g: MachineGeometry) -> PhysicalOrigins:
         flash=memory_origins["flash"],
         vram=memory_origins["vram"],
         input=Vec3(ox + 900, oy, oz - 8),
-        display=Vec3(ox, oy, oz + 400),
+        display=(Vec3(ox + 489, oy + 2, oz + 512)
+                 if g.display_orientation == "upright" else Vec3(ox, oy, oz + 400)),
     )
 
 
@@ -255,6 +268,7 @@ def plan_machine(g: MachineGeometry, *, origins: PhysicalOrigins | None = None) 
         height=g.display_height,
         pixel_pitch_x=g.pixel_pitch_x,
         pixel_pitch_y=g.pixel_pitch_y,
+        orientation=g.display_orientation,
     )
 
     plan = BuildPlan()
@@ -316,6 +330,7 @@ def plan_machine(g: MachineGeometry, *, origins: PhysicalOrigins | None = None) 
         metadata={"keyboard": "8x8 with Shift", "controller": True, "power": True,
                   "pause": True, "manual_step": True,
                   "player_interaction": control_interaction_descriptor(origins.input)},
+        collision_boxes=control_collision_bounds(origins.input),
     ))
 
     plan.add(ComponentPlan(
@@ -328,13 +343,14 @@ def plan_machine(g: MachineGeometry, *, origins: PhysicalOrigins | None = None) 
             "bits_per_pixel": 1,
             "pixel_pitch_x": panel.pixel_pitch_x,
             "pixel_pitch_y": panel.pixel_pitch_y,
-            "orientation": "horizontal-xz-viewed-from-above",
+            "orientation": ("upright-xy-viewed-from-north" if panel.orientation == "upright"
+                            else "horizontal-xz-viewed-from-above"),
         },
     ))
 
     for name, origin, bounds in (
         ("debug-panel", origins.input.offset(0, 0, -224), DEBUG_BOUNDS),
-        ("clock", origins.input.offset(180, 0, 0), CLOCK_BOUNDS),
+        ("clock", system_clock_origin(origins.input), CLOCK_BOUNDS),
     ):
         plan.add(ComponentPlan(name, Box(origin.offset(*bounds[0]), origin.offset(*bounds[1])),
                                "physical-diagnostics" if name == "debug-panel" else "physical-clock"))

@@ -1,5 +1,55 @@
 # Resumable work checkpoint — 2026-11-13
 
+## Resume override — current owner instruction
+
+The execution workspace returned. Work resumed in an isolated checkout at
+`/workspace/scratch/fb0eaf1c89fe/ShamaOS-resume`, based on recovery commit
+`538606cc0f34f5b041935e276b8ba295f7d00b83`. The original checkout was preserved.
+The owner explicitly returned flash to **200 KiB**, provided the history-save
+temporary copy could shrink to at most 8 KiB. This supersedes the historical
+224 KiB proposal below. Do not restore that proposal as the current target.
+
+The current code uses 50 full flash banks, 96 KiB RAM, 8 KiB cache and 16 KiB
+VRAM. All 32 installed entries and their contents remain; allocation is
+162,304 bytes (158.5 KiB / 79.25%). The write guard is 194,560 bytes (190 KiB).
+History now journals one complete 128-byte record in existing reserved
+metadata, retaining all 256 records and allocating no replacement extent.
+Its final focused regression passed 76 tests, zero failures/errors/skips,
+including interruption at every acknowledged write prefix and idempotent
+recovery. The matched save benchmark fell from 99,919 to 805 controller
+simulation cycles; this is not a Minecraft wall-clock benchmark.
+
+The complete upright 320×180 panel now passes real GPU → bridge → actual-engine
+replay: all 57,600 lamps after 73 steps / 75,776 RT, at 108 occupied chunks.
+All 79 routed console controls pass; native saved/readback panels and consoles
+also pass. The 500 display-terminal escape regression and 22 external/interface/
+resource tests pass. Projection and ray checks show the whole panel from the
+standing lip, but client render/loading range and final global routes remain
+unverified. The final console backend uses 47 chunks while actuators stay 16×16.
+
+Upward memory returns are promoted. The final memory regression passes 62 tests,
+capacity/resource checks 24, and both Y=298/Y=306 return routes 2, all without skips.
+Full-depth and maximum-height tests remain distinct. The Rust harness now streams
+JSON and resolves actual block states during parsing; 19 old/new complete traces
+match, and a deliberate wrong output still fails. The new regular geometry is
+**23,328 occupied chunks / 86,000 envelope chunks / 202,522,304 placements**.
+Full evidence and provenance are retained under `docs/evidence/` and in focused
+`build/` reports. Do not reuse the historical 250 KiB totals. Global routing,
+clock timing, a complete
+loaded/ticking-world plan and whole-computer runtime acceptance remain open.
+
+The bounded hierarchy audit and real sequential cut pass 17 tests with deliberate
+passing/failing clock rates; see `docs/ROUTING_PROGRESS.md`. All three agents are
+now reassigned to the complete graph partition planner, physical horizontal
+placement, and sparse whole-world runtime/loading prototypes. Their new work is
+outside this candidate under `/workspace/scratch/fb0eaf1c89fe/experiments/` until
+a separate implementation worktree is created. Root handles integration, docs,
+commits and CI. The fresh 19-case 200 KiB SoC regression is running; all three
+production-controller lifecycle/typed-assembly/heap-replacement cases already
+passed. No individual fixture or old CI run certifies this current candidate.
+
+## Historical pause record
+
 The owner requested saving the work and ending the turn so the unavailable
 execution environment can recover. This branch preserves reviewed follow-ups
 and isolated experiments. It is NOT a completed computer or release candidate.
@@ -24,7 +74,7 @@ This recovery branch adds the reviewed guide/14-day retention updates, two
 documentation corrections, and isolated upright-screen recovery sources. It
 does not select the experimental panel in production or change flash capacity.
 
-## Latest owner instruction: 224 KiB flash
+## Historical pause instruction: 224 KiB flash (superseded)
 
 After the temporary 200 KiB proposal, the owner asked for approximately 225 or
 226 KiB, or a clean value near there. The selected new target is **224 KiB**:

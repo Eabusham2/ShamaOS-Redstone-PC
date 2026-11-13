@@ -231,7 +231,7 @@ module tb_fs_accel;
         call4(12'h023,x_handle,32'h500,20,0);ok();
         if(req_ret!=11 || `FS_RAM_MEMORY[32'h500/4]!=32'h6c706572 || `FS_FLASH_MEMORY[16]!=0) $fatal(1,"journal replay failed");
 
-        // Miner state and 128-byte history slots are COW, not in-place writes.
+        // State uses COW; history uses a committed 128-byte record redo journal.
         `FS_RAM_MEMORY[32'h600/4]=32'h31524d53;`FS_RAM_MEMORY[(32'h600+48)/4]=32'hdeadbeef;`FS_RAM_MEMORY[(32'h600+80)/4]=32'h12345678;
         call4(12'h051,32'h600,256,0,0);ok();
         call4(12'h053,32'h800,256,0,0);ok();
