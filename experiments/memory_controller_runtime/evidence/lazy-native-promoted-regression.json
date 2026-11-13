@@ -1,0 +1,125 @@
+{
+  "canonical_binaries": {
+    "shama-dense-world-check-terrain": {
+      "path": "/workspace/scratch/fb0eaf1c89fe/experiments/cache-controller/lazy-native-promoted/target/release/shama-dense-world-check-terrain",
+      "sha256": "3e41505b9af4559769438fc41b5fb7b4c8ce9c8d2e2bdeeccb3a38f1c61c4569"
+    },
+    "shama-sparse-world-check": {
+      "path": "/workspace/scratch/fb0eaf1c89fe/experiments/cache-controller/lazy-native-promoted/target/release/shama-sparse-world-check",
+      "sha256": "cd60e91acf9bf70a67abaa2ebb6731640925a3f79371f3359204a25ad02ce207"
+    },
+    "shama-sparse-world-check-terrain": {
+      "path": "/workspace/scratch/fb0eaf1c89fe/experiments/cache-controller/lazy-native-promoted/target/release/shama-sparse-world-check-terrain",
+      "sha256": "16a981eca53535e8109f22090d8afcb2e5b0870d73ac4697083c01c0a84d6691"
+    }
+  },
+  "canonical_native_rust_tests": 12,
+  "complete_machine_runtime_verified": false,
+  "connected_cache_runtime_verified": false,
+  "junit_sha256": "6d64bce4312c4cb65d94a6ebfe20ee712012297ea14e2645fcc965ed581dd63a",
+  "native_clock_proof_source_equivalence": {
+    "full_controller_clock_proof": "cache-controller-native-clock-proof.json",
+    "isolated_source_sha256": {
+      "src/lazy_storage.rs": "2608a743c7b8f59ae90255e464a744b9492838df0dc0717dfee0272e0de5528c",
+      "src/main.rs": "907b595d253bd4891f156706fdffa6f1257b2b6abf667b2cb11ecd205e33079d",
+      "src/pending.rs": "ad8b1c89796c74a840b7535d9639d7734655726a71d91ef91c0f834121f3a20d",
+      "src/snapshot.rs": "ad61ec5722bcf20abea2c97ecef8401364abb1010e2f735f131b6d544d5839ab"
+    },
+    "scope": "Complete controller clock proof used the isolated binary; canonical sources are byte-identical and canonical native regressions passed"
+  },
+  "native_loader_trace_persistence_suites": [
+    {
+      "errors": "0",
+      "failures": "0",
+      "hostname": "1a3723e532d2",
+      "name": "pytest",
+      "skipped": "0",
+      "tests": "115",
+      "time": "65.354",
+      "timestamp": "2026-11-12T23:52:23.271702-06:00"
+    }
+  ],
+  "pending_queue_cargo_and_pinned_dependencies_unchanged": true,
+  "promoted_sources_byte_identical_to_reviewed_candidate": true,
+  "schema": "canonical-lazy-native-storage-promotion-v1",
+  "source_sha256": {
+    "tests/mchprs_sparse_runtime/Cargo.lock": "caf6cdc0a25e3b15e917d551d35b97800bd49e307cf0cb54094a4f40245d292b",
+    "tests/mchprs_sparse_runtime/Cargo.toml": "e4c6bd5b3602b4ee0a3bef0d1816dea6042557eaf88b07877424d6d39164d2de",
+    "tests/mchprs_sparse_runtime/native-terrain-registry.patch": "8ebd0e097d07e93a6b2b158e08ad19c2660b0b7e2521c6b6d34a4583a10bfbdc",
+    "tests/mchprs_sparse_runtime/pinned-source-provenance.json": "10050378445a8544d2d44e55d67eb682fca0200184ddc0461dc333ea4d93d2e6",
+    "tests/mchprs_sparse_runtime/src/lazy_storage.rs": "2608a743c7b8f59ae90255e464a744b9492838df0dc0717dfee0272e0de5528c",
+    "tests/mchprs_sparse_runtime/src/main.rs": "907b595d253bd4891f156706fdffa6f1257b2b6abf667b2cb11ecd205e33079d",
+    "tests/mchprs_sparse_runtime/src/pending.rs": "ad8b1c89796c74a840b7535d9639d7734655726a71d91ef91c0f834121f3a20d",
+    "tests/mchprs_sparse_runtime/src/snapshot.rs": "ad61ec5722bcf20abea2c97ecef8401364abb1010e2f735f131b6d544d5839ab",
+    "tools/prepare_mchprs_terrain_registry.py": "1a30269043b26b833ae68ff841d8b5534aa61aedc4d4bd6bd9cc56c06d84bea2"
+  },
+  "standard_preparation": {
+    "added_native_states": {
+      "minecraft:bedrock": [
+        {
+          "default": true,
+          "id": 79
+        }
+      ],
+      "minecraft:dirt": [
+        {
+          "default": true,
+          "id": 10
+        }
+      ],
+      "minecraft:grass_block": [
+        {
+          "id": 8,
+          "properties": {
+            "snowy": "true"
+          }
+        },
+        {
+          "default": true,
+          "id": 9,
+          "properties": {
+            "snowy": "false"
+          }
+        }
+      ]
+    },
+    "bundled_java_registry_sha256": "18d83f2c0c04adda138cd8caeb8db14442628f1e6ca3c949b202db2d63573f73",
+    "dense_runner_manifest": "/workspace/scratch/fb0eaf1c89fe/experiments/cache-controller/lazy-native-promoted/dense-terrain-runner/Cargo.toml",
+    "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+    "extended_generated_sha256": "4f063df1b2cb9871d1ec1cf6920c12f51a758aa0fd3e8110a3b1d9928f7624e9",
+    "original_generated_sha256": "3dcbf366da901d487c04fd6fbf60930614a44e384be160ea2d279d6861c4a468",
+    "patch_sha256": "8ebd0e097d07e93a6b2b158e08ad19c2660b0b7e2521c6b6d34a4583a10bfbdc",
+    "redstone_source_unchanged_sha256": {
+      "crates/redstone/Cargo.toml": "82cd3c8fae4bed364308cbfdec57db0b03d9b25ac040959e9931ab3ba6578c74",
+      "crates/redstone/src/comparator.rs": "9d297c19ad051b9fd2195fb8803ccdc62f05fbdc294cef902b758caeda78d886",
+      "crates/redstone/src/lib.rs": "92cdbb9f8149d0cb397c0b8d81522d33501c20620c76fdedc01d512ad20385c7",
+      "crates/redstone/src/noteblock.rs": "2633885f0fc86029046df8f05b6e66aaa34dd91517ae549a16efd49be6abb5a9",
+      "crates/redstone/src/repeater.rs": "3a76fc14ff134a3649ecf59f14c14bd8c5aa026d198a0518038a3ef8f8a565e4",
+      "crates/redstone/src/wire/mod.rs": "f5a7903acd9c81951be71e2ac151b41abfba608c40cb23cc5cad29fc4d3a5309",
+      "crates/redstone/src/wire/turbo.rs": "29c316ac2dd8ee60596a0976df788909500f94c2832dbe208413a7f72ba2c3aa"
+    },
+    "runner_manifest": "/workspace/scratch/fb0eaf1c89fe/experiments/cache-controller/lazy-native-promoted/terrain-runner/Cargo.toml",
+    "runners": {
+      "dense": {
+        "binary_name": "shama-dense-world-check-terrain",
+        "manifest": "/workspace/scratch/fb0eaf1c89fe/experiments/cache-controller/lazy-native-promoted/dense-terrain-runner/Cargo.toml",
+        "manifest_sha256": "b888d238ba4c3a48657bb5a7df4796f98513672186389383fa292798d0d1be9a",
+        "original_lock_sha256": "79b57895decca313a448429d21c8242d22dc8473490d780a3eb043d50d2704a7",
+        "original_manifest_sha256": "dde1ce38ffa57b4f1b6c4f1460fe56341e2187f1d43f05fabe75d42dcffc5fa9",
+        "unchanged_source": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/tests/mchprs_runtime/src/main.rs",
+        "unchanged_source_sha256": "fe5fec86d2b25a1f6433f489f796cd63062ba8a0e0e5667fcc132dccb66b8316"
+      },
+      "sparse": {
+        "binary_name": "shama-sparse-world-check-terrain",
+        "manifest": "/workspace/scratch/fb0eaf1c89fe/experiments/cache-controller/lazy-native-promoted/terrain-runner/Cargo.toml",
+        "manifest_sha256": "15fe821540943d1c3d0758c997d7b90cdb35f37011bd0718264afe10142f8bc0",
+        "original_lock_sha256": "caf6cdc0a25e3b15e917d551d35b97800bd49e307cf0cb54094a4f40245d292b",
+        "original_manifest_sha256": "e4c6bd5b3602b4ee0a3bef0d1816dea6042557eaf88b07877424d6d39164d2de",
+        "unchanged_source": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/tests/mchprs_sparse_runtime/src/main.rs",
+        "unchanged_source_sha256": "907b595d253bd4891f156706fdffa6f1257b2b6abf667b2cb11ecd205e33079d"
+      }
+    },
+    "scope": "native inert full-cube terrain registration only; all redstone implementation unchanged"
+  },
+  "status": "passed"
+}

@@ -1,0 +1,113 @@
+{
+  "schema": "exact-commit-ci-review-v1",
+  "head_sha": "1c1b3a150ec0a5abbc7cd697da35e0298298e197",
+  "workflow_run_id": 43364358101,
+  "workflow_url": "https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/43364358101",
+  "status": "completed",
+  "conclusion": "success",
+  "completed_jobs": 20,
+  "successful_jobs": 20,
+  "jobs": [
+    {
+      "name": "behavioral-and-redstone",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "full-physical-partitions (u_input, shama_input, 1)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "full-physical-partitions (u_gpu, shama_gpu, 2)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "test (ubuntu-24.04, 3.11)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "rtl",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "test (windows-latest, 3.12)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "test (ubuntu-24.04, 3.12)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "full-physical-partitions (u_services, shama_services, 5)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "world-backend",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "full-physical-partitions (u_vram, shama_vram_adapter, 4)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "test (windows-latest, 3.11)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "full-physical-partitions (u_display_bridge, shama_display_bridge, 3)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "full-physical-partitions (u_flash, shama_flash_adapter, 11)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "full-physical-partitions (u_cpu, shama_cpu, 0)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "full-physical-partitions (u_asm, shama_asm_accel, 8)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "full-physical-partitions (u_kernel, shama_kernel_accel, 6)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "full-physical-partitions (u_ram, shama_ram_adapter, 10)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "full-physical-partitions (u_fs, shama_fs_accel, 7)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "full-physical-partitions (u_cache, shama_cache_adapter, 9)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "full-physical-synthesis",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "scope": "Published 200 KiB and assembler/persistence checkpoint CI. Does not establish complete Minecraft world generation or runtime; newer completion work requires its own CI."
+}

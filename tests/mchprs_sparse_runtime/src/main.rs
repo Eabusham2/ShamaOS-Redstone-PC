@@ -16,6 +16,8 @@ const SECTIONS: usize = 24;
 const Y_OFFSET: i32 = 64;
 
 mod snapshot;
+mod lazy_storage;
+use lazy_storage::{StoredChunk, StoredSection};
 mod pending;
 use pending::PendingTicks;
 
@@ -87,7 +89,7 @@ enum Record {
     Complete { chunks: usize, sections: usize, nonair: u64, comparators: usize },
 }
 
-fn native_section(bits:u8,palette:Vec<State>,data:Vec<u64>,nonair:u32)->ChunkSection {
+fn native_section(bits:u8,palette:Vec<State>,data:Vec<u64>,nonair:u32)->StoredSection {
     assert!((4..=12).contains(&bits));
     assert!(!palette.is_empty() && palette.len()<=4096,"invalid native palette length");
     let expected_bits=4u8.max((usize::BITS-(palette.len()-1).leading_zeros()) as u8);
@@ -109,15 +111,15 @@ fn native_section(bits:u8,palette:Vec<State>,data:Vec<u64>,nonair:u32)->ChunkSec
     assert_eq!(actual,nonair,"native non-air count mismatch");
     // Native Anvil still uses a local palette above 8 bits. Pinned MCHPRS
     // interprets 9+ bits as direct IDs, so repack without changing any state.
-    if bits>=9 {ChunkSection::from_raw(direct,15,Vec::new(),actual)}
-    else {ChunkSection::from_raw(data,bits,ids,actual)}
+    StoredSection::native(if bits>=9 {ChunkSection::from_raw(direct,15,Vec::new(),actual)}
+    else {ChunkSection::from_raw(data,bits,ids,actual)})
 }
 
-fn uniform_native_section(state:State,nonair:u32)->ChunkSection {
+fn uniform_native_section(state:State,nonair:u32)->StoredSection {
     let id=state.block().get_id();
     assert!(id<32768,"state outside pinned engine ID range");
     assert_eq!(nonair,if id==0 {0} else {4096},"uniform section non-air count mismatch");
-    ChunkSection::from_raw(vec![0;256],4,vec![id],nonair)
+    StoredSection::uniform(id)
 }
 
 fn register_section(chunk:[i32;2],y:i32,seen:&mut HashSet<(i32,i32,i32)>) {
@@ -128,8 +130,8 @@ fn register_section(chunk:[i32;2],y:i32,seen:&mut HashSet<(i32,i32,i32)>) {
 }
 
 struct SparseWorld {
-    chunks: HashMap<(i32,i32),Chunk>,
-    background: Chunk,
+    chunks: HashMap<(i32,i32),StoredChunk>,
+    background: StoredChunk,
     pending: PendingTicks,
     maximum_chunks: usize,
     scheduled_total: u64,
@@ -138,7 +140,7 @@ struct SparseWorld {
 
 impl SparseWorld {
     fn new(surface_y: Option<i32>, maximum_chunks: usize) -> Self {
-        let mut background = Chunk::empty(0,0,SECTIONS);
+        let mut background = StoredChunk::empty(0,0,SECTIONS);
         if let Some(surface) = surface_y {
             assert!((-63..=319).contains(&surface));
             let required=|name:&str| Block::from_name(name)
@@ -155,18 +157,17 @@ impl SparseWorld {
                     data[index/16] |= state << ((index%16)*4);
                     nonair += u32::from(state!=0);
                 }
-                background.sections[sy]=ChunkSection::from_raw(data,4,vec![0,bedrock,dirt,grass],nonair);
+                background.replace_section(sy, StoredSection::native(ChunkSection::from_raw(data,4,vec![0,bedrock,dirt,grass],nonair)));
             }
         }
         Self {chunks:HashMap::new(),background,pending:PendingTicks::default(),maximum_chunks,
               scheduled_total:0,pending_peak:0}
     }
 
-    fn ensure_chunk(&mut self, x:i32,z:i32) -> &mut Chunk {
+    fn ensure_chunk(&mut self, x:i32,z:i32) -> &mut StoredChunk {
         if !self.chunks.contains_key(&(x,z)) {
             assert!(self.chunks.len()<self.maximum_chunks,"explicit loaded-chunk memory limit reached; import is incomplete");
-            let mut chunk=self.background.clone();
-            chunk.x=x;chunk.z=z;
+            let chunk=self.background.clone_at(x,z);
             self.chunks.insert((x,z),chunk);
         }
         self.chunks.get_mut(&(x,z)).unwrap()
@@ -206,8 +207,8 @@ impl World for SparseWorld {
         self.ensure_chunk(pos.x.div_euclid(16),pos.z.div_euclid(16))
             .set_block_entity(BlockPos::new(pos.x&15,pos.y,pos.z&15),entity);
     }
-    fn get_chunk(&self,x:i32,z:i32)->Option<&Chunk> {Some(self.chunks.get(&(x,z)).unwrap_or(&self.background))}
-    fn get_chunk_mut(&mut self,x:i32,z:i32)->Option<&mut Chunk> {Some(self.ensure_chunk(x,z))}
+    fn get_chunk(&self,x:i32,z:i32)->Option<&Chunk> {Some(self.chunks.get(&(x,z)).unwrap_or(&self.background).native())}
+    fn get_chunk_mut(&mut self,x:i32,z:i32)->Option<&mut Chunk> {Some(self.ensure_chunk(x,z).native_mut())}
     fn schedule_tick(&mut self,pos:BlockPos,delay:u32,priority:TickPriority) {
         self.pending.push(TickEntry{pos,ticks_left:delay,tick_priority:priority});
         self.scheduled_total+=1;
@@ -322,6 +323,15 @@ fn rss_kib(field:&str)->Option<u64> {
         .find(|line|line.starts_with(field))?.split_whitespace().nth(1)?.parse().ok()
 }
 
+fn progress(phase:&str, count:usize, started:Instant) {
+    if std::env::var_os("SHAMA_NATIVE_PROGRESS").is_some() {
+        eprintln!("{}",serde_json::json!({"phase":phase,"count":count,
+            "elapsed_seconds":started.elapsed().as_secs_f64(),
+            "resident_kib":rss_kib("VmRSS:"),"peak_resident_kib":rss_kib("VmHWM:"),
+            "address_space_kib":rss_kib("VmSize:")}));
+    }
+}
+
 fn main() {
     let args:Vec<String>=std::env::args().collect();
     if args.len()==2 && args[1]=="--registry" {
@@ -346,6 +356,11 @@ fn main() {
         _ => panic!("invalid sparse runner arguments"),
     };
     let started=Instant::now();
+    progress("starting",0,started);
+    if std::env::var_os("SHAMA_NATIVE_PROGRESS").is_some() {
+        eprintln!("{}",serde_json::json!({"phase":"inherited-process-limits",
+            "limits":std::fs::read_to_string("/proc/self/limits").ok()}));
+    }
     let (reader,world_hasher)=hashing_reader(&args[1]);
     let mut lines=reader.lines();
     let header:Record=serde_json::from_str(&lines.next().expect("missing header").expect("header read")).expect("header JSON");
@@ -368,14 +383,14 @@ fn main() {
             Record::Section{chunk,y,bits,palette,data,nonair}=>{
                 register_section(chunk,y,&mut seen);
                 let section=native_section(bits,palette,data,nonair);
-                world.ensure_chunk(chunk[0],chunk[1]).sections[(y+4) as usize]=section;
+                world.ensure_chunk(chunk[0],chunk[1]).replace_section((y+4) as usize, section);
                 nonair_total+=nonair as u64;
             },
             Record::UniformSection{chunk,y,state,nonair}=>{
                 assert!(uniform_encoding,"uniform sections require the v2 native stream schema");
                 register_section(chunk,y,&mut seen);
                 let section=uniform_native_section(state,nonair);
-                world.ensure_chunk(chunk[0],chunk[1]).sections[(y+4) as usize]=section;
+                world.ensure_chunk(chunk[0],chunk[1]).replace_section((y+4) as usize, section);
                 nonair_total+=nonair as u64;
                 uniform_sections+=1;
             },
@@ -398,6 +413,7 @@ fn main() {
             },
             Record::Header{..}=>panic!("duplicate header"),
         }
+        if seen.len()%16384==0 {progress("importing-sections",seen.len(),started);}
     }
     assert!(complete,"truncated import: missing completion marker");
     let imported_stream_sha256=finish_hash(world_hasher);
@@ -407,27 +423,30 @@ fn main() {
     let assertions=validate_scenario(&world,&scenario);
     let trace_points=trace_points(&scenario);
     let loaded=Instant::now();
+    progress("import-complete",seen.len(),started);
     let loaded_chunks=world.chunks.len();
-    let palette_data_bytes:usize=world.chunks.values().flat_map(|c|&c.sections)
-        .map(|s|s.data().len()*8+s.palette().len()*4).sum();
+    let palette_data_bytes:usize=world.chunks.values()
+        .map(|chunk| (0..chunk.section_count()).map(|index| chunk.section(index).palette_data_bytes()).sum::<usize>()).sum();
     let mut sections:Vec<_>=seen.into_iter().collect();
     sections.sort_unstable();
     // Initialize every non-air block actually decoded from the saved world;
     // no chunk is unloaded or paused, regardless of console/player distance.
     let mut initialized=0u64;
     for (cx,sy,cz) in sections {
-        if world.get_chunk(cx,cz).unwrap().sections[(sy+4) as usize].block_count()==0 {continue;}
+        if world.chunks[&(cx,cz)].section((sy+4) as usize).block_count()==0 {continue;}
         for index in 0..4096 {
             let p=BlockPos::new(cx*16+(index&15), (sy+4)*16+(index>>8),cz*16+((index>>4)&15));
             if world.get_block_raw(p)!=0 {
                 mchprs_redstone::update(world.get_block(p),&mut world,p);
                 mchprs_redstone::update_surrounding_blocks(&mut world,p);
                 initialized+=1;
+                if initialized%1_000_000==0 {progress("initializing-blocks",initialized as usize,started);}
             }
         }
     }
     assert_eq!(initialized,nonair_total);
     let initialized_at=Instant::now();
+    progress("initialization-complete",initialized as usize,started);
     for _ in 0..scenario.initial_ticks {world.tick();}
     let mut ticks=scenario.initial_ticks;
     let mut traces:HashMap<String,Vec<bool>>=trace_points.iter().map(|(name,_)|((*name).to_string(),Vec::new())).collect();
@@ -452,6 +471,7 @@ fn main() {
             if step.continuous {verify(&world,&scenario,&step.expect,index,offset);}
         }
         verify(&world,&scenario,&step.expect,index,step.ticks);
+        progress("scenario-step-complete",index+1,started);
     }
     let execution_seconds = initialized_at.elapsed().as_secs_f64();
     let snapshot_report = snapshot_path.map(|path| snapshot::save(&world, path, surface_y, &source,
@@ -485,12 +505,46 @@ fn main() {
         "traces":traces
     });
     report["peak_rss_kib"]=serde_json::json!(rss_kib("VmHWM:"));
+    progress("report-assembled",ticks,started);
     println!("{}",report);
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn snapshot_reads_current_state_before_and_after_chunk_materialization() {
+        let mut world=SparseWorld::new(None,4);
+        let pos=native_pos([1,0,1]);
+        let lamp=native_pos([2,0,1]);
+        world.set_block(pos,Block::from_name("minecraft:comparator").unwrap());
+        world.set_block_entity(pos,BlockEntity::Comparator{output_strength:11});
+        world.set_block(lamp,Block::RedstoneLamp{lit:false});
+        let directory=std::env::temp_dir().join(format!("shama-lazy-snapshot-{}",std::process::id()));
+        std::fs::create_dir(&directory).expect("new snapshot test directory");
+        let first=directory.join("before.jsonl");
+        let second=directory.join("materialized.jsonl");
+        let third=directory.join("mutated.jsonl");
+        let source=serde_json::json!({"case":"exact lazy storage compatibility"});
+        let hash="a".repeat(64);
+        snapshot::save(&world,first.to_str().unwrap(),None,&source,&hash,&hash,0);
+        world.get_chunk(0,0).unwrap();
+        snapshot::save(&world,second.to_str().unwrap(),None,&source,&hash,&hash,0);
+        assert_eq!(std::fs::read(&first).unwrap(),std::fs::read(&second).unwrap());
+        let chunk=world.get_chunk_mut(0,0).unwrap();
+        chunk.set_block(2,64,1,Block::RedstoneLamp{lit:true}.get_id());
+        chunk.set_block_entity(BlockPos::new(1,64,1),BlockEntity::Comparator{output_strength:5});
+        assert_eq!(world.get_block(lamp),Block::RedstoneLamp{lit:true});
+        assert!(matches!(world.get_block_entity(pos),Some(BlockEntity::Comparator{output_strength:5})));
+        snapshot::save(&world,third.to_str().unwrap(),None,&source,&hash,&hash,0);
+        assert_ne!(std::fs::read(&second).unwrap(),std::fs::read(&third).unwrap());
+        let text=std::fs::read_to_string(&third).unwrap();
+        let records:Vec<serde_json::Value>=text.lines().map(|line|serde_json::from_str(line).unwrap()).collect();
+        assert!(records.iter().any(|row|row["kind"]=="comparator" && row["output_strength"]==5));
+        assert_eq!(records.last().unwrap()["sections"],24);
+        std::fs::remove_dir_all(directory).unwrap();
+    }
 
     #[test]
     fn uniform_sections_expand_to_every_exact_native_state() {

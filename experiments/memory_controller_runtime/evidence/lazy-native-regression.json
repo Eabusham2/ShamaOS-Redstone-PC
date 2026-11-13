@@ -1,0 +1,22 @@
+{
+  "schema": "lazy-native-regression-v1",
+  "junit_sha256": "632ae48e5d96c86432efdf1bad68f64cf5a0d9b2d2b4f0613954f278050f51f1",
+  "suites": [
+    {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "115",
+      "time": "64.553",
+      "timestamp": "2026-11-12T23:35:35.641822-06:00",
+      "hostname": "1a3723e532d2"
+    }
+  ],
+  "binaries": {
+    "/workspace/scratch/fb0eaf1c89fe/experiments/world-runtime/target/release/shama-sparse-world-check-lazy": "d6af91d59326b8f0bed9fa499fc685ad3dbafc1f37da86a6877a62c2d7477b2c",
+    "/workspace/scratch/fb0eaf1c89fe/experiments/world-runtime/target/release/shama-sparse-world-check-lazy-basic": "735d43ca19a194ecedd2b2bd3d2392bd24817e06f1acd794c72e19dcbf41c84d"
+  },
+  "scope": "Existing native loader, selective traces and quiescent persistence tests against isolated exact section storage; complete controller clock runtime remains unverified",
+  "complete_machine_runtime_verified": false
+}

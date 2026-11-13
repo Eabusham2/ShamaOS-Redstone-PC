@@ -48,9 +48,13 @@ reusing the all-air packed array. A 257/300-state palette test verifies the
 conversion needed when native local palettes exceed the engine's eight-bit
 palette limit.
 
-The Rust runner stores actual `mchprs_world::storage::Chunk` objects in a map
-keyed by signed chunk coordinates. Empty distances from the origin do not
-allocate a rectangle of chunks. Every decoded chunk stays loaded throughout the
+The Rust runner keeps every chunk and section in a map keyed by signed chunk
+coordinates. Uniform sections retain their exact state ID until a differing
+write requires the pinned engine's native `ChunkSection`; mixed sections use
+that native representation immediately. A full `mchprs_world::storage::Chunk`
+requested through the engine's compatibility interface becomes authoritative
+for every subsequent block and entity read/write. Empty distances from the
+origin do not allocate a rectangle of chunks. Every decoded chunk stays loaded throughout the
 scenario, regardless of player distance; every scheduled tick runs in one
 global queue. Native Y −64…319 is translated consistently by +64 for the engine's
 0…383 storage. Native X and Z, including negative coordinates, are preserved.
@@ -339,19 +343,31 @@ tradeoff are in `docs/evidence/memory-row-tiling-2026-11-13.json`. A useful foll
 would first reduce the cross-tile bus footprint while retaining independent
 physical signals and the full capacity.
 
-## Memory bounds and Redpiler
+## Memory measurements and Redpiler
 
-Pinned `ChunkSection` storage starts with 2,048 bytes of packed data for each
+Eagerly materialized pinned `ChunkSection` storage starts with 2,048 bytes of packed data for each
 4,096-block section. Twenty-four sections therefore require at least 49,152
 packed bytes per allocated chunk, before palettes, objects, block entities or
 updates. A changed section can allocate another 8,192-byte mutation overlay.
 
-For the published 200 KiB checkpoint's 23,328 regular occupied chunks, the packed
-baseline alone is **1,146,617,856 bytes**. Allocating all 86,000 chunks of its
+For the published 200 KiB checkpoint's 23,328 regular occupied chunks, that eager
+packed baseline alone is **1,146,617,856 bytes**. Allocating all 86,000 chunks of its
 rectangular envelope would instead start at **4,227,072,000 bytes**. These are
-source-derived storage lower bounds; synthesized logic, global routes, active
-state, tick queues and compiler graphs are additional. The complete connected
-world has not yet been measured in this runner.
+source-derived sizes of the earlier eager native representation, not lower
+bounds for the exact lazy representation now used by the runner. Synthesized
+logic, global routes, active state, tick queues and compiler graphs remain
+additional. The complete connected world has not yet been measured.
+
+The complete 1,144-cell controller development world contains 1,064,880 section
+records, including 895,464 uniform air sections. Avoiding full arrays for those
+air sections removes **1,833,910,272 bytes** of packed-array allocation while
+retaining every section record. Actual full-controller clock replay initializes
+all 56,041,968 non-air blocks and peaks at **1,207,860 KiB** in the passing probe;
+its too-fast negative peaks at **1,023,192 KiB**. The
+[clock summary](../experiments/memory_controller_runtime/evidence/cache-controller-native-clock-summary.json)
+binds the complete world, exact scenarios, lossless traces and runner. These are
+controller-clock measurements; no connected-cache or full-machine memory and
+speed figure is established.
 
 Source: upstream [chunk/section storage](https://github.com/MCHPR/MCHPRS/blob/f9e10d2572116bf5dcb9a36a305f28e40641a61a/crates/world/src/storage.rs).
 

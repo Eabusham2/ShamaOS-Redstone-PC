@@ -3,8 +3,9 @@
 The **8 KiB cache adapter** is the selected next integration target. Its
 complete current mapping is smaller than the current VRAM adapter, and its
 two full 4 KiB banks are the smallest installed memory fabric. Complete
-controller placement and structural clock matching now pass as detailed below;
-the connected controller-plus-memory runtime remains unverified.
+controller placement, native save/readback and physical register-clock delivery
+now pass as detailed below. The connected controller-plus-memory runtime
+remains unverified.
 
 | Complete partition | Installed storage | Native cells | DFFs | Cell-template blocks | Scalar input/output pins | Nets with sinks |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -177,8 +178,8 @@ only 34 extra delay ticks available but needed 53; another needed 76. A
 branch still needed 90 more delay ticks than it could hold. The accepted
 128-block placement contains 10,607,088 unique blocks, spans
 X=0..6,486 / Y=-60..199 / Z=0..2,958, and reports a planned common clock delay
-of 2,642 redstone ticks. Actual clock rate and complete connected cache speed
-remain unmeasured. This is added physical timing capacity, not a footprint
+of 2,642 redstone ticks. The data-safe clock rate and complete connected cache
+speed remain unmeasured. This is added physical timing capacity, not a footprint
 reduction. The wrapper changes no cell, port, net, escape or track identity,
 and its complete source is included in the preparation hash inventory.
 
@@ -203,9 +204,31 @@ host-supplied memory responses or claim of connected-cache operation:
 PYTHONPATH=src:tests python -m experiments.memory_controller_runtime.probe_controller build/cache-controller build/cache-controller-native "$SHAMA_MCHPRS_TERRAIN_RUNNER"
 ```
 
+The saved controller has now passed that actual-engine clock gate. All 115 DFF
+clock pins received all three requested 8,192-redstone-tick pulses, with
+identical arrival times and widths. The tested period is 16,384 redstone ticks;
+this is not a maximum frequency or a data-capture timing rating. In the negative
+case, three requested one-tick pulses merged into one five-tick pulse, and the
+acceptance check rejected them. Each run loaded all 44,370 chunks and 1,064,880
+sections and initialized all 56,041,968 non-air blocks, including terrain.
+The ordinary run took 124.12 seconds with an externally measured peak of
+1,207,860 KiB; the negative run took 117.13 seconds at 1,023,192 KiB.
+
+The first runner attempt ended with external SIGKILL after 123 seconds,
+2,918,304 KiB peak RSS, and no output; its precise kill cause remains unknown.
+The isolated [lazy native storage runner](lazy_native_runner/README.md) avoids
+allocating full paletted arrays for 895,464 uniform air sections while keeping
+every section and all pinned redstone behavior. It passed both encodings of
+seven native fixtures, 9,426,080 exact samples, byte-identical snapshots and 115
+loader/persistence regressions before the complete-controller retry. The
+`resume_controller_clock.py` helper reuses the exact accepted world stream and
+original scenario, so the successful retry did not rebuild or replace any
+physical circuitry. The [clock summary](evidence/cache-controller-native-clock-summary.json)
+and [full proof](evidence/cache-controller-native-clock-proof.json) bind the
+runner, source, scenarios, telemetry and complete compressed traces.
+
 All 78 external routes, exact connected native save/readback, real decoder/bank
-runtime, full clock-arrival timing and a meaningful too-fast negative remain
-pending until their respective reports actually pass. The first complete
+runtime and complete connected clock/data timing remain pending. The first complete
 straight-corridor audit found 87 of the original controller's 183 south-facing
 I/O paths obstructed; placing the controller does not make those original pins
 externally accessible. Real export wires must preserve every original pin.

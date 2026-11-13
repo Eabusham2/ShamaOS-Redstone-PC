@@ -7,11 +7,11 @@ feature contract; [VALIDATION.md](VALIDATION.md) defines the evidence required.
 
 ## Owner request tracking
 
-The published implementation checkpoint on `main` is
+The last fully green implementation checkpoint is
 [`1c1b3a1`](https://github.com/Eabusham2/ShamaOS-Redstone-PC/commit/1c1b3a150ec0a5abbc7cd697da35e0298298e197).
 Its [exact-commit CI run](https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/43364358101)
-was still running at the continuation audit; `c3315eb` remains the last verified
-fully green checkpoint. The owner accepts the current shipped-program sizes.
+has completed with all 20 jobs passing, including all twelve physical synthesis
+partitions and final reconnection. The owner accepts the current shipped-program sizes.
 The active priority is connecting and operating the complete physical machine,
 then producing the requested release downloads.
 The table distinguishes completed code/component work from the remaining
@@ -87,6 +87,17 @@ kill cause is unconfirmed; the 351,361,973-byte validated input stream and nativ
 world remain reusable. The
 [interruption record](../experiments/memory_controller_runtime/evidence/cache-controller-native-clock-interruption.json)
 keeps this execution incomplete and leaves clock/runtime acceptance false.
+
+A subsequent exact lazy section representation retains all 1,064,880 section
+records while avoiding full arrays for their 895,464 uniform air sections. The
+saved controller then completes both native clock probes. All 115 register
+clock pins receive three identical 8,192-tick pulses; three deliberately
+too-fast one-tick pulses merge into one five-tick pulse and are correctly
+rejected by the clock gate. Both runs initialize all **56,041,968 saved non-air
+blocks**, including terrain. Independent review checks all **10,985,490 trace
+samples** and the exact saved input/scenario hashes. This establishes controller
+clock delivery at the tested spacing, not data capture, connected cache
+transactions or a whole-machine clock rate.
 
 An audit of the earlier controller placement found 87 of 183 straight external
 port approaches obstructed. Additional real wires now carry original ports

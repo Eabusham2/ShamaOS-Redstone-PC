@@ -70,9 +70,10 @@ pub(super) fn save(world: &SparseWorld, destination: &str, surface_y: Option<i32
         native_pos([cx * 16, -64, cz * 16]);
         native_pos([cx * 16 + 15, 319, cz * 16 + 15]);
         let chunk = &world.chunks[&(cx, cz)];
-        assert_eq!(chunk.sections.len(), 24, "snapshot requires every native height section");
+        assert_eq!(chunk.section_count(), 24, "snapshot requires every native height section");
         let mut entities = Vec::new();
-        for (sy, section) in chunk.sections.iter().enumerate() {
+        for sy in 0..chunk.section_count() {
+            let section=chunk.section(sy);
             let mut palette = Vec::new();
             let mut palette_indices = HashMap::new();
             let mut indices = Vec::with_capacity(4096);
@@ -91,7 +92,7 @@ pub(super) fn save(world: &SparseWorld, destination: &str, surface_y: Option<i32
                     if matches!(Block::from_id(id), Block::Comparator(_)) {
                         let local = BlockPos::new((index & 15) as i32, (sy * 16 + (index >> 8) as usize) as i32,
                             ((index >> 4) & 15) as i32);
-                        let strength = match chunk.block_entities.get(&local) {
+                        let strength = match chunk.get_block_entity(local) {
                             Some(BlockEntity::Comparator { output_strength }) => *output_strength,
                             _ => panic!("snapshot comparator is missing its actual block entity"),
                         };
@@ -122,7 +123,7 @@ pub(super) fn save(world: &SparseWorld, destination: &str, surface_y: Option<i32
             sections += 1;
             nonair_total += nonair as u64;
         }
-        assert_eq!(entities.len(), chunk.block_entities.len(), "snapshot has an unsupported or orphaned block entity");
+        assert_eq!(entities.len(), chunk.entity_count(), "snapshot has an unsupported or orphaned block entity");
         comparators += entities.len();
         for entity in entities { emit(&mut writer, entity); }
     }

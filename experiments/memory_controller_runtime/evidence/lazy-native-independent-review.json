@@ -1,0 +1,280 @@
+{
+  "baseline_binary": {
+    "bytes": 1274744,
+    "path": "/workspace/scratch/fb0eaf1c89fe/experiments/world-runtime/target/release/shama-sparse-world-check-terrain",
+    "sha256": "996ae88a29015472f930a5a7f53dfadc9fd4bb8097e29305ea9a17bfc697c499"
+  },
+  "candidate_binary": {
+    "bytes": 1324152,
+    "path": "/workspace/scratch/fb0eaf1c89fe/experiments/world-runtime/target/release/shama-sparse-world-check-lazy",
+    "sha256": "d6af91d59326b8f0bed9fa499fc685ad3dbafc1f37da86a6877a62c2d7477b2c"
+  },
+  "cases": [
+    {
+      "baseline": {
+        "exit_code": 0,
+        "performance": {
+          "import_seconds": 0.01712719,
+          "initialization_seconds": 0.125017488,
+          "peak_rss_kib": 52828,
+          "runtime_seconds": 0.358582603
+        },
+        "snapshot": {
+          "bytes": 721277,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/lazy-native-independent/memory/baseline-snapshot.jsonl",
+          "sha256": "7f9d004d70bbe22a88f41093c99f8b8d2292da7b4923284506779a7d5ebaaa7b"
+        },
+        "stderr": {
+          "bytes": 0,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/lazy-native-independent/memory/baseline.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "bytes": 7968871,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/lazy-native-independent/memory/baseline.json",
+          "sha256": "263a70ac0bbbbe35e1dcfaa12d7b3b44dc9771b90ef82ea69d1a068f242981b0"
+        },
+        "wall_seconds": 0.8299382059994969
+      },
+      "baseline_palette_bytes": 2477140,
+      "candidate": {
+        "exit_code": 0,
+        "performance": {
+          "import_seconds": 0.012401455,
+          "initialization_seconds": 0.1339583,
+          "peak_rss_kib": 51428,
+          "runtime_seconds": 0.238495067
+        },
+        "snapshot": {
+          "bytes": 721277,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/lazy-native-independent/memory/candidate-snapshot.jsonl",
+          "sha256": "7f9d004d70bbe22a88f41093c99f8b8d2292da7b4923284506779a7d5ebaaa7b"
+        },
+        "stderr": {
+          "bytes": 0,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/lazy-native-independent/memory/candidate.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "bytes": 7968869,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/lazy-native-independent/memory/candidate.json",
+          "sha256": "d4ac0c577a4ad0ea1be28c8d65b3cb04b3607731a8aa59028947648734afc8e2"
+        },
+        "wall_seconds": 0.6679771679991973
+      },
+      "candidate_palette_bytes": 314332,
+      "every_semantic_field_equal": true,
+      "exact_snapshot_bytes_equal": true,
+      "exact_trace_samples": 1433600,
+      "name": "memory",
+      "scenario": {
+        "bytes": 89990,
+        "path": "/workspace/scratch/fb0eaf1c89fe/experiments/world-runtime/fixtures/memory/scenario.json",
+        "sha256": "999cd8393b9eba249d2282741c0dd37d8354545b6503e843543fd7b9cd6636ac"
+      },
+      "semantic_report_sha256": "aed38a1b4043b9c692b278569a79153e284bfaf12c9397ca5ff2945d16007532",
+      "snapshot_state": {
+        "chunks": 50,
+        "comparators": 192,
+        "nonair": 72063,
+        "pending_scheduled_ticks": 0,
+        "sections": 1200
+      },
+      "stream": {
+        "bytes": 466848,
+        "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/lazy-native-independent/memory/world.jsonl",
+        "sha256": "56c8ab1c5ce23cfcacba32174f5adbbd81eb3578f28dcc4ab4c2755c3f17d00e"
+      },
+      "stream_conversion": {
+        "converted_uniform_sections": 1054,
+        "every_single_state_index_verified": true,
+        "source": {
+          "bytes": 1021252,
+          "path": "/workspace/scratch/fb0eaf1c89fe/experiments/world-runtime/fixtures/memory/world.jsonl",
+          "sha256": "a3139a6e740d43dcc1f3a80249ccff5fc7c1ab267ab6b3e27b14746c41f7161f"
+        },
+        "unchanged_record_count": 1394
+      },
+      "trace_outputs": 224,
+      "uniform_array_bytes_avoided": 2162808
+    },
+    {
+      "baseline": {
+        "exit_code": 0,
+        "performance": {
+          "import_seconds": 0.016043923,
+          "initialization_seconds": 0.139027631,
+          "peak_rss_kib": 33884,
+          "runtime_seconds": 0.289944738
+        },
+        "stderr": {
+          "bytes": 0,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/lazy-native-independent/pipeline-512/baseline.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "bytes": 4171300,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/lazy-native-independent/pipeline-512/baseline.json",
+          "sha256": "3c42f941dd0b864e2c58ccd11a69ff69e2facb5304db4dd5491970ff3f38641f"
+        },
+        "wall_seconds": 0.5165933239986771
+      },
+      "baseline_palette_bytes": 4733900,
+      "candidate": {
+        "exit_code": 0,
+        "performance": {
+          "import_seconds": 0.015180214,
+          "initialization_seconds": 0.14699469,
+          "peak_rss_kib": 29704,
+          "runtime_seconds": 0.443339951
+        },
+        "stderr": {
+          "bytes": 0,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/lazy-native-independent/pipeline-512/candidate.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "bytes": 4171298,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/lazy-native-independent/pipeline-512/candidate.json",
+          "sha256": "359139ca0f440cad48cda0584df3f7f8db1c2aa2a7c1e2bfd168cd60685361fc"
+        },
+        "wall_seconds": 0.7872043120005401
+      },
+      "candidate_palette_bytes": 771488,
+      "every_semantic_field_equal": true,
+      "exact_trace_samples": 745472,
+      "name": "pipeline-512",
+      "pipeline_transfer_check": {
+        "missed_transfers": [],
+        "settled_transfer_checks": 10
+      },
+      "scenario": {
+        "bytes": 5439,
+        "path": "/workspace/scratch/fb0eaf1c89fe/experiments/world-runtime/connected-pipeline-native-v2/pipeline-512-scenario.json",
+        "sha256": "101f0e0c1b591aa8f1775d33a1f2075eb0c1356e9d22b2a105f7341b1feb7866"
+      },
+      "semantic_report_sha256": "7205d808e186e8be46cca21d9d40afb0eaada83509bfa7b68eb0af70c15b69a6",
+      "stream": {
+        "bytes": 749556,
+        "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/lazy-native-independent/pipeline-512/world.jsonl",
+        "sha256": "8ee86d063a49fac91dd5ecf4087238ea5c4b6b58f897d1b16e53d5b66fc39e46"
+      },
+      "stream_conversion": {
+        "converted_uniform_sections": 1931,
+        "every_single_state_index_verified": true,
+        "source": {
+          "bytes": 1765262,
+          "path": "/workspace/scratch/fb0eaf1c89fe/experiments/world-runtime/connected-pipeline-native-v2/world.jsonl",
+          "sha256": "feacf54f5e49d103f11caee2b8423b7d404edbaa2493285943cd3dd629559c35"
+        },
+        "unchanged_record_count": 2306
+      },
+      "trace_outputs": 28,
+      "uniform_array_bytes_avoided": 3962412
+    },
+    {
+      "baseline": {
+        "exit_code": 0,
+        "performance": {
+          "import_seconds": 0.019848594,
+          "initialization_seconds": 0.132169589,
+          "peak_rss_kib": 19556,
+          "runtime_seconds": 0.248102769
+        },
+        "stderr": {
+          "bytes": 0,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/lazy-native-independent/pipeline-20/baseline.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "bytes": 1733195,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/lazy-native-independent/pipeline-20/baseline.json",
+          "sha256": "17fd25b1c6a3a707115f72c1f363c7d50f60219d56a97cb3b278dbb4b6e97feb"
+        },
+        "wall_seconds": 0.4675428829941666
+      },
+      "baseline_palette_bytes": 4733900,
+      "candidate": {
+        "exit_code": 0,
+        "performance": {
+          "import_seconds": 0.014377217,
+          "initialization_seconds": 0.142123556,
+          "peak_rss_kib": 15376,
+          "runtime_seconds": 0.263144201
+        },
+        "stderr": {
+          "bytes": 0,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/lazy-native-independent/pipeline-20/candidate.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "bytes": 1733194,
+          "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/lazy-native-independent/pipeline-20/candidate.json",
+          "sha256": "a461290e7c958173c8b847740fbcae69399c204129547d1ceaec984697746777"
+        },
+        "wall_seconds": 0.4666092689949437
+      },
+      "candidate_palette_bytes": 771488,
+      "every_semantic_field_equal": true,
+      "exact_trace_samples": 304640,
+      "name": "pipeline-20",
+      "pipeline_transfer_check": {
+        "missed_transfers": [
+          {
+            "actual": false,
+            "expected": true,
+            "output": "q1",
+            "step": 33
+          },
+          {
+            "actual": true,
+            "expected": false,
+            "output": "q1",
+            "step": 41
+          }
+        ],
+        "settled_transfer_checks": 10
+      },
+      "scenario": {
+        "bytes": 5301,
+        "path": "/workspace/scratch/fb0eaf1c89fe/experiments/world-runtime/connected-pipeline-native-v2/pipeline-20-scenario.json",
+        "sha256": "efe5a2cad4497c2e3f470e908b890a0dc0a7b238e4df1f0a545d7641d2c36ed3"
+      },
+      "semantic_report_sha256": "abebf58a36e0bb22c54d6077f4cd5c6a2b26a2d07a0faf03edfa8ce7a1ba6b7e",
+      "stream": {
+        "bytes": 749556,
+        "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/build/lazy-native-independent/pipeline-20/world.jsonl",
+        "sha256": "8ee86d063a49fac91dd5ecf4087238ea5c4b6b58f897d1b16e53d5b66fc39e46"
+      },
+      "stream_conversion": {
+        "converted_uniform_sections": 1931,
+        "every_single_state_index_verified": true,
+        "source": {
+          "bytes": 1765262,
+          "path": "/workspace/scratch/fb0eaf1c89fe/experiments/world-runtime/connected-pipeline-native-v2/world.jsonl",
+          "sha256": "feacf54f5e49d103f11caee2b8423b7d404edbaa2493285943cd3dd629559c35"
+        },
+        "unchanged_record_count": 2306
+      },
+      "trace_outputs": 28,
+      "uniform_array_bytes_avoided": 3962412
+    }
+  ],
+  "complete_machine_runtime_verified": false,
+  "exact_trace_samples": 2483712,
+  "reviewed_source_and_previous_evidence_sha256": "7446c320c51c59cacd0583435e84685f3bc6b035abca27894d98f8fb96252364",
+  "scheduler_source_identical": true,
+  "schema": "independent-lazy-native-review-v1",
+  "source_sha256": {
+    "experiments/memory_controller_runtime/compare_lazy_native.py": "63a17f9e8cf2d49be2360e9d4ac0375308dc59abfcfd2b0157959f8204a66658",
+    "experiments/memory_controller_runtime/lazy_native_runner/Cargo.lock": "c5b908d7edbdd58295ac610e0cd3849cb42042e89c43dcb2bd89fd25fc6064ed",
+    "experiments/memory_controller_runtime/lazy_native_runner/Cargo.toml": "3b6667f48a8c63764b2a471f7a8230db23c064c18c665119b3bd032dab36b710",
+    "experiments/memory_controller_runtime/lazy_native_runner/src/lazy_storage.rs": "2608a743c7b8f59ae90255e464a744b9492838df0dc0717dfee0272e0de5528c",
+    "experiments/memory_controller_runtime/lazy_native_runner/src/main.rs": "907b595d253bd4891f156706fdffa6f1257b2b6abf667b2cb11ecd205e33079d",
+    "experiments/memory_controller_runtime/lazy_native_runner/src/pending.rs": "ad8b1c89796c74a840b7535d9639d7734655726a71d91ef91c0f834121f3a20d",
+    "experiments/memory_controller_runtime/lazy_native_runner/src/snapshot.rs": "ad61ec5722bcf20abea2c97ecef8401364abb1010e2f735f131b6d544d5839ab",
+    "tests/mchprs_sparse_runtime/native-terrain-registry.patch": "8ebd0e097d07e93a6b2b158e08ad19c2660b0b7e2521c6b6d34a4583a10bfbdc",
+    "tools/check_pending_queue_equivalence.py": "48301b924e2ec0eaa23868ee48cb6e7fafe05143b44e3fb1bb0d4e09a0e7dc83"
+  },
+  "status": "passed"
+}

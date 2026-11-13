@@ -1,0 +1,87 @@
+{
+  "schema": "cache-controller-native-clock-summary-v1",
+  "status": "native-controller-clock-gate-passed",
+  "controller_native_cells": 1144,
+  "controller_register_clocks": 115,
+  "native_chunks": 44370,
+  "all_native_sections": 1064880,
+  "initialized_nonair_blocks_per_case": 56041968,
+  "safe_half_period_redstone_ticks": 8192,
+  "safe_period_redstone_ticks": 16384,
+  "safe_requested_pulses": 3,
+  "safe_actual_pulses": [
+    [
+      14233,
+      8192
+    ],
+    [
+      30617,
+      8192
+    ],
+    [
+      47001,
+      8192
+    ]
+  ],
+  "safe_zero_clock_skew": true,
+  "too_fast_requested_half_period_ticks": 1,
+  "too_fast_actual_pulses": [
+    [
+      14233,
+      5
+    ]
+  ],
+  "too_fast_failure_detected": true,
+  "native_clock_gate_verified": true,
+  "connected_cache_runtime_verified": false,
+  "complete_machine_runtime_verified": false,
+  "scope": "Complete saved controller clock delivery at the tested spacing; does not prove register data capture, memory transactions, or maximum whole-machine frequency",
+  "world_stream": {
+    "bytes": 351361973,
+    "path": "/workspace/scratch/fb0eaf1c89fe/experiments/cache-controller/controller-native-padding128-v1/controller-world.jsonl",
+    "sha256": "f716c7ca10488300f37f5498be998e603fd700b64fd780506f436167fcaf9ea4"
+  },
+  "runner": {
+    "bytes": 1324152,
+    "path": "/workspace/scratch/fb0eaf1c89fe/experiments/world-runtime/target/release/shama-sparse-world-check-lazy",
+    "sha256": "d6af91d59326b8f0bed9fa499fc685ad3dbafc1f37da86a6877a62c2d7477b2c"
+  },
+  "evidence": {
+    "cache-controller-native-clock-attempt.json": {
+      "bytes": 966,
+      "sha256": "81d4a7bf1b06f71ce79236f7ecbe4969167127a8cf02a401b5561d1d611131d1"
+    },
+    "cache-controller-native-clock-interruption.json": {
+      "bytes": 1585,
+      "sha256": "ee7794f1b58ee3743a5f518a19ff28ed98126c1a388148d74a6d1d2c4d97d5a9"
+    },
+    "cache-controller-native-clock-proof.json": {
+      "bytes": 30080,
+      "sha256": "57dd22e44bff573e8ff6c83e4b9583e9460e4aa416cfd6d910b45f845f90916f"
+    },
+    "cache-controller-native-clock-safe-progress.jsonl": {
+      "bytes": 21635,
+      "sha256": "46159edbf8f972a8c924977aa3bde1dfe4471addf330c0a93cf11c1bbdd4fcbb"
+    },
+    "cache-controller-native-clock-safe.json.gz": {
+      "bytes": 78524,
+      "sha256": "75ce7a062a3b903ff106998e987fbd2d4746a671013b7fd6971e659718a850de"
+    },
+    "cache-controller-native-clock-scenario.json": {
+      "bytes": 13180,
+      "sha256": "d7cfc346cfb12081c9b8f36789a63684ec490f1ab32aa064a1aec5339059ca57"
+    },
+    "cache-controller-native-clock-too-fast-progress.jsonl": {
+      "bytes": 21646,
+      "sha256": "f22fe6ab5979426aa8de5c6caff3a3471f1ce4f489a77b488b5d0f46facd38b7"
+    },
+    "cache-controller-native-clock-too-fast-scenario.json": {
+      "bytes": 13162,
+      "sha256": "ae54e1d92df5a7320439c6fcb03f84af1daa70e058ff18473beb0014e7e58a59"
+    },
+    "cache-controller-native-clock-too-fast.json.gz": {
+      "bytes": 31254,
+      "sha256": "d8ae2fc31d8a2fd045d43542b4208def35406ddc07b7e1195692433c636ae9e8"
+    }
+  }
+}

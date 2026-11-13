@@ -1,0 +1,13 @@
+{
+  "schema": "native-lazy-sections-baseline-v1",
+  "source_directory": "tests/mchprs_sparse_runtime",
+  "source_sha256": {
+    "src/main.rs": "90dd9714e6bd7e4f6ae1c9b9e554c213e54f51c019c33aef79d31bc900995734",
+    "src/snapshot.rs": "2a38ab18967e51ba245b41ca946e4b5fe891820ffb33a88b9f6aa4277a59b832",
+    "src/pending.rs": "ad8b1c89796c74a840b7535d9639d7734655726a71d91ef91c0f834121f3a20d",
+    "Cargo.toml": "e4c6bd5b3602b4ee0a3bef0d1816dea6042557eaf88b07877424d6d39164d2de",
+    "Cargo.lock": "caf6cdc0a25e3b15e917d551d35b97800bd49e307cf0cb54094a4f40245d292b"
+  },
+  "pinned_redstone_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+  "scope": "Private runner storage experiment; original runner and pinned engine unchanged"
+}

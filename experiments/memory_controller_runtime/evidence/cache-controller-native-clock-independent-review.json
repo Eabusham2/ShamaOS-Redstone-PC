@@ -1,0 +1,36 @@
+{
+  "status": "passed",
+  "cases": {
+    "safe": {
+      "raw_sha256": "a9dd71fff3be61e9fcd5833ad27c6387d11c155ff494e594a8d20be68e7063ae",
+      "register_traces": 115,
+      "pulses": [
+        [
+          14233,
+          8192
+        ],
+        [
+          30617,
+          8192
+        ],
+        [
+          47001,
+          8192
+        ]
+      ],
+      "trace_samples": 8318640
+    },
+    "too-fast": {
+      "raw_sha256": "29ee5fdbcd9bbbc650a07a89d8dfb227a59b568aca4b9d9868d2c22947dd032f",
+      "register_traces": 115,
+      "pulses": [
+        [
+          14233,
+          5
+        ]
+      ],
+      "trace_samples": 2666850
+    }
+  },
+  "scope": "all native register-clock traces; data capture and connected cache remain unverified"
+}
