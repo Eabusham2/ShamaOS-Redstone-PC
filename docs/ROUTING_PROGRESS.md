@@ -1,7 +1,12 @@
 # Routing progress and remaining whole-machine gates
 
 The bounded routing path now preserves and exercises a real sequential cut of
-the mapped assembler across three physical tiers. **It is still experimental
+the mapped assembler across three physical tiers. A separate
+[complete-graph planner](BOUNDED_ROUTING_PLAN.md) assigns every cell and signal
+in complete mapped bridge partitions to bounded leaf/router domains. The
+current-effective assembler also has an independently reconstructed complete
+logical summary, with its full route records still unretained.
+**The physical hierarchy is still experimental
 and is not selected by the complete-machine generator.** The new checks do not
 establish a complete computer footprint, a safe global clock or a loaded world
 that boots the OS.
@@ -18,27 +23,33 @@ track is placed north of all endpoints by the complete track count plus a
 4,096-block apron. Large partitions therefore pay long branch costs for almost
 every signal, even when its driver and sink are logically close.
 
-The restored historical assembler artifact `build/full-asm-fixed.json` has
-SHA-256 `1865d54e9b17f9961a41e5e7e144e862645f8d75bb49447a23e3f0542805d860`.
-Its retained analytical report gives the following bounds for that specific
-artifact and production routing topology:
+The recovered optimized assembler mapping from green CI source `4e933a5` has
+SHA-256 `78a6ab3abcbbe4bde94acaf6bbfdb8388dbeebf301757f34c49172f97b1664ee`.
+Its effective assembler RTL, including the 96 KiB RAM macro, is byte-identical
+to the current source after preprocessing. The
+[retained provenance and resource report](../experiments/partition_planner/evidence/asm-effective-rtl-provenance.json)
+gives the following bounds for that exact mapped artifact and the unchanged
+production routing topology:
 
 | Measurement | Value |
 |---|---:|
-| Lowered physical cells | 737,585 |
-| Routed nets | 737,749 |
-| Endpoint uses | 1,914,510 |
-| Guaranteed distinct straight branch wires | 2,998,968,967,094 |
-| Minimum X/Z route chunks | 31,239,260,074 |
-| Minimum Anvil region bytes | 128,205,923,344,384 |
-| Lower bound on the slowest individual net | 596,112 redstone ticks |
+| Lowered physical cells | 559,453 |
+| Routed nets | 559,617 |
+| Endpoint uses | 1,455,315 |
+| Guaranteed distinct straight branch wires | 1,744,156,445,483 |
+| Minimum X/Z route chunks | 18,168,296,308 |
+| Minimum Anvil region bytes | 74,562,688,049,152 |
+| Lower bound on the slowest individual net | 452,839 redstone ticks |
 
 These figures exclude trunks, stairs, logic cells and compression beyond the
 minimum chunk sectors. They are not the exact finished footprint or a total
-execution-time prediction. They also do **not** describe the later optimized
-assembler mapping: the restored artifact contains 682,079 raw mapped cells and
-17,902 sequential variants. The documented optimized mapping must be measured
-from its own artifact before applying an updated full-partition bound.
+execution-time prediction. They are specific to this retained 559,453-cell
+mapping; another tool run can produce a different native mapping from the same
+effective source. The older historical `build/full-asm-fixed.json` artifact
+(`1865d54e9b17f9961a41e5e7e144e862645f8d75bb49447a23e3f0542805d860`) has
+737,585 lowered cells and a 31,239,260,074-chunk route lower bound. That older
+mapping supplies the frozen sequential cut below, but is no longer the baseline
+for current-effective-assembler grouping measurements.
 
 [`resource_accounting.py`](../src/shamaos/resource_accounting.py) makes this
 distinction explicit and the generator rejects an insufficient proven disk
@@ -154,11 +165,19 @@ switching the existing flat global emitter to the experimental API:
 | Emit and independently reopen the whole candidate | No conflicting placements, exact capacities and connectivity, measured complete route footprint and disk cost. |
 | Establish a loaded/ticking-world plan | Measure the exact world's loaded set, host memory/disk usage and runtime settings before claiming a usable computer. |
 
-The current implementation only has one parent tier over explicitly selected
-small groups. It has no complete graph partitioner, no repeated bounded parent
-domains, no closed full-chip clock tree and no measured complete loaded/ticking
-arrangement. These remain real engineering tasks. The production generator is
-therefore unchanged and continues to report incomplete routing/runtime gates.
+The earlier bounded cut emitter has one parent tier over explicitly selected
+small groups. The new complete-graph planner supplies a deterministic fixed-arity
+tree, bounded domains and complete structural conservation. The separate
+recursive placement implementation now has a connected two-level pipeline proof:
+all three native cells, six original ports, three constants and 18 shared contacts
+are retained in 12 emitted modules. Its passing and failing actual-engine timing
+cases, exact fixture dimensions and independent endpoint/block reconstruction are
+described in [BOUNDED_ROUTING_PLAN.md](BOUNDED_ROUTING_PLAN.md#connected-physical-proof-and-its-limits).
+
+This establishes a multi-level mechanism on a small complete fixture. Complete
+bridge/assembler routing, a closed full-chip clock tree and a measured complete
+loaded/ticking arrangement remain open. The production generator is unchanged
+and continues to report incomplete routing/runtime gates.
 
 ## Full-machine requirement gaps
 

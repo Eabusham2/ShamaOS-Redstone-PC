@@ -1,0 +1,120 @@
+{
+  "passes": [
+    {
+      "pass": 1,
+      "accepted_swaps": 17,
+      "before_links": 13402,
+      "after_links": 13255,
+      "maximum_domain_terminal_workload": 1046,
+      "bounded_router_domains": 97,
+      "maximum_domains_at_one_cluster": 5,
+      "seconds": 1.9230295020024641
+    },
+    {
+      "pass": 2,
+      "accepted_swaps": 9,
+      "before_links": 13255,
+      "after_links": 13244,
+      "maximum_domain_terminal_workload": 1013,
+      "bounded_router_domains": 96,
+      "maximum_domains_at_one_cluster": 4,
+      "seconds": 1.9723344880039804
+    },
+    {
+      "pass": 3,
+      "accepted_swaps": 8,
+      "before_links": 13244,
+      "after_links": 13176,
+      "maximum_domain_terminal_workload": 1013,
+      "bounded_router_domains": 96,
+      "maximum_domains_at_one_cluster": 4,
+      "seconds": 2.0888838229948306
+    },
+    {
+      "pass": 4,
+      "accepted_swaps": 1,
+      "before_links": 13176,
+      "after_links": 13176,
+      "maximum_domain_terminal_workload": 1013,
+      "bounded_router_domains": 96,
+      "maximum_domains_at_one_cluster": 4,
+      "seconds": 2.125354725998477
+    },
+    {
+      "pass": 5,
+      "accepted_swaps": 0,
+      "before_links": 13176,
+      "after_links": 13176,
+      "maximum_domain_terminal_workload": 1013,
+      "bounded_router_domains": 96,
+      "maximum_domains_at_one_cluster": 4,
+      "seconds": 1.9596846290005487
+    }
+  ],
+  "objective": "domains",
+  "independent_audit": {
+    "status": "passed",
+    "signals": 10931,
+    "native_cells": 10910,
+    "scope": "complete structural graph reconstruction; no physical routing or timing claim"
+  },
+  "independent_cut_cost_matches_all_actual_links": true,
+  "independent_terminal_cost_matches_all_domains": true,
+  "source": {
+    "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/tests/fixtures/display_bridge_abc.json.gz",
+    "sha256": "bdc22086b9146cdf7ea9d58cbfddfeea09120bd19a744f704b9605ff573609a4",
+    "container_sha256": "2abc0695787b7490387790563fa099cf42d4e2bd9fdc2a3dc3db5472d3184a14",
+    "encoding": "gzip",
+    "top": "shama_display_bridge",
+    "raw_cells": 10910,
+    "lowered_cells": 10910,
+    "lowering_source_sha256": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274"
+  },
+  "before": {
+    "native_cells": 10910,
+    "original_port_bits": 351,
+    "signals": 10931,
+    "original_sink_uses": 20944,
+    "clock_leaf_uses": 649,
+    "constant_terminals": 0,
+    "leaf_clusters": 177,
+    "internal_clusters": 59,
+    "hierarchy_depth": 4,
+    "bounded_router_domains": 99,
+    "signal_tree_links": 13402,
+    "explicit_fanout_branches": 1226,
+    "maximum_router_fanout": 4,
+    "maximum_leaf_boundary": 108,
+    "maximum_domain_terminals": 256,
+    "maximum_domains_at_one_cluster": 5,
+    "topology_sha256": "489c86902aadf84e8ff9ea0d10ef9dd873721ca992427e8d888d7ececf20d4a5",
+    "original_signal_endpoints_sha256": "1b87f736c932acc0713c534f4e3d95d7e9d3e63e6a9779e42a5ed9efcb9df472",
+    "all_signal_records_retained": true
+  },
+  "after": {
+    "native_cells": 10910,
+    "original_port_bits": 351,
+    "signals": 10931,
+    "original_sink_uses": 20944,
+    "clock_leaf_uses": 649,
+    "constant_terminals": 0,
+    "leaf_clusters": 177,
+    "internal_clusters": 59,
+    "hierarchy_depth": 4,
+    "bounded_router_domains": 96,
+    "signal_tree_links": 13176,
+    "explicit_fanout_branches": 1226,
+    "maximum_router_fanout": 4,
+    "maximum_leaf_boundary": 108,
+    "maximum_domain_terminals": 256,
+    "maximum_domains_at_one_cluster": 4,
+    "topology_sha256": "590db4c6a48665583427ffb3b24cb6beadf332f6eca3093c3aef715a7bb32d82",
+    "original_signal_endpoints_sha256": "1b87f736c932acc0713c534f4e3d95d7e9d3e63e6a9779e42a5ed9efcb9df472",
+    "all_signal_records_retained": true
+  },
+  "seconds": 11.452825913002016,
+  "source_plan_sha256": "b2931fcc2be5c21e2bceeb49cf70b930f23b96bd9db575e725b6f7ffa811ef47",
+  "result_plan_sha256": "5d90561aae65f48aaac8b6fd2ff1d318c15f433bbf276eb0a6f13610a715eb1f",
+  "experiment_sha256": "be3d30c5ba3432bc4a593c29d2c9549c7b86999e0aa402444c0044a85090ef9c",
+  "scope": "complete topology and domain workload; no emitted geometry or timing claim"
+}

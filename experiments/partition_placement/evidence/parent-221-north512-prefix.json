@@ -1,0 +1,14 @@
+{
+  "scope": "escape-prefix allocation only; no emitted geometry or runtime claim",
+  "capture_sha256": "5f450ffee8a2e024420950423fe14e231ba344689c87c26e7240dd5e23aa85f4",
+  "original_allocator_sha256": "f6c7864bf0dc8c7f36cf85940f75d4940be4978e83facca06665e775734e3366",
+  "candidate_allocator_sha256": "0bd8e56c866976b1a6007c99798ee56c76502037231fc7841b5bb4b15a1ea3ba",
+  "experimental_north_lane_limit": 512,
+  "production_source_changed": false,
+  "complete_machine_runtime_verified": false,
+  "status": "prefix-allocation-passed",
+  "endpoints": 896,
+  "largest_north_run": 840,
+  "elapsed_seconds": 354.72979261900036,
+  "peak_rss_kib": 328536
+}

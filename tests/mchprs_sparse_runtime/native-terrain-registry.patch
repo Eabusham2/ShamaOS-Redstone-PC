@@ -1,0 +1,122 @@
+--- a/crates/blocks/src/generated.rs
++++ b/crates/blocks/src/generated.rs
+@@ -7,6 +7,9 @@
+ pub enum Block {
+     Air,
+     Stone,
++    Bedrock,
++    Dirt,
++    GrassBlock { snowy: bool },
+     Glass,
+     Glowstone,
+     RedstoneWire(RedstoneWire),
+@@ -312,6 +315,9 @@
+         match self {
+             Block::Air => "minecraft:air",
+             Block::Stone => "minecraft:stone",
++            Block::Bedrock => "minecraft:bedrock",
++            Block::Dirt => "minecraft:dirt",
++            Block::GrassBlock { .. } => "minecraft:grass_block",
+             Block::Glass => "minecraft:glass",
+             Block::Glowstone => "minecraft:glowstone",
+             Block::RedstoneWire(_) => "minecraft:redstone_wire",
+@@ -462,6 +468,9 @@
+         Some(match name {
+             "minecraft:air" => Block::Air,
+             "minecraft:stone" => Block::Stone,
++            "minecraft:bedrock" => Block::Bedrock,
++            "minecraft:dirt" => Block::Dirt,
++            "minecraft:grass_block" => Block::GrassBlock { snowy: false },
+             "minecraft:glass" => Block::Glass,
+             "minecraft:glowstone" => Block::Glowstone,
+             "minecraft:redstone_wire" => Block::RedstoneWire(RedstoneWire {
+@@ -742,6 +751,7 @@
+     pub fn is_solid(self) -> bool {
+         match self {
+             Block::Stone => true,
++            Block::Bedrock | Block::Dirt | Block::GrassBlock { .. } => true,
+             Block::RedstoneLamp { .. } => true,
+             Block::Target { .. } => true,
+             Block::Barrel { .. } => true,
+@@ -821,6 +831,7 @@
+     pub fn is_cube(self) -> bool {
+         match self {
+             Block::Stone => true,
++            Block::Bedrock | Block::Dirt | Block::GrassBlock { .. } => true,
+             Block::Glass => true,
+             Block::Glowstone => true,
+             Block::RedstoneLamp { .. } => true,
+@@ -952,6 +963,8 @@
+         match self {
+             Block::Air => {}
+             Block::Stone => {}
++            Block::Bedrock | Block::Dirt => {}
++            Block::GrassBlock { snowy } => { <bool as BlockProperty>::decode(snowy, &props, "snowy"); }
+             Block::Glass => {}
+             Block::Glowstone => {}
+             Block::RedstoneWire(RedstoneWire {
+@@ -1379,6 +1392,8 @@
+         match self {
+             Block::Air => {}
+             Block::Stone => {}
++            Block::Bedrock | Block::Dirt => {}
++            Block::GrassBlock { snowy } => { <bool as BlockProperty>::encode(*snowy, &mut props, "snowy"); }
+             Block::Glass => {}
+             Block::Glowstone => {}
+             Block::RedstoneWire(RedstoneWire {
+@@ -1806,6 +1821,7 @@
+         match self {
+             Block::Air => {}
+             Block::Stone => {}
++            Block::Bedrock | Block::Dirt | Block::GrassBlock { .. } => {}
+             Block::Glass => {}
+             Block::Glowstone => {}
+             Block::RedstoneWire(RedstoneWire {
+@@ -2226,6 +2242,7 @@
+         match self {
+             Block::Air => {}
+             Block::Stone => {}
++            Block::Bedrock | Block::Dirt | Block::GrassBlock { .. } => {}
+             Block::Glass => {}
+             Block::Glowstone => {}
+             Block::RedstoneWire(RedstoneWire {
+@@ -2646,6 +2663,9 @@
+         match self {
+             Block::Air => 0,
+             Block::Stone => 1,
++            Block::Bedrock => 79,
++            Block::Dirt => 10,
++            Block::GrassBlock { snowy } => if snowy { 8 } else { 9 },
+             Block::Glass => 519,
+             Block::Glowstone => 5863,
+             Block::RedstoneWire(RedstoneWire {
+@@ -2924,6 +2944,9 @@
+     }
+     pub fn from_id(mut id: u32) -> Block {
+         match id {
++            79 => Block::Bedrock,
++            10 => Block::Dirt,
++            8..=9 => Block::GrassBlock { snowy: id == 8 },
+             0..1 => {
+                 id -= 0;
+                 Block::Air
+@@ -3740,6 +3763,7 @@
+     pub fn is_stone(self) -> bool {
+         match self {
+             Block::Stone => true,
++            Block::Bedrock => true,
+             Block::Sandstone => true,
+             Block::CoalBlock => true,
+             Block::WhiteConcrete => true,
+--- a/mc_data/gen_info.yaml
++++ b/mc_data/gen_info.yaml
+@@ -22,6 +22,9 @@
+ blocks:
+   "minecraft:air": ""
+   "minecraft:stone": "solid,cube,simple_item,stone"
++  "minecraft:bedrock": "solid,cube,stone"
++  "minecraft:dirt": "solid,cube"
++  "minecraft:grass_block": "solid,cube"
+   "minecraft:glass": "transparent,cube,simple_item,glass"
+   "minecraft:glowstone": "transparent,cube,simple_item"
+   "minecraft:redstone_wire": "prop_struct,complex_transform"

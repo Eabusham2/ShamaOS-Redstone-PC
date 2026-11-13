@@ -1,0 +1,14 @@
+{
+  "status": "both-complete-stages-byte-identical",
+  "topology_sha256": "590db4c6a48665583427ffb3b24cb6beadf332f6eca3093c3aef715a7bb32d82",
+  "source_plan_sha256": "b2931fcc2be5c21e2bceeb49cf70b930f23b96bd9db575e725b6f7ffa811ef47",
+  "result_plan_sha256": "5d90561aae65f48aaac8b6fd2ff1d318c15f433bbf276eb0a6f13610a715eb1f",
+  "original_endpoint_sha256": "1b87f736c932acc0713c534f4e3d95d7e9d3e63e6a9779e42a5ed9efcb9df472",
+  "audit": {
+    "status": "passed",
+    "signals": 10931,
+    "native_cells": 10910,
+    "scope": "complete structural graph reconstruction; no physical routing or timing claim"
+  },
+  "scope": "Identical serialized complete plans from both deterministic grouping stages; no geometry/timing claim"
+}

@@ -33,6 +33,59 @@ observed outputs are retained in
 remains a separate required gate. Its first run exposed a stale host OS model
 that still copied the entire history; that path now uses the fixed 128-byte
 record journal and preserves the firmware's complete record/state format.
+The subsequent exact-commit run passed 842 behavior/redstone tests and exposed
+one stale keyboard test that sampled before the relocated column signal arrived.
+The corrected test preserves full pulse/isolation checks and now verifies all
+4,480 key/clock-phase combinations; the next exact-commit CI run must pass too.
+
+## Connected routing and saved-world execution checkpoint
+
+The experimental complete-graph planner now has independent conservation checks
+for every original cell, port, signal sink, constant and clock leaf. Its 29-case
+regression rejects missing hardware, disconnected extra links, invented nets,
+changed inventories and false summary hashes. A separate recursive placement
+path binds planned parent/child interfaces to actual shared redstone contacts.
+The current placement, local-router and external-router regressions pass 49
+distinct cases in an independent review. Production generation has not switched
+to this experimental path.
+
+The connected pipeline has also been saved into native Anvil chunks and reopened.
+Its seven bounded routing domains preserve all 18 physical handoffs. A correctly
+timed run matches 745,472 dense-engine output values; a deliberately too-fast run
+matches 304,640 values, including eight incorrect register transfers. The latter
+is a required negative control: a loader must preserve a real timing failure.
+The first four 256-cell groups from the complete mapped display bridge generate
+without dropping circuits. The first materialized group's union is 1,287,608
+blocks and 9,332 occupied chunks. These are subtree measurements, not an estimate
+of the complete bridge or computer. Larger connected placement and global clock
+timing remain substantial open work.
+
+The [native-world runner](NATIVE_RUNTIME.md) now imports every saved section into
+one connected sparse world using the pinned engine's real scheduled redstone
+behavior. An explicit terrain-registry extension preserves grass, dirt and
+bedrock without changing redstone rules. A full saved/reopened 4 KiB bank passes
+623,008 output assertions over 81,920 redstone ticks, retaining all 32,768 bits,
+32,768 comparator entities and 6,732,672 saved native blocks including terrain.
+The independent importer/runtime review passes 39 cases without skips. This
+proves a complete memory bank, not a booted full-capacity computer.
+The [root review report](evidence/bounded-native-root-review-2026-11-13.json)
+retains all 153 distinct passing planner/router/importer, benchmark-guard and
+console cases, exact reviewed source and runtime binary hashes, and the scope of
+these checks.
+
+A further independent review passes all four
+[physical-console-to-input-RTL cases](evidence/console-input-integration-2026-11-13.json)
+without skips. Actual native and exported waveforms exercise both keyboard banks
+at all 70 raw-clock phases, all ten controller buttons, Shift, held acknowledgements,
+FIFO order, urgent-action priority and overflow. Unmodified traces deliberately
+fail capture at a 140-tick raw period. This connects the measured source interface
+to real RTL behavior; it does not close propagation timing inside the complete
+mapped input circuit or the whole machine.
+
+The complete graph's remaining routing, clock/data timing, loaded-chunk behavior,
+in-client view and end-to-end application flows must pass on the actual finished
+world before its release ZIP or schematic is ready. Existing software/RTL tests,
+native fixtures and successful synthesis do not substitute for those gates.
 
 ## Implemented in code and exercised behaviorally
 
@@ -282,8 +335,9 @@ the owning session-lock descriptor throughout inventory and copying on POSIX.
 It also rejects unsafe ZIP member names before platform normalization. The
 focused installer/release regression passes 63 cases locally, including a
 separate writer process attempting an exclusive lock after inventory and copy.
-Both Windows variants passed in the `4e933a5` CI run. The new 200 KiB candidate
-still requires its own full exact-commit CI run.
+Both Windows variants also pass on the `e3d6273` 200 KiB revision.
+That revision's behavioral job exposed the keyboard sampling assumption described
+above; it does not have a fully green CI result.
 
 ## Canonical capacities remain intact
 
@@ -317,11 +371,17 @@ The [250 KiB checkpoint, `5b1e1b0`](https://github.com/Eabusham2/ShamaOS-Redston
 passed all twelve partition mappings and their full-SoC reconnection, Linux
 tests, RTL and the saved-world backend. Its Windows variants exposed shared-lock and ZIP-fixture portability
 errors; the recovered fixes above are included with the shared-assembler change.
-The next `4e933a5` run passed all four Python/platform variants, RTL, world-backend
-and the required behavioral job: **758 passed, zero skipped**, followed by both
-saved-world fixtures. Its final assembler mapping and reconnection must still
-finish before that whole run is green. The new 200 KiB candidate requires a fresh complete CI
-run; [current CI results](https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/workflows/ci.yml)
+The next [`4e933a5` run](https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/43333367519)
+completed successfully, including all four Python/platform variants, RTL,
+world-backend, all twelve mappings and reconnection. Its required behavioral
+job passed **758 cases with zero skips**, followed by both saved-world fixtures.
+The 200 KiB revision includes the host history-model fix. Its separate
+[`e3d6273` CI run](https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/43345353982)
+finished with 19 of 20 jobs successful, including all twelve mappings and their
+reconnection. The behavioral job passed 842 tests and failed the single stale
+32-tick keyboard snapshot. The corrected test measures the actual input-clock
+window and independently verifies every key at every clock phase; a fresh run
+on the corrected revision is still required. [Current CI results](https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/workflows/ci.yml)
 are the authority for the exact candidate. Passing synthesis does not establish
 complete-world routing or in-game boot.
 The behavioral CI budget is now 75 minutes to include production-controller
@@ -334,8 +394,8 @@ SoC persistence and full-size assembly boundaries without dropping coverage.
   and timing checks, including dense endpoint escape and global clock skew.
 - Resource estimates must include logic, backbones, external routing, validation
   work and runtime loading, not just storage cells.
-- The current global-track routing topology has a prohibitive measured analytical
-  lower bound. In the mapped assembler partition alone, 738,056 nets imply at
+- The existing global-track routing topology has a prohibitive measured analytical
+  lower bound. In the historical mapped assembler partition alone, 738,056 nets implied at
   least 31,252,056,139 X/Z chunks / 128,258,438,402,048 Anvil bytes, excluding
   trunks and stairs. These are the measured lower bounds from the green `a600a9c`
   assembler mapping with the existing global-track router; a redesigned local

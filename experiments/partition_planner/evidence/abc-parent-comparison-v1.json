@@ -1,0 +1,520 @@
+{
+  "source": {
+    "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/tests/fixtures/display_bridge_abc.json.gz",
+    "sha256": "bdc22086b9146cdf7ea9d58cbfddfeea09120bd19a744f704b9605ff573609a4",
+    "container_sha256": "2abc0695787b7490387790563fa099cf42d4e2bd9fdc2a3dc3db5472d3184a14",
+    "encoding": "gzip",
+    "top": "shama_display_bridge",
+    "raw_cells": 10910,
+    "lowered_cells": 10910,
+    "lowering_source_sha256": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274"
+  },
+  "planner_source_sha256": "82e7f39548af7443b29ffd322a118cb42474f6f0bf3da2273b1ecdefb38164b4",
+  "experiment_source_sha256": "12fcbab3f40e113bd58dd497fa143f47b05ac1359b37fa85f935795fcc50ae8b",
+  "scope": "complete graph topology only; geometry, clock timing and footprint unmeasured",
+  "candidates": [
+    {
+      "strategy": "baseline",
+      "seconds": 0.5763426330013317,
+      "summary": {
+        "native_cells": 10910,
+        "original_port_bits": 351,
+        "signals": 10931,
+        "original_sink_uses": 20944,
+        "clock_leaf_uses": 649,
+        "constant_terminals": 0,
+        "leaf_clusters": 177,
+        "internal_clusters": 59,
+        "hierarchy_depth": 4,
+        "bounded_router_domains": 117,
+        "signal_tree_links": 15487,
+        "explicit_fanout_branches": 1222,
+        "maximum_router_fanout": 4,
+        "maximum_leaf_boundary": 108,
+        "maximum_domain_terminals": 256,
+        "maximum_domains_at_one_cluster": 7,
+        "topology_sha256": "d6ddfd1b1b332d2e56c9d5dcc76d857442373a9ff1cd53ce77330a6bbbc3c24a",
+        "original_signal_endpoints_sha256": "1b87f736c932acc0713c534f4e3d95d7e9d3e63e6a9779e42a5ed9efcb9df472",
+        "all_signal_records_retained": true
+      },
+      "independent_audit": {
+        "status": "passed",
+        "signals": 10931,
+        "native_cells": 10910,
+        "scope": "complete structural graph reconstruction; no physical routing or timing claim"
+      },
+      "levels": [],
+      "plan_file": "/workspace/scratch/fb0eaf1c89fe/experiments/partition-planner/artifacts/parent-grouping-abc/baseline-plan.json",
+      "plan_sha256": "0d91b87776db199fd1db39ce28204078555df37401234067b20a94d562a6cfc8"
+    },
+    {
+      "strategy": "consecutive-swaps",
+      "seconds": 3.9361269030050607,
+      "summary": {
+        "native_cells": 10910,
+        "original_port_bits": 351,
+        "signals": 10931,
+        "original_sink_uses": 20944,
+        "clock_leaf_uses": 649,
+        "constant_terminals": 0,
+        "leaf_clusters": 177,
+        "internal_clusters": 59,
+        "hierarchy_depth": 4,
+        "bounded_router_domains": 103,
+        "signal_tree_links": 13334,
+        "explicit_fanout_branches": 1211,
+        "maximum_router_fanout": 4,
+        "maximum_leaf_boundary": 108,
+        "maximum_domain_terminals": 256,
+        "maximum_domains_at_one_cluster": 5,
+        "topology_sha256": "7bc6990972c3a3411dea721d4705757713cdba5d12c4cd89d5ad2b5d5ae2e4e1",
+        "original_signal_endpoints_sha256": "1b87f736c932acc0713c534f4e3d95d7e9d3e63e6a9779e42a5ed9efcb9df472",
+        "all_signal_records_retained": true
+      },
+      "independent_audit": {
+        "status": "passed",
+        "signals": 10931,
+        "native_cells": 10910,
+        "scope": "complete structural graph reconstruction; no physical routing or timing claim"
+      },
+      "levels": [
+        {
+          "active_clusters": 177,
+          "parent_groups": 45,
+          "parent_cut_before_swaps": 4304,
+          "parent_cut_after_swaps": 3675,
+          "accepted_swaps": 92,
+          "seconds": 2.502672493996215
+        },
+        {
+          "active_clusters": 45,
+          "parent_groups": 12,
+          "parent_cut_before_swaps": 2294,
+          "parent_cut_after_swaps": 1947,
+          "accepted_swaps": 21,
+          "seconds": 0.28943572499701986
+        },
+        {
+          "active_clusters": 12,
+          "parent_groups": 3,
+          "parent_cut_before_swaps": 1139,
+          "parent_cut_after_swaps": 614,
+          "accepted_swaps": 12,
+          "seconds": 0.024072332998912316
+        },
+        {
+          "active_clusters": 3,
+          "parent_groups": 1,
+          "parent_cut_before_swaps": 0,
+          "parent_cut_after_swaps": 0,
+          "accepted_swaps": 0,
+          "seconds": 0.0009628269981476478
+        }
+      ],
+      "plan_file": "/workspace/scratch/fb0eaf1c89fe/experiments/partition-planner/artifacts/parent-grouping-abc/consecutive-swaps-plan.json",
+      "plan_sha256": "3dd4972adf0ef154a36aa6007eebf48235004d88283e44eccc2996d7a3bfe1c1"
+    },
+    {
+      "strategy": "greedy-degree",
+      "seconds": 0.7426280379950185,
+      "summary": {
+        "native_cells": 10910,
+        "original_port_bits": 351,
+        "signals": 10931,
+        "original_sink_uses": 20944,
+        "clock_leaf_uses": 649,
+        "constant_terminals": 0,
+        "leaf_clusters": 177,
+        "internal_clusters": 59,
+        "hierarchy_depth": 4,
+        "bounded_router_domains": 108,
+        "signal_tree_links": 14092,
+        "explicit_fanout_branches": 1223,
+        "maximum_router_fanout": 4,
+        "maximum_leaf_boundary": 108,
+        "maximum_domain_terminals": 256,
+        "maximum_domains_at_one_cluster": 6,
+        "topology_sha256": "daaf4156a8fa5f76d51147d29b4dc0fece42d6cde507bca9d1e15cc9612b4ad9",
+        "original_signal_endpoints_sha256": "1b87f736c932acc0713c534f4e3d95d7e9d3e63e6a9779e42a5ed9efcb9df472",
+        "all_signal_records_retained": true
+      },
+      "independent_audit": {
+        "status": "passed",
+        "signals": 10931,
+        "native_cells": 10910,
+        "scope": "complete structural graph reconstruction; no physical routing or timing claim"
+      },
+      "levels": [
+        {
+          "active_clusters": 177,
+          "parent_groups": 45,
+          "parent_cut_before_swaps": 3898,
+          "parent_cut_after_swaps": 3898,
+          "accepted_swaps": 0,
+          "seconds": 0.040497489004337694
+        },
+        {
+          "active_clusters": 45,
+          "parent_groups": 12,
+          "parent_cut_before_swaps": 2154,
+          "parent_cut_after_swaps": 2154,
+          "accepted_swaps": 0,
+          "seconds": 0.006787895996239968
+        },
+        {
+          "active_clusters": 12,
+          "parent_groups": 3,
+          "parent_cut_before_swaps": 856,
+          "parent_cut_after_swaps": 856,
+          "accepted_swaps": 0,
+          "seconds": 0.00327771800220944
+        },
+        {
+          "active_clusters": 3,
+          "parent_groups": 1,
+          "parent_cut_before_swaps": 0,
+          "parent_cut_after_swaps": 0,
+          "accepted_swaps": 0,
+          "seconds": 0.0013758279965259135
+        }
+      ],
+      "plan_file": "/workspace/scratch/fb0eaf1c89fe/experiments/partition-planner/artifacts/parent-grouping-abc/greedy-degree-plan.json",
+      "plan_sha256": "4c9f351aa4683c9cea373d94b013576c43e499bc6164036c5a2599d22b2089c3"
+    },
+    {
+      "strategy": "greedy-first",
+      "seconds": 0.8484249710018048,
+      "summary": {
+        "native_cells": 10910,
+        "original_port_bits": 351,
+        "signals": 10931,
+        "original_sink_uses": 20944,
+        "clock_leaf_uses": 649,
+        "constant_terminals": 0,
+        "leaf_clusters": 177,
+        "internal_clusters": 59,
+        "hierarchy_depth": 4,
+        "bounded_router_domains": 109,
+        "signal_tree_links": 14334,
+        "explicit_fanout_branches": 1229,
+        "maximum_router_fanout": 4,
+        "maximum_leaf_boundary": 108,
+        "maximum_domain_terminals": 256,
+        "maximum_domains_at_one_cluster": 6,
+        "topology_sha256": "89063913039eec31594910d8aa7f35b808a5028ea54c9895778f14f2ed38fdda",
+        "original_signal_endpoints_sha256": "1b87f736c932acc0713c534f4e3d95d7e9d3e63e6a9779e42a5ed9efcb9df472",
+        "all_signal_records_retained": true
+      },
+      "independent_audit": {
+        "status": "passed",
+        "signals": 10931,
+        "native_cells": 10910,
+        "scope": "complete structural graph reconstruction; no physical routing or timing claim"
+      },
+      "levels": [
+        {
+          "active_clusters": 177,
+          "parent_groups": 45,
+          "parent_cut_before_swaps": 4036,
+          "parent_cut_after_swaps": 4036,
+          "accepted_swaps": 0,
+          "seconds": 0.03747328199824551
+        },
+        {
+          "active_clusters": 45,
+          "parent_groups": 12,
+          "parent_cut_before_swaps": 2347,
+          "parent_cut_after_swaps": 2347,
+          "accepted_swaps": 0,
+          "seconds": 0.007519286002207082
+        },
+        {
+          "active_clusters": 12,
+          "parent_groups": 3,
+          "parent_cut_before_swaps": 828,
+          "parent_cut_after_swaps": 828,
+          "accepted_swaps": 0,
+          "seconds": 0.0024339890005649067
+        },
+        {
+          "active_clusters": 3,
+          "parent_groups": 1,
+          "parent_cut_before_swaps": 0,
+          "parent_cut_after_swaps": 0,
+          "accepted_swaps": 0,
+          "seconds": 0.0011053209964302368
+        }
+      ],
+      "plan_file": "/workspace/scratch/fb0eaf1c89fe/experiments/partition-planner/artifacts/parent-grouping-abc/greedy-first-plan.json",
+      "plan_sha256": "d6f2d924b5c159ba9eb3f098fead1cc75591c3c302c6cde2675b45252966d0fe"
+    },
+    {
+      "strategy": "greedy-weighted-degree",
+      "seconds": 0.8206656490001478,
+      "summary": {
+        "native_cells": 10910,
+        "original_port_bits": 351,
+        "signals": 10931,
+        "original_sink_uses": 20944,
+        "clock_leaf_uses": 649,
+        "constant_terminals": 0,
+        "leaf_clusters": 177,
+        "internal_clusters": 59,
+        "hierarchy_depth": 4,
+        "bounded_router_domains": 107,
+        "signal_tree_links": 14090,
+        "explicit_fanout_branches": 1219,
+        "maximum_router_fanout": 4,
+        "maximum_leaf_boundary": 108,
+        "maximum_domain_terminals": 256,
+        "maximum_domains_at_one_cluster": 6,
+        "topology_sha256": "dee785fa3c4918a8ae58c831ae0c8ef88cca82f27276cc54179bd888d071d1b9",
+        "original_signal_endpoints_sha256": "1b87f736c932acc0713c534f4e3d95d7e9d3e63e6a9779e42a5ed9efcb9df472",
+        "all_signal_records_retained": true
+      },
+      "independent_audit": {
+        "status": "passed",
+        "signals": 10931,
+        "native_cells": 10910,
+        "scope": "complete structural graph reconstruction; no physical routing or timing claim"
+      },
+      "levels": [
+        {
+          "active_clusters": 177,
+          "parent_groups": 45,
+          "parent_cut_before_swaps": 3961,
+          "parent_cut_after_swaps": 3961,
+          "accepted_swaps": 0,
+          "seconds": 0.040624389999720734
+        },
+        {
+          "active_clusters": 45,
+          "parent_groups": 12,
+          "parent_cut_before_swaps": 2086,
+          "parent_cut_after_swaps": 2086,
+          "accepted_swaps": 0,
+          "seconds": 0.007195659003627952
+        },
+        {
+          "active_clusters": 12,
+          "parent_groups": 3,
+          "parent_cut_before_swaps": 859,
+          "parent_cut_after_swaps": 859,
+          "accepted_swaps": 0,
+          "seconds": 0.0024875800008885562
+        },
+        {
+          "active_clusters": 3,
+          "parent_groups": 1,
+          "parent_cut_before_swaps": 0,
+          "parent_cut_after_swaps": 0,
+          "accepted_swaps": 0,
+          "seconds": 0.0013518829946406186
+        }
+      ],
+      "plan_file": "/workspace/scratch/fb0eaf1c89fe/experiments/partition-planner/artifacts/parent-grouping-abc/greedy-weighted-degree-plan.json",
+      "plan_sha256": "2d0a7de998311e4a2e6768900280e89e4cea87d767e48c6d3dd3b5198a8cac98"
+    },
+    {
+      "strategy": "greedy-degree-swaps",
+      "seconds": 3.969389368998236,
+      "summary": {
+        "native_cells": 10910,
+        "original_port_bits": 351,
+        "signals": 10931,
+        "original_sink_uses": 20944,
+        "clock_leaf_uses": 649,
+        "constant_terminals": 0,
+        "leaf_clusters": 177,
+        "internal_clusters": 59,
+        "hierarchy_depth": 4,
+        "bounded_router_domains": 99,
+        "signal_tree_links": 13402,
+        "explicit_fanout_branches": 1226,
+        "maximum_router_fanout": 4,
+        "maximum_leaf_boundary": 108,
+        "maximum_domain_terminals": 256,
+        "maximum_domains_at_one_cluster": 5,
+        "topology_sha256": "489c86902aadf84e8ff9ea0d10ef9dd873721ca992427e8d888d7ececf20d4a5",
+        "original_signal_endpoints_sha256": "1b87f736c932acc0713c534f4e3d95d7e9d3e63e6a9779e42a5ed9efcb9df472",
+        "all_signal_records_retained": true
+      },
+      "independent_audit": {
+        "status": "passed",
+        "signals": 10931,
+        "native_cells": 10910,
+        "scope": "complete structural graph reconstruction; no physical routing or timing claim"
+      },
+      "levels": [
+        {
+          "active_clusters": 177,
+          "parent_groups": 45,
+          "parent_cut_before_swaps": 3898,
+          "parent_cut_after_swaps": 3683,
+          "accepted_swaps": 66,
+          "seconds": 2.605339877001825
+        },
+        {
+          "active_clusters": 45,
+          "parent_groups": 12,
+          "parent_cut_before_swaps": 1984,
+          "parent_cut_after_swaps": 1933,
+          "accepted_swaps": 9,
+          "seconds": 0.2895025559992064
+        },
+        {
+          "active_clusters": 12,
+          "parent_groups": 3,
+          "parent_cut_before_swaps": 716,
+          "parent_cut_after_swaps": 640,
+          "accepted_swaps": 3,
+          "seconds": 0.025398407997272443
+        },
+        {
+          "active_clusters": 3,
+          "parent_groups": 1,
+          "parent_cut_before_swaps": 0,
+          "parent_cut_after_swaps": 0,
+          "accepted_swaps": 0,
+          "seconds": 0.001325281999015715
+        }
+      ],
+      "plan_file": "/workspace/scratch/fb0eaf1c89fe/experiments/partition-planner/artifacts/parent-grouping-abc/greedy-degree-swaps-plan.json",
+      "plan_sha256": "b2931fcc2be5c21e2bceeb49cf70b930f23b96bd9db575e725b6f7ffa811ef47"
+    },
+    {
+      "strategy": "greedy-first-swaps",
+      "seconds": 4.390912185997877,
+      "summary": {
+        "native_cells": 10910,
+        "original_port_bits": 351,
+        "signals": 10931,
+        "original_sink_uses": 20944,
+        "clock_leaf_uses": 649,
+        "constant_terminals": 0,
+        "leaf_clusters": 177,
+        "internal_clusters": 59,
+        "hierarchy_depth": 4,
+        "bounded_router_domains": 101,
+        "signal_tree_links": 13481,
+        "explicit_fanout_branches": 1238,
+        "maximum_router_fanout": 4,
+        "maximum_leaf_boundary": 108,
+        "maximum_domain_terminals": 256,
+        "maximum_domains_at_one_cluster": 5,
+        "topology_sha256": "fd9a608622f46fdc021a104ef75942377aaa60e4e039cfc145c1901e7257e680",
+        "original_signal_endpoints_sha256": "1b87f736c932acc0713c534f4e3d95d7e9d3e63e6a9779e42a5ed9efcb9df472",
+        "all_signal_records_retained": true
+      },
+      "independent_audit": {
+        "status": "passed",
+        "signals": 10931,
+        "native_cells": 10910,
+        "scope": "complete structural graph reconstruction; no physical routing or timing claim"
+      },
+      "levels": [
+        {
+          "active_clusters": 177,
+          "parent_groups": 45,
+          "parent_cut_before_swaps": 4036,
+          "parent_cut_after_swaps": 3725,
+          "accepted_swaps": 85,
+          "seconds": 2.7562324600003194
+        },
+        {
+          "active_clusters": 45,
+          "parent_groups": 12,
+          "parent_cut_before_swaps": 2244,
+          "parent_cut_after_swaps": 1989,
+          "accepted_swaps": 26,
+          "seconds": 0.3351686649984913
+        },
+        {
+          "active_clusters": 12,
+          "parent_groups": 3,
+          "parent_cut_before_swaps": 696,
+          "parent_cut_after_swaps": 669,
+          "accepted_swaps": 2,
+          "seconds": 0.01929868699517101
+        },
+        {
+          "active_clusters": 3,
+          "parent_groups": 1,
+          "parent_cut_before_swaps": 0,
+          "parent_cut_after_swaps": 0,
+          "accepted_swaps": 0,
+          "seconds": 0.0015542369947070256
+        }
+      ],
+      "plan_file": "/workspace/scratch/fb0eaf1c89fe/experiments/partition-planner/artifacts/parent-grouping-abc/greedy-first-swaps-plan.json",
+      "plan_sha256": "1ffa39b66a4cbf72bc9739a97e71937ea5ea30f34c62624d8462337ff82d5cb8"
+    },
+    {
+      "strategy": "greedy-weighted-degree-swaps",
+      "seconds": 3.7369828169976245,
+      "summary": {
+        "native_cells": 10910,
+        "original_port_bits": 351,
+        "signals": 10931,
+        "original_sink_uses": 20944,
+        "clock_leaf_uses": 649,
+        "constant_terminals": 0,
+        "leaf_clusters": 177,
+        "internal_clusters": 59,
+        "hierarchy_depth": 4,
+        "bounded_router_domains": 101,
+        "signal_tree_links": 13468,
+        "explicit_fanout_branches": 1215,
+        "maximum_router_fanout": 4,
+        "maximum_leaf_boundary": 108,
+        "maximum_domain_terminals": 256,
+        "maximum_domains_at_one_cluster": 5,
+        "topology_sha256": "32217e90086b5fdef07e413c8b86010a113b8fcd09efb22d2c842c715c30c27b",
+        "original_signal_endpoints_sha256": "1b87f736c932acc0713c534f4e3d95d7e9d3e63e6a9779e42a5ed9efcb9df472",
+        "all_signal_records_retained": true
+      },
+      "independent_audit": {
+        "status": "passed",
+        "signals": 10931,
+        "native_cells": 10910,
+        "scope": "complete structural graph reconstruction; no physical routing or timing claim"
+      },
+      "levels": [
+        {
+          "active_clusters": 177,
+          "parent_groups": 45,
+          "parent_cut_before_swaps": 3961,
+          "parent_cut_after_swaps": 3681,
+          "accepted_swaps": 93,
+          "seconds": 2.714446414000122
+        },
+        {
+          "active_clusters": 45,
+          "parent_groups": 12,
+          "parent_cut_before_swaps": 2099,
+          "parent_cut_after_swaps": 1971,
+          "accepted_swaps": 9,
+          "seconds": 0.23568211300153052
+        },
+        {
+          "active_clusters": 12,
+          "parent_groups": 3,
+          "parent_cut_before_swaps": 731,
+          "parent_cut_after_swaps": 674,
+          "accepted_swaps": 1,
+          "seconds": 0.01980311400257051
+        },
+        {
+          "active_clusters": 3,
+          "parent_groups": 1,
+          "parent_cut_before_swaps": 0,
+          "parent_cut_after_swaps": 0,
+          "accepted_swaps": 0,
+          "seconds": 0.0019126560000586323
+        }
+      ],
+      "plan_file": "/workspace/scratch/fb0eaf1c89fe/experiments/partition-planner/artifacts/parent-grouping-abc/greedy-weighted-degree-swaps-plan.json",
+      "plan_sha256": "e6749819df1199f883ffccda2e8f63c93b6eaf9111a3666e69027a3b58a04691"
+    }
+  ]
+}

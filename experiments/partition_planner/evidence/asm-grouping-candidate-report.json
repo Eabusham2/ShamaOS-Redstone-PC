@@ -1,0 +1,141 @@
+{
+  "source": {
+    "path": "/workspace/scratch/fb0eaf1c89fe/experiments/partition-planner/artifacts/current-asm-4e933a5/partition-u_asm-shama_asm_accel.json",
+    "sha256": "78a6ab3abcbbe4bde94acaf6bbfdb8388dbeebf301757f34c49172f97b1664ee",
+    "container_sha256": "78a6ab3abcbbe4bde94acaf6bbfdb8388dbeebf301757f34c49172f97b1664ee",
+    "encoding": "plain",
+    "top": "shama_asm_accel",
+    "raw_cells": 505104,
+    "lowered_cells": 559453,
+    "lowering_source_sha256": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274"
+  },
+  "summary": {
+    "native_cells": 559453,
+    "original_port_bits": 364,
+    "signals": 559617,
+    "original_sink_uses": 895698,
+    "clock_leaf_uses": 17486,
+    "constant_terminals": 498,
+    "leaf_clusters": 8748,
+    "internal_clusters": 2917,
+    "hierarchy_depth": 7,
+    "bounded_router_domains": 8759,
+    "signal_tree_links": 1068216,
+    "explicit_fanout_branches": 134130,
+    "maximum_router_fanout": 4,
+    "maximum_leaf_boundary": 128,
+    "maximum_domain_terminals": 256,
+    "maximum_domains_at_one_cluster": 122,
+    "topology_sha256": "015937bc8f2637bb3ca70dadbeacf820bd206384b51696c47e72c22baf706011",
+    "original_signal_endpoints_sha256": "fdd37e36a758a1ab10ab9a3856d4a7d38ac7f74823561cecc67fe97331b6327d",
+    "all_signal_records_retained": false
+  },
+  "levels": [
+    {
+      "active_clusters": 8748,
+      "parent_groups": 2187,
+      "projected_crossing_signals": 105044,
+      "candidate_search_signals": 102756,
+      "scored_candidates": 94791,
+      "tested_local_swaps": 148832,
+      "accepted_local_swaps": 1191,
+      "parent_cut_before_swaps": 267232,
+      "parent_cut_after_swaps": 257093,
+      "seconds": 9.799868943999172
+    },
+    {
+      "active_clusters": 2187,
+      "parent_groups": 547,
+      "projected_crossing_signals": 55014,
+      "candidate_search_signals": 53628,
+      "scored_candidates": 44524,
+      "tested_local_swaps": 42864,
+      "accepted_local_swaps": 390,
+      "parent_cut_before_swaps": 170771,
+      "parent_cut_after_swaps": 164081,
+      "seconds": 7.798619206994772
+    },
+    {
+      "active_clusters": 547,
+      "parent_groups": 137,
+      "projected_crossing_signals": 38170,
+      "candidate_search_signals": 37792,
+      "scored_candidates": 18068,
+      "tested_local_swaps": 10160,
+      "accepted_local_swaps": 102,
+      "parent_cut_before_swaps": 106100,
+      "parent_cut_after_swaps": 103561,
+      "seconds": 5.020461874999455
+    },
+    {
+      "active_clusters": 137,
+      "parent_groups": 35,
+      "projected_crossing_signals": 29929,
+      "candidate_search_signals": 29610,
+      "scored_candidates": 4733,
+      "tested_local_swaps": 2480,
+      "accepted_local_swaps": 37,
+      "parent_cut_before_swaps": 70532,
+      "parent_cut_after_swaps": 69261,
+      "seconds": 3.6237613769990276
+    },
+    {
+      "active_clusters": 35,
+      "parent_groups": 9,
+      "projected_crossing_signals": 24318,
+      "candidate_search_signals": 24317,
+      "scored_candidates": 459,
+      "tested_local_swaps": 544,
+      "accepted_local_swaps": 5,
+      "parent_cut_before_swaps": 46880,
+      "parent_cut_after_swaps": 45710,
+      "seconds": 2.0145410939949215
+    },
+    {
+      "active_clusters": 9,
+      "parent_groups": 3,
+      "projected_crossing_signals": 18449,
+      "candidate_search_signals": 18449,
+      "scored_candidates": 30,
+      "tested_local_swaps": 24,
+      "accepted_local_swaps": 0,
+      "parent_cut_before_swaps": 17973,
+      "parent_cut_after_swaps": 17973,
+      "seconds": 0.3747896720014978
+    },
+    {
+      "active_clusters": 3,
+      "parent_groups": 1,
+      "projected_crossing_signals": 10698,
+      "candidate_search_signals": 10698,
+      "scored_candidates": 3,
+      "tested_local_swaps": 0,
+      "accepted_local_swaps": 0,
+      "parent_cut_before_swaps": 0,
+      "parent_cut_after_swaps": 0,
+      "seconds": 1.7695520260022022
+    }
+  ],
+  "heuristic_limits": {
+    "neighbor_fanout": 32,
+    "candidate_limit": 64,
+    "group_neighbors": 8,
+    "swap_passes": 1
+  },
+  "independent_audit": {
+    "status": "all-original-net-hashes-reconstructed",
+    "signals": 559617,
+    "native_cells": 559453,
+    "clock_leaf_uses": 17486,
+    "complete_summary_topology_hash_matched": true,
+    "complete_original_endpoint_hash_matched": true,
+    "physical_routing_records_retained": false,
+    "geometry_or_runtime_verified": false,
+    "scope": "independent complete logical reconstruction of summary hash; not a retained-plan or physical-world acceptance"
+  },
+  "planning_seconds": 68.33528012900206,
+  "total_seconds": 81.58080812200205,
+  "plan_sha256": "8d93893dc17599a55ff9333d5a346df7de412bf2b7bb57c9844903e1c7cf8fe1",
+  "experiment_sha256": "c1e8fb8eec75d9326e036f5ef9fa21c9bef486bf37c424dda63d50c4a73c0995",
+  "scope": "complete logical topology comparison; no geometry, chunk or speed claim"
+}

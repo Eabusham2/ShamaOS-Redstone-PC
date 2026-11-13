@@ -244,7 +244,9 @@ def compact_tile(physical: PhysicalNetlist, *, max_cells: int = 64) -> LocalTile
 def plan_existing_layout(physical: PhysicalNetlist, *, branch_y: int, trunk_y: int,
                          obstacles: Iterable[Placement], access: Mapping[Vec3,tuple[str,...]],
                          endpoint_bounds: Mapping[Vec3,Box] | None = None,
-                         obstacle_bounds: Iterable[Box] = ()) -> LocalTile:
+                         obstacle_bounds: Iterable[Box] = (),
+                         reserved_branch_x: Iterable[int] = (),
+                         maximum_track_z: int | None = None) -> LocalTile:
     """Route a bounded native or macro layout without global endpoint lanes."""
     if trunk_y-branch_y!=4 or not physical.minimum_build_y+4<=branch_y<trunk_y<=319:
         raise ValueError("local routing needs four separated planes within build height")
@@ -254,7 +256,15 @@ def plan_existing_layout(physical: PhysicalNetlist, *, branch_y: int, trunk_y: i
         raise ValueError("net identifiers must be unique within a tile")
     points=[e.pos for net in physical.nets for e in (net.source,*net.sinks)]
     escapes=_plan_escapes(points,branch_y,obstacles,access=access,minimum_y=physical.minimum_build_y,
-        endpoint_bounds=endpoint_bounds,obstacle_bounds=obstacle_bounds)
+        endpoint_bounds=endpoint_bounds,obstacle_bounds=obstacle_bounds,
+        reserved_branch_x=reserved_branch_x)
+    return _tile_from_escapes(physical,escapes,branch_y=branch_y,trunk_y=trunk_y,
+                              maximum_track_z=maximum_track_z)
+
+
+def _tile_from_escapes(physical: PhysicalNetlist, escapes: Mapping[Vec3,_Escape], *,
+                       branch_y: int, trunk_y: int,
+                       maximum_track_z: int | None = None) -> LocalTile:
     intervals=[]
     for net in physical.nets:
         xs=[escapes[e.pos].branch_x for e in (net.source,*net.sinks)]
@@ -264,8 +274,64 @@ def plan_existing_layout(physical: PhysicalNetlist, *, branch_y: int, trunk_y: i
     # endpoint landing turns. No arbitrary 4096-block apron is used.
     track_count=max(tracks.values(),default=-1)+1
     last_track=min(e.escape_z for e in escapes.values())-16
+    if maximum_track_z is not None:
+        # A sibling's complete track band stays south of this bounded router.
+        # This changes only placement, never the set of nets or terminals.
+        last_track=min(last_track,maximum_track_z)
     track_base_z=last_track-4*max(0,track_count-1)
-    return LocalTile(physical,escapes,tracks,track_base_z,branch_y,trunk_y)
+    return LocalTile(physical,dict(escapes),tracks,track_base_z,branch_y,trunk_y)
+
+
+def plan_bounded_domains(physicals: Sequence[PhysicalNetlist], *, branch_y: int, trunk_y: int,
+                         obstacles: Iterable[Placement], access: Mapping[Vec3,tuple[str,...]],
+                         endpoint_bounds: Mapping[Vec3,Box] | None = None,
+                         obstacle_bounds: Iterable[Box] = (),
+                         max_domain_terminals: int = 256,
+                         max_shared_terminals: int = 4096,
+                         north_lane_limit: int | None = None) -> tuple[LocalTile,...]:
+    """Allocate parent escape prefixes in height order, then route bounded domains.
+
+    Prefix scheduling must respect *all* higher terminals before any lower one:
+    a low terminal in an earlier domain can otherwise wall off a later domain.
+    No combined PhysicalNetlist is created. Each router retains its own complete
+    bounded netlist, unique branch columns and a separate horizontal track band.
+    Very large parents explicitly require a banked placement with real delivery
+    paths; raising their vertical tier count cannot make them fit safely.
+    """
+    physicals=tuple(physicals)
+    if not physicals:
+        return ()
+    if max_domain_terminals<1 or max_shared_terminals<1:
+        raise ValueError("domain and shared prefix budgets must be positive")
+    minimum_y=max(physical.minimum_build_y for physical in physicals)
+    if trunk_y-branch_y!=4 or not minimum_y+4<=branch_y<trunk_y<=319:
+        raise ValueError("bounded domains need four separated routing planes within build height")
+    points=[];owned=[];seen=set()
+    for physical in physicals:
+        if not physical.nets or len({net.bit for net in physical.nets})!=len(physical.nets):
+            raise ValueError("every bounded domain needs nonempty unique signal identifiers")
+        terminals=[endpoint.pos for net in physical.nets for endpoint in (net.source,*net.sinks)]
+        if len(terminals)>max_domain_terminals:
+            raise ValueError("bounded domain exceeds its explicit terminal budget")
+        if len(set(terminals))!=len(terminals) or seen.intersection(terminals):
+            raise ValueError("bounded domains cannot alias distinct physical terminals")
+        seen.update(terminals);points.extend(terminals);owned.append(terminals)
+        if len(points)>max_shared_terminals:
+            raise ValueError("parent prefix allocation exceeds its budget; explicit horizontal domain banks and delivery paths are required")
+    # A bounded parent can contain more than 128 independent North-facing
+    # exports. Give its declared workload enough search lanes, while leaving
+    # the global/production router's default and analytical bounds unchanged.
+    north_budget=max(128,len(points)) if north_lane_limit is None else north_lane_limit
+    escapes=_plan_escapes(points,branch_y,obstacles,access=access,minimum_y=minimum_y,
+        endpoint_bounds=endpoint_bounds,obstacle_bounds=obstacle_bounds,
+        north_lane_limit=north_budget)
+    tiles=[];maximum_track_z=None
+    for physical,terminals in zip(physicals,owned):
+        tile=_tile_from_escapes(physical,{point:escapes[point] for point in terminals},
+            branch_y=branch_y,trunk_y=trunk_y,maximum_track_z=maximum_track_z)
+        tiles.append(tile)
+        maximum_track_z=tile.track_base_z-8
+    return tuple(tiles)
 
 
 @dataclass

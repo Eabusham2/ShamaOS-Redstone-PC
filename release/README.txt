@@ -80,6 +80,9 @@ guide at github.com/MCHPR/MCHPRS. On a tested import, /rtps 100 increases its
 speed, /rtps 10 restores normal, and /rp c starts Redpiler. Use only the exact
 runtime/import/settings certified below; a Litematica file is not automatically
 an MCHPRS-compatible import. Avoid experimental optimization flags.
+The MCHPRS version checked for this project separates its plots and stops a
+plot's ticks when nobody is inside. Follow the tested loading steps for the
+whole computer; placing its parts in separate plots will not connect them.
 
 Distant Horizons helps you SEE farther. Install its Java 1.20.4 build and matching
 Fabric/Forge loader from modrinth.com/mod/distanthorizons, then adjust its distance

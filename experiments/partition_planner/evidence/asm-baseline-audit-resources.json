@@ -1,0 +1,19 @@
+{
+  "method": "external parent os.wait4 kernel rusage after complete child exit",
+  "elapsed_seconds": 35.66569928499666,
+  "max_rss_kib": 1534812,
+  "user_seconds": 32.180963,
+  "system_seconds": 3.293206,
+  "exit_status": 0,
+  "command": [
+    "python",
+    "/workspace/scratch/fb0eaf1c89fe/experiments/partition-planner/audit_summary_topology.py",
+    "/workspace/scratch/fb0eaf1c89fe/experiments/partition-planner/artifacts/current-asm-4e933a5/partition-u_asm-shama_asm_accel.json",
+    "--top",
+    "shama_asm_accel",
+    "--plan",
+    "/workspace/scratch/fb0eaf1c89fe/experiments/partition-planner/artifacts/current-asm-4e933a5/baseline-summary-plan.json",
+    "--report",
+    "/workspace/scratch/fb0eaf1c89fe/experiments/partition-planner/artifacts/current-asm-4e933a5/baseline-independent-topology-audit.json"
+  ]
+}

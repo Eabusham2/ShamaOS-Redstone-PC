@@ -113,7 +113,11 @@ def _plan_escapes(
     obstacle_bounds: Iterable[Box] = (),
     track_targets: Mapping[Vec3,int] | None = None,
     transition_run: int = 4,
+    reserved_branch_x: Iterable[int] = (),
+    north_lane_limit: int = 128,
 ) -> dict[Vec3,_Escape]:
+    if isinstance(north_lane_limit,bool) or not isinstance(north_lane_limit,int) or north_lane_limit<1:
+        raise ValueError("North escape search budget must be a positive integer")
     # Upper terminals escape first. A lower stair can then pass behind their
     # short escape legs instead of cutting through a higher pin's future leg.
     is_wall=lambda p:(access or {}).get(p) in (("wall-south",),("wall-north",))
@@ -123,7 +127,10 @@ def _plan_escapes(
     active={pos for pos,block in placed.items() if block != SUPPORT}
     reserved:set[Vec3]=set()
     reserved_heads:set[Vec3]=set()
-    used_branch_x:set[int]=set()
+    # Bounded sibling domains can share the same routing planes while retaining
+    # separate net/track budgets. Their already emitted columns remain reserved;
+    # callers also supply their literal blocks as obstacles below.
+    used_branch_x:set[int]=set(reserved_branch_x)
     result={}
     volumes=_VolumeIndex(obstacle_bounds)
     # A vertical wall must not greedily put a few lower-row stairs into
@@ -188,8 +195,9 @@ def _plan_escapes(
             # as well as the riser west when searching another corridor.
             if mode not in ("west","east") else
             (p.z-vertical-plateaus*2-6*lane,p.x+(1 if mode=="east" else -1)*(clearance(mode)+6*lane),None)
-            for lane in range(south_lane_limit) for mode in modes
-            if lane<128 or mode in ("south","wall-south")
+            for lane in range(max(south_lane_limit,north_lane_limit)) for mode in modes
+            if lane<(south_lane_limit if mode in ("south","wall-south")
+                     else north_lane_limit if mode in ("north","wall-north") else 128)
         )
         for escape_z,escape_x,wall_lead_z in alternatives:
             branch_direction=-1

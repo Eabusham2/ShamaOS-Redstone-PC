@@ -35,6 +35,15 @@ circuit fixtures against a pinned MCHPRS engine; this does not establish that
 the complete generated computer imports, stays active and boots on an MCHPRS
 server. Keep Redpiler options and the tested engine revision in the run report.
 
+The pinned stock server uses separate **512×512-block plots**. A plot reads
+outside its own boundary as air, and its normal update loop stops ticking when
+no player is inside it; `always_running` prevents unloading but does not change
+that tick condition. Those limits must be resolved for this machine before
+stock MCHPRS becomes a complete-world recommendation. The experimental
+[native-world runtime](NATIVE_RUNTIME.md) uses one connected, all-loaded world
+and has saved-fixture evidence, including actual terrain and console actions.
+Whole-machine boot remains an acceptance gate.
+
 ## Viewing the build: Distant Horizons
 
 [Distant Horizons](https://modrinth.com/mod/distanthorizons) is recommended as an

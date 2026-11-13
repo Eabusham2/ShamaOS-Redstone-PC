@@ -1,0 +1,5 @@
+{
+  "elapsed_seconds": 36.35661019200052,
+  "peak_process_rss_kib": 1534128,
+  "scope": "complete graph processed; summary-only plan does not retain complete signal routes or receive full retained-plan audit"
+}

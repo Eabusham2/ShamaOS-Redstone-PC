@@ -267,7 +267,7 @@ The recommended tools depend on the job:
 
 | Tool | Recommended use | ShamaOS verification status |
 |---|---|---|
-| [MCHPRS](https://github.com/MCHPR/MCHPRS) | Redstone simulation acceleration, including its `/rtps` and Redpiler facilities | The pinned engine verifies the repository's physical circuit fixtures. Full-computer import, loading and timing still need acceptance testing. |
+| [MCHPRS](https://github.com/MCHPR/MCHPRS) | Redstone simulation acceleration, including its `/rtps` and Redpiler facilities | The pinned engine verifies physical and saved-world fixtures. Stock 512×512 plots isolate outside connections and stop ticking without a player. The experimental [all-loaded native runner](docs/NATIVE_RUNTIME.md) addresses fixture loading; full-computer boot and timing remain unverified. |
 | [Distant Horizons](https://modrinth.com/mod/distanthorizons) | Optional distant views and an overview of the large build; select a release for Java 1.20.4 and the matching mod loader | Its distant geometry is a viewing aid. It does not establish that distant circuits are ticking or that the live lamp screen is readable. |
 | [Horizon Launcher / Horizon](https://playhorizon.dev/docs/faq) | Experimental alternative runtime to evaluate for performance | Horizon currently targets Java 26.3 behavior; ShamaOS targets 1.20.4. It needs a separate compatibility run, and ordinary Fabric/Forge/NeoForge Java mods do not run in it. |
 

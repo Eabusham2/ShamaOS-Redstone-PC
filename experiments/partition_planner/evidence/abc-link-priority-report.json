@@ -1,0 +1,101 @@
+{
+  "passes": [
+    {
+      "pass": 1,
+      "accepted_swaps": 19,
+      "before_links": 13226,
+      "after_links": 13088,
+      "maximum_domain_terminal_workload": 1028,
+      "seconds": 1.997124781999446
+    },
+    {
+      "pass": 2,
+      "accepted_swaps": 8,
+      "before_links": 13088,
+      "after_links": 13053,
+      "maximum_domain_terminal_workload": 1028,
+      "seconds": 1.8826711220026482
+    },
+    {
+      "pass": 3,
+      "accepted_swaps": 1,
+      "before_links": 13053,
+      "after_links": 13050,
+      "maximum_domain_terminal_workload": 1028,
+      "seconds": 1.9116295060011907
+    },
+    {
+      "pass": 4,
+      "accepted_swaps": 0,
+      "before_links": 13050,
+      "after_links": 13050,
+      "maximum_domain_terminal_workload": 1028,
+      "seconds": 1.9354331130016362
+    }
+  ],
+  "independent_audit": {
+    "status": "passed",
+    "signals": 10931,
+    "native_cells": 10910,
+    "scope": "complete structural graph reconstruction; no physical routing or timing claim"
+  },
+  "independent_cut_cost_matches_all_actual_links": true,
+  "independent_terminal_cost_matches_all_domains": true,
+  "source": {
+    "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/tests/fixtures/display_bridge_abc.json.gz",
+    "sha256": "bdc22086b9146cdf7ea9d58cbfddfeea09120bd19a744f704b9605ff573609a4",
+    "container_sha256": "2abc0695787b7490387790563fa099cf42d4e2bd9fdc2a3dc3db5472d3184a14",
+    "encoding": "gzip",
+    "top": "shama_display_bridge",
+    "raw_cells": 10910,
+    "lowered_cells": 10910,
+    "lowering_source_sha256": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274"
+  },
+  "before": {
+    "native_cells": 10910,
+    "original_port_bits": 351,
+    "signals": 10931,
+    "original_sink_uses": 20944,
+    "clock_leaf_uses": 649,
+    "constant_terminals": 0,
+    "leaf_clusters": 177,
+    "internal_clusters": 59,
+    "hierarchy_depth": 4,
+    "bounded_router_domains": 100,
+    "signal_tree_links": 13226,
+    "explicit_fanout_branches": 1204,
+    "maximum_router_fanout": 4,
+    "maximum_leaf_boundary": 108,
+    "maximum_domain_terminals": 256,
+    "maximum_domains_at_one_cluster": 5,
+    "topology_sha256": "113d43f1e693bdd6e589c28242d69792d70606cb9520c31d86811c23bd45ba08",
+    "original_signal_endpoints_sha256": "1b87f736c932acc0713c534f4e3d95d7e9d3e63e6a9779e42a5ed9efcb9df472",
+    "all_signal_records_retained": true
+  },
+  "after": {
+    "native_cells": 10910,
+    "original_port_bits": 351,
+    "signals": 10931,
+    "original_sink_uses": 20944,
+    "clock_leaf_uses": 649,
+    "constant_terminals": 0,
+    "leaf_clusters": 177,
+    "internal_clusters": 59,
+    "hierarchy_depth": 4,
+    "bounded_router_domains": 102,
+    "signal_tree_links": 13050,
+    "explicit_fanout_branches": 1200,
+    "maximum_router_fanout": 4,
+    "maximum_leaf_boundary": 108,
+    "maximum_domain_terminals": 256,
+    "maximum_domains_at_one_cluster": 5,
+    "topology_sha256": "876d2c9a8bc51e73bad6c585014e443818f860629e6d563ef24e621bc3925b87",
+    "original_signal_endpoints_sha256": "1b87f736c932acc0713c534f4e3d95d7e9d3e63e6a9779e42a5ed9efcb9df472",
+    "all_signal_records_retained": true
+  },
+  "seconds": 9.304507809996721,
+  "source_plan_sha256": "98f9fcaf863cbc8caabfec663bf2676e0c43dd7b91c87f726cd4100a60893105",
+  "result_plan_sha256": "bbc278512a5944f94004d710c980a17da101f00d5404850a69b094ac9f218792",
+  "experiment_sha256": "670f6312045d362d1eb396a4e845fb6c194c28c8972184e08bf1b16e846a8cfe",
+  "scope": "complete topology and domain workload; no emitted geometry or timing claim"
+}

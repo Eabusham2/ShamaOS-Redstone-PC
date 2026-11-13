@@ -226,6 +226,8 @@ jobs:
     env:
       PYTHONPATH: src:tests
       SHAMA_MCHPRS_RUNNER: ${{ github.workspace }}/tests/mchprs_runtime/target/release/shama-redstone-check
+      SHAMA_MCHPRS_SPARSE_RUNNER: ${{ github.workspace }}/tests/mchprs_sparse_runtime/target/release/shama-sparse-world-check
+      SHAMA_MCHPRS_TERRAIN_RUNNER: ${{ github.workspace }}/tests/mchprs_sparse_runtime/target/release/shama-sparse-world-check-terrain
       SHAMA_VALIDATION_REPORT_DIR: ${{ github.workspace }}/build/validation
     steps:
       - uses: actions/checkout@v4
@@ -239,7 +241,8 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             tests/mchprs_runtime/target
-          key: mchprs-runtime-${{ runner.os }}-${{ hashFiles('tests/mchprs_runtime/Cargo.lock', 'tests/mchprs_runtime/src/**') }}
+            tests/mchprs_sparse_runtime/target
+          key: mchprs-runtime-${{ runner.os }}-${{ hashFiles('tests/mchprs_runtime/Cargo.lock', 'tests/mchprs_runtime/src/**', 'tests/mchprs_sparse_runtime/Cargo.lock', 'tests/mchprs_sparse_runtime/src/**', 'tests/mchprs_sparse_runtime/native-terrain-registry.patch', 'tests/mchprs_sparse_runtime/pinned-source-provenance.json', 'tools/prepare_mchprs_terrain_registry.py') }}
       - name: Install actual HDL and Python test tools
         run: |
           sudo apt-get update
@@ -250,6 +253,28 @@ jobs:
           command -v yosys
       - name: Build pinned actual redstone engine
         run: cargo build --locked --release --manifest-path tests/mchprs_runtime/Cargo.toml
+      - name: Build and verify streamed native-world engines
+        env:
+          CARGO_TARGET_DIR: ${{ github.workspace }}/tests/mchprs_sparse_runtime/target
+        run: |
+          cargo build --locked --release --manifest-path tests/mchprs_sparse_runtime/Cargo.toml
+          cargo test --locked --release --manifest-path tests/mchprs_sparse_runtime/Cargo.toml
+          python - <<'PY'
+          import json
+          import subprocess
+          import sys
+          from pathlib import Path
+          metadata = json.loads(subprocess.check_output([
+              'cargo', 'metadata', '--offline', '--locked', '--format-version', '1',
+              '--manifest-path', 'tests/mchprs_runtime/Cargo.toml',
+          ], text=True))
+          package = next(p for p in metadata['packages'] if p['name'] == 'mchprs_blocks')
+          source = Path(package['manifest_path']).parents[2]
+          subprocess.run([
+              sys.executable, 'tools/prepare_mchprs_terrain_registry.py',
+              '--source', str(source), '--output', 'build/mchprs-terrain', '--build',
+          ], check=True)
+          PY
       - name: Run complete behavioral and placed-block regression
         run: |
           mkdir -p build
@@ -277,6 +302,8 @@ jobs:
             build/native-runtime-fixture
             build/stacked-native-runtime-fixture
             build/validation
+            build/mchprs-terrain/terrain-engine-provenance.json
+            build/mchprs-terrain/native-terrain-registry.patch
           retention-days: 14
           if-no-files-found: error
 

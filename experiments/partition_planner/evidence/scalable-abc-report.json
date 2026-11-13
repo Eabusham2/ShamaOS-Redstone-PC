@@ -1,0 +1,100 @@
+{
+  "source": {
+    "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/tests/fixtures/display_bridge_abc.json.gz",
+    "sha256": "bdc22086b9146cdf7ea9d58cbfddfeea09120bd19a744f704b9605ff573609a4",
+    "container_sha256": "2abc0695787b7490387790563fa099cf42d4e2bd9fdc2a3dc3db5472d3184a14",
+    "encoding": "gzip",
+    "top": "shama_display_bridge",
+    "raw_cells": 10910,
+    "lowered_cells": 10910,
+    "lowering_source_sha256": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274"
+  },
+  "summary": {
+    "native_cells": 10910,
+    "original_port_bits": 351,
+    "signals": 10931,
+    "original_sink_uses": 20944,
+    "clock_leaf_uses": 649,
+    "constant_terminals": 0,
+    "leaf_clusters": 177,
+    "internal_clusters": 59,
+    "hierarchy_depth": 4,
+    "bounded_router_domains": 104,
+    "signal_tree_links": 13560,
+    "explicit_fanout_branches": 1227,
+    "maximum_router_fanout": 4,
+    "maximum_leaf_boundary": 108,
+    "maximum_domain_terminals": 256,
+    "maximum_domains_at_one_cluster": 5,
+    "topology_sha256": "d07e81d110fd2dead885ef4280b2d85afa4457598edb02ecdc38752cf2e7a36d",
+    "original_signal_endpoints_sha256": "1b87f736c932acc0713c534f4e3d95d7e9d3e63e6a9779e42a5ed9efcb9df472",
+    "all_signal_records_retained": true
+  },
+  "levels": [
+    {
+      "active_clusters": 177,
+      "parent_groups": 45,
+      "projected_crossing_signals": 2435,
+      "candidate_search_signals": 2419,
+      "scored_candidates": 2472,
+      "tested_local_swaps": 3712,
+      "accepted_local_swaps": 29,
+      "parent_cut_before_swaps": 3868,
+      "parent_cut_after_swaps": 3713,
+      "seconds": 0.15699848700023722
+    },
+    {
+      "active_clusters": 45,
+      "parent_groups": 12,
+      "projected_crossing_signals": 1507,
+      "candidate_search_signals": 1501,
+      "scored_candidates": 647,
+      "tested_local_swaps": 768,
+      "accepted_local_swaps": 7,
+      "parent_cut_before_swaps": 2001,
+      "parent_cut_after_swaps": 1902,
+      "seconds": 0.06918775799567811
+    },
+    {
+      "active_clusters": 12,
+      "parent_groups": 3,
+      "projected_crossing_signals": 923,
+      "candidate_search_signals": 923,
+      "scored_candidates": 54,
+      "tested_local_swaps": 48,
+      "accepted_local_swaps": 3,
+      "parent_cut_before_swaps": 740,
+      "parent_cut_after_swaps": 719,
+      "seconds": 0.011946282000280917
+    },
+    {
+      "active_clusters": 3,
+      "parent_groups": 1,
+      "projected_crossing_signals": 348,
+      "candidate_search_signals": 348,
+      "scored_candidates": 3,
+      "tested_local_swaps": 0,
+      "accepted_local_swaps": 0,
+      "parent_cut_before_swaps": 0,
+      "parent_cut_after_swaps": 0,
+      "seconds": 0.0016839310046634637
+    }
+  ],
+  "heuristic_limits": {
+    "neighbor_fanout": 32,
+    "candidate_limit": 64,
+    "group_neighbors": 8,
+    "swap_passes": 1
+  },
+  "independent_audit": {
+    "status": "passed",
+    "signals": 10931,
+    "native_cells": 10910,
+    "scope": "complete structural graph reconstruction; no physical routing or timing claim"
+  },
+  "planning_seconds": 0.8090502630002447,
+  "total_seconds": 1.1286621740000555,
+  "plan_sha256": "b205a0ecb2e5acd9f8fce8a28a1865bc36028007938d11f60d30313e02f308a5",
+  "experiment_sha256": "ee3f941f72c1004928d94d05692ca7f24fea265d124f4478771439bdaa5ba6c4",
+  "scope": "complete logical topology comparison; no geometry, chunk or speed claim"
+}

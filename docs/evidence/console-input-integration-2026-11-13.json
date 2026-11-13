@@ -1,0 +1,147 @@
+{
+  "schema": 1,
+  "kind": "actual-console-waveforms-to-input-rtl-integration",
+  "recorded_utc": "2026-11-13T02:43:27.077560+00:00",
+  "source_base_commit": "ad80c24b55880efc978cae073dd17e86363abf87",
+  "status": "passed",
+  "source_state": "new test and testbench pending root checkpoint; production RTL unchanged",
+  "reproduce": "PATH=/workspace/scratch/fb0eaf1c89fe/validation-tools/bin:$PATH PYTHONPATH=src:tests SHAMA_MCHPRS_RUNNER=/workspace/scratch/fb0eaf1c89fe/validation-tools/artifact-1/target/release/shama-redstone-check python -m pytest -q tests/test_console_input_integration.py",
+  "runs": [
+    {
+      "role": "implementation run",
+      "junit_path": "build/console-input-integration-results.xml",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 35.894,
+      "junit_sha256": "66d714a4f2d4d8cf0851f7540d66611fb5218c87fbfa7162385e4e76634fe8c2"
+    },
+    {
+      "role": "independent root rerun",
+      "junit_path": "build/console-input-root-review.xml",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 32.868,
+      "junit_sha256": "6bf3ee5383640bce3f26ce9b863f08492a624c270f36a819b2a990278ef8e114"
+    }
+  ],
+  "cases": [
+    {
+      "kind": "native-physical-trace-to-input-rtl",
+      "status": "passed",
+      "raw_period_rt": 70,
+      "clock_phases": 70,
+      "matrix_banks": 2,
+      "matrix_keys_per_bank": 64,
+      "controller_buttons": 10,
+      "dedicated_shift": true,
+      "fifo_depth": 16,
+      "held_ack_new_arrival": true,
+      "reprioritized_ack_snapshot": true,
+      "oldest_identical_record_ack": true,
+      "overflow_and_universal_exit": true,
+      "minimum_measured_row_column_overlap_rt": 101,
+      "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+      "engine_ticks": 23228,
+      "geometry_translation": {
+        "x": -82,
+        "y": -12,
+        "z": -4984
+      },
+      "placement_operations": 13254,
+      "sample_file_sha256": "6adc6845fa22b9d4c272bdc191a1eb30699a7050b04ccc5ffbdcd797391f0aca",
+      "input_rtl_sha256": "50c552be1af19dbc9da2b2d3e93fb9b94d3e420a4618cd2a21514a9c71c27b4e",
+      "scope": "measured source interface plus actual RTL behavior; mapped input logic and complete global timing unverified",
+      "negative_control": {
+        "raw_period_rt": 140,
+        "status": "expected missed capture detected",
+        "unmodified_measured_trace": true,
+        "failure_witness": "CONSOLE_CAPTURE_COUNT phase=0 key=0 bank=0 wanted=1 got=0 at=720"
+      },
+      "positive_log_sha256": "79e5602c7e651d6833fc211dc5883a62f74abfebb706b92edcf6bee2ab89dee0"
+    },
+    {
+      "kind": "routed-physical-trace-to-input-rtl",
+      "status": "passed",
+      "raw_period_rt": 70,
+      "clock_phases": 70,
+      "matrix_banks": 2,
+      "matrix_keys_per_bank": 64,
+      "controller_buttons": 10,
+      "dedicated_shift": true,
+      "fifo_depth": 16,
+      "held_ack_new_arrival": true,
+      "reprioritized_ack_snapshot": true,
+      "oldest_identical_record_ack": true,
+      "overflow_and_universal_exit": true,
+      "minimum_measured_row_column_overlap_rt": 81,
+      "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+      "engine_ticks": 115532,
+      "geometry_translation": {
+        "x": -1997,
+        "y": -12,
+        "z": -682
+      },
+      "placement_operations": 569934,
+      "sample_file_sha256": "4704048d0d6e7e3ef949193adde2fbd37d36bd27e690803fbaa0c028f90abce5",
+      "input_rtl_sha256": "50c552be1af19dbc9da2b2d3e93fb9b94d3e420a4618cd2a21514a9c71c27b4e",
+      "scope": "measured source interface plus actual RTL behavior; mapped input logic and complete global timing unverified",
+      "negative_control": {
+        "raw_period_rt": 140,
+        "status": "expected missed capture detected",
+        "unmodified_measured_trace": true,
+        "failure_witness": "CONSOLE_CAPTURE_COUNT phase=0 key=0 bank=0 wanted=1 got=0 at=1920"
+      },
+      "positive_log_sha256": "b05528f5f5d5d269f1c6b7d40500284438daf1838ea0705cb19cae8eb0f44ec6"
+    }
+  ],
+  "coverage": {
+    "clock_phase_period_rt": 70,
+    "all_integer_clock_phases": 70,
+    "matrix_key_positions": 64,
+    "matrix_banks": 2,
+    "geometries": [
+      "native console",
+      "same console with all 30 output routes emitted"
+    ],
+    "matrix_key_bank_phase_checks": 17920,
+    "full_measured_pulse_and_release_before_queue_check": true,
+    "physical_setup_hold_window_rt": {
+      "setup": 8,
+      "hold": 2
+    },
+    "fifo_depth": 16,
+    "behaviors": [
+      "correct ASCII/control key decoding",
+      "no duplicate record per isolated measured pulse",
+      "matrix Shift and dedicated Shift toggle once without text event",
+      "all 10 controller event codes and latched masks",
+      "held acknowledgment consumes exactly one record",
+      "new arrivals retained during held acknowledgment",
+      "delayed acknowledgment after Home reprioritization",
+      "oldest identical record matching",
+      "FIFO overflow drops newest ordinary arrival",
+      "Exit admitted when ordinary FIFO is full",
+      "reset clears queue, Shift, and overflow"
+    ]
+  },
+  "limits": [
+    "This combines actual MCHPRS source and route waveforms with the actual RTL input controller. It is not a physical simulation of the mapped input controller itself.",
+    "Complete-machine clock distribution, mapped internal input-controller paths, and global timing remain unverified.",
+    "The coverage uses isolated complete physical pulses and does not claim support for ambiguous simultaneous keyboard matrix chords or arbitrarily fast overlapping key presses.",
+    "The 140 RT negative control deliberately misses the same actual waveform and proves the capture oracle detects a too-slow clock."
+  ],
+  "source_sha256": {
+    "tests/test_console_input_integration.py": "7e3cdc72618816d1caf6562abd2e97ac5858799201f597aa883e5e429248d839",
+    "tests/rtl/console_trace_input_tb.sv": "5e88e4b8296ace7c705ace0743ac7286d854edf7219cd9ae7255fe7ccb186fe6",
+    "tests/test_mchprs_runtime.py": "dbed21d53ca860494f3f3c75a5b8e06a0167ff6edc514f6aee9420c5294da0c2",
+    "rtl/shama_input.sv": "50c552be1af19dbc9da2b2d3e93fb9b94d3e420a4618cd2a21514a9c71c27b4e",
+    "src/shamaos/hardware/controls.py": "1b83d5f5cb4da372e9c2055060712eb609eb094270c9bf27961ac981683d1514",
+    "src/shamaos/hardware/clock.py": "e979cc68c2e5b170b94772a33bd68f95383e59f01ac97246762cab82a69fb3c7",
+    "src/shamaos/hardware/external_router.py": "96834193a37bb485ab225ea21dc1ae460afcc3ab9ac41a434e45660be2f7666d",
+    "src/shamaos/hardware/logic.py": "84a4f2cc3c535628ccd4e16ae0480b3cc99310f1fb83fe28f98d98b621ab1dff"
+  }
+}

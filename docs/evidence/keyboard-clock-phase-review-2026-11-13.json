@@ -1,0 +1,493 @@
+{
+  "scope": "Native compact console keyboard timing, not complete-machine runtime",
+  "ci_failure": "At32RT C4 has not yet risen",
+  "sample_ticks": 70,
+  "required_common_high_ticks": 80,
+  "minimum_common_high_ticks": 101,
+  "maximum_column_first_high_rt": 40,
+  "keys": [
+    {
+      "row": 0,
+      "column": 0,
+      "row_first_high_rt": 20,
+      "column_first_high_rt": 26,
+      "common_high_ticks": 113
+    },
+    {
+      "row": 0,
+      "column": 1,
+      "row_first_high_rt": 20,
+      "column_first_high_rt": 28,
+      "common_high_ticks": 111
+    },
+    {
+      "row": 0,
+      "column": 2,
+      "row_first_high_rt": 21,
+      "column_first_high_rt": 30,
+      "common_high_ticks": 110
+    },
+    {
+      "row": 0,
+      "column": 3,
+      "row_first_high_rt": 21,
+      "column_first_high_rt": 32,
+      "common_high_ticks": 108
+    },
+    {
+      "row": 0,
+      "column": 4,
+      "row_first_high_rt": 21,
+      "column_first_high_rt": 34,
+      "common_high_ticks": 106
+    },
+    {
+      "row": 0,
+      "column": 5,
+      "row_first_high_rt": 21,
+      "column_first_high_rt": 36,
+      "common_high_ticks": 104
+    },
+    {
+      "row": 0,
+      "column": 6,
+      "row_first_high_rt": 22,
+      "column_first_high_rt": 38,
+      "common_high_ticks": 103
+    },
+    {
+      "row": 0,
+      "column": 7,
+      "row_first_high_rt": 22,
+      "column_first_high_rt": 40,
+      "common_high_ticks": 101
+    },
+    {
+      "row": 1,
+      "column": 0,
+      "row_first_high_rt": 22,
+      "column_first_high_rt": 26,
+      "common_high_ticks": 115
+    },
+    {
+      "row": 1,
+      "column": 1,
+      "row_first_high_rt": 22,
+      "column_first_high_rt": 28,
+      "common_high_ticks": 113
+    },
+    {
+      "row": 1,
+      "column": 2,
+      "row_first_high_rt": 23,
+      "column_first_high_rt": 30,
+      "common_high_ticks": 112
+    },
+    {
+      "row": 1,
+      "column": 3,
+      "row_first_high_rt": 23,
+      "column_first_high_rt": 32,
+      "common_high_ticks": 110
+    },
+    {
+      "row": 1,
+      "column": 4,
+      "row_first_high_rt": 23,
+      "column_first_high_rt": 34,
+      "common_high_ticks": 108
+    },
+    {
+      "row": 1,
+      "column": 5,
+      "row_first_high_rt": 23,
+      "column_first_high_rt": 36,
+      "common_high_ticks": 106
+    },
+    {
+      "row": 1,
+      "column": 6,
+      "row_first_high_rt": 24,
+      "column_first_high_rt": 38,
+      "common_high_ticks": 105
+    },
+    {
+      "row": 1,
+      "column": 7,
+      "row_first_high_rt": 24,
+      "column_first_high_rt": 40,
+      "common_high_ticks": 103
+    },
+    {
+      "row": 2,
+      "column": 0,
+      "row_first_high_rt": 24,
+      "column_first_high_rt": 25,
+      "common_high_ticks": 118
+    },
+    {
+      "row": 2,
+      "column": 1,
+      "row_first_high_rt": 24,
+      "column_first_high_rt": 27,
+      "common_high_ticks": 116
+    },
+    {
+      "row": 2,
+      "column": 2,
+      "row_first_high_rt": 25,
+      "column_first_high_rt": 29,
+      "common_high_ticks": 115
+    },
+    {
+      "row": 2,
+      "column": 3,
+      "row_first_high_rt": 25,
+      "column_first_high_rt": 31,
+      "common_high_ticks": 113
+    },
+    {
+      "row": 2,
+      "column": 4,
+      "row_first_high_rt": 25,
+      "column_first_high_rt": 33,
+      "common_high_ticks": 111
+    },
+    {
+      "row": 2,
+      "column": 5,
+      "row_first_high_rt": 25,
+      "column_first_high_rt": 35,
+      "common_high_ticks": 109
+    },
+    {
+      "row": 2,
+      "column": 6,
+      "row_first_high_rt": 26,
+      "column_first_high_rt": 37,
+      "common_high_ticks": 108
+    },
+    {
+      "row": 2,
+      "column": 7,
+      "row_first_high_rt": 26,
+      "column_first_high_rt": 39,
+      "common_high_ticks": 106
+    },
+    {
+      "row": 3,
+      "column": 0,
+      "row_first_high_rt": 26,
+      "column_first_high_rt": 25,
+      "common_high_ticks": 118
+    },
+    {
+      "row": 3,
+      "column": 1,
+      "row_first_high_rt": 26,
+      "column_first_high_rt": 27,
+      "common_high_ticks": 118
+    },
+    {
+      "row": 3,
+      "column": 2,
+      "row_first_high_rt": 27,
+      "column_first_high_rt": 29,
+      "common_high_ticks": 117
+    },
+    {
+      "row": 3,
+      "column": 3,
+      "row_first_high_rt": 27,
+      "column_first_high_rt": 31,
+      "common_high_ticks": 115
+    },
+    {
+      "row": 3,
+      "column": 4,
+      "row_first_high_rt": 27,
+      "column_first_high_rt": 33,
+      "common_high_ticks": 113
+    },
+    {
+      "row": 3,
+      "column": 5,
+      "row_first_high_rt": 27,
+      "column_first_high_rt": 35,
+      "common_high_ticks": 111
+    },
+    {
+      "row": 3,
+      "column": 6,
+      "row_first_high_rt": 28,
+      "column_first_high_rt": 37,
+      "common_high_ticks": 110
+    },
+    {
+      "row": 3,
+      "column": 7,
+      "row_first_high_rt": 28,
+      "column_first_high_rt": 39,
+      "common_high_ticks": 108
+    },
+    {
+      "row": 4,
+      "column": 0,
+      "row_first_high_rt": 28,
+      "column_first_high_rt": 25,
+      "common_high_ticks": 116
+    },
+    {
+      "row": 4,
+      "column": 1,
+      "row_first_high_rt": 28,
+      "column_first_high_rt": 27,
+      "common_high_ticks": 118
+    },
+    {
+      "row": 4,
+      "column": 2,
+      "row_first_high_rt": 29,
+      "column_first_high_rt": 29,
+      "common_high_ticks": 119
+    },
+    {
+      "row": 4,
+      "column": 3,
+      "row_first_high_rt": 29,
+      "column_first_high_rt": 31,
+      "common_high_ticks": 117
+    },
+    {
+      "row": 4,
+      "column": 4,
+      "row_first_high_rt": 29,
+      "column_first_high_rt": 33,
+      "common_high_ticks": 115
+    },
+    {
+      "row": 4,
+      "column": 5,
+      "row_first_high_rt": 29,
+      "column_first_high_rt": 35,
+      "common_high_ticks": 113
+    },
+    {
+      "row": 4,
+      "column": 6,
+      "row_first_high_rt": 30,
+      "column_first_high_rt": 37,
+      "common_high_ticks": 112
+    },
+    {
+      "row": 4,
+      "column": 7,
+      "row_first_high_rt": 30,
+      "column_first_high_rt": 39,
+      "common_high_ticks": 110
+    },
+    {
+      "row": 5,
+      "column": 0,
+      "row_first_high_rt": 30,
+      "column_first_high_rt": 25,
+      "common_high_ticks": 114
+    },
+    {
+      "row": 5,
+      "column": 1,
+      "row_first_high_rt": 30,
+      "column_first_high_rt": 27,
+      "common_high_ticks": 116
+    },
+    {
+      "row": 5,
+      "column": 2,
+      "row_first_high_rt": 31,
+      "column_first_high_rt": 29,
+      "common_high_ticks": 117
+    },
+    {
+      "row": 5,
+      "column": 3,
+      "row_first_high_rt": 31,
+      "column_first_high_rt": 31,
+      "common_high_ticks": 119
+    },
+    {
+      "row": 5,
+      "column": 4,
+      "row_first_high_rt": 31,
+      "column_first_high_rt": 33,
+      "common_high_ticks": 117
+    },
+    {
+      "row": 5,
+      "column": 5,
+      "row_first_high_rt": 31,
+      "column_first_high_rt": 35,
+      "common_high_ticks": 115
+    },
+    {
+      "row": 5,
+      "column": 6,
+      "row_first_high_rt": 32,
+      "column_first_high_rt": 37,
+      "common_high_ticks": 114
+    },
+    {
+      "row": 5,
+      "column": 7,
+      "row_first_high_rt": 32,
+      "column_first_high_rt": 39,
+      "common_high_ticks": 112
+    },
+    {
+      "row": 6,
+      "column": 0,
+      "row_first_high_rt": 32,
+      "column_first_high_rt": 24,
+      "common_high_ticks": 111
+    },
+    {
+      "row": 6,
+      "column": 1,
+      "row_first_high_rt": 32,
+      "column_first_high_rt": 26,
+      "common_high_ticks": 113
+    },
+    {
+      "row": 6,
+      "column": 2,
+      "row_first_high_rt": 33,
+      "column_first_high_rt": 28,
+      "common_high_ticks": 114
+    },
+    {
+      "row": 6,
+      "column": 3,
+      "row_first_high_rt": 33,
+      "column_first_high_rt": 30,
+      "common_high_ticks": 116
+    },
+    {
+      "row": 6,
+      "column": 4,
+      "row_first_high_rt": 33,
+      "column_first_high_rt": 32,
+      "common_high_ticks": 118
+    },
+    {
+      "row": 6,
+      "column": 5,
+      "row_first_high_rt": 33,
+      "column_first_high_rt": 34,
+      "common_high_ticks": 118
+    },
+    {
+      "row": 6,
+      "column": 6,
+      "row_first_high_rt": 34,
+      "column_first_high_rt": 36,
+      "common_high_ticks": 117
+    },
+    {
+      "row": 6,
+      "column": 7,
+      "row_first_high_rt": 34,
+      "column_first_high_rt": 38,
+      "common_high_ticks": 115
+    },
+    {
+      "row": 7,
+      "column": 0,
+      "row_first_high_rt": 34,
+      "column_first_high_rt": 24,
+      "common_high_ticks": 109
+    },
+    {
+      "row": 7,
+      "column": 1,
+      "row_first_high_rt": 34,
+      "column_first_high_rt": 26,
+      "common_high_ticks": 111
+    },
+    {
+      "row": 7,
+      "column": 2,
+      "row_first_high_rt": 35,
+      "column_first_high_rt": 28,
+      "common_high_ticks": 112
+    },
+    {
+      "row": 7,
+      "column": 3,
+      "row_first_high_rt": 35,
+      "column_first_high_rt": 30,
+      "common_high_ticks": 114
+    },
+    {
+      "row": 7,
+      "column": 4,
+      "row_first_high_rt": 35,
+      "column_first_high_rt": 32,
+      "common_high_ticks": 116
+    },
+    {
+      "row": 7,
+      "column": 5,
+      "row_first_high_rt": 35,
+      "column_first_high_rt": 34,
+      "common_high_ticks": 118
+    },
+    {
+      "row": 7,
+      "column": 6,
+      "row_first_high_rt": 36,
+      "column_first_high_rt": 36,
+      "common_high_ticks": 119
+    },
+    {
+      "row": 7,
+      "column": 7,
+      "row_first_high_rt": 36,
+      "column_first_high_rt": 38,
+      "common_high_ticks": 117
+    }
+  ],
+  "source_sha256": {
+    "src/shamaos/hardware/controls.py": "1b83d5f5cb4da372e9c2055060712eb609eb094270c9bf27961ac981683d1514",
+    "tests/mchprs_runtime/src/main.rs": "fe5fec86d2b25a1f6433f489f796cd63062ba8a0e0e5667fcc132dccb66b8316",
+    "tests/test_mchprs_runtime.py": "dbed21d53ca860494f3f3c75a5b8e06a0167ff6edc514f6aee9420c5294da0c2"
+  },
+  "complete_machine_runtime_verified": false,
+  "regression": {
+    "ci_run": 43345353982,
+    "ci_commit": "e3d62736c21f295895c1c3f3fadc3515c4dc551c",
+    "original_result": {
+      "passed": 842,
+      "failed": 1,
+      "skipped": 0
+    },
+    "failing_test": "tests/test_mchprs_runtime.py::test_actual_keyboard_every_key_decodes_only_its_row_and_column",
+    "diagnosis": "The32RT snapshot precedes column4 rise at34RT; column7 rises at40RT. Physical pulse widths and required overlap remain intact.",
+    "correction": "Sample after the actual70RT input-clock period, then independently require one119RT pulse on each selected line, no other line pulses, and stable setup/hold at a capture edge for every70possible clock phases.",
+    "keys": 64,
+    "clock_phases_per_key": 70,
+    "checked_key_clock_phase_pairs": 4480,
+    "production_geometry_or_timing_changed": false
+  },
+  "targeted_regression_suites": [
+    {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "5",
+      "time": "1.427",
+      "timestamp": "2026-11-12T20:27:27.459643-06:00",
+      "hostname": "1a3723e532d2"
+    }
+  ],
+  "runtime_binary_sha256": "ae21133d3f83c0c96776931f17ac963b71a4becf168eef61ba9450c8d42a3116"
+}

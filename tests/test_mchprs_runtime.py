@@ -222,15 +222,34 @@ def test_actual_keyboard_every_key_decodes_only_its_row_and_column():
     pins = control_ports(origin)
     outputs = {f"R{i}":p for i,p in enumerate(pins.keyboard_rows)} | {f"C{i}":p for i,p in enumerate(pins.keyboard_cols)}
     buttons = keyboard_buttons(origin)
+    # The relocated column circuits settle at 26..40 RT. Sample within one
+    # actual input-clock period, then verify the complete pulse and every clock
+    # phase below; the old arbitrary 32-RT sample preceded columns four to seven.
+    sample_ticks = 2 * CLOCK_HALF_PERIOD
+    release_ticks = 128
     steps = [{"ticks":32,"expect":dict.fromkeys(outputs,False)}]
     for row in range(8):
         for col in range(8):
             selected = {f"R{row}",f"C{col}"}
             steps += [
-                {"use_blocks":[coordinates(buttons[row][col])],"ticks":32,"expect":{out:out in selected for out in outputs}},
-                {"ticks":128,"expect":dict.fromkeys(outputs,False)},
+                {"use_blocks":[coordinates(buttons[row][col])],"ticks":sample_ticks,"expect":{out:out in selected for out in outputs}},
+                {"ticks":release_ticks,"expect":dict.fromkeys(outputs,False)},
             ]
-    run_case(iter_controls(origin),{},outputs,steps)
+    result = run_case(iter_controls(origin),{},outputs,steps,capture_trace=True)
+    stride = sample_ticks + release_ticks
+    setup, hold = TEMPLATES["DFF"].setup_ticks, TEMPLATES["DFF"].hold_ticks
+    for row in range(8):
+        for col in range(8):
+            start = 32 + (row * 8 + col) * stride
+            selected = {f"R{row}", f"C{col}"}
+            traces = {name: trace[start:start+stride] for name, trace in result["traces"].items()}
+            assert all(high_runs(trace) == ([119] if name in selected else [])
+                       for name, trace in traces.items()), (row, col)
+            both = [a and b for a,b in zip(traces[f"R{row}"], traces[f"C{col}"])]
+            for phase in range(sample_ticks):
+                assert any(all(both[tick-setup:tick+hold+1])
+                           for tick in range(phase, stride, sample_ticks)
+                           if tick >= setup and tick + hold < stride), (row, col, phase)
 
 
 def compact_console_case(origin):

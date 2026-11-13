@@ -1,0 +1,16 @@
+[package]
+name = "shama-sparse-world-check"
+version = "0.1.0"
+edition = "2024"
+
+[features]
+terrain_registry = []
+
+# Pin the actual simulator implementation; do not replace it with gate truth
+# tables. MCHPRS's world crate declares Minecraft Java 1.20.4 / data version 3700.
+[dependencies]
+mchprs_blocks = { git = "https://github.com/MCHPR/MCHPRS", rev = "f9e10d2572116bf5dcb9a36a305f28e40641a61a" }
+mchprs_redstone = { git = "https://github.com/MCHPR/MCHPRS", rev = "f9e10d2572116bf5dcb9a36a305f28e40641a61a" }
+mchprs_world = { git = "https://github.com/MCHPR/MCHPRS", rev = "f9e10d2572116bf5dcb9a36a305f28e40641a61a", features = ["testing"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

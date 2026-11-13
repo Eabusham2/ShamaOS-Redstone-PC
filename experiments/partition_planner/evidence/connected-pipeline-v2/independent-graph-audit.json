@@ -1,0 +1,20 @@
+{
+  "status": "independent-artifact-graph-audit-passed",
+  "physical_modules": 12,
+  "native_cells": 3,
+  "original_ports": 6,
+  "signals": 5,
+  "original_sink_uses": 7,
+  "constant_terminals": 3,
+  "physical_endpoint_records": 48,
+  "local_directed_edges": 25,
+  "shared_contact_edges": 18,
+  "clock_leaf_uses": 2,
+  "electrical_runtime_verified_by_this_audit": false,
+  "artifact_sha256": {
+    "mapped.json": "2a37f7df1af88b9ba97458adce135192b33561102f989cef801809c0a4dd2458",
+    "plan.json": "96e02a526ac1200681c9aeebd44cc15fa8131ad087a1b2f328ea26acb15d7264",
+    "placement.json": "15e5b883a0caf41fb3618062960fefb514c50819c242c9f5f01328e0b32f8e84"
+  },
+  "audit_script_sha256": "153d483170bfd63ada90002462e9e2721c64c9b2c06cffc877e9c1ddb7688870"
+}

@@ -1,0 +1,44 @@
+[
+  {
+    "script": "audit_summary_topology.py",
+    "normal_help_exit": 0,
+    "optimized_exit": 1,
+    "explicit_assertion_guard_observed": true,
+    "guarded_source_sha256": "4de04e71747f916ab5dc26b0a9d814482f4dffd7063e3268881dc4c75040ad7f"
+  },
+  {
+    "script": "audit_placement_manifest.py",
+    "normal_help_exit": 0,
+    "optimized_exit": 1,
+    "explicit_assertion_guard_observed": true,
+    "guarded_source_sha256": "c3633767be13a004420206616b6b0023d7f46ad7cc6fb29d312002ce151934b8"
+  },
+  {
+    "script": "compare_parent_grouping.py",
+    "normal_help_exit": 0,
+    "optimized_exit": 1,
+    "explicit_assertion_guard_observed": true,
+    "guarded_source_sha256": "cfc1d176ba2d2334a83e6745e3211afae5f89f7289a1e2a5bdde1879a14449a5"
+  },
+  {
+    "script": "compare_parent_grouping_v1.py",
+    "normal_help_exit": 0,
+    "optimized_exit": 1,
+    "explicit_assertion_guard_observed": true,
+    "guarded_source_sha256": "c2bed3a56899f79e32310054d0939f20e11413c8276563706a5745803638d02f"
+  },
+  {
+    "script": "improve_complete_tree.py",
+    "normal_help_exit": 0,
+    "optimized_exit": 1,
+    "explicit_assertion_guard_observed": true,
+    "guarded_source_sha256": "9e2a0a479229bd964a57cdffa50a3caac3089a9e8f01e9fa7f0f0432b4f3b1fb"
+  },
+  {
+    "script": "scale_parent_grouping.py",
+    "normal_help_exit": 0,
+    "optimized_exit": 1,
+    "explicit_assertion_guard_observed": true,
+    "guarded_source_sha256": "c1e8fb8eec75d9326e036f5ef9fa21c9bef486bf37c424dda63d50c4a73c0995"
+  }
+]

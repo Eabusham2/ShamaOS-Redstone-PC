@@ -1,0 +1,15 @@
+{
+  "measurement_scope": "Source files observed unchanged immediately after the exclusive successful candidate run",
+  "repo_files": {
+    "rtl/shama_asm_accel.sv": "34d04460a043e31b45d412b93762b7ebfd413c718679a73d1fad8f0f0481fc65",
+    "rtl/shama_boot_params.svh": "3ec00fbefe06958cc2b918e52caa18129384cb267453a9fc976270bc72fa8025",
+    "src/shamaos/synthesis.py": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274",
+    "src/shamaos/hardware/partition_planner.py": "82e7f39548af7443b29ffd322a118cb42474f6f0bf3da2273b1ecdefb38164b4",
+    "experiments/partition_planner/scale_parent_grouping.py": "c1e8fb8eec75d9326e036f5ef9fa21c9bef486bf37c424dda63d50c4a73c0995",
+    "experiments/partition_planner/audit_summary_topology.py": "4de04e71747f916ab5dc26b0a9d814482f4dffd7063e3268881dc4c75040ad7f",
+    "experiments/partition_planner/measure_process.py": "02f648ce27d0267a038fd310ed6395c58cdd7350e7db33d810c88d5928275f8c"
+  },
+  "mapped_json_sha256": "78a6ab3abcbbe4bde94acaf6bbfdb8388dbeebf301757f34c49172f97b1664ee",
+  "candidate_summary_plan_sha256": "8d93893dc17599a55ff9333d5a346df7de412bf2b7bb57c9844903e1c7cf8fe1",
+  "candidate_topology_sha256": "015937bc8f2637bb3ca70dadbeacf820bd206384b51696c47e72c22baf706011"
+}

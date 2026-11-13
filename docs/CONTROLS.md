@@ -137,6 +137,25 @@ common row delay to balance the longer column path; neither pulse widths nor
 the 79 activation positions change. The clock sits 48 blocks north of its old
 position, outside the console envelope, with unchanged occupied chunk count.
 
+The measured native column rise times are 26–40 redstone ticks. The earlier
+32-tick keyboard snapshot therefore sampled columns four through seven too
+early. Its regression now samples after one actual 70-tick raw-clock period,
+and also checks every tick for correct 119-tick pulses and no unrelated output.
+For all 64 keys, every one of the 70 possible clock phases must contain a capture
+edge with the required setup and hold interval. These 4,480 phase checks and the
+unchanged 101-tick minimum native overlap are retained in the
+[keyboard timing report](evidence/keyboard-clock-phase-review-2026-11-13.json).
+This corrects the test's sampling assumption; it does not change circuit timing.
+
+The measured native and exported console waveforms also drive the actual
+`shama_input` RTL in a separate integration test. Both keyboard banks and all ten
+controller buttons decode correctly at every raw-clock phase, including the
+dedicated Shift, held acknowledgements, queue order, urgent actions and overflow.
+The same unmodified waveforms fail capture with a deliberately slower 140-tick
+raw period. The [integration report](evidence/console-input-integration-2026-11-13.json)
+retains these four passing positive/negative regressions. Propagation inside the
+mapped input-controller circuitry still requires its own physical timing proof.
+
 ## Screen viewing position
 
 The production screen is an upright **320×180** array with **57,600 lamps and

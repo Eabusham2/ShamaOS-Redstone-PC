@@ -1,0 +1,993 @@
+{
+  "status": "topology-complete-geometry-and-timing-unverified",
+  "source": {
+    "path": "/workspace/scratch/fb0eaf1c89fe/experiments/partition-placement/artifacts/connected-pipeline-v2/mapped.json",
+    "sha256": "2a37f7df1af88b9ba97458adce135192b33561102f989cef801809c0a4dd2458",
+    "container_sha256": "2a37f7df1af88b9ba97458adce135192b33561102f989cef801809c0a4dd2458",
+    "encoding": "plain",
+    "top": "pipeline",
+    "raw_cells": 3,
+    "lowered_cells": 3,
+    "lowering_source_sha256": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274"
+  },
+  "budgets": {
+    "native_cells_per_leaf": 1,
+    "boundary_terminals_per_leaf": 8,
+    "routing_terminals_per_domain": 16,
+    "children_per_cluster": 4
+  },
+  "entities": [
+    {
+      "id": 0,
+      "name": "a",
+      "kind": "cell",
+      "cell_type": "$_DFF_P_"
+    },
+    {
+      "id": 1,
+      "name": "b",
+      "kind": "cell",
+      "cell_type": "$_DFF_P_"
+    },
+    {
+      "id": 2,
+      "name": "enabled",
+      "kind": "cell",
+      "cell_type": "$_AND_"
+    },
+    {
+      "id": 3,
+      "name": "port:clk[0]",
+      "kind": "port",
+      "port_name": "clk",
+      "port_index": 0,
+      "direction": "input",
+      "bit": 2
+    },
+    {
+      "id": 4,
+      "name": "port:d[0]",
+      "kind": "port",
+      "port_name": "d",
+      "port_index": 0,
+      "direction": "input",
+      "bit": 3
+    },
+    {
+      "id": 5,
+      "name": "port:one[0]",
+      "kind": "port",
+      "port_name": "one",
+      "port_index": 0,
+      "direction": "output",
+      "bit": "1"
+    },
+    {
+      "id": 6,
+      "name": "port:q[0]",
+      "kind": "port",
+      "port_name": "q",
+      "port_index": 0,
+      "direction": "output",
+      "bit": 5
+    },
+    {
+      "id": 7,
+      "name": "port:q[1]",
+      "kind": "port",
+      "port_name": "q",
+      "port_index": 1,
+      "direction": "output",
+      "bit": 6
+    },
+    {
+      "id": 8,
+      "name": "port:zero[0]",
+      "kind": "port",
+      "port_name": "zero",
+      "port_index": 0,
+      "direction": "output",
+      "bit": "0"
+    }
+  ],
+  "clusters": [
+    {
+      "id": 0,
+      "parent": 9,
+      "children": [],
+      "level": 0,
+      "cell_ids": [
+        0
+      ],
+      "port_ids": []
+    },
+    {
+      "id": 1,
+      "parent": 9,
+      "children": [],
+      "level": 0,
+      "cell_ids": [
+        1
+      ],
+      "port_ids": []
+    },
+    {
+      "id": 2,
+      "parent": 9,
+      "children": [],
+      "level": 0,
+      "cell_ids": [
+        2
+      ],
+      "port_ids": []
+    },
+    {
+      "id": 3,
+      "parent": 9,
+      "children": [],
+      "level": 0,
+      "cell_ids": [],
+      "port_ids": [
+        3
+      ]
+    },
+    {
+      "id": 4,
+      "parent": 10,
+      "children": [],
+      "level": 0,
+      "cell_ids": [],
+      "port_ids": [
+        4
+      ]
+    },
+    {
+      "id": 5,
+      "parent": 10,
+      "children": [],
+      "level": 0,
+      "cell_ids": [],
+      "port_ids": [
+        5
+      ]
+    },
+    {
+      "id": 6,
+      "parent": 10,
+      "children": [],
+      "level": 0,
+      "cell_ids": [],
+      "port_ids": [
+        6
+      ]
+    },
+    {
+      "id": 7,
+      "parent": 10,
+      "children": [],
+      "level": 0,
+      "cell_ids": [],
+      "port_ids": [
+        7
+      ]
+    },
+    {
+      "id": 8,
+      "parent": 11,
+      "children": [],
+      "level": 0,
+      "cell_ids": [],
+      "port_ids": [
+        8
+      ]
+    },
+    {
+      "id": 9,
+      "parent": 11,
+      "children": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "level": 1,
+      "cell_ids": [],
+      "port_ids": []
+    },
+    {
+      "id": 10,
+      "parent": 11,
+      "children": [
+        4,
+        5,
+        6,
+        7
+      ],
+      "level": 1,
+      "cell_ids": [],
+      "port_ids": []
+    },
+    {
+      "id": 11,
+      "parent": null,
+      "children": [
+        9,
+        10,
+        8
+      ],
+      "level": 2,
+      "cell_ids": [],
+      "port_ids": []
+    }
+  ],
+  "root_cluster": 11,
+  "entity_leaf": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "leaf_boundaries": [
+    {
+      "cluster_id": 0,
+      "incoming_nets": [
+        2,
+        4
+      ],
+      "outgoing_nets": [
+        5
+      ],
+      "terminal_count": 3
+    },
+    {
+      "cluster_id": 1,
+      "incoming_nets": [
+        2,
+        5
+      ],
+      "outgoing_nets": [
+        6
+      ],
+      "terminal_count": 3
+    },
+    {
+      "cluster_id": 2,
+      "incoming_nets": [
+        3
+      ],
+      "outgoing_nets": [
+        4
+      ],
+      "terminal_count": 2
+    },
+    {
+      "cluster_id": 3,
+      "incoming_nets": [],
+      "outgoing_nets": [
+        2
+      ],
+      "terminal_count": 1
+    },
+    {
+      "cluster_id": 4,
+      "incoming_nets": [],
+      "outgoing_nets": [
+        3
+      ],
+      "terminal_count": 1
+    },
+    {
+      "cluster_id": 5,
+      "incoming_nets": [],
+      "outgoing_nets": [],
+      "terminal_count": 0
+    },
+    {
+      "cluster_id": 6,
+      "incoming_nets": [
+        5
+      ],
+      "outgoing_nets": [],
+      "terminal_count": 1
+    },
+    {
+      "cluster_id": 7,
+      "incoming_nets": [
+        6
+      ],
+      "outgoing_nets": [],
+      "terminal_count": 1
+    },
+    {
+      "cluster_id": 8,
+      "incoming_nets": [],
+      "outgoing_nets": [],
+      "terminal_count": 0
+    }
+  ],
+  "routing_domains": [
+    {
+      "id": 0,
+      "cluster_id": 9,
+      "terminal_count": 12,
+      "segment_count": 5,
+      "segments": [
+        {
+          "net": 2,
+          "incoming_cluster": 3,
+          "outgoing_clusters": [
+            0,
+            1
+          ]
+        },
+        {
+          "net": 3,
+          "incoming_cluster": 11,
+          "outgoing_clusters": [
+            2
+          ]
+        },
+        {
+          "net": 4,
+          "incoming_cluster": 2,
+          "outgoing_clusters": [
+            0
+          ]
+        },
+        {
+          "net": 5,
+          "incoming_cluster": 0,
+          "outgoing_clusters": [
+            1,
+            11
+          ]
+        },
+        {
+          "net": 6,
+          "incoming_cluster": 1,
+          "outgoing_clusters": [
+            11
+          ]
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "cluster_id": 10,
+      "terminal_count": 6,
+      "segment_count": 3,
+      "segments": [
+        {
+          "net": 3,
+          "incoming_cluster": 4,
+          "outgoing_clusters": [
+            11
+          ]
+        },
+        {
+          "net": 5,
+          "incoming_cluster": 11,
+          "outgoing_clusters": [
+            6
+          ]
+        },
+        {
+          "net": 6,
+          "incoming_cluster": 11,
+          "outgoing_clusters": [
+            7
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "cluster_id": 11,
+      "terminal_count": 6,
+      "segment_count": 3,
+      "segments": [
+        {
+          "net": 3,
+          "incoming_cluster": 10,
+          "outgoing_clusters": [
+            9
+          ]
+        },
+        {
+          "net": 5,
+          "incoming_cluster": 9,
+          "outgoing_clusters": [
+            10
+          ]
+        },
+        {
+          "net": 6,
+          "incoming_cluster": 9,
+          "outgoing_clusters": [
+            10
+          ]
+        }
+      ]
+    }
+  ],
+  "signals": [
+    {
+      "bit": 2,
+      "source": {
+        "entity": 3,
+        "pin": "clk",
+        "index": 0
+      },
+      "sinks": [
+        {
+          "entity": 0,
+          "pin": "C",
+          "index": 0
+        },
+        {
+          "entity": 1,
+          "pin": "C",
+          "index": 0
+        }
+      ],
+      "clock_leaf_uses": 2,
+      "directed_links": [
+        [
+          3,
+          9
+        ],
+        [
+          9,
+          0
+        ],
+        [
+          9,
+          1
+        ]
+      ],
+      "domain_segments": [
+        [
+          9,
+          0,
+          3,
+          [
+            0,
+            1
+          ]
+        ]
+      ],
+      "boundary_links": [
+        {
+          "id": "net2:cluster3>cluster9",
+          "source": {
+            "cluster": 3,
+            "domain": null,
+            "terminal_id": "net2:cluster3>cluster9:out"
+          },
+          "sink": {
+            "cluster": 9,
+            "domain": 0,
+            "terminal_id": "net2:cluster3>cluster9:in"
+          }
+        },
+        {
+          "id": "net2:cluster9>cluster0",
+          "source": {
+            "cluster": 9,
+            "domain": 0,
+            "terminal_id": "net2:cluster9>cluster0:out"
+          },
+          "sink": {
+            "cluster": 0,
+            "domain": null,
+            "terminal_id": "net2:cluster9>cluster0:in"
+          }
+        },
+        {
+          "id": "net2:cluster9>cluster1",
+          "source": {
+            "cluster": 9,
+            "domain": 0,
+            "terminal_id": "net2:cluster9>cluster1:out"
+          },
+          "sink": {
+            "cluster": 1,
+            "domain": null,
+            "terminal_id": "net2:cluster9>cluster1:in"
+          }
+        }
+      ]
+    },
+    {
+      "bit": 3,
+      "source": {
+        "entity": 4,
+        "pin": "d",
+        "index": 0
+      },
+      "sinks": [
+        {
+          "entity": 2,
+          "pin": "A",
+          "index": 0
+        }
+      ],
+      "clock_leaf_uses": 0,
+      "directed_links": [
+        [
+          4,
+          10
+        ],
+        [
+          10,
+          11
+        ],
+        [
+          11,
+          9
+        ],
+        [
+          9,
+          2
+        ]
+      ],
+      "domain_segments": [
+        [
+          9,
+          0,
+          11,
+          [
+            2
+          ]
+        ],
+        [
+          10,
+          1,
+          4,
+          [
+            11
+          ]
+        ],
+        [
+          11,
+          2,
+          10,
+          [
+            9
+          ]
+        ]
+      ],
+      "boundary_links": [
+        {
+          "id": "net3:cluster4>cluster10",
+          "source": {
+            "cluster": 4,
+            "domain": null,
+            "terminal_id": "net3:cluster4>cluster10:out"
+          },
+          "sink": {
+            "cluster": 10,
+            "domain": 1,
+            "terminal_id": "net3:cluster4>cluster10:in"
+          }
+        },
+        {
+          "id": "net3:cluster10>cluster11",
+          "source": {
+            "cluster": 10,
+            "domain": 1,
+            "terminal_id": "net3:cluster10>cluster11:out"
+          },
+          "sink": {
+            "cluster": 11,
+            "domain": 2,
+            "terminal_id": "net3:cluster10>cluster11:in"
+          }
+        },
+        {
+          "id": "net3:cluster11>cluster9",
+          "source": {
+            "cluster": 11,
+            "domain": 2,
+            "terminal_id": "net3:cluster11>cluster9:out"
+          },
+          "sink": {
+            "cluster": 9,
+            "domain": 0,
+            "terminal_id": "net3:cluster11>cluster9:in"
+          }
+        },
+        {
+          "id": "net3:cluster9>cluster2",
+          "source": {
+            "cluster": 9,
+            "domain": 0,
+            "terminal_id": "net3:cluster9>cluster2:out"
+          },
+          "sink": {
+            "cluster": 2,
+            "domain": null,
+            "terminal_id": "net3:cluster9>cluster2:in"
+          }
+        }
+      ]
+    },
+    {
+      "bit": 4,
+      "source": {
+        "entity": 2,
+        "pin": "Y",
+        "index": 0
+      },
+      "sinks": [
+        {
+          "entity": 0,
+          "pin": "D",
+          "index": 0
+        }
+      ],
+      "clock_leaf_uses": 0,
+      "directed_links": [
+        [
+          2,
+          9
+        ],
+        [
+          9,
+          0
+        ]
+      ],
+      "domain_segments": [
+        [
+          9,
+          0,
+          2,
+          [
+            0
+          ]
+        ]
+      ],
+      "boundary_links": [
+        {
+          "id": "net4:cluster2>cluster9",
+          "source": {
+            "cluster": 2,
+            "domain": null,
+            "terminal_id": "net4:cluster2>cluster9:out"
+          },
+          "sink": {
+            "cluster": 9,
+            "domain": 0,
+            "terminal_id": "net4:cluster2>cluster9:in"
+          }
+        },
+        {
+          "id": "net4:cluster9>cluster0",
+          "source": {
+            "cluster": 9,
+            "domain": 0,
+            "terminal_id": "net4:cluster9>cluster0:out"
+          },
+          "sink": {
+            "cluster": 0,
+            "domain": null,
+            "terminal_id": "net4:cluster9>cluster0:in"
+          }
+        }
+      ]
+    },
+    {
+      "bit": 5,
+      "source": {
+        "entity": 0,
+        "pin": "Q",
+        "index": 0
+      },
+      "sinks": [
+        {
+          "entity": 1,
+          "pin": "D",
+          "index": 0
+        },
+        {
+          "entity": 6,
+          "pin": "q",
+          "index": 0
+        }
+      ],
+      "clock_leaf_uses": 0,
+      "directed_links": [
+        [
+          0,
+          9
+        ],
+        [
+          9,
+          1
+        ],
+        [
+          9,
+          11
+        ],
+        [
+          11,
+          10
+        ],
+        [
+          10,
+          6
+        ]
+      ],
+      "domain_segments": [
+        [
+          9,
+          0,
+          0,
+          [
+            1,
+            11
+          ]
+        ],
+        [
+          10,
+          1,
+          11,
+          [
+            6
+          ]
+        ],
+        [
+          11,
+          2,
+          9,
+          [
+            10
+          ]
+        ]
+      ],
+      "boundary_links": [
+        {
+          "id": "net5:cluster0>cluster9",
+          "source": {
+            "cluster": 0,
+            "domain": null,
+            "terminal_id": "net5:cluster0>cluster9:out"
+          },
+          "sink": {
+            "cluster": 9,
+            "domain": 0,
+            "terminal_id": "net5:cluster0>cluster9:in"
+          }
+        },
+        {
+          "id": "net5:cluster9>cluster1",
+          "source": {
+            "cluster": 9,
+            "domain": 0,
+            "terminal_id": "net5:cluster9>cluster1:out"
+          },
+          "sink": {
+            "cluster": 1,
+            "domain": null,
+            "terminal_id": "net5:cluster9>cluster1:in"
+          }
+        },
+        {
+          "id": "net5:cluster9>cluster11",
+          "source": {
+            "cluster": 9,
+            "domain": 0,
+            "terminal_id": "net5:cluster9>cluster11:out"
+          },
+          "sink": {
+            "cluster": 11,
+            "domain": 2,
+            "terminal_id": "net5:cluster9>cluster11:in"
+          }
+        },
+        {
+          "id": "net5:cluster11>cluster10",
+          "source": {
+            "cluster": 11,
+            "domain": 2,
+            "terminal_id": "net5:cluster11>cluster10:out"
+          },
+          "sink": {
+            "cluster": 10,
+            "domain": 1,
+            "terminal_id": "net5:cluster11>cluster10:in"
+          }
+        },
+        {
+          "id": "net5:cluster10>cluster6",
+          "source": {
+            "cluster": 10,
+            "domain": 1,
+            "terminal_id": "net5:cluster10>cluster6:out"
+          },
+          "sink": {
+            "cluster": 6,
+            "domain": null,
+            "terminal_id": "net5:cluster10>cluster6:in"
+          }
+        }
+      ]
+    },
+    {
+      "bit": 6,
+      "source": {
+        "entity": 1,
+        "pin": "Q",
+        "index": 0
+      },
+      "sinks": [
+        {
+          "entity": 7,
+          "pin": "q",
+          "index": 1
+        }
+      ],
+      "clock_leaf_uses": 0,
+      "directed_links": [
+        [
+          1,
+          9
+        ],
+        [
+          9,
+          11
+        ],
+        [
+          11,
+          10
+        ],
+        [
+          10,
+          7
+        ]
+      ],
+      "domain_segments": [
+        [
+          9,
+          0,
+          1,
+          [
+            11
+          ]
+        ],
+        [
+          10,
+          1,
+          11,
+          [
+            7
+          ]
+        ],
+        [
+          11,
+          2,
+          9,
+          [
+            10
+          ]
+        ]
+      ],
+      "boundary_links": [
+        {
+          "id": "net6:cluster1>cluster9",
+          "source": {
+            "cluster": 1,
+            "domain": null,
+            "terminal_id": "net6:cluster1>cluster9:out"
+          },
+          "sink": {
+            "cluster": 9,
+            "domain": 0,
+            "terminal_id": "net6:cluster1>cluster9:in"
+          }
+        },
+        {
+          "id": "net6:cluster9>cluster11",
+          "source": {
+            "cluster": 9,
+            "domain": 0,
+            "terminal_id": "net6:cluster9>cluster11:out"
+          },
+          "sink": {
+            "cluster": 11,
+            "domain": 2,
+            "terminal_id": "net6:cluster9>cluster11:in"
+          }
+        },
+        {
+          "id": "net6:cluster11>cluster10",
+          "source": {
+            "cluster": 11,
+            "domain": 2,
+            "terminal_id": "net6:cluster11>cluster10:out"
+          },
+          "sink": {
+            "cluster": 10,
+            "domain": 1,
+            "terminal_id": "net6:cluster11>cluster10:in"
+          }
+        },
+        {
+          "id": "net6:cluster10>cluster7",
+          "source": {
+            "cluster": 10,
+            "domain": 1,
+            "terminal_id": "net6:cluster10>cluster7:out"
+          },
+          "sink": {
+            "cluster": 7,
+            "domain": null,
+            "terminal_id": "net6:cluster10>cluster7:in"
+          }
+        }
+      ]
+    }
+  ],
+  "constants": [
+    {
+      "value": "1",
+      "endpoint": {
+        "entity": 2,
+        "pin": "B",
+        "index": 0
+      }
+    },
+    {
+      "value": "1",
+      "endpoint": {
+        "entity": 5,
+        "pin": "one",
+        "index": 0
+      }
+    },
+    {
+      "value": "0",
+      "endpoint": {
+        "entity": 8,
+        "pin": "zero",
+        "index": 0
+      }
+    }
+  ],
+  "summary": {
+    "native_cells": 3,
+    "original_port_bits": 6,
+    "signals": 5,
+    "original_sink_uses": 7,
+    "clock_leaf_uses": 2,
+    "constant_terminals": 3,
+    "leaf_clusters": 9,
+    "internal_clusters": 3,
+    "hierarchy_depth": 2,
+    "bounded_router_domains": 3,
+    "signal_tree_links": 18,
+    "explicit_fanout_branches": 2,
+    "maximum_router_fanout": 2,
+    "maximum_leaf_boundary": 3,
+    "maximum_domain_terminals": 12,
+    "maximum_domains_at_one_cluster": 1,
+    "topology_sha256": "7b52b15819ae3f7329b09015e7740388809ff83bd3f9dc89f313477645d1c992",
+    "original_signal_endpoints_sha256": "2e08d3e45cda0796dd3062584df3baeaa19ac1af3a7c3f7bd03c873fe311dfd5",
+    "all_signal_records_retained": true
+  },
+  "verification": {
+    "all_entities_assigned_once": true,
+    "all_signal_sink_paths_constructed": true,
+    "all_signal_sink_paths_retained": true,
+    "all_constants_retained": true,
+    "budgets_checked": true,
+    "physical_geometry_emitted": false,
+    "timing_closed": false,
+    "complete_world_verified": false
+  }
+}

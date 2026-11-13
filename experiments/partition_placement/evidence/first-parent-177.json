@@ -1,0 +1,31 @@
+{
+  "topology_sha256": "d6ddfd1b1b332d2e56c9d5dcc76d857442373a9ff1cd53ce77330a6bbbc3c24a",
+  "cluster_id": 177,
+  "complete_partition": false,
+  "runtime_verified": false,
+  "source_hashes": {
+    "src/shamaos/hardware/partition_placement.py": "cf85d6129ff3b5abae3d4a72b292df70f93dce8c65df5050fbafd06cb2844631",
+    "src/shamaos/hardware/local_router.py": "f54e64a2c99f4d059be00d7a03712aac6be53c5cfe1f985196e00c1024b83a58",
+    "src/shamaos/hardware/external_router.py": "9a4da2a995231e4fa72591d526d4b721592e1936416cbd646891e97362645c71"
+  },
+  "status": "connected-literal-planning-passed-runtime-unverified",
+  "computed_unique_blocks": 1287608,
+  "bounds": {
+    "min": {
+      "x": 0,
+      "y": -60,
+      "z": -384
+    },
+    "max": {
+      "x": 2134,
+      "y": 49,
+      "z": 1158
+    }
+  },
+  "modules": 6,
+  "shared_contacts": 248,
+  "native_cells": 256,
+  "literal_unique_blocks": 1287608,
+  "occupied_chunks": 9332,
+  "seconds": 20.425295370994718
+}

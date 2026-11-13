@@ -1,0 +1,31 @@
+{
+  "scope": "complete mapped historical fixture for bounded planner regression; not a current-RTL equivalence or full-world proof",
+  "rtl_path": "rtl/shama_display_bridge.sv",
+  "rtl_sha256": "c5753e43857b62cb97f8ef6bd5c98e0f8fcf2f69a707450215453c6f282234bb",
+  "source_base_revision": "b12fb70232d67fb1dad720c767e5b312fc4d67ce",
+  "top": "shama_display_bridge",
+  "parameters": {
+    "WIDTH": 320,
+    "HEIGHT": 180,
+    "UPRIGHT_PANEL": 1
+  },
+  "yosys": "0.33 (git sha1 2584903a060)",
+  "fixtures": {
+    "display_bridge_aig.json.gz": {
+      "mapping_mode": "aig",
+      "production_default": false,
+      "mapped_json_sha256": "37caf8092ba1d60e990cd90e968461757258fc10aea55d7b89edcde71c2e36f9",
+      "gzip_sha256": "2f7226d481c9a71097060a1ec5f433ce5502c9f33ae2f58d579046d7399f73f0",
+      "uncompressed_bytes": 5692455,
+      "compressed_bytes": 163837
+    },
+    "display_bridge_abc.json.gz": {
+      "mapping_mode": "abc",
+      "production_default": true,
+      "mapped_json_sha256": "bdc22086b9146cdf7ea9d58cbfddfeea09120bd19a744f704b9605ff573609a4",
+      "gzip_sha256": "2abc0695787b7490387790563fa099cf42d4e2bd9fdc2a3dc3db5472d3184a14",
+      "uncompressed_bytes": 6269025,
+      "compressed_bytes": 191785
+    }
+  }
+}

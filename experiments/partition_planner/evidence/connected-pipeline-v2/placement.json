@@ -1,0 +1,1573 @@
+{
+  "status": "connected-literal-geometry;runtime-evidence-in-separate-reports",
+  "topology_sha256": "7b52b15819ae3f7329b09015e7740388809ff83bd3f9dc89f313477645d1c992",
+  "structural_audit": {
+    "native_cells": 3,
+    "original_port_bits": 6,
+    "shared_contacts": 18,
+    "native_sink_uses": 7,
+    "clock_leaf_uses": 2,
+    "constant_terminals": 3,
+    "status": "structural-contacts-passed",
+    "runtime_verified": false
+  },
+  "clock_matching": {
+    "2": {
+      "balanced_repeater_delay": 70,
+      "clock_leaves": 2,
+      "visited_modules": 4,
+      "runtime_verified": false
+    }
+  },
+  "bounds": {
+    "min": {
+      "x": 0,
+      "y": -60,
+      "z": 0
+    },
+    "max": {
+      "x": 278,
+      "y": 169,
+      "z": 132
+    }
+  },
+  "unique_blocks": 13112,
+  "occupied_chunks": 96,
+  "original_ports": {
+    "3": {
+      "x": 0,
+      "y": 13,
+      "z": 26
+    },
+    "4": {
+      "x": 0,
+      "y": 55,
+      "z": 22
+    },
+    "5": {
+      "x": 0,
+      "y": 79,
+      "z": 1
+    },
+    "6": {
+      "x": 4,
+      "y": 85,
+      "z": 22
+    },
+    "7": {
+      "x": 4,
+      "y": 109,
+      "z": 22
+    },
+    "8": {
+      "x": 0,
+      "y": 151,
+      "z": 0
+    }
+  },
+  "terminals": {
+    "net2:cluster9>cluster0:in": {
+      "x": 8,
+      "y": -59,
+      "z": 62
+    },
+    "net4:cluster9>cluster0:in": {
+      "x": 0,
+      "y": -59,
+      "z": 62
+    },
+    "net5:cluster0>cluster9:out": {
+      "x": 16,
+      "y": -59,
+      "z": 62
+    },
+    "net2:cluster9>cluster1:in": {
+      "x": 8,
+      "y": -35,
+      "z": 62
+    },
+    "net5:cluster9>cluster1:in": {
+      "x": 0,
+      "y": -35,
+      "z": 62
+    },
+    "net6:cluster1>cluster9:out": {
+      "x": 16,
+      "y": -35,
+      "z": 62
+    },
+    "net3:cluster9>cluster2:in": {
+      "x": 0,
+      "y": -11,
+      "z": 62
+    },
+    "net4:cluster2>cluster9:out": {
+      "x": 20,
+      "y": -11,
+      "z": 62
+    },
+    "net2:cluster3>cluster9:out": {
+      "x": 4,
+      "y": 13,
+      "z": 26
+    },
+    "net2:cluster3>cluster9:in": {
+      "x": 4,
+      "y": 13,
+      "z": 26
+    },
+    "net2:cluster9>cluster0:out": {
+      "x": 8,
+      "y": -59,
+      "z": 62
+    },
+    "net2:cluster9>cluster1:out": {
+      "x": 8,
+      "y": -35,
+      "z": 62
+    },
+    "net3:cluster11>cluster9:in": {
+      "x": 0,
+      "y": -59,
+      "z": 126
+    },
+    "net3:cluster9>cluster2:out": {
+      "x": 0,
+      "y": -11,
+      "z": 62
+    },
+    "net4:cluster2>cluster9:in": {
+      "x": 20,
+      "y": -11,
+      "z": 62
+    },
+    "net4:cluster9>cluster0:out": {
+      "x": 0,
+      "y": -59,
+      "z": 62
+    },
+    "net5:cluster0>cluster9:in": {
+      "x": 16,
+      "y": -59,
+      "z": 62
+    },
+    "net5:cluster9>cluster1:out": {
+      "x": 0,
+      "y": -35,
+      "z": 62
+    },
+    "net5:cluster9>cluster11:out": {
+      "x": 8,
+      "y": -59,
+      "z": 126
+    },
+    "net6:cluster1>cluster9:in": {
+      "x": 16,
+      "y": -35,
+      "z": 62
+    },
+    "net6:cluster9>cluster11:out": {
+      "x": 16,
+      "y": -59,
+      "z": 126
+    },
+    "net3:cluster4>cluster10:out": {
+      "x": 4,
+      "y": 55,
+      "z": 22
+    },
+    "net5:cluster10>cluster6:in": {
+      "x": 0,
+      "y": 85,
+      "z": 22
+    },
+    "net6:cluster10>cluster7:in": {
+      "x": 0,
+      "y": 109,
+      "z": 22
+    },
+    "net3:cluster4>cluster10:in": {
+      "x": 4,
+      "y": 55,
+      "z": 22
+    },
+    "net3:cluster10>cluster11:out": {
+      "x": 0,
+      "y": 55,
+      "z": 86
+    },
+    "net5:cluster11>cluster10:in": {
+      "x": 8,
+      "y": 55,
+      "z": 86
+    },
+    "net5:cluster10>cluster6:out": {
+      "x": 0,
+      "y": 85,
+      "z": 22
+    },
+    "net6:cluster11>cluster10:in": {
+      "x": 16,
+      "y": 55,
+      "z": 86
+    },
+    "net6:cluster10>cluster7:out": {
+      "x": 0,
+      "y": 109,
+      "z": 22
+    },
+    "net3:cluster10>cluster11:in": {
+      "x": 0,
+      "y": 55,
+      "z": 86
+    },
+    "net3:cluster11>cluster9:out": {
+      "x": 0,
+      "y": -59,
+      "z": 126
+    },
+    "net5:cluster9>cluster11:in": {
+      "x": 8,
+      "y": -59,
+      "z": 126
+    },
+    "net5:cluster11>cluster10:out": {
+      "x": 8,
+      "y": 55,
+      "z": 86
+    },
+    "net6:cluster9>cluster11:in": {
+      "x": 16,
+      "y": -59,
+      "z": 126
+    },
+    "net6:cluster11>cluster10:out": {
+      "x": 16,
+      "y": 55,
+      "z": 86
+    }
+  },
+  "shared_contacts": {
+    "net2:cluster3>cluster9": {
+      "position": {
+        "x": 4,
+        "y": 13,
+        "z": 26
+      },
+      "bit": 2,
+      "source_terminal": "net2:cluster3>cluster9:out",
+      "sink_terminal": "net2:cluster3>cluster9:in",
+      "child_cluster": 3,
+      "parent_cluster": 9,
+      "child_access": "north",
+      "parent_access": "south"
+    },
+    "net2:cluster9>cluster0": {
+      "position": {
+        "x": 8,
+        "y": -59,
+        "z": 62
+      },
+      "bit": 2,
+      "source_terminal": "net2:cluster9>cluster0:out",
+      "sink_terminal": "net2:cluster9>cluster0:in",
+      "child_cluster": 0,
+      "parent_cluster": 9,
+      "child_access": "north",
+      "parent_access": "south"
+    },
+    "net2:cluster9>cluster1": {
+      "position": {
+        "x": 8,
+        "y": -35,
+        "z": 62
+      },
+      "bit": 2,
+      "source_terminal": "net2:cluster9>cluster1:out",
+      "sink_terminal": "net2:cluster9>cluster1:in",
+      "child_cluster": 1,
+      "parent_cluster": 9,
+      "child_access": "north",
+      "parent_access": "south"
+    },
+    "net3:cluster9>cluster2": {
+      "position": {
+        "x": 0,
+        "y": -11,
+        "z": 62
+      },
+      "bit": 3,
+      "source_terminal": "net3:cluster9>cluster2:out",
+      "sink_terminal": "net3:cluster9>cluster2:in",
+      "child_cluster": 2,
+      "parent_cluster": 9,
+      "child_access": "north",
+      "parent_access": "south"
+    },
+    "net4:cluster2>cluster9": {
+      "position": {
+        "x": 20,
+        "y": -11,
+        "z": 62
+      },
+      "bit": 4,
+      "source_terminal": "net4:cluster2>cluster9:out",
+      "sink_terminal": "net4:cluster2>cluster9:in",
+      "child_cluster": 2,
+      "parent_cluster": 9,
+      "child_access": "north",
+      "parent_access": "south"
+    },
+    "net4:cluster9>cluster0": {
+      "position": {
+        "x": 0,
+        "y": -59,
+        "z": 62
+      },
+      "bit": 4,
+      "source_terminal": "net4:cluster9>cluster0:out",
+      "sink_terminal": "net4:cluster9>cluster0:in",
+      "child_cluster": 0,
+      "parent_cluster": 9,
+      "child_access": "north",
+      "parent_access": "south"
+    },
+    "net5:cluster0>cluster9": {
+      "position": {
+        "x": 16,
+        "y": -59,
+        "z": 62
+      },
+      "bit": 5,
+      "source_terminal": "net5:cluster0>cluster9:out",
+      "sink_terminal": "net5:cluster0>cluster9:in",
+      "child_cluster": 0,
+      "parent_cluster": 9,
+      "child_access": "north",
+      "parent_access": "south"
+    },
+    "net5:cluster9>cluster1": {
+      "position": {
+        "x": 0,
+        "y": -35,
+        "z": 62
+      },
+      "bit": 5,
+      "source_terminal": "net5:cluster9>cluster1:out",
+      "sink_terminal": "net5:cluster9>cluster1:in",
+      "child_cluster": 1,
+      "parent_cluster": 9,
+      "child_access": "north",
+      "parent_access": "south"
+    },
+    "net6:cluster1>cluster9": {
+      "position": {
+        "x": 16,
+        "y": -35,
+        "z": 62
+      },
+      "bit": 6,
+      "source_terminal": "net6:cluster1>cluster9:out",
+      "sink_terminal": "net6:cluster1>cluster9:in",
+      "child_cluster": 1,
+      "parent_cluster": 9,
+      "child_access": "north",
+      "parent_access": "south"
+    },
+    "net3:cluster4>cluster10": {
+      "position": {
+        "x": 4,
+        "y": 55,
+        "z": 22
+      },
+      "bit": 3,
+      "source_terminal": "net3:cluster4>cluster10:out",
+      "sink_terminal": "net3:cluster4>cluster10:in",
+      "child_cluster": 4,
+      "parent_cluster": 10,
+      "child_access": "north",
+      "parent_access": "south"
+    },
+    "net5:cluster10>cluster6": {
+      "position": {
+        "x": 0,
+        "y": 85,
+        "z": 22
+      },
+      "bit": 5,
+      "source_terminal": "net5:cluster10>cluster6:out",
+      "sink_terminal": "net5:cluster10>cluster6:in",
+      "child_cluster": 6,
+      "parent_cluster": 10,
+      "child_access": "north",
+      "parent_access": "south"
+    },
+    "net6:cluster10>cluster7": {
+      "position": {
+        "x": 0,
+        "y": 109,
+        "z": 22
+      },
+      "bit": 6,
+      "source_terminal": "net6:cluster10>cluster7:out",
+      "sink_terminal": "net6:cluster10>cluster7:in",
+      "child_cluster": 7,
+      "parent_cluster": 10,
+      "child_access": "north",
+      "parent_access": "south"
+    },
+    "net3:cluster10>cluster11": {
+      "position": {
+        "x": 0,
+        "y": 55,
+        "z": 86
+      },
+      "bit": 3,
+      "source_terminal": "net3:cluster10>cluster11:out",
+      "sink_terminal": "net3:cluster10>cluster11:in",
+      "child_cluster": 10,
+      "parent_cluster": 11,
+      "child_access": "north",
+      "parent_access": "south"
+    },
+    "net3:cluster11>cluster9": {
+      "position": {
+        "x": 0,
+        "y": -59,
+        "z": 126
+      },
+      "bit": 3,
+      "source_terminal": "net3:cluster11>cluster9:out",
+      "sink_terminal": "net3:cluster11>cluster9:in",
+      "child_cluster": 9,
+      "parent_cluster": 11,
+      "child_access": "north",
+      "parent_access": "south"
+    },
+    "net5:cluster9>cluster11": {
+      "position": {
+        "x": 8,
+        "y": -59,
+        "z": 126
+      },
+      "bit": 5,
+      "source_terminal": "net5:cluster9>cluster11:out",
+      "sink_terminal": "net5:cluster9>cluster11:in",
+      "child_cluster": 9,
+      "parent_cluster": 11,
+      "child_access": "north",
+      "parent_access": "south"
+    },
+    "net5:cluster11>cluster10": {
+      "position": {
+        "x": 8,
+        "y": 55,
+        "z": 86
+      },
+      "bit": 5,
+      "source_terminal": "net5:cluster11>cluster10:out",
+      "sink_terminal": "net5:cluster11>cluster10:in",
+      "child_cluster": 10,
+      "parent_cluster": 11,
+      "child_access": "north",
+      "parent_access": "south"
+    },
+    "net6:cluster9>cluster11": {
+      "position": {
+        "x": 16,
+        "y": -59,
+        "z": 126
+      },
+      "bit": 6,
+      "source_terminal": "net6:cluster9>cluster11:out",
+      "sink_terminal": "net6:cluster9>cluster11:in",
+      "child_cluster": 9,
+      "parent_cluster": 11,
+      "child_access": "north",
+      "parent_access": "south"
+    },
+    "net6:cluster11>cluster10": {
+      "position": {
+        "x": 16,
+        "y": 55,
+        "z": 86
+      },
+      "bit": 6,
+      "source_terminal": "net6:cluster11>cluster10:out",
+      "sink_terminal": "net6:cluster11>cluster10:in",
+      "child_cluster": 10,
+      "parent_cluster": 11,
+      "child_access": "north",
+      "parent_access": "south"
+    }
+  },
+  "modules": [
+    {
+      "key": [
+        "leaf",
+        0
+      ],
+      "top": "leaf-0",
+      "cell_origins": {
+        "a": {
+          "x": 0,
+          "y": -60,
+          "z": 14
+        }
+      },
+      "cell_types": {
+        "a": "$_DFF_P_"
+      },
+      "input_ports": {
+        "net2:cluster9>cluster0:in": [
+          {
+            "x": 8,
+            "y": -59,
+            "z": 62
+          }
+        ],
+        "net4:cluster9>cluster0:in": [
+          {
+            "x": 0,
+            "y": -59,
+            "z": 62
+          }
+        ]
+      },
+      "output_ports": {
+        "net5:cluster0>cluster9:out": [
+          {
+            "x": 16,
+            "y": -59,
+            "z": 62
+          }
+        ]
+      },
+      "nets": [
+        {
+          "bit": 2,
+          "source": {
+            "name": "port:net2:cluster9>cluster0:in[0]",
+            "pin": "net2:cluster9>cluster0:in",
+            "pos": {
+              "x": 8,
+              "y": -59,
+              "z": 62
+            },
+            "is_source": true
+          },
+          "sinks": [
+            {
+              "name": "a",
+              "pin": "C",
+              "pos": {
+                "x": 6,
+                "y": -59,
+                "z": 14
+              },
+              "is_source": false
+            }
+          ],
+          "track": 0
+        },
+        {
+          "bit": 4,
+          "source": {
+            "name": "port:net4:cluster9>cluster0:in[0]",
+            "pin": "net4:cluster9>cluster0:in",
+            "pos": {
+              "x": 0,
+              "y": -59,
+              "z": 62
+            },
+            "is_source": true
+          },
+          "sinks": [
+            {
+              "name": "a",
+              "pin": "D",
+              "pos": {
+                "x": 0,
+                "y": -59,
+                "z": 14
+              },
+              "is_source": false
+            }
+          ],
+          "track": 0
+        },
+        {
+          "bit": 5,
+          "source": {
+            "name": "a",
+            "pin": "Q",
+            "pos": {
+              "x": 16,
+              "y": -59,
+              "z": 14
+            },
+            "is_source": true
+          },
+          "sinks": [
+            {
+              "name": "port:net5:cluster0>cluster9:out[0]",
+              "pin": "net5:cluster0>cluster9:out",
+              "pos": {
+                "x": 16,
+                "y": -59,
+                "z": 62
+              },
+              "is_source": false
+            }
+          ],
+          "track": 0
+        }
+      ],
+      "constant_high": [],
+      "north_constant_high": [],
+      "clock_delays": {
+        "2": {
+          "unbalanced_repeater_delay": {
+            "a": 18
+          },
+          "balanced_repeater_delay": 18
+        }
+      }
+    },
+    {
+      "key": [
+        "leaf",
+        1
+      ],
+      "top": "leaf-1",
+      "cell_origins": {
+        "b": {
+          "x": 0,
+          "y": -36,
+          "z": 14
+        }
+      },
+      "cell_types": {
+        "b": "$_DFF_P_"
+      },
+      "input_ports": {
+        "net2:cluster9>cluster1:in": [
+          {
+            "x": 8,
+            "y": -35,
+            "z": 62
+          }
+        ],
+        "net5:cluster9>cluster1:in": [
+          {
+            "x": 0,
+            "y": -35,
+            "z": 62
+          }
+        ]
+      },
+      "output_ports": {
+        "net6:cluster1>cluster9:out": [
+          {
+            "x": 16,
+            "y": -35,
+            "z": 62
+          }
+        ]
+      },
+      "nets": [
+        {
+          "bit": 2,
+          "source": {
+            "name": "port:net2:cluster9>cluster1:in[0]",
+            "pin": "net2:cluster9>cluster1:in",
+            "pos": {
+              "x": 8,
+              "y": -35,
+              "z": 62
+            },
+            "is_source": true
+          },
+          "sinks": [
+            {
+              "name": "b",
+              "pin": "C",
+              "pos": {
+                "x": 6,
+                "y": -35,
+                "z": 14
+              },
+              "is_source": false
+            }
+          ],
+          "track": 0
+        },
+        {
+          "bit": 5,
+          "source": {
+            "name": "port:net5:cluster9>cluster1:in[0]",
+            "pin": "net5:cluster9>cluster1:in",
+            "pos": {
+              "x": 0,
+              "y": -35,
+              "z": 62
+            },
+            "is_source": true
+          },
+          "sinks": [
+            {
+              "name": "b",
+              "pin": "D",
+              "pos": {
+                "x": 0,
+                "y": -35,
+                "z": 14
+              },
+              "is_source": false
+            }
+          ],
+          "track": 0
+        },
+        {
+          "bit": 6,
+          "source": {
+            "name": "b",
+            "pin": "Q",
+            "pos": {
+              "x": 16,
+              "y": -35,
+              "z": 14
+            },
+            "is_source": true
+          },
+          "sinks": [
+            {
+              "name": "port:net6:cluster1>cluster9:out[0]",
+              "pin": "net6:cluster1>cluster9:out",
+              "pos": {
+                "x": 16,
+                "y": -35,
+                "z": 62
+              },
+              "is_source": false
+            }
+          ],
+          "track": 0
+        }
+      ],
+      "constant_high": [],
+      "north_constant_high": [],
+      "clock_delays": {
+        "2": {
+          "unbalanced_repeater_delay": {
+            "b": 18
+          },
+          "balanced_repeater_delay": 18
+        }
+      }
+    },
+    {
+      "key": [
+        "leaf",
+        2
+      ],
+      "top": "leaf-2",
+      "cell_origins": {
+        "enabled": {
+          "x": 0,
+          "y": -12,
+          "z": 14
+        }
+      },
+      "cell_types": {
+        "enabled": "$_AND_"
+      },
+      "input_ports": {
+        "net3:cluster9>cluster2:in": [
+          {
+            "x": 0,
+            "y": -11,
+            "z": 62
+          }
+        ]
+      },
+      "output_ports": {
+        "net4:cluster2>cluster9:out": [
+          {
+            "x": 20,
+            "y": -11,
+            "z": 62
+          }
+        ]
+      },
+      "nets": [
+        {
+          "bit": 3,
+          "source": {
+            "name": "port:net3:cluster9>cluster2:in[0]",
+            "pin": "net3:cluster9>cluster2:in",
+            "pos": {
+              "x": 0,
+              "y": -11,
+              "z": 62
+            },
+            "is_source": true
+          },
+          "sinks": [
+            {
+              "name": "enabled",
+              "pin": "A",
+              "pos": {
+                "x": 0,
+                "y": -11,
+                "z": 14
+              },
+              "is_source": false
+            }
+          ],
+          "track": 0
+        },
+        {
+          "bit": 4,
+          "source": {
+            "name": "enabled",
+            "pin": "Y",
+            "pos": {
+              "x": 21,
+              "y": -11,
+              "z": 14
+            },
+            "is_source": true
+          },
+          "sinks": [
+            {
+              "name": "port:net4:cluster2>cluster9:out[0]",
+              "pin": "net4:cluster2>cluster9:out",
+              "pos": {
+                "x": 20,
+                "y": -11,
+                "z": 62
+              },
+              "is_source": false
+            }
+          ],
+          "track": 0
+        }
+      ],
+      "constant_high": [
+        {
+          "x": 8,
+          "y": -11,
+          "z": 14
+        }
+      ],
+      "north_constant_high": [],
+      "clock_delays": {}
+    },
+    {
+      "key": [
+        "leaf",
+        3
+      ],
+      "top": "leaf-3",
+      "cell_origins": {},
+      "cell_types": {},
+      "input_ports": {
+        "entity3": [
+          {
+            "x": 0,
+            "y": 13,
+            "z": 26
+          }
+        ]
+      },
+      "output_ports": {
+        "net2:cluster3>cluster9:out": [
+          {
+            "x": 4,
+            "y": 13,
+            "z": 26
+          }
+        ]
+      },
+      "nets": [
+        {
+          "bit": 2,
+          "source": {
+            "name": "port:entity3[0]",
+            "pin": "entity3",
+            "pos": {
+              "x": 0,
+              "y": 13,
+              "z": 26
+            },
+            "is_source": true
+          },
+          "sinks": [
+            {
+              "name": "port:net2:cluster3>cluster9:out[0]",
+              "pin": "net2:cluster3>cluster9:out",
+              "pos": {
+                "x": 4,
+                "y": 13,
+                "z": 26
+              },
+              "is_source": false
+            }
+          ],
+          "track": 0
+        }
+      ],
+      "constant_high": [],
+      "north_constant_high": [],
+      "clock_delays": {
+        "2": {
+          "unbalanced_repeater_delay": {
+            "port:net2:cluster3>cluster9:out[0]": 70
+          },
+          "balanced_repeater_delay": 70
+        }
+      }
+    },
+    {
+      "key": [
+        "domain",
+        0
+      ],
+      "top": "domain-0",
+      "cell_origins": {},
+      "cell_types": {},
+      "input_ports": {
+        "net3:cluster11>cluster9:in": [
+          {
+            "x": 0,
+            "y": -59,
+            "z": 126
+          }
+        ]
+      },
+      "output_ports": {
+        "net5:cluster9>cluster11:out": [
+          {
+            "x": 8,
+            "y": -59,
+            "z": 126
+          }
+        ],
+        "net6:cluster9>cluster11:out": [
+          {
+            "x": 16,
+            "y": -59,
+            "z": 126
+          }
+        ]
+      },
+      "nets": [
+        {
+          "bit": 2,
+          "source": {
+            "name": "boundary:net2:cluster3>cluster9:in",
+            "pin": "net2:cluster3>cluster9:in",
+            "pos": {
+              "x": 4,
+              "y": 13,
+              "z": 26
+            },
+            "is_source": true
+          },
+          "sinks": [
+            {
+              "name": "boundary:net2:cluster9>cluster0:out",
+              "pin": "net2:cluster9>cluster0:out",
+              "pos": {
+                "x": 8,
+                "y": -59,
+                "z": 62
+              },
+              "is_source": false
+            },
+            {
+              "name": "boundary:net2:cluster9>cluster1:out",
+              "pin": "net2:cluster9>cluster1:out",
+              "pos": {
+                "x": 8,
+                "y": -35,
+                "z": 62
+              },
+              "is_source": false
+            }
+          ],
+          "track": 0
+        },
+        {
+          "bit": 3,
+          "source": {
+            "name": "boundary:net3:cluster11>cluster9:in",
+            "pin": "net3:cluster11>cluster9:in",
+            "pos": {
+              "x": 0,
+              "y": -59,
+              "z": 126
+            },
+            "is_source": true
+          },
+          "sinks": [
+            {
+              "name": "boundary:net3:cluster9>cluster2:out",
+              "pin": "net3:cluster9>cluster2:out",
+              "pos": {
+                "x": 0,
+                "y": -11,
+                "z": 62
+              },
+              "is_source": false
+            }
+          ],
+          "track": 0
+        },
+        {
+          "bit": 4,
+          "source": {
+            "name": "boundary:net4:cluster2>cluster9:in",
+            "pin": "net4:cluster2>cluster9:in",
+            "pos": {
+              "x": 20,
+              "y": -11,
+              "z": 62
+            },
+            "is_source": true
+          },
+          "sinks": [
+            {
+              "name": "boundary:net4:cluster9>cluster0:out",
+              "pin": "net4:cluster9>cluster0:out",
+              "pos": {
+                "x": 0,
+                "y": -59,
+                "z": 62
+              },
+              "is_source": false
+            }
+          ],
+          "track": 0
+        },
+        {
+          "bit": 5,
+          "source": {
+            "name": "boundary:net5:cluster0>cluster9:in",
+            "pin": "net5:cluster0>cluster9:in",
+            "pos": {
+              "x": 16,
+              "y": -59,
+              "z": 62
+            },
+            "is_source": true
+          },
+          "sinks": [
+            {
+              "name": "boundary:net5:cluster9>cluster1:out",
+              "pin": "net5:cluster9>cluster1:out",
+              "pos": {
+                "x": 0,
+                "y": -35,
+                "z": 62
+              },
+              "is_source": false
+            },
+            {
+              "name": "boundary:net5:cluster9>cluster11:out",
+              "pin": "net5:cluster9>cluster11:out",
+              "pos": {
+                "x": 8,
+                "y": -59,
+                "z": 126
+              },
+              "is_source": false
+            }
+          ],
+          "track": 0
+        },
+        {
+          "bit": 6,
+          "source": {
+            "name": "boundary:net6:cluster1>cluster9:in",
+            "pin": "net6:cluster1>cluster9:in",
+            "pos": {
+              "x": 16,
+              "y": -35,
+              "z": 62
+            },
+            "is_source": true
+          },
+          "sinks": [
+            {
+              "name": "boundary:net6:cluster9>cluster11:out",
+              "pin": "net6:cluster9>cluster11:out",
+              "pos": {
+                "x": 16,
+                "y": -59,
+                "z": 126
+              },
+              "is_source": false
+            }
+          ],
+          "track": 0
+        }
+      ],
+      "constant_high": [],
+      "north_constant_high": [],
+      "clock_delays": {
+        "2": {
+          "unbalanced_repeater_delay": {
+            "boundary:net2:cluster9>cluster0:out": 58,
+            "boundary:net2:cluster9>cluster1:out": 53
+          },
+          "balanced_repeater_delay": 58
+        }
+      }
+    },
+    {
+      "key": [
+        "leaf",
+        4
+      ],
+      "top": "leaf-4",
+      "cell_origins": {},
+      "cell_types": {},
+      "input_ports": {
+        "entity4": [
+          {
+            "x": 0,
+            "y": 55,
+            "z": 22
+          }
+        ]
+      },
+      "output_ports": {
+        "net3:cluster4>cluster10:out": [
+          {
+            "x": 4,
+            "y": 55,
+            "z": 22
+          }
+        ]
+      },
+      "nets": [
+        {
+          "bit": 3,
+          "source": {
+            "name": "port:entity4[0]",
+            "pin": "entity4",
+            "pos": {
+              "x": 0,
+              "y": 55,
+              "z": 22
+            },
+            "is_source": true
+          },
+          "sinks": [
+            {
+              "name": "port:net3:cluster4>cluster10:out[0]",
+              "pin": "net3:cluster4>cluster10:out",
+              "pos": {
+                "x": 4,
+                "y": 55,
+                "z": 22
+              },
+              "is_source": false
+            }
+          ],
+          "track": 0
+        }
+      ],
+      "constant_high": [],
+      "north_constant_high": [],
+      "clock_delays": {}
+    },
+    {
+      "key": [
+        "leaf",
+        5
+      ],
+      "top": "leaf-5",
+      "cell_origins": {},
+      "cell_types": {},
+      "input_ports": {},
+      "output_ports": {
+        "entity5": [
+          {
+            "x": 0,
+            "y": 79,
+            "z": 1
+          }
+        ]
+      },
+      "nets": [],
+      "constant_high": [
+        {
+          "x": 0,
+          "y": 79,
+          "z": 1
+        }
+      ],
+      "north_constant_high": [
+        {
+          "x": 0,
+          "y": 79,
+          "z": 1
+        }
+      ],
+      "clock_delays": {}
+    },
+    {
+      "key": [
+        "leaf",
+        6
+      ],
+      "top": "leaf-6",
+      "cell_origins": {},
+      "cell_types": {},
+      "input_ports": {
+        "net5:cluster10>cluster6:in": [
+          {
+            "x": 0,
+            "y": 85,
+            "z": 22
+          }
+        ]
+      },
+      "output_ports": {
+        "entity6": [
+          {
+            "x": 4,
+            "y": 85,
+            "z": 22
+          }
+        ]
+      },
+      "nets": [
+        {
+          "bit": 5,
+          "source": {
+            "name": "port:net5:cluster10>cluster6:in[0]",
+            "pin": "net5:cluster10>cluster6:in",
+            "pos": {
+              "x": 0,
+              "y": 85,
+              "z": 22
+            },
+            "is_source": true
+          },
+          "sinks": [
+            {
+              "name": "port:entity6[0]",
+              "pin": "entity6",
+              "pos": {
+                "x": 4,
+                "y": 85,
+                "z": 22
+              },
+              "is_source": false
+            }
+          ],
+          "track": 0
+        }
+      ],
+      "constant_high": [],
+      "north_constant_high": [],
+      "clock_delays": {}
+    },
+    {
+      "key": [
+        "leaf",
+        7
+      ],
+      "top": "leaf-7",
+      "cell_origins": {},
+      "cell_types": {},
+      "input_ports": {
+        "net6:cluster10>cluster7:in": [
+          {
+            "x": 0,
+            "y": 109,
+            "z": 22
+          }
+        ]
+      },
+      "output_ports": {
+        "entity7": [
+          {
+            "x": 4,
+            "y": 109,
+            "z": 22
+          }
+        ]
+      },
+      "nets": [
+        {
+          "bit": 6,
+          "source": {
+            "name": "port:net6:cluster10>cluster7:in[0]",
+            "pin": "net6:cluster10>cluster7:in",
+            "pos": {
+              "x": 0,
+              "y": 109,
+              "z": 22
+            },
+            "is_source": true
+          },
+          "sinks": [
+            {
+              "name": "port:entity7[0]",
+              "pin": "entity7",
+              "pos": {
+                "x": 4,
+                "y": 109,
+                "z": 22
+              },
+              "is_source": false
+            }
+          ],
+          "track": 0
+        }
+      ],
+      "constant_high": [],
+      "north_constant_high": [],
+      "clock_delays": {}
+    },
+    {
+      "key": [
+        "domain",
+        1
+      ],
+      "top": "domain-1",
+      "cell_origins": {},
+      "cell_types": {},
+      "input_ports": {
+        "net5:cluster11>cluster10:in": [
+          {
+            "x": 8,
+            "y": 55,
+            "z": 86
+          }
+        ],
+        "net6:cluster11>cluster10:in": [
+          {
+            "x": 16,
+            "y": 55,
+            "z": 86
+          }
+        ]
+      },
+      "output_ports": {
+        "net3:cluster10>cluster11:out": [
+          {
+            "x": 0,
+            "y": 55,
+            "z": 86
+          }
+        ]
+      },
+      "nets": [
+        {
+          "bit": 3,
+          "source": {
+            "name": "boundary:net3:cluster4>cluster10:in",
+            "pin": "net3:cluster4>cluster10:in",
+            "pos": {
+              "x": 4,
+              "y": 55,
+              "z": 22
+            },
+            "is_source": true
+          },
+          "sinks": [
+            {
+              "name": "boundary:net3:cluster10>cluster11:out",
+              "pin": "net3:cluster10>cluster11:out",
+              "pos": {
+                "x": 0,
+                "y": 55,
+                "z": 86
+              },
+              "is_source": false
+            }
+          ],
+          "track": 0
+        },
+        {
+          "bit": 5,
+          "source": {
+            "name": "boundary:net5:cluster11>cluster10:in",
+            "pin": "net5:cluster11>cluster10:in",
+            "pos": {
+              "x": 8,
+              "y": 55,
+              "z": 86
+            },
+            "is_source": true
+          },
+          "sinks": [
+            {
+              "name": "boundary:net5:cluster10>cluster6:out",
+              "pin": "net5:cluster10>cluster6:out",
+              "pos": {
+                "x": 0,
+                "y": 85,
+                "z": 22
+              },
+              "is_source": false
+            }
+          ],
+          "track": 0
+        },
+        {
+          "bit": 6,
+          "source": {
+            "name": "boundary:net6:cluster11>cluster10:in",
+            "pin": "net6:cluster11>cluster10:in",
+            "pos": {
+              "x": 16,
+              "y": 55,
+              "z": 86
+            },
+            "is_source": true
+          },
+          "sinks": [
+            {
+              "name": "boundary:net6:cluster10>cluster7:out",
+              "pin": "net6:cluster10>cluster7:out",
+              "pos": {
+                "x": 0,
+                "y": 109,
+                "z": 22
+              },
+              "is_source": false
+            }
+          ],
+          "track": 0
+        }
+      ],
+      "constant_high": [],
+      "north_constant_high": [],
+      "clock_delays": {}
+    },
+    {
+      "key": [
+        "leaf",
+        8
+      ],
+      "top": "leaf-8",
+      "cell_origins": {},
+      "cell_types": {},
+      "input_ports": {},
+      "output_ports": {
+        "entity8": [
+          {
+            "x": 0,
+            "y": 151,
+            "z": 0
+          }
+        ]
+      },
+      "nets": [],
+      "constant_high": [],
+      "north_constant_high": [],
+      "clock_delays": {}
+    },
+    {
+      "key": [
+        "domain",
+        2
+      ],
+      "top": "domain-2",
+      "cell_origins": {},
+      "cell_types": {},
+      "input_ports": {},
+      "output_ports": {},
+      "nets": [
+        {
+          "bit": 3,
+          "source": {
+            "name": "boundary:net3:cluster10>cluster11:in",
+            "pin": "net3:cluster10>cluster11:in",
+            "pos": {
+              "x": 0,
+              "y": 55,
+              "z": 86
+            },
+            "is_source": true
+          },
+          "sinks": [
+            {
+              "name": "boundary:net3:cluster11>cluster9:out",
+              "pin": "net3:cluster11>cluster9:out",
+              "pos": {
+                "x": 0,
+                "y": -59,
+                "z": 126
+              },
+              "is_source": false
+            }
+          ],
+          "track": 0
+        },
+        {
+          "bit": 5,
+          "source": {
+            "name": "boundary:net5:cluster9>cluster11:in",
+            "pin": "net5:cluster9>cluster11:in",
+            "pos": {
+              "x": 8,
+              "y": -59,
+              "z": 126
+            },
+            "is_source": true
+          },
+          "sinks": [
+            {
+              "name": "boundary:net5:cluster11>cluster10:out",
+              "pin": "net5:cluster11>cluster10:out",
+              "pos": {
+                "x": 8,
+                "y": 55,
+                "z": 86
+              },
+              "is_source": false
+            }
+          ],
+          "track": 0
+        },
+        {
+          "bit": 6,
+          "source": {
+            "name": "boundary:net6:cluster9>cluster11:in",
+            "pin": "net6:cluster9>cluster11:in",
+            "pos": {
+              "x": 16,
+              "y": -59,
+              "z": 126
+            },
+            "is_source": true
+          },
+          "sinks": [
+            {
+              "name": "boundary:net6:cluster11>cluster10:out",
+              "pin": "net6:cluster11>cluster10:out",
+              "pos": {
+                "x": 16,
+                "y": 55,
+                "z": 86
+              },
+              "is_source": false
+            }
+          ],
+          "track": 0
+        }
+      ],
+      "constant_high": [],
+      "north_constant_high": [],
+      "clock_delays": {}
+    }
+  ]
+}

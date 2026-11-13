@@ -1,0 +1,16 @@
+{
+  "topology_sha256": "d6ddfd1b1b332d2e56c9d5dcc76d857442373a9ff1cd53ce77330a6bbbc3c24a",
+  "cluster_id": 221,
+  "complete_partition": false,
+  "runtime_verified": false,
+  "source_hashes": {
+    "src/shamaos/hardware/partition_placement.py": "10c6a4b5aba6b5c4776326d0a863bf57cd1fc5b0d216115ca496d851d6a82e90",
+    "src/shamaos/hardware/local_router.py": "f54e64a2c99f4d059be00d7a03712aac6be53c5cfe1f985196e00c1024b83a58",
+    "src/shamaos/hardware/external_router.py": "9a4da2a995231e4fa72591d526d4b721592e1936416cbd646891e97362645c71"
+  },
+  "status": "failed",
+  "error": "cluster 221 has no routed child packing: [{'horizontal_layout': 'compact', 'error': 'cluster 221, bounded parent escape prefixes: cannot isolate physical endpoint Vec3(x=32, y=-59, z=1542); dense endpoint placement needs a wider access corridor or a different placement'}, {'horizontal_layout': 'row', 'error': 'cluster 221, bounded parent escape prefixes: cannot isolate physical endpoint Vec3(x=2208, y=-59, z=3342); dense endpoint placement needs a wider access corridor or a different placement'}]",
+  "completed_clusters": 20,
+  "seconds": 168.72577266299777,
+  "peak_rss_kib": 386892
+}

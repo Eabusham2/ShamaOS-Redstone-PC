@@ -1,0 +1,66 @@
+[
+  {
+    "case": "complete-aig",
+    "complete_audit": {
+      "status": "passed",
+      "signals": 13335,
+      "native_cells": 13314,
+      "scope": "complete structural graph reconstruction; no physical routing or timing claim"
+    },
+    "deterministic_repeat": true,
+    "summary": {
+      "native_cells": 13314,
+      "original_port_bits": 351,
+      "signals": 13335,
+      "original_sink_uses": 23328,
+      "clock_leaf_uses": 649,
+      "constant_terminals": 649,
+      "leaf_clusters": 215,
+      "internal_clusters": 73,
+      "hierarchy_depth": 4,
+      "bounded_router_domains": 120,
+      "signal_tree_links": 15180,
+      "explicit_fanout_branches": 1369,
+      "maximum_router_fanout": 4,
+      "maximum_leaf_boundary": 81,
+      "maximum_domain_terminals": 256,
+      "maximum_domains_at_one_cluster": 5,
+      "topology_sha256": "d9d96aeb204bcdcd76c76e435d3a092734a8caa467646ef9d3c64b56e922e96a",
+      "original_signal_endpoints_sha256": "ce5ac7e4b4fdeae9cdc92cbfb6dbb023e6d287d045527d6fb6a6d21013e8e0a2",
+      "all_signal_records_retained": true
+    },
+    "search_fanout_limit": 32
+  },
+  {
+    "case": "high-fanout-all-search-signals-excluded",
+    "complete_audit": {
+      "status": "passed",
+      "signals": 130,
+      "native_cells": 129,
+      "scope": "complete structural graph reconstruction; no physical routing or timing claim"
+    },
+    "deterministic_repeat": true,
+    "summary": {
+      "native_cells": 129,
+      "original_port_bits": 132,
+      "signals": 130,
+      "original_sink_uses": 258,
+      "clock_leaf_uses": 129,
+      "constant_terminals": 131,
+      "leaf_clusters": 6,
+      "internal_clusters": 3,
+      "hierarchy_depth": 2,
+      "bounded_router_domains": 4,
+      "signal_tree_links": 396,
+      "explicit_fanout_branches": 1,
+      "maximum_router_fanout": 3,
+      "maximum_leaf_boundary": 65,
+      "maximum_domain_terminals": 256,
+      "maximum_domains_at_one_cluster": 2,
+      "topology_sha256": "5f46644b47df920fbfaaf87df740a9fe5c8440eb1566319da6c3516a9c60b33e",
+      "original_signal_endpoints_sha256": "9a461dde7c0928f55088fa132d14b8e40d6575b65973f29703df4cf0f2d71872",
+      "all_signal_records_retained": true
+    },
+    "search_fanout_limit": 1
+  }
+]

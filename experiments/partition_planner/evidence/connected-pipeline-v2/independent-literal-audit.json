@@ -1,0 +1,37 @@
+{
+  "status": "exact-literal-case-regeneration-passed",
+  "unique_blocks": 13112,
+  "occupied_chunks": 96,
+  "native_bounds": {
+    "min": {
+      "x": 0,
+      "y": -60,
+      "z": 0
+    },
+    "max": {
+      "x": 278,
+      "y": 169,
+      "z": 132
+    }
+  },
+  "translation": {
+    "x": 32,
+    "y": 92,
+    "z": 32
+  },
+  "cases": [
+    {
+      "file": "pipeline-512-dense-case.json",
+      "sha256": "7d9b110e0d66e7ef731dc78e1a95cc55bccbfeed6091dcea9bf895ffd68f032e",
+      "placement_operations": 13304,
+      "exact_regenerated_block_state_match": true
+    },
+    {
+      "file": "pipeline-20-dense-case.json",
+      "sha256": "49fd9bedbca9309b05724e5534f36d7ad0e0dafc5cffcbbab77dc5327442a923",
+      "placement_operations": 13304,
+      "exact_regenerated_block_state_match": true
+    }
+  ],
+  "scope": "Two-level pipeline only; this comparison does not rerun the engine"
+}

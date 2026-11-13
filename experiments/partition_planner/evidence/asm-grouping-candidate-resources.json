@@ -1,0 +1,19 @@
+{
+  "method": "external parent os.wait4 kernel rusage after complete child exit",
+  "elapsed_seconds": 86.7307478119983,
+  "max_rss_kib": 1534544,
+  "user_seconds": 80.938345,
+  "system_seconds": 5.528893,
+  "exit_status": 0,
+  "command": [
+    "python",
+    "experiments/partition_planner/scale_parent_grouping.py",
+    "/workspace/scratch/fb0eaf1c89fe/experiments/partition-planner/artifacts/current-asm-4e933a5/partition-u_asm-shama_asm_accel.json",
+    "--top",
+    "shama_asm_accel",
+    "--output",
+    "/workspace/scratch/fb0eaf1c89fe/experiments/partition-planner/artifacts/current-asm-4e933a5/bounded-neighbor-summary-plan.json",
+    "--swap-passes",
+    "1"
+  ]
+}

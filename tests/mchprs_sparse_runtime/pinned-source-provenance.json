@@ -1,0 +1,33 @@
+{
+  "revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+  "files_sha256": {
+    "Cargo.toml": "cebdb611ab663781dc36075c838409c59323cdf1a77367f44fc09e4852de22b0",
+    "LICENSE": "350729881dad819862144a0335562e9da247df532bd8652cb9e524d0eb7f66f6",
+    "crates/blocks/Cargo.toml": "f7a0a3cd2954d9da2798664cae92aa457a18831c8448bd517611a84a8f589d68",
+    "crates/blocks/src/block_entities.rs": "032dafb2272afaf89aa356b6ca23c5c93a40d771f59bdbef80f71d5500a83d7c",
+    "crates/blocks/src/blocks/mod.rs": "70e47552273f3ad1b77cb98cf16eb31cf1f8ca4801c9d75d3289c273fbe3d624",
+    "crates/blocks/src/blocks/props.rs": "43a21f4580c75dfc7c627223742d4b201412500678658596b06c7f36ee8f330f",
+    "crates/blocks/src/generated.rs": "3dcbf366da901d487c04fd6fbf60930614a44e384be160ea2d279d6861c4a468",
+    "crates/blocks/src/items.rs": "d7057ac16f246ea6ace13287502755d86d31ae304653fbef41cfc438c39afe57",
+    "crates/blocks/src/lib.rs": "efc885ec2df1807a04bfe6e84d6113875417fffe3ebef77fb2a34e6a45f811b1",
+    "crates/proc_macros/Cargo.toml": "2e320515f8309ec0b7d8dad3a707f4a991c6c1ce0ed3a8639c2c2892880b4d67",
+    "crates/proc_macros/src/block_attribs.rs": "f1c95f418076b78c00a2c94501139f8a660b84254511cac28fd879d3cf66548d",
+    "crates/proc_macros/src/lib.rs": "ff4b0c2a2d3a0d177c6c7030e90b4655fa0ad4ce0288e1a12f526e9e2927bb8c",
+    "crates/proc_macros/src/mc_data.rs": "94b5e3aa2b1d0f548e0274a164fde5e7549deb9850b5b73e5ed2bd14c849249a",
+    "crates/redstone/Cargo.toml": "82cd3c8fae4bed364308cbfdec57db0b03d9b25ac040959e9931ab3ba6578c74",
+    "crates/redstone/src/comparator.rs": "9d297c19ad051b9fd2195fb8803ccdc62f05fbdc294cef902b758caeda78d886",
+    "crates/redstone/src/lib.rs": "92cdbb9f8149d0cb397c0b8d81522d33501c20620c76fdedc01d512ad20385c7",
+    "crates/redstone/src/noteblock.rs": "2633885f0fc86029046df8f05b6e66aaa34dd91517ae549a16efd49be6abb5a9",
+    "crates/redstone/src/repeater.rs": "3a76fc14ff134a3649ecf59f14c14bd8c5aa026d198a0518038a3ef8f8a565e4",
+    "crates/redstone/src/wire/mod.rs": "f5a7903acd9c81951be71e2ac151b41abfba608c40cb23cc5cad29fc4d3a5309",
+    "crates/redstone/src/wire/turbo.rs": "29c316ac2dd8ee60596a0976df788909500f94c2832dbe208413a7f72ba2c3aa",
+    "crates/utils/Cargo.toml": "944fd325cfd0c5c2d11e014a0c4dfa02a187a4a5294d4d24fc710647a611a983",
+    "crates/utils/src/lib.rs": "83931dfeea3d5e2d1c896ea15be1163ff91430a12530fc03360acbb954088cdd",
+    "crates/world/Cargo.toml": "0516c8447ff1747a76f0a45bd70f0b5259ebc6f1ccaf327a151333ce0021a8a0",
+    "crates/world/src/lib.rs": "9f5730a859db6c868ad98e0ad4b15111856e35758c107ec7cf50ba415463a644",
+    "crates/world/src/storage.rs": "df1ffae1af6e4c24cfc2646c5f2c8c2e1bd7e8b7e53bf9b550c9ebdf7c475b73",
+    "crates/world/src/testing.rs": "3cc2824353d05a36fd3407187abcd01f70c0a2e7781f8569ee370ed61b2911f0",
+    "mc_data/blocks.json": "18d83f2c0c04adda138cd8caeb8db14442628f1e6ca3c949b202db2d63573f73",
+    "mc_data/gen_info.yaml": "a5b2f685a9a130c5c8a87dfd6ab55afbb954f5edc7765999013622e7a9112f5b"
+  }
+}

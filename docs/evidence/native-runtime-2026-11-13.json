@@ -1,0 +1,510 @@
+{
+  "measurement_date": "2026-11-13",
+  "complete_machine_runtime_verified": false,
+  "scope": "Saved native fixtures, one complete 4 KiB memory bank, and one connected seven-domain sequential fixture. No whole-machine boot claim.",
+  "engine_provenance": {
+    "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+    "patch_sha256": "8ebd0e097d07e93a6b2b158e08ad19c2660b0b7e2521c6b6d34a4583a10bfbdc",
+    "bundled_java_registry_sha256": "18d83f2c0c04adda138cd8caeb8db14442628f1e6ca3c949b202db2d63573f73",
+    "original_generated_sha256": "3dcbf366da901d487c04fd6fbf60930614a44e384be160ea2d279d6861c4a468",
+    "extended_generated_sha256": "4f063df1b2cb9871d1ec1cf6920c12f51a758aa0fd3e8110a3b1d9928f7624e9",
+    "added_native_states": {
+      "minecraft:bedrock": [
+        {
+          "default": true,
+          "id": 79
+        }
+      ],
+      "minecraft:dirt": [
+        {
+          "default": true,
+          "id": 10
+        }
+      ],
+      "minecraft:grass_block": [
+        {
+          "id": 8,
+          "properties": {
+            "snowy": "true"
+          }
+        },
+        {
+          "default": true,
+          "id": 9,
+          "properties": {
+            "snowy": "false"
+          }
+        }
+      ]
+    },
+    "redstone_source_unchanged_sha256": {
+      "crates/redstone/Cargo.toml": "82cd3c8fae4bed364308cbfdec57db0b03d9b25ac040959e9931ab3ba6578c74",
+      "crates/redstone/src/comparator.rs": "9d297c19ad051b9fd2195fb8803ccdc62f05fbdc294cef902b758caeda78d886",
+      "crates/redstone/src/lib.rs": "92cdbb9f8149d0cb397c0b8d81522d33501c20620c76fdedc01d512ad20385c7",
+      "crates/redstone/src/noteblock.rs": "2633885f0fc86029046df8f05b6e66aaa34dd91517ae549a16efd49be6abb5a9",
+      "crates/redstone/src/repeater.rs": "3a76fc14ff134a3649ecf59f14c14bd8c5aa026d198a0518038a3ef8f8a565e4",
+      "crates/redstone/src/wire/mod.rs": "f5a7903acd9c81951be71e2ac151b41abfba608c40cb23cc5cad29fc4d3a5309",
+      "crates/redstone/src/wire/turbo.rs": "29c316ac2dd8ee60596a0976df788909500f94c2832dbe208413a7f72ba2c3aa"
+    },
+    "scope": "native inert full-cube terrain registration only; all redstone implementation unchanged"
+  },
+  "small_fixtures": {
+    "measurement_method": "external parent os.wait4 after complete process exit",
+    "fixtures": [
+      {
+        "fixture": "logic",
+        "loaded_chunks": 4,
+        "nonair_blocks": 101,
+        "ticks": 96,
+        "trace_values_matched": 128,
+        "in_process_peak_rss_kib": 1948,
+        "external_complete_process_max_rss_kib": 9856,
+        "external_elapsed_seconds": 0.010101560001203325,
+        "imported_stream_sha256": "b855c85071ad04354198f017d89b5c1e1975ab5a2935342d0c1600ab8604aeda",
+        "scenario_sha256": "a627de0e5ffbb50c570d281af6411797d3dbbf36aae01f25fa42139ef05f5b51"
+      },
+      {
+        "fixture": "console",
+        "loaded_chunks": 42,
+        "nonair_blocks": 13087,
+        "ticks": 23628,
+        "trace_values_matched": 705000,
+        "in_process_peak_rss_kib": 28024,
+        "external_complete_process_max_rss_kib": 27836,
+        "external_elapsed_seconds": 0.7314771149976877,
+        "imported_stream_sha256": "44da82eb867bd3f6a5edb228e5f77b3ab4412b132007670e64b04763a606c6e5",
+        "scenario_sha256": "b5e2cb29130555152acdbb759b7ef9d145985388b7c6b64fc0fa2d7fd35c6dfa"
+      },
+      {
+        "fixture": "console-distant",
+        "loaded_chunks": 42,
+        "nonair_blocks": 13087,
+        "ticks": 23628,
+        "trace_values_matched": 705000,
+        "in_process_peak_rss_kib": 27992,
+        "external_complete_process_max_rss_kib": 27948,
+        "external_elapsed_seconds": 0.7444498629993177,
+        "imported_stream_sha256": "29c6b1a0802da99d4c615ac13c88393b5c3333aa56f4362fc36e57c25e5b38e8",
+        "scenario_sha256": "8f045a653a696b487b40894fcb1cd86459e4719b220e543c1e4639294292d017"
+      },
+      {
+        "fixture": "upright",
+        "loaded_chunks": 8,
+        "nonair_blocks": 1451,
+        "ticks": 26624,
+        "trace_values_matched": 819200,
+        "in_process_peak_rss_kib": 29164,
+        "external_complete_process_max_rss_kib": 29024,
+        "external_elapsed_seconds": 0.18833785400056513,
+        "imported_stream_sha256": "b3bba1d49bfd3e1d0b40cff4f723471837732a2e552d32e5d3944c724aa828a6",
+        "scenario_sha256": "4a254fb77b695118ea647c8d224f37f535d826b8138ee7a01fc783e175714b92"
+      },
+      {
+        "fixture": "memory",
+        "loaded_chunks": 50,
+        "nonair_blocks": 72047,
+        "ticks": 6656,
+        "trace_values_matched": 1433600,
+        "in_process_peak_rss_kib": 53672,
+        "external_complete_process_max_rss_kib": 53440,
+        "external_elapsed_seconds": 0.9132979049973073,
+        "imported_stream_sha256": "65cfbd64397d3d78bc1208631234d7fe8206e4c916e53e6f9e0e3e028aa3196f",
+        "scenario_sha256": "999cd8393b9eba249d2282741c0dd37d8354545b6503e843543fd7b9cd6636ac"
+      }
+    ]
+  },
+  "full_bank": {
+    "capacity_bytes": 4096,
+    "physical_placements": 1991552,
+    "stored_bits_checked_after_every_phase": 32768,
+    "addresses_read_written": [
+      0,
+      512,
+      1023
+    ],
+    "settling_redstone_ticks_per_phase": 4096,
+    "initial_image_sha256": "3ff677f08f94ef3619464ab7fa24b8dc68077471608150dffab014a367ce8d48",
+    "native_save_and_independent_readback_seconds": 37.921025564995944,
+    "native_validation": {
+      "status": "passed",
+      "method": "independent-anvil-block-state-readback",
+      "data_version": 3700,
+      "chunks": 4630,
+      "assigned_blocks": 1991552,
+      "regions": 13,
+      "region_bytes": 19070976,
+      "grass_surface_y": -61,
+      "minimum_build_y": -60,
+      "terrain_preserved": true
+    },
+    "preparation": {
+      "original_packed_export_seconds": 148.08940551799606,
+      "cached_packed_export_seconds": 16.418364040997403,
+      "compact_export_seconds": 15.720878039996023,
+      "legacy_bytes": 92647448,
+      "compact_bytes": 36633708,
+      "cached_legacy_bytes_identical": true
+    },
+    "exact_state_comparison": {
+      "status": "every imported state identical",
+      "seconds": 2.897053971006244,
+      "records": 143890,
+      "uniform_sections": 106490,
+      "packed_sections": 4630,
+      "comparators": 32768,
+      "blocks_covered_by_uniforms": 436183040
+    },
+    "legacy_runtime": {
+      "assertions": 623008,
+      "chunks_after_drives": 4631,
+      "comparator_entities": 32768,
+      "complete_machine_runtime_verified": false,
+      "decoded_nonair_blocks": 6732672,
+      "engine_registry": "pinned registry plus explicit native bedrock/dirt/grass states",
+      "engine_registry_patch_sha256": "8ebd0e097d07e93a6b2b158e08ad19c2660b0b7e2521c6b6d34a4583a10bfbdc",
+      "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+      "import_seconds": 2.729381521,
+      "imported_stream_sha256": "cebe5171bbd5d273a0d486daa17feb930557367321f2b339abe776505478aff1",
+      "initialization_seconds": 12.135862991,
+      "initialized_nonair_blocks": 6732672,
+      "kind": "streamed-native-anvil-sparse-mchprs-runtime",
+      "loaded_chunks": 4630,
+      "loading": "every decoded chunk remains loaded and every scheduled tick is processed; no player radius or unloading",
+      "memory_sample_scope": "process high-water mark after report assembly, before stdout serialization; external process measurement may be higher",
+      "native_to_runtime_translation_y": 64,
+      "paletted_storage_bytes_before_updates": 230900184,
+      "peak_pending_ticks": 224,
+      "peak_rss_kib": 360028,
+      "runtime_seconds": 4.711532011,
+      "scenario_sha256": "df098a7e0a0bd805807d2112b51ecd88a52ba7195869571f599fba1b517a3470",
+      "scheduled_ticks_total": 166946,
+      "source": {
+        "data_version": 3700,
+        "level_dat_sha256": "921d22da2dc07dcb62a62cf0ae5c17170fe480001ceae2d547c167a832755dec",
+        "regions": [
+          {
+            "bytes": 1232896,
+            "name": "r.0.0.mca",
+            "sha256": "367b2d61c809e9e0ae901bc1448a59e2b2d18a0e36a8816024ebb17f43a55f2f"
+          },
+          {
+            "bytes": 1581056,
+            "name": "r.0.1.mca",
+            "sha256": "848caee9e30a07cd66cb5e33747ee0fd2b7c4989bced65740173a87ee79f2863"
+          },
+          {
+            "bytes": 1581056,
+            "name": "r.0.10.mca",
+            "sha256": "8c5180f067d73a8054d2525e4d239a196564638ccf078f71f2f28d922fcd5136"
+          },
+          {
+            "bytes": 1581056,
+            "name": "r.0.11.mca",
+            "sha256": "46c2cc7866e38729e779b1f7cefcc53eed81b861ca18001684830e0de8f2df03"
+          },
+          {
+            "bytes": 446464,
+            "name": "r.0.12.mca",
+            "sha256": "04cee365f2297f2acaf5bc3ed9cffcfe6d99fec94f37c9e833c0d9174ccf981c"
+          },
+          {
+            "bytes": 1581056,
+            "name": "r.0.2.mca",
+            "sha256": "cb20e292aa66e54502e023f2e114792cfa241b4af21fbbba9e75dce689ce94df"
+          },
+          {
+            "bytes": 1581056,
+            "name": "r.0.3.mca",
+            "sha256": "4ca4d5e502ba532101bccd9856a683e8d8f0a8209a4a0f088a42ab02cad93236"
+          },
+          {
+            "bytes": 1581056,
+            "name": "r.0.4.mca",
+            "sha256": "f827ceb00e07a2466ef9e09690a24bd56f94ad628e938784a8be30e9cabe8b64"
+          },
+          {
+            "bytes": 1581056,
+            "name": "r.0.5.mca",
+            "sha256": "5a82967995675f156346c360b49b5bf825f4eac70a711738f80a15331d347278"
+          },
+          {
+            "bytes": 1581056,
+            "name": "r.0.6.mca",
+            "sha256": "aa3aaf292aeda622f1e4ab45d69b10fd61417c9dcb486d7963d05f0a0660334c"
+          },
+          {
+            "bytes": 1581056,
+            "name": "r.0.7.mca",
+            "sha256": "0af4aa5362a281390e9852c539d7e7ff8bfb362a97bc4dbc606a62fa8cb84b09"
+          },
+          {
+            "bytes": 1581056,
+            "name": "r.0.8.mca",
+            "sha256": "30532330d31d4f90cf2ee6aa5bfdd6e1ae22979e335009629c8806e1cb044e3e"
+          },
+          {
+            "bytes": 1581056,
+            "name": "r.0.9.mca",
+            "sha256": "1101c33efd24e8b95e01671027a3f7cf876ec24876e232500e89626c394c6021"
+          }
+        ],
+        "saved_native_pending_ticks": 0,
+        "scope": "every saved chunk and section; not an assertion of complete-machine capacity"
+      },
+      "status": "passed",
+      "steps": 19,
+      "ticks": 81920
+    },
+    "compact_runtime": {
+      "assertions": 623008,
+      "chunks_after_drives": 4631,
+      "comparator_entities": 32768,
+      "complete_machine_runtime_verified": false,
+      "decoded_nonair_blocks": 6732672,
+      "engine_registry": "pinned registry plus explicit native bedrock/dirt/grass states",
+      "engine_registry_patch_sha256": "8ebd0e097d07e93a6b2b158e08ad19c2660b0b7e2521c6b6d34a4583a10bfbdc",
+      "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+      "import_seconds": 1.506874352,
+      "imported_stream_sha256": "25b935ffcb03e2db846c1e7d49725f4bfe7c00fe97a6fc8a06bf2f17de46c91e",
+      "initialization_seconds": 11.615721619,
+      "initialized_nonair_blocks": 6732672,
+      "kind": "streamed-native-anvil-sparse-mchprs-runtime",
+      "loaded_chunks": 4630,
+      "loading": "every decoded chunk remains loaded and every scheduled tick is processed; no player radius or unloading",
+      "memory_sample_scope": "process high-water mark after report assembly, before stdout serialization; external process measurement may be higher",
+      "native_to_runtime_translation_y": 64,
+      "paletted_storage_bytes_before_updates": 230900184,
+      "peak_pending_ticks": 224,
+      "peak_rss_kib": 360028,
+      "runtime_seconds": 4.181258053,
+      "scenario_sha256": "df098a7e0a0bd805807d2112b51ecd88a52ba7195869571f599fba1b517a3470",
+      "scheduled_ticks_total": 166946,
+      "source": {
+        "data_version": 3700,
+        "level_dat_sha256": "921d22da2dc07dcb62a62cf0ae5c17170fe480001ceae2d547c167a832755dec",
+        "regions": [
+          {
+            "bytes": 1232896,
+            "name": "r.0.0.mca",
+            "sha256": "367b2d61c809e9e0ae901bc1448a59e2b2d18a0e36a8816024ebb17f43a55f2f"
+          },
+          {
+            "bytes": 1581056,
+            "name": "r.0.1.mca",
+            "sha256": "848caee9e30a07cd66cb5e33747ee0fd2b7c4989bced65740173a87ee79f2863"
+          },
+          {
+            "bytes": 1581056,
+            "name": "r.0.10.mca",
+            "sha256": "8c5180f067d73a8054d2525e4d239a196564638ccf078f71f2f28d922fcd5136"
+          },
+          {
+            "bytes": 1581056,
+            "name": "r.0.11.mca",
+            "sha256": "46c2cc7866e38729e779b1f7cefcc53eed81b861ca18001684830e0de8f2df03"
+          },
+          {
+            "bytes": 446464,
+            "name": "r.0.12.mca",
+            "sha256": "04cee365f2297f2acaf5bc3ed9cffcfe6d99fec94f37c9e833c0d9174ccf981c"
+          },
+          {
+            "bytes": 1581056,
+            "name": "r.0.2.mca",
+            "sha256": "cb20e292aa66e54502e023f2e114792cfa241b4af21fbbba9e75dce689ce94df"
+          },
+          {
+            "bytes": 1581056,
+            "name": "r.0.3.mca",
+            "sha256": "4ca4d5e502ba532101bccd9856a683e8d8f0a8209a4a0f088a42ab02cad93236"
+          },
+          {
+            "bytes": 1581056,
+            "name": "r.0.4.mca",
+            "sha256": "f827ceb00e07a2466ef9e09690a24bd56f94ad628e938784a8be30e9cabe8b64"
+          },
+          {
+            "bytes": 1581056,
+            "name": "r.0.5.mca",
+            "sha256": "5a82967995675f156346c360b49b5bf825f4eac70a711738f80a15331d347278"
+          },
+          {
+            "bytes": 1581056,
+            "name": "r.0.6.mca",
+            "sha256": "aa3aaf292aeda622f1e4ab45d69b10fd61417c9dcb486d7963d05f0a0660334c"
+          },
+          {
+            "bytes": 1581056,
+            "name": "r.0.7.mca",
+            "sha256": "0af4aa5362a281390e9852c539d7e7ff8bfb362a97bc4dbc606a62fa8cb84b09"
+          },
+          {
+            "bytes": 1581056,
+            "name": "r.0.8.mca",
+            "sha256": "30532330d31d4f90cf2ee6aa5bfdd6e1ae22979e335009629c8806e1cb044e3e"
+          },
+          {
+            "bytes": 1581056,
+            "name": "r.0.9.mca",
+            "sha256": "1101c33efd24e8b95e01671027a3f7cf876ec24876e232500e89626c394c6021"
+          }
+        ],
+        "saved_native_pending_ticks": 0,
+        "scope": "every saved chunk and section; not an assertion of complete-machine capacity"
+      },
+      "status": "passed",
+      "steps": 19,
+      "ticks": 81920,
+      "uniform_sections": 106490
+    },
+    "external_process_measurements": {
+      "legacy": {
+        "method": "external parent os.wait4 kernel rusage after complete child exit",
+        "elapsed_seconds": 19.681282329998794,
+        "max_rss_kib": 359720,
+        "user_seconds": 19.00241,
+        "system_seconds": 0.7222449999999999,
+        "exit_status": 0
+      },
+      "compact": {
+        "method": "external parent os.wait4 kernel rusage after complete child exit",
+        "elapsed_seconds": 17.420594337003422,
+        "max_rss_kib": 359912,
+        "user_seconds": 16.327159,
+        "system_seconds": 1.129773,
+        "exit_status": 0
+      }
+    },
+    "reproduction_script": "tools/benchmark_mchprs_native_bank.py"
+  },
+  "connected_seven_domain_fixture": {
+    "physical_circuit_blocks": 13176,
+    "domains": 7,
+    "modules": 16,
+    "contacts": 18,
+    "runs": {
+      "positive": {
+        "assertions": 94,
+        "chunks_after_drives": 92,
+        "comparator_entities": 0,
+        "complete_machine_runtime_verified": false,
+        "decoded_nonair_blocks": 105336,
+        "engine_registry": "pinned registry plus explicit native bedrock/dirt/grass states",
+        "engine_registry_patch_sha256": "8ebd0e097d07e93a6b2b158e08ad19c2660b0b7e2521c6b6d34a4583a10bfbdc",
+        "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+        "import_seconds": 0.033105094,
+        "imported_stream_sha256": "ef53d864b2a8b3e7d356f0f4e31ed3fc01993d013b012e2ab5604aac0e539403",
+        "initialization_seconds": 0.140693836,
+        "initialized_nonair_blocks": 105336,
+        "kind": "streamed-native-anvil-sparse-mchprs-runtime",
+        "loaded_chunks": 90,
+        "loading": "every decoded chunk remains loaded and every scheduled tick is processed; no player radius or unloading",
+        "memory_sample_scope": "process high-water mark after report assembly, before stdout serialization; external process measurement may be higher",
+        "native_to_runtime_translation_y": 64,
+        "paletted_storage_bytes_before_updates": 4438048,
+        "peak_pending_ticks": 5,
+        "peak_rss_kib": 33432,
+        "runtime_seconds": 0.294551603,
+        "scenario_sha256": "c5d740c31ad500bed145eeca105474415c2772917efffa43027e4b9c13990f41",
+        "scheduled_ticks_total": 6365,
+        "source": {
+          "data_version": 3700,
+          "level_dat_sha256": "b14746ba73c996c19f8fcc770b9d01e383b06cbb342a53d675f755c2c40115fb",
+          "regions": [
+            {
+              "bytes": 376832,
+              "name": "r.0.0.mca",
+              "sha256": "a90fd9389beb51449ed3c119b2d4b941f5ba700ad6fc4f637e7391026eaa3537"
+            }
+          ],
+          "saved_native_pending_ticks": 0,
+          "scope": "every saved chunk and section; not an assertion of complete-machine capacity"
+        },
+        "status": "passed",
+        "steps": 42,
+        "ticks": 27648,
+        "uniform_sections": 1807,
+        "dense_trace_values_matched": 745472,
+        "external_process": {
+          "method": "external parent os.wait4 kernel rusage after complete child exit",
+          "elapsed_seconds": 0.5807121789985104,
+          "max_rss_kib": 33340,
+          "user_seconds": 0.48491599999999996,
+          "system_seconds": 0.097243,
+          "exit_status": 0
+        }
+      },
+      "negative": {
+        "assertions": 84,
+        "chunks_after_drives": 92,
+        "comparator_entities": 0,
+        "complete_machine_runtime_verified": false,
+        "decoded_nonair_blocks": 105336,
+        "engine_registry": "pinned registry plus explicit native bedrock/dirt/grass states",
+        "engine_registry_patch_sha256": "8ebd0e097d07e93a6b2b158e08ad19c2660b0b7e2521c6b6d34a4583a10bfbdc",
+        "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+        "import_seconds": 0.016966212,
+        "imported_stream_sha256": "ef53d864b2a8b3e7d356f0f4e31ed3fc01993d013b012e2ab5604aac0e539403",
+        "initialization_seconds": 0.128048517,
+        "initialized_nonair_blocks": 105336,
+        "kind": "streamed-native-anvil-sparse-mchprs-runtime",
+        "loaded_chunks": 90,
+        "loading": "every decoded chunk remains loaded and every scheduled tick is processed; no player radius or unloading",
+        "memory_sample_scope": "process high-water mark after report assembly, before stdout serialization; external process measurement may be higher",
+        "native_to_runtime_translation_y": 64,
+        "paletted_storage_bytes_before_updates": 4438048,
+        "peak_pending_ticks": 11,
+        "peak_rss_kib": 19124,
+        "runtime_seconds": 0.23667119,
+        "scenario_sha256": "2e11d5cb4a0d43ddc86c1dc726babba7b85f9fdc8e093b6636f61f51429b4262",
+        "scheduled_ticks_total": 6182,
+        "source": {
+          "data_version": 3700,
+          "level_dat_sha256": "b14746ba73c996c19f8fcc770b9d01e383b06cbb342a53d675f755c2c40115fb",
+          "regions": [
+            {
+              "bytes": 376832,
+              "name": "r.0.0.mca",
+              "sha256": "a90fd9389beb51449ed3c119b2d4b941f5ba700ad6fc4f637e7391026eaa3537"
+            }
+          ],
+          "saved_native_pending_ticks": 0,
+          "scope": "every saved chunk and section; not an assertion of complete-machine capacity"
+        },
+        "status": "passed",
+        "steps": 42,
+        "ticks": 11904,
+        "uniform_sections": 1807,
+        "dense_trace_values_matched": 304640,
+        "external_process": {
+          "method": "external parent os.wait4 kernel rusage after complete child exit",
+          "elapsed_seconds": 0.3986313099958352,
+          "max_rss_kib": 19000,
+          "user_seconds": 0.382104,
+          "system_seconds": 0.018171,
+          "exit_status": 0
+        }
+      }
+    }
+  },
+  "validation": {
+    "focused_python_tests": 39,
+    "skipped_python_tests": 0,
+    "rust_storage_tests": 2,
+    "command": "PYTHONPATH=src:tests python -m pytest tests/test_mchprs_sparse_runtime.py -ra (with the three documented runner environment variables)",
+    "benchmark_guard_tests": 31,
+    "benchmark_guard_test_source": "tests/test_native_bank_benchmark.py",
+    "benchmark_guard_scope": "Cache identity, assertion-enabled mode and cross-platform RSS accounting; separate from actual redstone execution evidence"
+  },
+  "repository_source_files_sha256": {
+    "src/shamaos/mchprs_import.py": "0680be7ad82c53561bd1401be2b8133c7cd19a55b591bba6ea18410a6d5de0ea",
+    "tests/mchprs_sparse_runtime/src/main.rs": "0587d22e533952121e0fc6546ca3688bbb23204e909c16263ded1057c1382bee",
+    "tests/mchprs_sparse_runtime/Cargo.toml": "e4c6bd5b3602b4ee0a3bef0d1816dea6042557eaf88b07877424d6d39164d2de",
+    "tests/mchprs_sparse_runtime/Cargo.lock": "caf6cdc0a25e3b15e917d551d35b97800bd49e307cf0cb54094a4f40245d292b",
+    "tests/mchprs_sparse_runtime/native-terrain-registry.patch": "8ebd0e097d07e93a6b2b158e08ad19c2660b0b7e2521c6b6d34a4583a10bfbdc",
+    "tools/prepare_mchprs_terrain_registry.py": "76e9a464d021de489d8fe3ca349699e71a4859a28e6c6c9fb0210a51187b1e81",
+    "tools/benchmark_mchprs_native_bank.py": "2f9d02f74f62fb05b8619d302989498829abd2ded7e5f2d3641440d92a49757a",
+    "tests/test_mchprs_sparse_runtime.py": "5917849d18f86d8a86bdb6b45ec24e5b49a166cc46b94868f183cca6313bff41",
+    "tests/test_native_bank_benchmark.py": "e123a8eb3a9d44dbc39bc7f68d695325f7e597bb1b26edd6821d3256879bffcb"
+  }
+}

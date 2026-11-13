@@ -1,0 +1,737 @@
+{
+  "format": "shamaos-bounded-local-review-v2",
+  "measured_at": "2026-11-13T02:37:45.148475+00:00",
+  "base_commit": "e3d62736c21f295895c1c3f3fadc3515c4dc551c",
+  "scope": "Independent complete-graph planner, connected small physical fixtures, router compatibility, saved-world native importer, benchmark provenance guards and compact keyboard/console regressions. Not complete-machine execution.",
+  "complete_machine_runtime_verified": false,
+  "distinct_tests": {
+    "passed": 153,
+    "failed": 0,
+    "skipped": 0
+  },
+  "test_groups": {
+    "tests.test_partition_planner": 29,
+    "tests.test_partition_placement": 40,
+    "tests.test_local_router": 7,
+    "tests.test_external_router": 2,
+    "tests.test_mchprs_sparse_runtime": 39,
+    "tests.test_native_bank_benchmark": 31,
+    "tests.test_compact_controls": 3,
+    "tests.test_mchprs_runtime": 2
+  },
+  "junit_suites": [
+    {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "153",
+      "time": "37.907",
+      "timestamp": "2026-11-12T20:35:22.611516-06:00",
+      "hostname": "1a3723e532d2"
+    }
+  ],
+  "junit_sha256": "cb998b01c1ad462be9dc1897c25010098ceae6eeb0aafce969b3306ce9f20743",
+  "source_sha256": {
+    "src/shamaos/__init__.py": "a191dc5c1f1dce8dde90da66d309ea7216301d051a92d1b67384de2541669526",
+    "src/shamaos/assembler.py": "f8394babb9aa220d2c95a314bbe885ed0f58452af633b6322ef2c5f783617650",
+    "src/shamaos/cli.py": "30f02023cd5562693bf1d9685e1f89721f9dcf196122c4ed4b897454f99ac100",
+    "src/shamaos/flashfs.py": "bbb4e60077afeae6e55216a777e338aa5a19215c74c068a4d97b1ee256cb1e99",
+    "src/shamaos/font5x7.py": "38bba64841310ac6f4d9adbfa3607c727a0f9a12db2afb66d518be75aa4618be",
+    "src/shamaos/generator.py": "a165087d34d1ac86398d894212bce36f55ef82a00bb8c8b944d3b41d51b1f7d5",
+    "src/shamaos/gpu.py": "63a6cce0888057956480fcdd58ef2381ae881b127d2b23646e17a2b35353a195",
+    "src/shamaos/hardware/__init__.py": "7996c03c727f02fb72aac9166cc5693636df3aa6762c10fd752639005863fe13",
+    "src/shamaos/hardware/appearance.py": "aaf80f35a2b4e4b8920bf360c14be734fe39c58ea1797651cabdae2fb5bb4323",
+    "src/shamaos/hardware/binary_row_decoder.py": "e58837fd0858146de95eea57e87186d8e1f1b3583f891a717ae14e156a461815",
+    "src/shamaos/hardware/clock.py": "e979cc68c2e5b170b94772a33bd68f95383e59f01ac97246762cab82a69fb3c7",
+    "src/shamaos/hardware/controls.py": "1b83d5f5cb4da372e9c2055060712eb609eb094270c9bf27961ac981683d1514",
+    "src/shamaos/hardware/debug.py": "c2ac5e78bf151454ea09bf259a357dea381d4317bbae849ff680e10cdd4136b8",
+    "src/shamaos/hardware/display.py": "63bcbc001029ba5c7b6ceb64e2e427fe5aefea6a0eedc7e739f5c2c4099172be",
+    "src/shamaos/hardware/external_router.py": "96834193a37bb485ab225ea21dc1ae460afcc3ab9ac41a434e45660be2f7666d",
+    "src/shamaos/hardware/interfaces.py": "54d7ad897c770647d1320891c62cc82cb581cfb29031ea62cf560838ff93873e",
+    "src/shamaos/hardware/local_router.py": "63054c806442499ba0aa27f65b1ec2b35c339c0c8595521dbc3097a334307bc6",
+    "src/shamaos/hardware/logic.py": "84a4f2cc3c535628ccd4e16ae0480b3cc99310f1fb83fe28f98d98b621ab1dff",
+    "src/shamaos/hardware/memory.py": "f44923cd4376d10fb2f62d5daf3bf752fe340e269355ac3564fd26ee2b5a8517",
+    "src/shamaos/hardware/memory_backbone.py": "8a6c22218be1e0a32189817318f72aad8bd31bd365141da556578c3b4398075d",
+    "src/shamaos/hardware/memory_interfaces.py": "755e560ca0bd547d401cd2321b43785b3d21a62a6d5a76915c3fec96f80e775f",
+    "src/shamaos/hardware/memory_streaming.py": "7f784968748570f5e3d2286a5ee81a0d965a0882123cb8125169bc4d1d491a24",
+    "src/shamaos/hardware/netlist_cut.py": "43f66d75da245f54ab053ac0d83a38e403d988b076215b00fbd234f38eba38d1",
+    "src/shamaos/hardware/partition_placement.py": "10c6a4b5aba6b5c4776326d0a863bf57cd1fc5b0d216115ca496d851d6a82e90",
+    "src/shamaos/hardware/partition_planner.py": "82e7f39548af7443b29ffd322a118cb42474f6f0bf3da2273b1ecdefb38164b4",
+    "src/shamaos/hardware/pulse.py": "c52113541accbac7440939ef413613dd734470ef6226e9106531f42f09c7772b",
+    "src/shamaos/hardware/routing.py": "d2b885f908a5942036269992c3fff7e3eb19ffe5a4753b97f5494aaf7120ccce",
+    "src/shamaos/hardware/vertical_wiring.py": "734ba19ed845ea1d8c05475f1bb5f3de5f47f4842591e911cd813f3f618deb1a",
+    "src/shamaos/hardware/viewing.py": "452d860a6149e5e623245025fd41b0558d23aed40380b70c755c27652b12a1ef",
+    "src/shamaos/installer.py": "b69fccadc4ae8485acd77dd5e502e36dabf2f332496a8437dbaf91f16a3bd951",
+    "src/shamaos/isa.py": "2472838cf4e52e856f8a248654c8ef0739d3c0271f2929c8ec864b2abce121d0",
+    "src/shamaos/layout.py": "e6db5143f7b2d9c0ae477e649cfc4421e476f14038fd861e8a65b1ebec946eaa",
+    "src/shamaos/machine_spec.py": "446853768c8fdd1be7472bd3d27e2f882ab3ca5805241f3f3ab7f3d778febd59",
+    "src/shamaos/mchprs_import.py": "0680be7ad82c53561bd1401be2b8133c7cd19a55b591bba6ea18410a6d5de0ea",
+    "src/shamaos/memory_fixture.py": "ee1ad247cdc33b64aa260f0fb0132b345c7d911cd3fb7e046baf60e7f680564e",
+    "src/shamaos/memory_map.py": "6f7318a6ebcd8c377a01ab73b69d3fd335ca9282bfb646f3c7c373d04a65dce6",
+    "src/shamaos/model.py": "1a0fd1f9eb9469989057e4486401e5161e7f0bb02eb69195b7a14a74e92f4b95",
+    "src/shamaos/os_image.py": "5e95b92b8157798cff8d92d6daffcf8f7c662d4a7b9f7f7853b2e0913e3bd86d",
+    "src/shamaos/os_runtime.py": "0c0cfd4151c5d1e053a5d00482d958fccfc35db01651fae899e9402f65097d0b",
+    "src/shamaos/physical_resources.py": "29aca2a5895a0444aef12970a7360b821bc682f2eb9aa285f408a7985dd70bd7",
+    "src/shamaos/redstone.py": "a7aec52b17991134497fffced5142d2ef09e29cbaef3bf2e6a9c9311de4e396f",
+    "src/shamaos/release.py": "d2b8a4ea25af40f3d13f3374643bbaf973adc98a3d42116d86647cd2f6cfd1cf",
+    "src/shamaos/release_acceptance.py": "18a552269dc934fc62449426823200951f8e42bd4daa7ea246a60bad6b3a8cc0",
+    "src/shamaos/release_io.py": "5e1f310243d2325b9e4f6987649a770d2d4d03667cb66f5d442262fae43609c1",
+    "src/shamaos/resource_accounting.py": "c5dc0e39058f0c1b9f02943cbf54d073abf94672428d916b97bdf74d42edd3a6",
+    "src/shamaos/schematic.py": "9b75566836fce6aaa59efe4ec341b3fe0b0116f1129fb5f1c8cd7e1b3cd34bf7",
+    "src/shamaos/sha256.py": "fef0826047e978ec107d38827d9497043e18cd543948b9ec8c0c17f48e17a4b2",
+    "src/shamaos/simulator.py": "645c7458ecc0a85d0d832d760ece522368061f0e738b70cdc74b5c2b04dcac17",
+    "src/shamaos/software_resources.py": "a55cd83d52bb6515da34c8ed03873f9fb367fec79fb343ccfadf6880f9f4e7f0",
+    "src/shamaos/synthesis.py": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274",
+    "src/shamaos/system_build.py": "1d8fe4deca82c64b386f7c0720cf6bb58ef1eb23179a6781796809e02e568a62",
+    "src/shamaos/worldio.py": "c7f4eb8da11b4c19f02046224a40a19619d58c5172351106bd3b7ec6964af607",
+    "tests/test_partition_planner.py": "c336cc69e9bf618a5786d86fd8ee38ea2ef874c389325666f55302a62b58f3a6",
+    "tests/test_partition_placement.py": "6e1c202b444cc3f5daba337f7aace87f5bc5400f06e622d8b8def4ec2fb7223f",
+    "tests/test_local_router.py": "36ff550f2be9e3ae31d7d63843f7b0d67710b118bd0b046c68a24fc52066b7a0",
+    "tests/test_external_router.py": "d5c7ab03cf13dd7636132acd94c4e209b0ad9b813848e3d6bdec5c7b80793870",
+    "tests/test_mchprs_sparse_runtime.py": "5917849d18f86d8a86bdb6b45ec24e5b49a166cc46b94868f183cca6313bff41",
+    "tests/test_native_bank_benchmark.py": "e123a8eb3a9d44dbc39bc7f68d695325f7e597bb1b26edd6821d3256879bffcb",
+    "tests/test_compact_controls.py": "43b95d9acaf9cbb9985f83698611a875c1efacfa7d0a391bf6c44533dfd3b3c6",
+    "tests/test_mchprs_runtime.py": "dbed21d53ca860494f3f3c75a5b8e06a0167ff6edc514f6aee9420c5294da0c2",
+    "tests/mchprs_runtime/src/main.rs": "fe5fec86d2b25a1f6433f489f796cd63062ba8a0e0e5667fcc132dccb66b8316",
+    "tests/mchprs_sparse_runtime/Cargo.toml": "e4c6bd5b3602b4ee0a3bef0d1816dea6042557eaf88b07877424d6d39164d2de",
+    "tests/mchprs_sparse_runtime/Cargo.lock": "caf6cdc0a25e3b15e917d551d35b97800bd49e307cf0cb54094a4f40245d292b",
+    "tests/mchprs_sparse_runtime/src/main.rs": "0587d22e533952121e0fc6546ca3688bbb23204e909c16263ded1057c1382bee",
+    "tests/mchprs_sparse_runtime/native-terrain-registry.patch": "8ebd0e097d07e93a6b2b158e08ad19c2660b0b7e2521c6b6d34a4583a10bfbdc",
+    "tools/prepare_mchprs_terrain_registry.py": "76e9a464d021de489d8fe3ca349699e71a4859a28e6c6c9fb0210a51187b1e81",
+    "tools/benchmark_mchprs_native_bank.py": "2f9d02f74f62fb05b8619d302989498829abd2ded7e5f2d3641440d92a49757a",
+    "tests/fixtures/display_bridge_abc.json.gz": "2abc0695787b7490387790563fa099cf42d4e2bd9fdc2a3dc3db5472d3184a14",
+    "tests/fixtures/display_bridge_aig.json.gz": "2f7226d481c9a71097060a1ec5f433ce5502c9f33ae2f58d579046d7399f73f0",
+    "tests/fixtures/display_bridge_mapping_provenance.json": "1e125f8e4bc5cd5b6d29dcca295e951f42591cb8e5cad5cb56d487e5b048a7dd"
+  },
+  "runtime_binary_sha256": {
+    "shama-redstone-check": "ae21133d3f83c0c96776931f17ac963b71a4becf168eef61ba9450c8d42a3116",
+    "shama-sparse-world-check": "b0cf9f5f25a06db9e9e7b5369ced5dca6b81b82ad98a8ad51540bfc0755143bd",
+    "shama-sparse-world-check-terrain": "1c14e347bca27e5a05a46bd0f504f7aeb28c9e43bbf290b24ca31258f64ed058"
+  },
+  "yosys_version": "Yosys 0.33 (git sha1 2584903a060)",
+  "tests": [
+    {
+      "test": "tests.test_compact_controls::test_all_79_controls_are_reachable_on_one_connected_deck_above_grass[-61]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_compact_controls::test_all_79_controls_are_reachable_on_one_connected_deck_above_grass[63]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_compact_controls::test_exported_console_ports_and_access_contract_match_literal_backend",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_external_router::test_external_router_handles_stacked_endpoints_and_ceiling",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_external_router::test_external_router_tracks_are_electrically_separated",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_local_router::test_actual_local_and_stacked_pipeline_timing[False-35-False]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_local_router::test_actual_local_and_stacked_pipeline_timing[False-70-True]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_local_router::test_actual_local_and_stacked_pipeline_timing[True-85-False]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_local_router::test_actual_local_and_stacked_pipeline_timing[True-90-True]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_local_router::test_actual_local_routing_of_a_64_cell_cut_from_the_mapped_assembler",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_local_router::test_bounded_router_rejects_oversized_incomplete_and_overheight_partitions",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_local_router::test_local_tracks_are_emitted_reuse_and_clock_matching_keeps_the_footprint",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_runtime::test_actual_compact_console_all_79_actuators_preserve_pulses_and_isolation",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_runtime::test_actual_keyboard_every_key_decodes_only_its_row_and_column",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_actual_sparse_native_console_all_controls_and_distant_negative_coordinates",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_actual_sparse_saved_logic_matches_every_dense_tick",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_actual_sparse_upright_screen_preserves_all_lamps_every_tick",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_actual_terrain_sparse_world_preserves_stacked_memory_and_native_entities",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_actual_uniform_nonair_section_preserves_all_solid_blocks",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_native_export_covers_every_saved_section_terrain_and_comparator",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_native_export_rejects_saved_pending_ticks_instead_of_dropping_them",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_native_export_rejects_source_changes_during_read",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_sparse_import_rejects_incomplete_or_unrepresentable_source[count]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_sparse_import_rejects_incomplete_or_unrepresentable_source[duplicate]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_sparse_import_rejects_incomplete_or_unrepresentable_source[duplicate_palette]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_sparse_import_rejects_incomplete_or_unrepresentable_source[missing_section]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_sparse_import_rejects_incomplete_or_unrepresentable_source[palette]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_sparse_import_rejects_incomplete_or_unrepresentable_source[palette_bits]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_sparse_import_rejects_incomplete_or_unrepresentable_source[property]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_sparse_import_rejects_incomplete_or_unrepresentable_source[trailing]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_sparse_import_rejects_incomplete_or_unrepresentable_source[truncated]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_sparse_import_rejects_incomplete_or_unrepresentable_source[uniform_count]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_sparse_import_rejects_incomplete_or_unrepresentable_source[uniform_legacy_schema]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_sparse_import_rejects_incomplete_or_unrepresentable_source[unknown]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_sparse_memory_limit_and_wrong_output_fail_instead_of_partial_success",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_sparse_scenario_rejects_invalid_coordinates_pads_and_empty_evidence[absent_output]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_sparse_scenario_rejects_invalid_coordinates_pads_and_empty_evidence[air_actuator]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_sparse_scenario_rejects_invalid_coordinates_pads_and_empty_evidence[air_output]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_sparse_scenario_rejects_invalid_coordinates_pads_and_empty_evidence[duplicate_pad]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_sparse_scenario_rejects_invalid_coordinates_pads_and_empty_evidence[input_height]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_sparse_scenario_rejects_invalid_coordinates_pads_and_empty_evidence[no_outputs]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_sparse_scenario_rejects_invalid_coordinates_pads_and_empty_evidence[no_steps]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_sparse_scenario_rejects_invalid_coordinates_pads_and_empty_evidence[no_ticks]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_sparse_scenario_rejects_invalid_coordinates_pads_and_empty_evidence[output_border]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_sparse_scenario_rejects_invalid_coordinates_pads_and_empty_evidence[output_height]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_sparse_scenario_rejects_invalid_coordinates_pads_and_empty_evidence[overwrite_pad]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_sparse_scenario_rejects_invalid_coordinates_pads_and_empty_evidence[solid_actuator]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_sparse_scenario_rejects_invalid_coordinates_pads_and_empty_evidence[unobserved]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_sparse_scenario_rejects_invalid_coordinates_pads_and_empty_evidence[use_height]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_terrain_registry_preserves_all_existing_states_and_properties",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_trace_only_execution_is_distinguished_from_asserted_success",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_uniform_encoding_preserves_every_imported_state_and_legacy_tick_trace",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_mchprs_sparse_runtime::test_unmodified_engine_explicitly_rejects_unsupported_superflat_terrain",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_native_bank_benchmark::test_changed_generator_is_rejected",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_native_bank_benchmark::test_changed_initial_image_is_rejected[content]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_native_bank_benchmark::test_changed_initial_image_is_rejected[missing]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_native_bank_benchmark::test_changed_native_content_is_rejected[level.dat]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_native_bank_benchmark::test_changed_native_content_is_rejected[region/r.0.0.mca]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_native_bank_benchmark::test_changed_region_inventory_is_rejected[add]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_native_bank_benchmark::test_changed_region_inventory_is_rejected[remove]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_native_bank_benchmark::test_changed_region_inventory_is_rejected[rename]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_native_bank_benchmark::test_exported_source_is_bound_to_validated_bank[None]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_native_bank_benchmark::test_exported_source_is_bound_to_validated_bank[added-region]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_native_bank_benchmark::test_exported_source_is_bound_to_validated_bank[level]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_native_bank_benchmark::test_exported_source_is_bound_to_validated_bank[region]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_native_bank_benchmark::test_failed_native_validation_is_rejected",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_native_bank_benchmark::test_fingerprint_binds_exact_loaded_generator_checkout",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_native_bank_benchmark::test_missing_cache_provenance_is_rejected[cache_version]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_native_bank_benchmark::test_missing_cache_provenance_is_rejected[generator_source_files_sha256]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_native_bank_benchmark::test_missing_cache_provenance_is_rejected[initial_image_sha256]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_native_bank_benchmark::test_missing_cache_provenance_is_rejected[native_validation]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_native_bank_benchmark::test_missing_cache_provenance_is_rejected[native_world_files]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_native_bank_benchmark::test_missing_cache_provenance_is_rejected[physical_bytes]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_native_bank_benchmark::test_missing_cache_provenance_is_rejected[physical_placements]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_native_bank_benchmark::test_missing_cache_provenance_is_rejected[stored_bits]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_native_bank_benchmark::test_python_optimized_mode_is_rejected",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_native_bank_benchmark::test_rss_units_are_normalized[darwin-0-0]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_native_bank_benchmark::test_rss_units_are_normalized[darwin-2048-2]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_native_bank_benchmark::test_rss_units_are_normalized[darwin-2049-3]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_native_bank_benchmark::test_rss_units_are_normalized[linux-2049-2049]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_native_bank_benchmark::test_rss_units_are_normalized[linux2-2049-2049]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_native_bank_benchmark::test_unchanged_cache_is_accepted",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_native_bank_benchmark::test_unknown_rss_platform_is_rejected",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_native_bank_benchmark::test_windows_gets_platform_error_before_resource_import",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_actual_connected_two_level_pipeline_transfers_and_too_fast_negative[multiple-domains-20-False]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_actual_connected_two_level_pipeline_transfers_and_too_fast_negative[multiple-domains-512-True]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_actual_connected_two_level_pipeline_transfers_and_too_fast_negative[single-domain-20-False]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_actual_connected_two_level_pipeline_transfers_and_too_fast_negative[single-domain-512-True]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_actual_crossing_wire_headroom_preserves_independence_or_exposes_a_short[2]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_actual_crossing_wire_headroom_preserves_independence_or_exposes_a_short[3]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_actual_solid_block_directly_above_rising_wire_blocks_the_signal",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_existing_high_grass_is_preserved_or_rejected_without_clipping[multiple-domains]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_existing_high_grass_is_preserved_or_rejected_without_clipping[single-domain]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_explicit_north_budget_crosses_a_measured_wall_without_changing_the_default",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_insufficient_vertical_room_moves_complete_child_groups_horizontally[multiple-domains]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_insufficient_vertical_room_moves_complete_child_groups_horizontally[single-domain]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_north_budget_rejects_invalid_values_before_allocating_geometry[-1]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_north_budget_rejects_invalid_values_before_allocating_geometry[0]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_north_budget_rejects_invalid_values_before_allocating_geometry[1.5]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_north_budget_rejects_invalid_values_before_allocating_geometry[True]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_physical_conservation_audit_rejects_changed_wiring[multiple-domains-actual-face]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_physical_conservation_audit_rejects_changed_wiring[multiple-domains-constant]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_physical_conservation_audit_rejects_changed_wiring[multiple-domains-contact-parent]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_physical_conservation_audit_rejects_changed_wiring[multiple-domains-contact]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_physical_conservation_audit_rejects_changed_wiring[multiple-domains-duplicate-module]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_physical_conservation_audit_rejects_changed_wiring[multiple-domains-duplicate-net]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_physical_conservation_audit_rejects_changed_wiring[multiple-domains-extra-terminal]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_physical_conservation_audit_rejects_changed_wiring[multiple-domains-face]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_physical_conservation_audit_rejects_changed_wiring[multiple-domains-pin]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_physical_conservation_audit_rejects_changed_wiring[multiple-domains-zero-leaf]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_physical_conservation_audit_rejects_changed_wiring[single-domain-actual-face]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_physical_conservation_audit_rejects_changed_wiring[single-domain-constant]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_physical_conservation_audit_rejects_changed_wiring[single-domain-contact-parent]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_physical_conservation_audit_rejects_changed_wiring[single-domain-contact]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_physical_conservation_audit_rejects_changed_wiring[single-domain-duplicate-module]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_physical_conservation_audit_rejects_changed_wiring[single-domain-duplicate-net]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_physical_conservation_audit_rejects_changed_wiring[single-domain-extra-terminal]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_physical_conservation_audit_rejects_changed_wiring[single-domain-face]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_physical_conservation_audit_rejects_changed_wiring[single-domain-pin]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_physical_conservation_audit_rejects_changed_wiring[single-domain-zero-leaf]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_sibling_domains_keep_bounded_inventory_with_separate_columns_and_track_bands[multiple-domains]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_sibling_domains_keep_bounded_inventory_with_separate_columns_and_track_bands[single-domain]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_two_level_partition_preserves_all_native_pins_contacts_constants_and_ports[multiple-domains]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_placement::test_two_level_partition_preserves_all_native_pins_contacts_constants_and_ports[single-domain]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_planner::test_audit_covers_every_edge_domain_and_reported_clock_leaf[clock-count]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_planner::test_audit_covers_every_edge_domain_and_reported_clock_leaf[disconnected-edge]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_planner::test_audit_covers_every_edge_domain_and_reported_clock_leaf[invented-domain-net]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_planner::test_audit_covers_every_edge_domain_and_reported_clock_leaf[segment-count]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_planner::test_audit_covers_every_edge_domain_and_reported_clock_leaf[total-clock-count]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_planner::test_audit_recomputes_evidence_counts_and_hashes_instead_of_trusting_the_report[cluster-depth]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_planner::test_audit_recomputes_evidence_counts_and_hashes_instead_of_trusting_the_report[maximum_router_fanout]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_planner::test_audit_recomputes_evidence_counts_and_hashes_instead_of_trusting_the_report[native_cells]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_planner::test_audit_recomputes_evidence_counts_and_hashes_instead_of_trusting_the_report[original_signal_endpoints_sha256]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_planner::test_audit_recomputes_evidence_counts_and_hashes_instead_of_trusting_the_report[signal_tree_links]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_planner::test_audit_recomputes_evidence_counts_and_hashes_instead_of_trusting_the_report[topology_sha256]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_planner::test_audit_rejects_a_router_domain_that_carries_no_original_connection",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_planner::test_complete_production_abc_partition_including_library_dff_directions",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_planner::test_complete_real_partition_preserves_every_cell_sink_clock_constant_and_port",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_planner::test_compressed_complete_fixtures_match_their_recorded_mapping_provenance",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_planner::test_high_fanout_clock_has_explicit_bounded_branches_and_no_missing_registers",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_planner::test_independent_audit_detects_structural_loss_and_unrouted_boundaries[cell]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_planner::test_independent_audit_detects_structural_loss_and_unrouted_boundaries[clock-leaf]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_planner::test_independent_audit_detects_structural_loss_and_unrouted_boundaries[constant]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_planner::test_independent_audit_detects_structural_loss_and_unrouted_boundaries[domain-budget]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_planner::test_independent_audit_detects_structural_loss_and_unrouted_boundaries[domain-segment]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_planner::test_independent_audit_detects_structural_loss_and_unrouted_boundaries[leaf-attachment]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_planner::test_independent_audit_detects_structural_loss_and_unrouted_boundaries[link-terminal]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_planner::test_independent_audit_detects_structural_loss_and_unrouted_boundaries[link]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_planner::test_noninteger_or_infinite_budgets_cannot_disable_the_bounded_contract[64.5]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_planner::test_noninteger_or_infinite_budgets_cannot_disable_the_bounded_contract[True]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_planner::test_noninteger_or_infinite_budgets_cannot_disable_the_bounded_contract[inf]",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_planner::test_plan_mutation_cannot_change_the_original_graph_used_by_the_auditor",
+      "status": "passed"
+    },
+    {
+      "test": "tests.test_partition_planner::test_unknown_flash_or_clock_constant_is_not_silently_grounded",
+      "status": "passed"
+    }
+  ],
+  "reproduction": {
+    "environment": [
+      "PYTHONPATH=src:tests",
+      "Real Yosys installed and on PATH",
+      "SHAMA_MCHPRS_RUNNER points to the built pinned dense harness",
+      "SHAMA_MCHPRS_SPARSE_RUNNER points to the built pinned sparse harness",
+      "SHAMA_MCHPRS_TERRAIN_RUNNER points to the verified terrain extension"
+    ],
+    "command": "python -m pytest tests/test_partition_planner.py tests/test_partition_placement.py tests/test_local_router.py tests/test_external_router.py tests/test_mchprs_sparse_runtime.py tests/test_native_bank_benchmark.py tests/test_compact_controls.py tests/test_mchprs_runtime.py::test_actual_keyboard_every_key_decodes_only_its_row_and_column tests/test_mchprs_runtime.py::test_actual_compact_console_all_79_actuators_preserve_pulses_and_isolation"
+  }
+}
