@@ -1,0 +1,406 @@
+{
+  "schema": 1,
+  "kind": "native-generated-clock-across-bounded-parent-domains",
+  "status": "passed",
+  "recorded_utc": "2026-11-13T03:02:00.391130+00:00",
+  "source_base_commit": "c3315eb35b3d52c1828e0d5c0c93dc0139ebd6e9",
+  "source_state": "new regression and fixture pending root checkpoint; production placement and clock sources unchanged",
+  "scope": "Real Yosys synthesis and actual MCHPRS operation of this four-cell divider/pipeline; complete-machine timing remains unverified",
+  "run": {
+    "tests": 5,
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "seconds": 6.578,
+    "junit_path": "build/generated-clock-tests.xml",
+    "junit_sha256": "a48348fae67958b9aa5c75fe31def8433efcd74d0195cb0ee0a52d1b6f37b3ee"
+  },
+  "reproduce": "PATH=/workspace/scratch/fb0eaf1c89fe/validation-tools/bin:$PATH PYTHONPATH=src:tests SHAMA_MCHPRS_RUNNER=/workspace/scratch/fb0eaf1c89fe/validation-tools/artifact-1/target/release/shama-redstone-check python -m pytest -q tests/test_partition_generated_clock.py",
+  "plan_summary": {
+    "native_cells": 4,
+    "original_port_bits": 5,
+    "signals": 6,
+    "original_sink_uses": 10,
+    "clock_leaf_uses": 3,
+    "constant_terminals": 0,
+    "leaf_clusters": 9,
+    "internal_clusters": 8,
+    "hierarchy_depth": 4,
+    "bounded_router_domains": 15,
+    "signal_tree_links": 36,
+    "explicit_fanout_branches": 4,
+    "maximum_router_fanout": 2,
+    "maximum_leaf_boundary": 3,
+    "maximum_domain_terminals": 5,
+    "maximum_domains_at_one_cluster": 3,
+    "topology_sha256": "31df1bbefcaf774be71067cfcc2ee1daf382c7600dc5938413076e33cc86c135",
+    "original_signal_endpoints_sha256": "2fc4d32844400e601aee91d1d59deaf598ade6820babb66ade68058399dd3bb1",
+    "all_signal_records_retained": true
+  },
+  "budgets": {
+    "native_cells_per_leaf": 1,
+    "boundary_terminals_per_leaf": 8,
+    "routing_terminals_per_domain": 5,
+    "children_per_cluster": 2
+  },
+  "mapped_json_sha256": "c703071d4d713227adc6914038b8470dc483820b637ac5d88112c7925f6427a7",
+  "native_unique_blocks": 28378,
+  "source_and_sink_contract": {
+    "external_inputs": [
+      "raw_clk",
+      "data"
+    ],
+    "generated_source": "original native divider DFF Q",
+    "generated_signal_original_sinks": 4,
+    "generated_signal_clock_leaves": 2,
+    "feedback_not_sink_retained": true,
+    "original_divided_output_port_retained": true,
+    "all_shared_clock_handoffs_reachable": true,
+    "all_native_cells_ports_and_contacts_audited": true,
+    "repeat_balancing_preserves_all_states": true,
+    "real_generated_clock_delay_modifications": 1
+  },
+  "cases": [
+    {
+      "mode": "matched",
+      "status": "passed",
+      "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+      "actual_ticks": 44032,
+      "raw_half_period_rt": 512,
+      "expected_raw_edges": 32,
+      "expected_generated_edges": 16,
+      "source_to_leaf_delay_rt": {
+        "a": {
+          "rising_edges": [
+            133
+          ],
+          "falling_edges": [
+            133
+          ]
+        },
+        "b": {
+          "rising_edges": [
+            133
+          ],
+          "falling_edges": [
+            133
+          ]
+        }
+      },
+      "planned_source_to_leaf_delay_rt": 133,
+      "leaf_traces_equal": true,
+      "maximum_leaf_skew_rt": 0,
+      "stable_data_margins": {
+        "divider": {
+          "minimum_setup_rt": 897,
+          "minimum_hold_rt": 126
+        },
+        "a": {
+          "minimum_setup_rt": 1199,
+          "minimum_hold_rt": 2643
+        },
+        "b": {
+          "minimum_setup_rt": 1452,
+          "minimum_hold_rt": 69
+        }
+      },
+      "acceptance_errors": [],
+      "removed_matching": [],
+      "clock_observations": {
+        "raw": {
+          "rising_edges": 32,
+          "falling_edges": 32,
+          "complete_pulse_width_histogram_rt": {
+            "512": 32
+          },
+          "ends_high": false
+        },
+        "generated": {
+          "rising_edges": 16,
+          "falling_edges": 16,
+          "complete_pulse_width_histogram_rt": {
+            "1024": 16
+          },
+          "ends_high": false
+        },
+        "a": {
+          "rising_edges": 16,
+          "falling_edges": 16,
+          "complete_pulse_width_histogram_rt": {
+            "1024": 16
+          },
+          "ends_high": false
+        },
+        "b": {
+          "rising_edges": 16,
+          "falling_edges": 16,
+          "complete_pulse_width_histogram_rt": {
+            "1024": 16
+          },
+          "ends_high": false
+        }
+      },
+      "register_transfer_error_counts": {
+        "divider": 0,
+        "a": 0,
+        "b": 0
+      },
+      "first_divider_transfer_error": null,
+      "settled_output_errors": 0,
+      "full_runtime_report_sha256": "57e99cdef2c7e78364223c5be4b82ed9d2e47265239811661784e58459bd105c"
+    },
+    {
+      "mode": "too-fast",
+      "status": "expected timing failure detected",
+      "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+      "actual_ticks": 12544,
+      "raw_half_period_rt": 20,
+      "expected_raw_edges": 32,
+      "expected_generated_edges": 16,
+      "source_to_leaf_delay_rt": {
+        "a": {
+          "rising_edges": [
+            133
+          ],
+          "falling_edges": [
+            133
+          ]
+        },
+        "b": {
+          "rising_edges": [
+            133
+          ],
+          "falling_edges": [
+            133
+          ]
+        }
+      },
+      "planned_source_to_leaf_delay_rt": 133,
+      "leaf_traces_equal": true,
+      "maximum_leaf_skew_rt": 0,
+      "stable_data_margins": {
+        "divider": {
+          "minimum_setup_rt": 33,
+          "minimum_hold_rt": 6
+        },
+        "a": {
+          "minimum_setup_rt": 1359,
+          "minimum_hold_rt": 675
+        },
+        "b": {
+          "minimum_setup_rt": 1452,
+          "minimum_hold_rt": 69
+        }
+      },
+      "acceptance_errors": [
+        "generated:wrong-edge-count",
+        "generated:wrong-pulse-width-or-unfinished-pulse",
+        "a:wrong-edge-count",
+        "a:wrong-pulse-width-or-unfinished-pulse",
+        "b:wrong-edge-count",
+        "b:wrong-pulse-width-or-unfinished-pulse",
+        "divider:wrong-register-transfer",
+        "a:wrong-register-transfer",
+        "b:wrong-register-transfer",
+        "original-output-port:wrong-settled-value"
+      ],
+      "removed_matching": [],
+      "clock_observations": {
+        "raw": {
+          "rising_edges": 32,
+          "falling_edges": 32,
+          "complete_pulse_width_histogram_rt": {
+            "20": 32
+          },
+          "ends_high": false
+        },
+        "generated": {
+          "rising_edges": 5,
+          "falling_edges": 4,
+          "complete_pulse_width_histogram_rt": {
+            "2128": 1,
+            "2208": 3
+          },
+          "ends_high": true
+        },
+        "a": {
+          "rising_edges": 5,
+          "falling_edges": 4,
+          "complete_pulse_width_histogram_rt": {
+            "2128": 1,
+            "2208": 3
+          },
+          "ends_high": true
+        },
+        "b": {
+          "rising_edges": 5,
+          "falling_edges": 4,
+          "complete_pulse_width_histogram_rt": {
+            "2128": 1,
+            "2208": 3
+          },
+          "ends_high": true
+        }
+      },
+      "register_transfer_error_counts": {
+        "divider": 16,
+        "a": 3,
+        "b": 2
+      },
+      "first_divider_transfer_error": {
+        "edge": 1352,
+        "event_index": 1,
+        "expected": false,
+        "actual": true
+      },
+      "settled_output_errors": 9,
+      "full_runtime_report_sha256": "386f276694361ecdac0d2b119a6bf957f2a924c240a5ac330cb47246494afc59"
+    },
+    {
+      "mode": "missing-padding",
+      "status": "expected timing failure detected",
+      "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+      "actual_ticks": 44032,
+      "raw_half_period_rt": 512,
+      "expected_raw_edges": 32,
+      "expected_generated_edges": 16,
+      "source_to_leaf_delay_rt": {
+        "a": {
+          "rising_edges": [
+            133
+          ],
+          "falling_edges": [
+            133
+          ]
+        },
+        "b": {
+          "rising_edges": [
+            132
+          ],
+          "falling_edges": [
+            132
+          ]
+        }
+      },
+      "planned_source_to_leaf_delay_rt": 133,
+      "leaf_traces_equal": false,
+      "maximum_leaf_skew_rt": 1,
+      "stable_data_margins": {
+        "divider": {
+          "minimum_setup_rt": 897,
+          "minimum_hold_rt": 126
+        },
+        "a": {
+          "minimum_setup_rt": 1199,
+          "minimum_hold_rt": 2643
+        },
+        "b": {
+          "minimum_setup_rt": 1451,
+          "minimum_hold_rt": 70
+        }
+      },
+      "acceptance_errors": [
+        "generated-clock:leaf-skew",
+        "generated-clock:source-to-leaf-delay-differs"
+      ],
+      "removed_matching": [
+        {
+          "module": [
+            "domain",
+            4
+          ],
+          "position": {
+            "x": 40,
+            "y": 63,
+            "z": 49
+          },
+          "state": {
+            "name": "minecraft:repeater",
+            "properties": {
+              "delay": "2",
+              "facing": "north",
+              "locked": "false",
+              "powered": "false"
+            }
+          }
+        }
+      ],
+      "clock_observations": {
+        "raw": {
+          "rising_edges": 32,
+          "falling_edges": 32,
+          "complete_pulse_width_histogram_rt": {
+            "512": 32
+          },
+          "ends_high": false
+        },
+        "generated": {
+          "rising_edges": 16,
+          "falling_edges": 16,
+          "complete_pulse_width_histogram_rt": {
+            "1024": 16
+          },
+          "ends_high": false
+        },
+        "a": {
+          "rising_edges": 16,
+          "falling_edges": 16,
+          "complete_pulse_width_histogram_rt": {
+            "1024": 16
+          },
+          "ends_high": false
+        },
+        "b": {
+          "rising_edges": 16,
+          "falling_edges": 16,
+          "complete_pulse_width_histogram_rt": {
+            "1024": 16
+          },
+          "ends_high": false
+        }
+      },
+      "register_transfer_error_counts": {
+        "divider": 0,
+        "a": 0,
+        "b": 0
+      },
+      "first_divider_transfer_error": null,
+      "settled_output_errors": 0,
+      "full_runtime_report_sha256": "079578b250438c7a022519deeb8ed137880aa3c0540adb70c4e3ad365d4c0fc1"
+    }
+  ],
+  "capacity_negative": {
+    "arity": 3,
+    "status": "expected private-branch delay capacity failure",
+    "both_external_and_generated_clock_passes_entered_before_failure": true,
+    "all_module_overrides_clock_reports_and_balanced_position_sets_restored": true
+  },
+  "findings": [
+    "The hierarchy begins at the real native generated-clock source and preserves both clock sinks and its non-clock feedback/output consumers.",
+    "Matching one private branch changes a real emitted repeater delay. Removing that modification yields measurable skew even though settled data values remain correct.",
+    "At the deliberately too-fast setting, local observed setup/hold still exceeds the primitive minimum, but the divider feedback value is stale for the intended next raw cycle. Pulse counts and transfer semantics expose this failure.",
+    "An asymmetric alternative layout lacks sufficient private-branch delay capacity and is explicitly rejected with a complete rollback. This proof does not establish arbitrary hierarchy clock closure.",
+    "The 512 RT raw half-period is a conservative fixture test setting, not an accepted whole-machine clock setting."
+  ],
+  "source_sha256": {
+    "tests/test_partition_generated_clock.py": "a6f826f7eb07f7a0f12ec788a9b8cd4599b4897752d97b5c24750d83833707a7",
+    "tests/fixtures/generated_clock.sv": "51cd3378ccea11c43dcc5d91669b9178d36736ca3ade8cec1ea38d06836f2990",
+    "src/shamaos/hardware/partition_placement.py": "10c6a4b5aba6b5c4776326d0a863bf57cd1fc5b0d216115ca496d851d6a82e90",
+    "src/shamaos/hardware/local_router.py": "63054c806442499ba0aa27f65b1ec2b35c339c0c8595521dbc3097a334307bc6",
+    "src/shamaos/hardware/partition_planner.py": "82e7f39548af7443b29ffd322a118cb42474f6f0bf3da2273b1ecdefb38164b4",
+    "src/shamaos/hardware/logic.py": "84a4f2cc3c535628ccd4e16ae0480b3cc99310f1fb83fe28f98d98b621ab1dff",
+    "src/shamaos/synthesis.py": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274"
+  },
+  "independent_root_review": {
+    "tests": 5,
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "seconds": 5.058,
+    "junit_path": "build/generated-clock-root-review.xml",
+    "junit_sha256": "e5f03b46b761974d3681808db883189c319bf21e0f79fb6bcfee4be6de2ffa4f",
+    "runner_sha256": "ae21133d3f83c0c96776931f17ac963b71a4becf168eef61ba9450c8d42a3116",
+    "all_recorded_source_hashes_match": true,
+    "scope": "Independent rerun of the five focused generated-clock tests, including both actual-engine negative controls and transactional rollback. Complete-machine clock timing remains unverified."
+  }
+}

@@ -15,6 +15,8 @@ use std::time::Instant;
 const SECTIONS: usize = 24;
 const Y_OFFSET: i32 = 64;
 
+mod snapshot;
+
 struct HashedReader {
     source: File,
     hash_input: ChildStdin,
@@ -229,7 +231,15 @@ struct Scenario {
     outputs:HashMap<String,[i32;3]>,
     initial_ticks:usize,
     #[serde(default)] capture_trace:bool,
+    #[serde(default,deserialize_with="deserialize_trace_outputs")] trace_outputs:Option<Vec<String>>,
     steps:Vec<Step>,
+}
+
+fn deserialize_trace_outputs<'de,D:serde::Deserializer<'de>>(deserializer:D)
+    ->Result<Option<Vec<String>>,D::Error> {
+    // Omitted means all outputs; an explicitly present value must be a list,
+    // so null cannot silently turn a requested selection into full capture.
+    Vec::<String>::deserialize(deserializer).map(Some)
 }
 
 fn native_pos(p:[i32;3])->BlockPos {
@@ -272,6 +282,24 @@ fn validate_scenario(world: &SparseWorld, scenario: &Scenario) -> usize {
     assertions
 }
 
+fn trace_points(scenario:&Scenario)->Vec<(&str,BlockPos)> {
+    if let Some(names)=&scenario.trace_outputs {
+        assert!(scenario.capture_trace,"trace_outputs requires capture_trace=true");
+        assert!(!names.is_empty(),"trace_outputs must select at least one declared output");
+        let mut seen=HashSet::new();
+        names.iter().map(|name| {
+            assert!(seen.insert(name.as_str()),"duplicate trace output name {name}");
+            let point=scenario.outputs.get(name)
+                .unwrap_or_else(||panic!("unknown trace output name {name}"));
+            (name.as_str(),native_pos(*point))
+        }).collect()
+    } else {
+        // Keep the existing all-output map, including its empty arrays when
+        // capture_trace is disabled. Selection never narrows step.expect.
+        scenario.outputs.iter().map(|(name,point)|(name.as_str(),native_pos(*point))).collect()
+    }
+}
+
 fn powered(world:&SparseWorld,p:BlockPos)->bool {
     match world.get_block(p) {
         Block::RedstoneWire(wire)=>wire.power>0,
@@ -309,8 +337,14 @@ fn main() {
         println!("{}",serde_json::json!({"states":states}));
         return;
     }
-    assert!(args.len()>=3,"usage: sparse-runner WORLD.jsonl SCENARIO.json [MAX_CHUNKS]");
-    let maximum_chunks=args.get(3).map(|s|s.parse().unwrap()).unwrap_or(100_000);
+    assert!((3..=6).contains(&args.len()),"usage: sparse-runner WORLD.jsonl SCENARIO.json [MAX_CHUNKS] [--snapshot OUTPUT.jsonl]");
+    let (maximum_chunks, snapshot_path) = match args.len() {
+        3 => (100_000, None),
+        4 => (args[3].parse().expect("MAX_CHUNKS"), None),
+        5 if args[3] == "--snapshot" => (100_000, Some(args[4].as_str())),
+        6 if args[4] == "--snapshot" => (args[3].parse().expect("MAX_CHUNKS"), Some(args[5].as_str())),
+        _ => panic!("invalid sparse runner arguments"),
+    };
     let started=Instant::now();
     let (reader,world_hasher)=hashing_reader(&args[1]);
     let mut lines=reader.lines();
@@ -371,6 +405,7 @@ fn main() {
     let scenario:Scenario=serde_json::from_reader(scenario_reader).expect("scenario JSON");
     let scenario_sha256=finish_hash(scenario_hasher);
     let assertions=validate_scenario(&world,&scenario);
+    let trace_points=trace_points(&scenario);
     let loaded=Instant::now();
     let loaded_chunks=world.chunks.len();
     let palette_data_bytes:usize=world.chunks.values().flat_map(|c|&c.sections)
@@ -395,7 +430,7 @@ fn main() {
     let initialized_at=Instant::now();
     for _ in 0..scenario.initial_ticks {world.tick();}
     let mut ticks=scenario.initial_ticks;
-    let mut traces:HashMap<String,Vec<bool>>=scenario.outputs.keys().map(|n|(n.clone(),Vec::new())).collect();
+    let mut traces:HashMap<String,Vec<bool>>=trace_points.iter().map(|(name,_)|((*name).to_string(),Vec::new())).collect();
     for (index,step) in scenario.steps.iter().enumerate() {
         for (name,value) in &step.drive {
             let p=native_pos(*scenario.inputs.get(name).expect("unknown input name")).offset(BlockFace::South);
@@ -410,12 +445,17 @@ fn main() {
         for offset in 0..step.ticks {
             world.tick();ticks+=1;
             if scenario.capture_trace {
-                for (name,p) in &scenario.outputs {traces.get_mut(name).unwrap().push(powered(&world,native_pos(*p)));}
+                // Read only selected trace coordinates. Full memory-bit
+                // assertions below still use the complete scenario output map.
+                for (name,p) in &trace_points {traces.get_mut(*name).unwrap().push(powered(&world,*p));}
             }
             if step.continuous {verify(&world,&scenario,&step.expect,index,offset);}
         }
         verify(&world,&scenario,&step.expect,index,step.ticks);
     }
+    let execution_seconds = initialized_at.elapsed().as_secs_f64();
+    let snapshot_report = snapshot_path.map(|path| snapshot::save(&world, path, surface_y, &source,
+        &imported_stream_sha256, &scenario_sha256, ticks));
     let mut report=serde_json::json!({
         "kind":"streamed-native-anvil-sparse-mchprs-runtime","status":if assertions>0 {"passed"} else {"executed-trace-only"},
         "assertions":assertions,"imported_stream_sha256":imported_stream_sha256,"scenario_sha256":scenario_sha256,
@@ -430,11 +470,18 @@ fn main() {
         "initialized_nonair_blocks":initialized,"paletted_storage_bytes_before_updates":palette_data_bytes,
         "comparator_entities":comparator_count,"steps":scenario.steps.len(),"ticks":ticks,
         "scheduled_ticks_total":world.scheduled_total,"peak_pending_ticks":world.pending_peak,
+        "pending_ticks_after_scenario":world.pending.len(),"snapshot":snapshot_report,
         "import_seconds":loaded.duration_since(started).as_secs_f64(),
         "initialization_seconds":initialized_at.duration_since(loaded).as_secs_f64(),
-        "runtime_seconds":initialized_at.elapsed().as_secs_f64(),
+        "runtime_seconds":execution_seconds,
         "peak_rss_kib":null,
         "memory_sample_scope":"process high-water mark after report assembly, before stdout serialization; external process measurement may be higher",
+        "trace_capture":{
+            "mode":if !scenario.capture_trace {"disabled"} else if scenario.trace_outputs.is_some() {"selected"} else {"all"},
+            "declared_outputs":scenario.outputs.len(),
+            "traced_outputs":if scenario.capture_trace {trace_points.len()} else {0},
+            "samples_per_output":if scenario.capture_trace {ticks-scenario.initial_ticks} else {0}
+        },
         "traces":traces
     });
     report["peak_rss_kib"]=serde_json::json!(rss_kib("VmHWM:"));

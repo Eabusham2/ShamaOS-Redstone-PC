@@ -1,0 +1,142 @@
+{
+  "scope": "complete retained small fixture only; larger layouts and global timing remain unverified",
+  "provenance": {
+    "scope": "isolated bounded-local-router column-search candidate; production and active placement run unchanged",
+    "change": "Only candidate+=4 becomes candidate+=1 inside the occupied-column loop; all exclusion and later geometry checks retained",
+    "base_external_sha256": "96834193a37bb485ab225ea21dc1ae460afcc3ab9ac41a434e45660be2f7666d",
+    "unit_external_sha256": "fad9c3a38e39deaf870d9b64bcb334dd3ad769d7e47895cfd091527096a5b2b9",
+    "placement_sha256": "ac748b28fcff26b21dc77315d33b3ad40e2c98c83a7b8ad8142a776c643fe7a5"
+  },
+  "actual_gap_example": {
+    "reserved_columns": [
+      0,
+      8
+    ],
+    "initial_candidate": 2,
+    "old_selected_column": 14,
+    "new_selected_column": 3
+  },
+  "baseline": {
+    "unique_blocks": 10340,
+    "occupied_chunks": 74,
+    "bounds": {
+      "min": {
+        "x": 0,
+        "y": -60,
+        "z": 0
+      },
+      "max": {
+        "x": 161,
+        "y": 169,
+        "z": 100
+      }
+    }
+  },
+  "candidate": {
+    "unique_blocks": 10224,
+    "occupied_chunks": 74,
+    "bounds": {
+      "min": {
+        "x": 0,
+        "y": -60,
+        "z": 0
+      },
+      "max": {
+        "x": 161,
+        "y": 169,
+        "z": 100
+      }
+    }
+  },
+  "structural_audit": {
+    "native_cells": 3,
+    "original_port_bits": 6,
+    "shared_contacts": 18,
+    "native_sink_uses": 7,
+    "clock_leaf_uses": 2,
+    "constant_terminals": 3,
+    "status": "structural-contacts-passed",
+    "runtime_verified": false
+  },
+  "runtime": [
+    {
+      "clock_skew_ticks": 0,
+      "clock_edges": 16,
+      "half_period_redstone_ticks": 512,
+      "minimum_setup_ticks": 877,
+      "minimum_hold_ticks": 87,
+      "pipeline_failures": [],
+      "actual_ticks": 27648,
+      "native_to_dense_translation": {
+        "x": 32,
+        "y": 92,
+        "z": 32
+      },
+      "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a"
+    },
+    {
+      "clock_skew_ticks": 0,
+      "clock_edges": 16,
+      "half_period_redstone_ticks": 20,
+      "minimum_setup_ticks": 34,
+      "minimum_hold_ticks": 7,
+      "pipeline_failures": [
+        {
+          "edge": 3256,
+          "register": "b",
+          "expected": true,
+          "actual": false
+        },
+        {
+          "edge": 3296,
+          "register": "b",
+          "expected": true,
+          "actual": false
+        },
+        {
+          "edge": 5464,
+          "register": "b",
+          "expected": false,
+          "actual": true
+        },
+        {
+          "edge": 5504,
+          "register": "b",
+          "expected": false,
+          "actual": true
+        },
+        {
+          "edge": 7672,
+          "register": "b",
+          "expected": true,
+          "actual": false
+        },
+        {
+          "edge": 7712,
+          "register": "b",
+          "expected": true,
+          "actual": false
+        },
+        {
+          "edge": 9840,
+          "register": "b",
+          "expected": false,
+          "actual": true
+        },
+        {
+          "edge": 9880,
+          "register": "b",
+          "expected": false,
+          "actual": true
+        }
+      ],
+      "actual_ticks": 11904,
+      "native_to_dense_translation": {
+        "x": 32,
+        "y": 92,
+        "z": 32
+      },
+      "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a"
+    }
+  ]
+}

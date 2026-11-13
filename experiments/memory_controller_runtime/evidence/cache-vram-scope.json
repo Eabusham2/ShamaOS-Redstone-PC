@@ -1,0 +1,219 @@
+{
+  "kind": "complete-memory-controller-runtime-scope",
+  "status": "scoped-not-runtime-verified",
+  "source_commit": "c3315eb35b3d52c1828e0d5c0c93dc0139ebd6e9",
+  "source_sha256": {
+    "rtl/shama_memory_adapter.sv": "853d438ff507e4740fb6468445804ccc846378686e66d7b136952a06f93fb0af",
+    "rtl/shama_boot_params.svh": "3ec00fbefe06958cc2b918e52caa18129384cb267453a9fc976270bc72fa8025",
+    "synth/redstone.ys": "47e9b12996019e8d08b34fb0ecb3561528bf4e74e73a3146e328ed99caf8df42",
+    "src/shamaos/synthesis.py": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274"
+  },
+  "unchanged_capacity_bytes": {
+    "cache": 8192,
+    "vram": 16384,
+    "ram": 98304,
+    "flash": 204800
+  },
+  "partitions": {
+    "cache": {
+      "top": "shama_cache_adapter",
+      "capacity_bytes": 8192,
+      "bank_count": 2,
+      "rows_per_bank": 1024,
+      "word_bits": 32,
+      "mapped_json_filename": "partition-u_cache-shama_cache_adapter.json",
+      "mapped_json_bytes": 656507,
+      "mapped_json_sha256": "d4989124e9dca8b5afa865d954ded3be680b99f0b1e2f472aed6b5ecc42dd468",
+      "zip_sha256": "940068a3d14740a8b3e11223637ea9219e8cb4d0cae0e144a5d9120295eb9d99",
+      "creator": "Yosys 0.33 (git sha1 2584903a060)",
+      "native_cells": 1144,
+      "native_cell_types": {
+        "$_NAND_": 78,
+        "$_NOR_": 739,
+        "$_NOT_": 212,
+        "DFF": 115
+      },
+      "literal_cell_blocks": 50844,
+      "port_terminal_placements": 366,
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "width": 1
+        },
+        "rst": {
+          "direction": "input",
+          "width": 1
+        },
+        "req_valid": {
+          "direction": "input",
+          "width": 1
+        },
+        "req_we": {
+          "direction": "input",
+          "width": 1
+        },
+        "req_addr": {
+          "direction": "input",
+          "width": 32
+        },
+        "req_wdata": {
+          "direction": "input",
+          "width": 32
+        },
+        "req_wstrb": {
+          "direction": "input",
+          "width": 4
+        },
+        "req_ready": {
+          "direction": "output",
+          "width": 1
+        },
+        "req_rdata": {
+          "direction": "output",
+          "width": 32
+        },
+        "bank_select": {
+          "direction": "output",
+          "width": 2
+        },
+        "row_address": {
+          "direction": "output",
+          "width": 10
+        },
+        "read_enable": {
+          "direction": "output",
+          "width": 1
+        },
+        "write_commit": {
+          "direction": "output",
+          "width": 1
+        },
+        "write_data": {
+          "direction": "output",
+          "width": 32
+        },
+        "selected_word": {
+          "direction": "input",
+          "width": 32
+        }
+      },
+      "input_pins": 104,
+      "output_pins": 79,
+      "signals_with_sinks": 1248,
+      "sink_pins": 2155,
+      "constant_pins": 0,
+      "clock_nets": [
+        {
+          "source": "port:clk[0]",
+          "signal_bit": 2,
+          "DFF_clock_sinks": 115
+        }
+      ],
+      "resource_report_sha256": "8a50a77845fd22901ba8b194c92f544a4faf3a95aec6162a573ba15e5a72e28b",
+      "physical_report_sha256": "b8c375a250bfef24d7370c10cb3abbf82b16095642b8f8c0985a9c96cb7e4b74",
+      "ci_artifact_id": 14007345466
+    },
+    "vram": {
+      "top": "shama_vram_adapter",
+      "capacity_bytes": 16384,
+      "bank_count": 4,
+      "rows_per_bank": 1024,
+      "word_bits": 32,
+      "mapped_json_filename": "partition-u_vram-shama_vram_adapter.json",
+      "mapped_json_bytes": 661008,
+      "mapped_json_sha256": "22728c347307ef406d62c04731b6426f5b70cb20787957269bca19146b4e136a",
+      "zip_sha256": "7f6945c68d0c2267212035e4a2fffb137b59e0391a23cd5aa1fdb8fbde62ca7c",
+      "creator": "Yosys 0.33 (git sha1 2584903a060)",
+      "native_cells": 1152,
+      "native_cell_types": {
+        "$_NAND_": 76,
+        "$_NOR_": 745,
+        "$_NOT_": 215,
+        "DFF": 116
+      },
+      "literal_cell_blocks": 51132,
+      "port_terminal_placements": 370,
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "width": 1
+        },
+        "rst": {
+          "direction": "input",
+          "width": 1
+        },
+        "req_valid": {
+          "direction": "input",
+          "width": 1
+        },
+        "req_we": {
+          "direction": "input",
+          "width": 1
+        },
+        "req_addr": {
+          "direction": "input",
+          "width": 32
+        },
+        "req_wdata": {
+          "direction": "input",
+          "width": 32
+        },
+        "req_wstrb": {
+          "direction": "input",
+          "width": 4
+        },
+        "req_ready": {
+          "direction": "output",
+          "width": 1
+        },
+        "req_rdata": {
+          "direction": "output",
+          "width": 32
+        },
+        "bank_select": {
+          "direction": "output",
+          "width": 4
+        },
+        "row_address": {
+          "direction": "output",
+          "width": 10
+        },
+        "read_enable": {
+          "direction": "output",
+          "width": 1
+        },
+        "write_commit": {
+          "direction": "output",
+          "width": 1
+        },
+        "write_data": {
+          "direction": "output",
+          "width": 32
+        },
+        "selected_word": {
+          "direction": "input",
+          "width": 32
+        }
+      },
+      "input_pins": 104,
+      "output_pins": 81,
+      "signals_with_sinks": 1256,
+      "sink_pins": 2170,
+      "constant_pins": 0,
+      "clock_nets": [
+        {
+          "source": "port:clk[0]",
+          "signal_bit": 2,
+          "DFF_clock_sinks": 116
+        }
+      ],
+      "resource_report_sha256": "1abdcad1f7f1ecf2291b8227e5ea94fcfd53d6a7cff1aad624c10d84fea6f63e",
+      "physical_report_sha256": "34936df43967128ba7ada546accfc38de691dc21d984a701e6edd229fb0c96bb"
+    }
+  },
+  "selected_target": "cache",
+  "scope": "Complete current cache/VRAM mapped inventories and original interfaces; no placement, wiring, timing or connected-controller runtime claim.",
+  "whole_machine_chunks": null,
+  "connected_cache_runtime_verified": false,
+  "complete_machine_runtime_verified": false
+}

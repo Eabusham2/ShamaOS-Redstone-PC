@@ -1,0 +1,95 @@
+{
+  "kind": "actual-native-selective-trace-equivalence",
+  "status": "passed",
+  "storage_bits": 32,
+  "declared_outputs": 40,
+  "selected_outputs": [
+    "Q1",
+    "Q7"
+  ],
+  "asserted_outputs_at_each_boundary": 40,
+  "transaction_boundaries": 8,
+  "full_boundary_assertions": 320,
+  "full_trace_samples": 71680,
+  "selected_trace_samples": 3584,
+  "all_selected_samples_equal_full_trace": true,
+  "tick_scheduler_and_initialization_metrics_unchanged": true,
+  "every_snapshot_state_and_comparator_unchanged": true,
+  "source_import": {
+    "chunks": 11,
+    "sections": 264,
+    "nonair": 2240,
+    "comparators": 32,
+    "stream_bytes": 57067,
+    "stream_sha256": "e2d1cf1a2850f7851eacb1ee1d236983bb461da126b4229c6e91f98a8bfef0c4",
+    "source": {
+      "native_world": "/tmp/pytest-of-agent/pytest-64/selective-trace-native-memory0/world",
+      "data_version": 3700,
+      "level_dat_sha256": "7f28d72ff2db4a9cc86f68060017fdc2c77ed7bfb202989f0545956cc8b0a0ab",
+      "regions": [
+        {
+          "name": "r.0.0.mca",
+          "bytes": 53248,
+          "sha256": "34c676d585b8440cb0943a6305d985f4856a59572441451cecbd23d7fb3ae17a"
+        }
+      ],
+      "scope": "every saved chunk and section; not an assertion of complete-machine capacity",
+      "saved_native_pending_ticks": 0
+    },
+    "schema": "shama-native-anvil-sections-v2",
+    "uniform_sections": 244
+  },
+  "runtime": {
+    "status": "passed",
+    "assertions": 320,
+    "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+    "engine_registry": "pinned registry plus explicit native bedrock/dirt/grass states",
+    "engine_registry_patch_sha256": "8ebd0e097d07e93a6b2b158e08ad19c2660b0b7e2521c6b6d34a4583a10bfbdc",
+    "loaded_chunks": 11,
+    "uniform_sections": 244,
+    "chunks_after_drives": 11,
+    "decoded_nonair_blocks": 2240,
+    "initialized_nonair_blocks": 2240,
+    "paletted_storage_bytes_before_updates": 542112,
+    "comparator_entities": 32,
+    "steps": 8,
+    "ticks": 2048,
+    "scheduled_ticks_total": 176,
+    "peak_pending_ticks": 20,
+    "pending_ticks_after_scenario": 0,
+    "imported_stream_sha256": "e2d1cf1a2850f7851eacb1ee1d236983bb461da126b4229c6e91f98a8bfef0c4",
+    "complete_machine_runtime_verified": false
+  },
+  "runner_sha256": "996ae88a29015472f930a5a7f53dfadc9fd4bb8097e29305ea9a17bfc697c499",
+  "source_sha256": {
+    "tests/test_mchprs_sparse_trace.py": "ba61df507aa1694b334b60293b6d5a843059311a2278e12202464b23da5b3e89",
+    "tests/mchprs_sparse_runtime/src/main.rs": "e4c6d92ba0f12770880ef8a691c29888132bc84d3a2967221d12c93bbefb566a",
+    "tests/mchprs_sparse_runtime/src/snapshot.rs": "2a38ab18967e51ba245b41ca946e4b5fe891820ffb33a88b9f6aa4277a59b832"
+  },
+  "scope": "Four native bytes plus saved two-output logic tests; no complete-cache or whole-machine execution claim.",
+  "focused_regression": {
+    "tests": 19,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 2.996
+  },
+  "native_rust_unit_tests": {
+    "passed": 2,
+    "failed": 0,
+    "ignored": 0,
+    "release_build": true,
+    "command": "cargo test --locked --offline --release --manifest-path GENERATED_TERRAIN_DIR/terrain-runner/Cargo.toml",
+    "tests": [
+      "uniform_sections_expand_to_every_exact_native_state",
+      "wide_native_palette_preserves_every_state_when_engine_uses_direct_ids"
+    ]
+  },
+  "terrain_build": {
+    "preparer": "tools/prepare_mchprs_terrain_registry.py",
+    "source_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+    "command": "python tools/prepare_mchprs_terrain_registry.py --source PINNED_MCHPRS_DIR --output GENERATED_TERRAIN_DIR --build",
+    "patch_sha256": "8ebd0e097d07e93a6b2b158e08ad19c2660b0b7e2521c6b6d34a4583a10bfbdc"
+  },
+  "additional_compatibility_scope": "All18 selective-trace cases rerun with the exact current terrain binary, plus the existing saved stacked-memory/terrain/native-entity case."
+}

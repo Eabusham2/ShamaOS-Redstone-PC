@@ -1,0 +1,134 @@
+{
+  "import": {
+    "chunks": 74,
+    "sections": 1776,
+    "nonair": 86116,
+    "comparators": 0,
+    "stream_bytes": 611842,
+    "stream_sha256": "88b6c32e47f0d5e1c0960e903aeb233f180a7941126fdc2aefffccf6d2f84ec6",
+    "source": {
+      "native_world": "/workspace/scratch/fb0eaf1c89fe/experiments/world-runtime/connected-pipeline-native-raised-apron24/world",
+      "data_version": 3700,
+      "level_dat_sha256": "4c6b59745d8d8c2defc839c68bdbc9373c46f5a09f6849e1ea4533c203f8b855",
+      "regions": [
+        {
+          "name": "r.0.0.mca",
+          "bytes": 311296,
+          "sha256": "70cb94f404b88f13e612e8c0de7ddbf6ae3442d0c99edb21963dbb2f2a38f056"
+        }
+      ],
+      "scope": "every saved chunk and section; not an assertion of complete-machine capacity",
+      "saved_native_pending_ticks": 0
+    },
+    "schema": "shama-native-anvil-sections-v2",
+    "uniform_sections": 1449
+  },
+  "reports": [
+    {
+      "assertions": 94,
+      "chunks_after_drives": 76,
+      "comparator_entities": 0,
+      "complete_machine_runtime_verified": false,
+      "decoded_nonair_blocks": 86116,
+      "engine_registry": "pinned registry plus explicit native bedrock/dirt/grass states",
+      "engine_registry_patch_sha256": "8ebd0e097d07e93a6b2b158e08ad19c2660b0b7e2521c6b6d34a4583a10bfbdc",
+      "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+      "import_seconds": 0.018666941,
+      "imported_stream_sha256": "88b6c32e47f0d5e1c0960e903aeb233f180a7941126fdc2aefffccf6d2f84ec6",
+      "initialization_seconds": 0.107883768,
+      "initialized_nonair_blocks": 86116,
+      "kind": "streamed-native-anvil-sparse-mchprs-runtime",
+      "loaded_chunks": 74,
+      "loading": "every decoded chunk remains loaded and every scheduled tick is processed; no player radius or unloading",
+      "memory_sample_scope": "process high-water mark after report assembly, before stdout serialization; external process measurement may be higher",
+      "native_to_runtime_translation_y": 64,
+      "paletted_storage_bytes_before_updates": 3649580,
+      "peak_pending_ticks": 5,
+      "peak_rss_kib": 32428,
+      "pending_ticks_after_scenario": 0,
+      "runtime_seconds": 0.264634975,
+      "scenario_sha256": "bc52a5981e52a4a16217796d6053ff39b1bea3722fbf75bb782f2ee4d483a10b",
+      "scheduled_ticks_total": 5869,
+      "snapshot": null,
+      "source": {
+        "data_version": 3700,
+        "level_dat_sha256": "4c6b59745d8d8c2defc839c68bdbc9373c46f5a09f6849e1ea4533c203f8b855",
+        "native_world": "/workspace/scratch/fb0eaf1c89fe/experiments/world-runtime/connected-pipeline-native-raised-apron24/world",
+        "regions": [
+          {
+            "bytes": 311296,
+            "name": "r.0.0.mca",
+            "sha256": "70cb94f404b88f13e612e8c0de7ddbf6ae3442d0c99edb21963dbb2f2a38f056"
+          }
+        ],
+        "saved_native_pending_ticks": 0,
+        "scope": "every saved chunk and section; not an assertion of complete-machine capacity"
+      },
+      "status": "passed",
+      "steps": 42,
+      "ticks": 27648,
+      "uniform_sections": 1449,
+      "half_period": 512,
+      "exact_dense_trace_values": 745472,
+      "source_native_to_dense_translation": [
+        32,
+        92,
+        32
+      ],
+      "meaning": "connected hierarchy positive timing preserved"
+    },
+    {
+      "assertions": 84,
+      "chunks_after_drives": 76,
+      "comparator_entities": 0,
+      "complete_machine_runtime_verified": false,
+      "decoded_nonair_blocks": 86116,
+      "engine_registry": "pinned registry plus explicit native bedrock/dirt/grass states",
+      "engine_registry_patch_sha256": "8ebd0e097d07e93a6b2b158e08ad19c2660b0b7e2521c6b6d34a4583a10bfbdc",
+      "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+      "import_seconds": 0.016943124,
+      "imported_stream_sha256": "88b6c32e47f0d5e1c0960e903aeb233f180a7941126fdc2aefffccf6d2f84ec6",
+      "initialization_seconds": 0.123809326,
+      "initialized_nonair_blocks": 86116,
+      "kind": "streamed-native-anvil-sparse-mchprs-runtime",
+      "loaded_chunks": 74,
+      "loading": "every decoded chunk remains loaded and every scheduled tick is processed; no player radius or unloading",
+      "memory_sample_scope": "process high-water mark after report assembly, before stdout serialization; external process measurement may be higher",
+      "native_to_runtime_translation_y": 64,
+      "paletted_storage_bytes_before_updates": 3649580,
+      "peak_pending_ticks": 11,
+      "peak_rss_kib": 18204,
+      "pending_ticks_after_scenario": 0,
+      "runtime_seconds": 0.241203053,
+      "scenario_sha256": "18bb9310eba635f684090a4777a90a560b88f0055707eeb4fccde2f3969b9acb",
+      "scheduled_ticks_total": 5731,
+      "snapshot": null,
+      "source": {
+        "data_version": 3700,
+        "level_dat_sha256": "4c6b59745d8d8c2defc839c68bdbc9373c46f5a09f6849e1ea4533c203f8b855",
+        "native_world": "/workspace/scratch/fb0eaf1c89fe/experiments/world-runtime/connected-pipeline-native-raised-apron24/world",
+        "regions": [
+          {
+            "bytes": 311296,
+            "name": "r.0.0.mca",
+            "sha256": "70cb94f404b88f13e612e8c0de7ddbf6ae3442d0c99edb21963dbb2f2a38f056"
+          }
+        ],
+        "saved_native_pending_ticks": 0,
+        "scope": "every saved chunk and section; not an assertion of complete-machine capacity"
+      },
+      "status": "passed",
+      "steps": 42,
+      "ticks": 11904,
+      "uniform_sections": 1449,
+      "half_period": 20,
+      "exact_dense_trace_values": 304640,
+      "source_native_to_dense_translation": [
+        32,
+        92,
+        32
+      ],
+      "meaning": "expected timing-negative behavior preserved"
+    }
+  ]
+}

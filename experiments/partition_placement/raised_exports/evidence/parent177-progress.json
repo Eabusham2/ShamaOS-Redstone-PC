@@ -1,0 +1,192 @@
+[
+  {
+    "cluster_id": 0,
+    "leaf": true,
+    "native_cells": 64,
+    "computed_unique_blocks": 61888,
+    "bounds": {
+      "min": {
+        "x": 32,
+        "y": -60,
+        "z": -54
+      },
+      "max": {
+        "x": 2066,
+        "y": -41,
+        "z": 48
+      }
+    },
+    "modules": 1,
+    "shared_contacts": 0,
+    "packing": {},
+    "seconds": 0.44659720799973,
+    "own_declared_export_points": 75,
+    "own_export_y_range": [
+      -59,
+      -59
+    ],
+    "own_export_z_range": [
+      48,
+      48
+    ],
+    "own_exports_at_south_envelope": true
+  },
+  {
+    "cluster_id": 1,
+    "leaf": true,
+    "native_cells": 64,
+    "computed_unique_blocks": 90936,
+    "bounds": {
+      "min": {
+        "x": 32,
+        "y": -60,
+        "z": -86
+      },
+      "max": {
+        "x": 2074,
+        "y": -41,
+        "z": 48
+      }
+    },
+    "modules": 1,
+    "shared_contacts": 0,
+    "packing": {},
+    "seconds": 0.5486955939995823,
+    "own_declared_export_points": 52,
+    "own_export_y_range": [
+      -59,
+      -59
+    ],
+    "own_export_z_range": [
+      48,
+      48
+    ],
+    "own_exports_at_south_envelope": true
+  },
+  {
+    "cluster_id": 2,
+    "leaf": true,
+    "native_cells": 64,
+    "computed_unique_blocks": 79258,
+    "bounds": {
+      "min": {
+        "x": 32,
+        "y": -60,
+        "z": -66
+      },
+      "max": {
+        "x": 2074,
+        "y": -41,
+        "z": 48
+      }
+    },
+    "modules": 1,
+    "shared_contacts": 0,
+    "packing": {},
+    "seconds": 0.49352429599821335,
+    "own_declared_export_points": 70,
+    "own_export_y_range": [
+      -59,
+      -59
+    ],
+    "own_export_z_range": [
+      48,
+      48
+    ],
+    "own_exports_at_south_envelope": true
+  },
+  {
+    "cluster_id": 3,
+    "leaf": true,
+    "native_cells": 64,
+    "computed_unique_blocks": 85352,
+    "bounds": {
+      "min": {
+        "x": 32,
+        "y": -60,
+        "z": -82
+      },
+      "max": {
+        "x": 2078,
+        "y": -41,
+        "z": 48
+      }
+    },
+    "modules": 1,
+    "shared_contacts": 0,
+    "packing": {},
+    "seconds": 0.5902456969997729,
+    "own_declared_export_points": 51,
+    "own_export_y_range": [
+      -59,
+      -59
+    ],
+    "own_export_z_range": [
+      48,
+      48
+    ],
+    "own_exports_at_south_envelope": true
+  },
+  {
+    "cluster_id": 177,
+    "leaf": false,
+    "native_cells": 256,
+    "computed_unique_blocks": 916260,
+    "bounds": {
+      "min": {
+        "x": 0,
+        "y": -60,
+        "z": -380
+      },
+      "max": {
+        "x": 2134,
+        "y": 49,
+        "z": 226
+      }
+    },
+    "modules": 6,
+    "shared_contacts": 248,
+    "packing": {
+      "vertical_tiers": 4,
+      "horizontal_stacks": 1,
+      "horizontal_columns": 1,
+      "horizontal_layout": "compact",
+      "child_heights": [
+        20,
+        20,
+        20,
+        20
+      ],
+      "stacked_child_ids": [
+        [
+          0,
+          1,
+          2,
+          3
+        ]
+      ],
+      "reserved_maximum_child_y": 247,
+      "vertical_gap": 4,
+      "export_apron": 92,
+      "export_apron_attempts": [
+        {
+          "apron": 24,
+          "export_z": 158,
+          "actual_maximum_z": 222
+        }
+      ],
+      "rejected_layouts": []
+    },
+    "seconds": 14.615280154001084,
+    "own_declared_export_points": 163,
+    "own_export_y_range": [
+      40,
+      40
+    ],
+    "own_export_z_range": [
+      226,
+      226
+    ],
+    "own_exports_at_south_envelope": true
+  }
+]

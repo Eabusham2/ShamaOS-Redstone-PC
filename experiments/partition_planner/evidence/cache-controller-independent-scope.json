@@ -1,0 +1,160 @@
+{
+  "schema": "shama-independent-cache-controller-scope-v1",
+  "status": "read-only source and full logical-plan review passed",
+  "mapped_sha256": "d4989124e9dca8b5afa865d954ded3be680b99f0b1e2f472aed6b5ecc42dd468",
+  "matched_current_source_sha256": {
+    "rtl/shama_memory_adapter.sv": "853d438ff507e4740fb6468445804ccc846378686e66d7b136952a06f93fb0af",
+    "rtl/shama_boot_params.svh": "3ec00fbefe06958cc2b918e52caa18129384cb267453a9fc976270bc72fa8025",
+    "synth/redstone.ys": "47e9b12996019e8d08b34fb0ecb3561528bf4e74e73a3146e328ed99caf8df42",
+    "src/shamaos/synthesis.py": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274"
+  },
+  "complete_original_ports": {
+    "bank_select": {
+      "direction": "output",
+      "width": 2
+    },
+    "clk": {
+      "direction": "input",
+      "width": 1
+    },
+    "read_enable": {
+      "direction": "output",
+      "width": 1
+    },
+    "req_addr": {
+      "direction": "input",
+      "width": 32
+    },
+    "req_rdata": {
+      "direction": "output",
+      "width": 32
+    },
+    "req_ready": {
+      "direction": "output",
+      "width": 1
+    },
+    "req_valid": {
+      "direction": "input",
+      "width": 1
+    },
+    "req_wdata": {
+      "direction": "input",
+      "width": 32
+    },
+    "req_we": {
+      "direction": "input",
+      "width": 1
+    },
+    "req_wstrb": {
+      "direction": "input",
+      "width": 4
+    },
+    "row_address": {
+      "direction": "output",
+      "width": 10
+    },
+    "rst": {
+      "direction": "input",
+      "width": 1
+    },
+    "selected_word": {
+      "direction": "input",
+      "width": 32
+    },
+    "write_commit": {
+      "direction": "output",
+      "width": 1
+    },
+    "write_data": {
+      "direction": "output",
+      "width": 32
+    }
+  },
+  "plan_summary": {
+    "native_cells": 1144,
+    "original_port_bits": 183,
+    "signals": 1248,
+    "original_sink_uses": 2155,
+    "clock_leaf_uses": 115,
+    "constant_terminals": 0,
+    "leaf_clusters": 21,
+    "internal_clusters": 8,
+    "hierarchy_depth": 3,
+    "bounded_router_domains": 12,
+    "signal_tree_links": 1484,
+    "explicit_fanout_branches": 94,
+    "maximum_router_fanout": 4,
+    "maximum_leaf_boundary": 64,
+    "maximum_domain_terminals": 256,
+    "maximum_domains_at_one_cluster": 2,
+    "topology_sha256": "aabd37d3322b1eac9571b541e9558a9b835afeb44ece93987081a21185950e97",
+    "original_signal_endpoints_sha256": "916bd6d13d2c3c36de6843a274f33c34ba648c64e6e716f34724d8ccbf4af579",
+    "all_signal_records_retained": true
+  },
+  "plan_budgets": {
+    "native_cells_per_leaf": 64,
+    "boundary_terminals_per_leaf": 128,
+    "routing_terminals_per_domain": 256,
+    "children_per_cluster": 4
+  },
+  "plan_audit": {
+    "status": "passed",
+    "signals": 1248,
+    "native_cells": 1144,
+    "scope": "complete structural graph reconstruction; no physical routing or timing claim"
+  },
+  "native_cache": {
+    "bytes": 8192,
+    "stored_bits": 65536,
+    "banks": 2,
+    "rows_per_bank": 1024,
+    "word_bits": 32,
+    "layer_pitch": 12,
+    "layers": 2,
+    "decoder_x_offset": -170,
+    "origin": {
+      "x": 2574,
+      "y": -56,
+      "z": 0
+    },
+    "bounds": {
+      "min": {
+        "x": 2400,
+        "y": -60,
+        "z": -20
+      },
+      "max": {
+        "x": 2736,
+        "y": 52,
+        "z": 6152
+      }
+    },
+    "minimum_build_y": -60,
+    "surface_y": -61,
+    "bank_pins": 2,
+    "row_address_pins": 10,
+    "write_data_pins": 32,
+    "selected_word_pins": 32,
+    "controller_to_fabric_net_count": 78
+  },
+  "acceptance_corrections": [
+    "The adapter operates on aligned 32-bit words and already-shifted lane strobes; req_addr low two bits do not select lanes.",
+    "A software operation crossing a word/bank boundary requires distinct valid bus requests; the current CPU rejects misaligned halfword/word instructions.",
+    "Invalid-address writes are rejected by req_addr>=8192; the adapter has no independent transfer-size field for an oversized-write test.",
+    "Cold reset suppresses write_commit logically and must preserve stored cells; physical propagation delay and commit/selection overlap still need actual native traces."
+  ],
+  "next_fixture": {
+    "controller": "Every one of the 1144 mapped native cells and 183 scalar original pins",
+    "storage": "Both complete 1024-by-32 native banks at production relative geometry, with the ten-bit decoder, local selects and upward read return",
+    "externally_driven": "Only original request, clock and reset pins; selected_word must be driven by literal memory",
+    "intermediate_gate": "The full two-bank decoder/backbone circuit can be exercised through its real 46 input and 32 output pins before the complete mapped-controller placement is available; label that as a fabric gate, not integrated controller acceptance."
+  },
+  "remaining": [
+    "Place and audit every bounded controller domain/contact; no complete controller geometry has been emitted by this review.",
+    "Connect all 78 controller/fabric signal nets with literal source/sink faces and preserve all 115 clock leaves.",
+    "Measure settled read, merge and commit paths and state/selector overlap on the actual native world with positive and deliberately too-fast controls.",
+    "Selectively trace controls/clock pins while checking all 65536 stored bits at every transaction boundary.",
+    "Persist a quiescent native snapshot and continue in a fresh engine process."
+  ],
+  "scope": "No connected geometry, chunk count, runtime, timing closure or complete-machine claim."
+}

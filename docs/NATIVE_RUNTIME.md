@@ -93,6 +93,49 @@ changed source files and configured chunk-limit overruns also fail explicitly.
 They are never silently omitted. The runner always reports
 `complete_machine_runtime_verified: false` for this experimental path.
 
+### Selective tick traces with complete output assertions
+
+A scenario can retain tick samples for a small set of declared output names:
+
+```json
+{
+  "capture_trace": true,
+  "trace_outputs": ["clock", "ready", "read_data0"]
+}
+```
+
+These fields accompany the existing `outputs`, `initial_ticks` and `steps`.
+Every selected name must exist in `outputs`. Omitting `trace_outputs` preserves
+the original behavior: `capture_trace: true` records every output, while an
+omitted or false `capture_trace` returns the existing empty trace arrays. A
+selection with tracing disabled, an empty selection, duplicate names or unknown
+names is rejected before circuit initialization. The selection must be an array
+of strings; explicit JSON `null` is rejected rather than treated as omission.
+
+Selection controls only retained tick samples. The sampler reads the selected
+coordinates directly, so unselected memory bits are not read on each tick just
+to discard their traces. Every entry in each step's `expect` still checks its
+original declared coordinate, including untraced storage bits. End-of-step
+checks, zero-tick boundary checks and `continuous: true` checks keep the same
+meaning. A complete cache fixture must therefore continue to include all 65,536
+storage bits in its boundary expectations; selecting controller and clock
+traces does not reduce that assertion set. Continuous assertions still evaluate
+every output explicitly requested in that step on every tick.
+
+The report's `trace_capture` records `mode` (`all`, `selected` or `disabled`),
+`declared_outputs`, `traced_outputs` and `samples_per_output`. As before, trace
+samples cover the execution steps, not the initial settling ticks. A trace-only
+scenario remains `executed-trace-only`; selecting a trace does not establish an
+asserted pass. Tick scheduling, block updates, source hashing and native
+snapshot persistence are unchanged.
+
+The focused actual-engine regression is
+`tests/test_mchprs_sparse_trace.py`. It compares selected samples with filtering
+a full run, preserves complete native-memory boundary assertions and exact
+quiescent snapshot states, and requires deliberately incorrect untraced storage
+bits to fail at the same boundary or continuous tick. This small-fixture proof
+does not establish complete-cache or whole-machine execution.
+
 ## Exact superflat terrain registration
 
 The unmodified pinned engine recognizes the generated circuit blocks but does
@@ -202,6 +245,86 @@ The behavioral CI job builds both registry variants, runs the native-import and
 scheduled-tick regression without skips, and archives compact reports under
 `build/validation`. It also archives the exact private-engine patch/provenance.
 Large temporary saved worlds and raw trace files stay outside git.
+
+## Saving actual simulated state
+
+The runner now has a separate, explicit `--snapshot` option. It writes every
+loaded section and the actual comparator entities only when its scheduled-tick
+queue is empty. An active queue fails the operation before creating a snapshot;
+the runner does not discard pending work or advance extra ticks to manufacture a
+different save boundary. The snapshot reads each section through the engine's
+current block accessor, including its mutation overlay, so it contains completed
+redstone updates rather than just the initially imported packed arrays.
+
+`python -m shamaos.mchprs_snapshot` converts this stream into a fresh Java 1.20.4
+native world. It requires the exact SHA-256 reported by the runner and the
+unchanged original native source. It preserves the source world, refuses an
+existing destination, validates all 24 sections per chunk and every comparator,
+then independently reopens the new Anvil data before publishing the directory.
+Every original saved chunk must remain present; additional chunks created by
+actual drive-pad activity are allowed. Failed restores remove only their own
+temporary directory. Publication uses Linux `renameat2(RENAME_NOREPLACE)`, which
+also rejects a destination that appears after validation; systems or filesystems
+without that atomic operation fail explicitly instead of falling back to a
+replacing rename.
+Unsupported states, stale provenance, missing sections, incomplete streams and
+pending ticks are rejected. Comparator output is preserved as its actual integer
+strength from 0 through 15; a powered comparator is not assumed to output 15.
+
+The complete four-word, 32-bit physical-bank test writes two words, saves the
+result and starts a new runner process from the new native world. Its **128 stored
+bits** are independently checked in native Anvil before that second process
+starts. Both set and cleared bits survive. The first process passes **1,932
+assertions** and the fresh process passes **1,449** while reading every word.
+After clearing the read controls, all **912 sections, 47,598 non-air blocks and
+129 comparator entities** match the first quiescent snapshot exactly. A separate
+analog circuit retains comparator strength **12**, and a requested snapshot with
+pending work fails. The portable suite includes this physical roundtrip and
+57 malformed-input, publication-race, chunk-conservation and analog-state guards.
+
+This proves persistence for a complete small physical bank and its saved circuit
+state. It does not establish an OS boot, a full-machine save, or preservation of
+an active clock's pending events. A larger machine must first reach an explicitly
+paused, settled boundary for this snapshot path. Evidence is recorded separately
+in `docs/evidence/native-persistence-2026-11-13.json`.
+
+A separate [register-persistence proof](evidence/register-persistence-2026-11-13.json)
+covers four native DFF cells with real saved lever controls. The registers retain
+the nonzero pattern `1010` while every data input is low. Both stopped-clock
+levels pass: the saved slave latches, output wires and controls are checked in
+native chunks before reimport; a fresh process holds every section and comparator
+state unchanged; a subsequent clock edge captures the inverse pattern. Loading
+the unchanged initial world fails the specific retained-bit check. Both cases
+pass, and an independent source review found no blocking gap. This remains a
+448-block, 16-chunk fixture with no complete-machine or active-tick claim.
+
+```sh
+tests/mchprs_sparse_runtime/target/release/shama-sparse-world-check-terrain \
+  build/native-world.jsonl /path/to/scenario.json 100000 \
+  --snapshot build/settled-state.jsonl
+python -m shamaos.mchprs_snapshot build/settled-state.jsonl \
+  --source-world /path/to/original-native-world \
+  --output build/reopened-native-world \
+  --sha256 SNAPSHOT_SHA256_FROM_THE_RUNNER_REPORT
+```
+
+## Measured row-tiling tradeoff
+
+An isolated experiment split one complete 4 KiB bank into two, four and eight
+shorter row tiles. It emitted the common binary address, data, enable and selected
+read-return wiring along with all 32,768 storage bits. The four-tile layout reduced
+the bounding perimeter by **46.43%**, but increased occupied chunks from **7,715
+to 10,680**, or **38.43%**. Two tiles still added 18.65% occupied chunks; eight
+added 77.99%. The shared 32-bit input and output wiring used more front/rear area
+than the shorter row trunks saved.
+
+These candidates have zero conflicting block states at shared coordinates, but
+have not passed actual-engine timing or retention tests. Their chunk regression
+is sufficient to keep them out of the production geometry. The reproducible
+emitter is in `experiments/memory_row_tiles`; exact counts and the rejected
+tradeoff are in `docs/evidence/memory-row-tiling-2026-11-13.json`. A useful follow-up
+would first reduce the cross-tile bus footprint while retaining independent
+physical signals and the full capacity.
 
 ## Memory bounds and Redpiler
 

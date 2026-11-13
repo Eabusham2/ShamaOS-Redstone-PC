@@ -1,0 +1,97 @@
+{
+  "kind": "actual-native-selective-trace-equivalence",
+  "status": "passed",
+  "storage_bits": 32,
+  "declared_outputs": 40,
+  "selected_outputs": [
+    "Q1",
+    "Q7"
+  ],
+  "asserted_outputs_at_each_boundary": 40,
+  "transaction_boundaries": 8,
+  "full_boundary_assertions": 320,
+  "full_trace_samples": 71680,
+  "selected_trace_samples": 3584,
+  "all_selected_samples_equal_full_trace": true,
+  "tick_scheduler_and_initialization_metrics_unchanged": true,
+  "every_snapshot_state_and_comparator_unchanged": true,
+  "source_import": {
+    "chunks": 11,
+    "sections": 264,
+    "nonair": 2240,
+    "comparators": 32,
+    "stream_bytes": 57067,
+    "stream_sha256": "25847f3124d458d0c529a07839665f356479fa6f14f1be4fd629a1d55a81e458",
+    "source": {
+      "native_world": "/tmp/pytest-of-agent/pytest-62/selective-trace-native-memory0/world",
+      "data_version": 3700,
+      "level_dat_sha256": "eed5da201a6179bbf1fa20fdbb6f3f79e78e054f0b04a14f8cbb34c348891646",
+      "regions": [
+        {
+          "name": "r.0.0.mca",
+          "bytes": 53248,
+          "sha256": "34c676d585b8440cb0943a6305d985f4856a59572441451cecbd23d7fb3ae17a"
+        }
+      ],
+      "scope": "every saved chunk and section; not an assertion of complete-machine capacity",
+      "saved_native_pending_ticks": 0
+    },
+    "schema": "shama-native-anvil-sections-v2",
+    "uniform_sections": 244
+  },
+  "runtime": {
+    "status": "passed",
+    "assertions": 320,
+    "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+    "engine_registry": "unmodified pinned registry",
+    "engine_registry_patch_sha256": null,
+    "loaded_chunks": 11,
+    "uniform_sections": 244,
+    "chunks_after_drives": 11,
+    "decoded_nonair_blocks": 2240,
+    "initialized_nonair_blocks": 2240,
+    "paletted_storage_bytes_before_updates": 542112,
+    "comparator_entities": 32,
+    "steps": 8,
+    "ticks": 2048,
+    "scheduled_ticks_total": 176,
+    "peak_pending_ticks": 20,
+    "pending_ticks_after_scenario": 0,
+    "imported_stream_sha256": "25847f3124d458d0c529a07839665f356479fa6f14f1be4fd629a1d55a81e458",
+    "complete_machine_runtime_verified": false
+  },
+  "runner_sha256": "b05ac41b56c726efb5e1e577613b922c34b1253281c2c7335e23366687b38ac4",
+  "source_sha256": {
+    "tests/test_mchprs_sparse_trace.py": "ba61df507aa1694b334b60293b6d5a843059311a2278e12202464b23da5b3e89",
+    "tests/mchprs_sparse_runtime/src/main.rs": "e4c6d92ba0f12770880ef8a691c29888132bc84d3a2967221d12c93bbefb566a",
+    "tests/mchprs_sparse_runtime/src/snapshot.rs": "2a38ab18967e51ba245b41ca946e4b5fe891820ffb33a88b9f6aa4277a59b832"
+  },
+  "scope": "Four native bytes plus saved two-output logic tests; no complete-cache or whole-machine execution claim.",
+  "focused_regression": {
+    "tests": 21,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 0.957
+  },
+  "additional_compatibility_scope": "Three existing sparse/dense and legacy-uniform/all-trace cases; eighteen new selective-trace cases, all actual-engine.",
+  "runner_build": "cargo build --locked --offline --release --manifest-path tests/mchprs_sparse_runtime/Cargo.toml",
+  "independent_root_review": {
+    "tests": 60,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 19.045,
+    "junit_sha256": "a04949ab0a5ec12b05382e0b4db896c60814c889f94439c9e061f942a859aa8a",
+    "files": [
+      "tests/test_mchprs_sparse_trace.py",
+      "tests/test_mchprs_sparse_runtime.py",
+      "tests/test_mchprs_register_persistence.py",
+      "tests/test_mchprs_snapshot.py::test_actual_memory_write_native_save_and_fresh_process_retention"
+    ],
+    "ordinary_runner_sha256": "b05ac41b56c726efb5e1e577613b922c34b1253281c2c7335e23366687b38ac4",
+    "terrain_runner_sha256": "996ae88a29015472f930a5a7f53dfadc9fd4bb8097e29305ea9a17bfc697c499",
+    "source_bindings_verified": true,
+    "review": "Trace selection changes sampling only; verification, tick/update order, all-output compatibility and native snapshot state are preserved. Missing, duplicate, empty, null, wrongly typed and disabled selections are rejected."
+  }
+}

@@ -1,0 +1,243 @@
+{
+  "kind": "actual-engine-quiescent-native-save-reopen",
+  "status": "passed",
+  "stored_bytes": 16,
+  "storage_bits": 128,
+  "words": 4,
+  "word_bits": 32,
+  "initial_words": [
+    305441741,
+    1437226410,
+    0,
+    4294967295
+  ],
+  "saved_words": [
+    305441741,
+    2778132495,
+    0,
+    0
+  ],
+  "analog_comparator_strength_saved_and_reloaded": 12,
+  "native_bits_independently_checked_before_fresh_process": 128,
+  "first_runtime": {
+    "assertions": 1932,
+    "chunks_after_drives": 38,
+    "comparator_entities": 129,
+    "complete_machine_runtime_verified": false,
+    "decoded_nonair_blocks": 46574,
+    "engine_registry": "pinned registry plus explicit native bedrock/dirt/grass states",
+    "engine_registry_patch_sha256": "8ebd0e097d07e93a6b2b158e08ad19c2660b0b7e2521c6b6d34a4583a10bfbdc",
+    "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+    "import_seconds": 0.013059593,
+    "imported_stream_sha256": "9197df03a92a2a46ce14171e716e50103b47fdc3fe55aab55c91fd8dd3b86974",
+    "initialization_seconds": 0.05993118,
+    "initialized_nonair_blocks": 46574,
+    "kind": "streamed-native-anvil-sparse-mchprs-runtime",
+    "loaded_chunks": 37,
+    "loading": "every decoded chunk remains loaded and every scheduled tick is processed; no player radius or unloading",
+    "memory_sample_scope": "process high-water mark after report assembly, before stdout serialization; external process measurement may be higher",
+    "native_to_runtime_translation_y": 64,
+    "paletted_storage_bytes_before_updates": 1830676,
+    "peak_pending_ticks": 80,
+    "peak_rss_kib": 4444,
+    "pending_ticks_after_scenario": 0,
+    "runtime_seconds": 0.019111502,
+    "scenario_sha256": "3af1bf4568e23c459d36c6af2351c6b3cc7c5c08d5969b46d5cda1fde5a84ae3",
+    "scheduled_ticks_total": 913,
+    "snapshot": {
+      "bytes": 371077,
+      "chunks": 38,
+      "comparators": 129,
+      "complete_machine_runtime_verified": false,
+      "nonair": 47598,
+      "pending_scheduled_ticks": 0,
+      "seconds": 0.051405101,
+      "sections": 912,
+      "sha256": "bfeba0968ab93544fef90fa8173edb44285897b21b558869a6f8f7b18a3db8a8",
+      "status": "quiescent-snapshot-written",
+      "uniform_sections": 874
+    },
+    "source": {
+      "data_version": 3700,
+      "level_dat_sha256": "357df95f4aee2543274d4eb7be87a48e8c95da95f7ab9d88aec5c7f22df36970",
+      "regions": [
+        {
+          "bytes": 159744,
+          "name": "r.0.0.mca",
+          "sha256": "8a3d5b5d5e4133cb63664d8326d92eb89fded027947669050a215ee0e59842ec"
+        }
+      ],
+      "saved_native_pending_ticks": 0,
+      "scope": "every saved chunk and section; not an assertion of complete-machine capacity"
+    },
+    "status": "passed",
+    "steps": 12,
+    "ticks": 3328,
+    "uniform_sections": 851
+  },
+  "second_runtime": {
+    "assertions": 1449,
+    "chunks_after_drives": 38,
+    "comparator_entities": 129,
+    "complete_machine_runtime_verified": false,
+    "decoded_nonair_blocks": 47598,
+    "engine_registry": "pinned registry plus explicit native bedrock/dirt/grass states",
+    "engine_registry_patch_sha256": "8ebd0e097d07e93a6b2b158e08ad19c2660b0b7e2521c6b6d34a4583a10bfbdc",
+    "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+    "import_seconds": 0.010119566,
+    "imported_stream_sha256": "e77629ce2745e2f199198b21663e3a2f8ff8be5ee1da2b6f01d5e6359328c567",
+    "initialization_seconds": 0.0535208,
+    "initialized_nonair_blocks": 47598,
+    "kind": "streamed-native-anvil-sparse-mchprs-runtime",
+    "loaded_chunks": 38,
+    "loading": "every decoded chunk remains loaded and every scheduled tick is processed; no player radius or unloading",
+    "memory_sample_scope": "process high-water mark after report assembly, before stdout serialization; external process measurement may be higher",
+    "native_to_runtime_translation_y": 64,
+    "paletted_storage_bytes_before_updates": 1887520,
+    "peak_pending_ticks": 11,
+    "peak_rss_kib": 4424,
+    "pending_ticks_after_scenario": 0,
+    "runtime_seconds": 0.017333544,
+    "scenario_sha256": "38f8099c9571872351474528ecba234ac2448f9f905785f84bd74b71a964a758",
+    "scheduled_ticks_total": 694,
+    "snapshot": {
+      "bytes": 371079,
+      "chunks": 38,
+      "comparators": 129,
+      "complete_machine_runtime_verified": false,
+      "nonair": 47598,
+      "pending_scheduled_ticks": 0,
+      "seconds": 0.036785034,
+      "sections": 912,
+      "sha256": "8b128a021d200273a67c482dbcb9a87026cd328425f89f383c953961a45ac394",
+      "status": "quiescent-snapshot-written",
+      "uniform_sections": 874
+    },
+    "source": {
+      "data_version": 3700,
+      "level_dat_sha256": "357df95f4aee2543274d4eb7be87a48e8c95da95f7ab9d88aec5c7f22df36970",
+      "regions": [
+        {
+          "bytes": 163840,
+          "name": "r.0.0.mca",
+          "sha256": "08f8ee8b8250cba90bb96f6437616ca34e4b55226acd221e96f89f0e236dd525"
+        }
+      ],
+      "saved_native_pending_ticks": 0,
+      "scope": "every saved chunk and section; not an assertion of complete-machine capacity"
+    },
+    "status": "passed",
+    "steps": 9,
+    "ticks": 2560,
+    "uniform_sections": 874
+  },
+  "restore": {
+    "status": "quiescent-snapshot-native-readback-passed",
+    "chunks": 38,
+    "sections": 912,
+    "nonair": 47598,
+    "comparators": 129,
+    "snapshot_sha256": "bfeba0968ab93544fef90fa8173edb44285897b21b558869a6f8f7b18a3db8a8",
+    "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+    "engine_registry_patch_sha256": "8ebd0e097d07e93a6b2b158e08ad19c2660b0b7e2521c6b6d34a4583a10bfbdc",
+    "parent_imported_stream_sha256": "9197df03a92a2a46ce14171e716e50103b47fdc3fe55aab55c91fd8dd3b86974",
+    "parent_scenario_sha256": "3af1bf4568e23c459d36c6af2351c6b3cc7c5c08d5969b46d5cda1fde5a84ae3",
+    "original_source_chunks": 37,
+    "additional_runtime_chunks": 1,
+    "original_chunk_inventory_preserved": true,
+    "original_chunk_inventory_sha256": "f9e3c92b985ca563fe74ca10ff8fad4fa6dd19f38b7b3317826e3a14277d2add",
+    "pending_scheduled_ticks": 0,
+    "complete_machine_runtime_verified": false
+  },
+  "source_import": {
+    "chunks": 37,
+    "sections": 888,
+    "nonair": 46574,
+    "comparators": 129,
+    "stream_bytes": 235201,
+    "stream_sha256": "9197df03a92a2a46ce14171e716e50103b47fdc3fe55aab55c91fd8dd3b86974",
+    "source": {
+      "data_version": 3700,
+      "level_dat_sha256": "357df95f4aee2543274d4eb7be87a48e8c95da95f7ab9d88aec5c7f22df36970",
+      "regions": [
+        {
+          "name": "r.0.0.mca",
+          "bytes": 159744,
+          "sha256": "8a3d5b5d5e4133cb63664d8326d92eb89fded027947669050a215ee0e59842ec"
+        }
+      ],
+      "scope": "every saved chunk and section; not an assertion of complete-machine capacity",
+      "saved_native_pending_ticks": 0
+    },
+    "schema": "shama-native-anvil-sections-v2",
+    "uniform_sections": 851
+  },
+  "restored_import": {
+    "chunks": 38,
+    "sections": 912,
+    "nonair": 47598,
+    "comparators": 129,
+    "stream_bytes": 370564,
+    "stream_sha256": "e77629ce2745e2f199198b21663e3a2f8ff8be5ee1da2b6f01d5e6359328c567",
+    "source": {
+      "data_version": 3700,
+      "level_dat_sha256": "357df95f4aee2543274d4eb7be87a48e8c95da95f7ab9d88aec5c7f22df36970",
+      "regions": [
+        {
+          "name": "r.0.0.mca",
+          "bytes": 163840,
+          "sha256": "08f8ee8b8250cba90bb96f6437616ca34e4b55226acd221e96f89f0e236dd525"
+        }
+      ],
+      "scope": "every saved chunk and section; not an assertion of complete-machine capacity",
+      "saved_native_pending_ticks": 0
+    },
+    "schema": "shama-native-anvil-sections-v2",
+    "uniform_sections": 874
+  },
+  "every_quiescent_section_and_comparator_unchanged_after_reopen_reads": true,
+  "nonempty_pending_tick_snapshot_rejected": true,
+  "complete_machine_runtime_verified": false,
+  "source_checkpoint_before_integration": "c3315eb35b3d52c1828e0d5c0c93dc0139ebd6e9",
+  "repository_source_files_sha256": {
+    "src/shamaos/mchprs_import.py": "0680be7ad82c53561bd1401be2b8133c7cd19a55b591bba6ea18410a6d5de0ea",
+    "src/shamaos/mchprs_snapshot.py": "e0c92da3d8ced59a65879a4fcc411ffbf994f625714d0fee0ba3adae52fcb91e",
+    "src/shamaos/worldio.py": "08e163497c981357b3aa4ce444709f38769001fb512700b0ffd2a8fc4ebda69c",
+    "tests/mchprs_sparse_runtime/src/main.rs": "a33cedc92b495bbe78fc87538f389e7271a592642e008b587d9d7602efcd1bee",
+    "tests/mchprs_sparse_runtime/src/snapshot.rs": "2a38ab18967e51ba245b41ca946e4b5fe891820ffb33a88b9f6aa4277a59b832",
+    "tests/mchprs_snapshot_fixture.py": "e3a85a351923bfd414332671918ad61693b168d32e03ed012e3aa4340e282f00",
+    "tests/test_mchprs_snapshot.py": "2a0f340399e4ff1bf2002223263b786e2fb0a5e06282eec29ddece7e648c78ac"
+  },
+  "runner_sha256": "16764976970e59e31d1af1646f72778b73a8c00f058c5fd29efd557b663e063e",
+  "scope": "Actual small physical-bank write, native snapshot readback and fresh-process read retention; no complete-machine runtime or active scheduled-tick persistence claim",
+  "validation": {
+    "earlier_integrated_batch_tests": 129,
+    "earlier_integrated_batch_skips": 0,
+    "earlier_integrated_batch_seconds": 57.602,
+    "final_persistence_tests": 58,
+    "final_persistence_skips": 0,
+    "final_persistence_seconds": 59.614,
+    "persistence_guard_tests": 57,
+    "legacy_import_runtime_tests": 39,
+    "rust_storage_tests": 2,
+    "final_command": "PYTHONPATH=src:tests python -m pytest tests/test_mchprs_snapshot.py -q (with SHAMA_MCHPRS_TERRAIN_RUNNER set to the terrain-enabled actual-engine binary)",
+    "guards_added_after_root_review": [
+      "own temporary-directory cleanup on every failure",
+      "atomic no-replace publication under concurrent empty and populated destinations",
+      "fail explicitly when the atomic publication platform is unsupported",
+      "retain every original saved chunk even when an extra drive-pad chunk hides the count difference"
+    ]
+  },
+  "independent_root_review": {
+    "tests": 133,
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "seconds": 64.96,
+    "junit_path": "build/root-native-persistence.xml",
+    "junit_sha256": "85709da0445888c16c2b59f998dd37fe986f2e313434d6987eb7c18c581d6377",
+    "all_recorded_source_and_runner_hashes_match": true,
+    "command": "PYTHONPATH=src:tests python -m pytest tests/test_mchprs_snapshot.py tests/test_mchprs_sparse_runtime.py tests/test_native_world.py tests/test_stacked_native_world.py -q (with all three actual-engine runner variables set)",
+    "scope": "Independent rerun of final native persistence, importer/runtime and native/stacked world suites. No complete-machine runtime or active scheduled-tick persistence claim."
+  }
+}

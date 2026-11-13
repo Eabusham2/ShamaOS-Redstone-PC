@@ -1,0 +1,312 @@
+{
+  "status": "passed",
+  "scope": "same-flow logical mapping and exact native cell templates, excluding wiring",
+  "provenance": {
+    "status": "prepared-not-synthesized",
+    "top": "shama_asm_accel",
+    "mapping_mode": "aig",
+    "baseline_commit": "c3315eb35b3d52c1828e0d5c0c93dc0139ebd6e9",
+    "candidate_commit": "759662de203565a44eac9d6443a9f38bcbee147a",
+    "yosys_version": "Yosys 0.33 (git sha1 2584903a060)",
+    "yosys": "/workspace/scratch/fb0eaf1c89fe/validation-tools/bin/yosys",
+    "source_hashes": {
+      "rtl/sha256_compress.sv": "eb9b0df776d407b28e0e59b92559a1ba8ae00a888256141c9aa96f6ad91400e8",
+      "rtl/sha256_fixed64.sv": "5c36c329b2526ca8ff55fcd2009aa9e11cab52d2331e93003fed2eff89b54012",
+      "rtl/bitcoin_dsha256.sv": "7c8c36ff57d51c63827039eb9302099129332778eaee74e1a62094d2f554fae5",
+      "rtl/shama_cpu.sv": "27e994f05283e16a6ab2536466cbb3923ee3f2f49cca5251491b0470395ea333",
+      "rtl/shama_font5x7.sv": "b04981885905696d604c8923dd2350ee6e2c5b56c3226597bdb42ee8ff2f1505",
+      "rtl/shama_gpu.sv": "817ddbb03248bae2ba816f754eceb4c0a6d3b3fe4463fae550ad7b3a1ea1d4c2",
+      "rtl/shama_display_bridge.sv": "c5753e43857b62cb97f8ef6bd5c98e0f8fcf2f69a707450215453c6f282234bb",
+      "rtl/shama_input.sv": "50c552be1af19dbc9da2b2d3e93fb9b94d3e420a4618cd2a21514a9c71c27b4e",
+      "rtl/shama_onehot_ring.sv": "4e5516e317d231f958d966f57d9002f3a9a36d01585fc70b55ef98b4ba6d80a2",
+      "rtl/shama_ring_memctl.sv": "a384b525d6709499bca0563498d8d956d80a5ccfeb23341a04b72afff2d64856",
+      "rtl/shama_memory_adapter.sv": "853d438ff507e4740fb6468445804ccc846378686e66d7b136952a06f93fb0af",
+      "rtl/shama_services.sv": "e47144577491797114fe9f21cfbf7037ea3ac2b23837205371eafc5df91ba711",
+      "rtl/shama_kernel_accel.sv": "56ba28e236f033824f3a3062897ceac3146c5513f8301a528bcf7450b54c95cd",
+      "rtl/shama_fs_accel.sv": "f6022d374ed0197d9c61d41a2b742d70600aa135d4ec4861d83a80fabfd20671",
+      "rtl/shama_asm_accel.sv": "7f2ec4266e960dfa9083bff08aabc49cdea578b5bde8ecf5e281338d6f925770",
+      "rtl/shama_soc.sv": "5387762f974450c8b33fd67c77b49ede0107c69ecd6930e07f8fdc30f9ed8c26",
+      "rtl/shama_boot_params.svh": "3ec00fbefe06958cc2b918e52caa18129384cb267453a9fc976270bc72fa8025",
+      "src/shamaos/synthesis.py": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274",
+      "src/shamaos/system_build.py": "1d8fe4deca82c64b386f7c0720cf6bb58ef1eb23179a6781796809e02e568a62",
+      "src/shamaos/hardware/logic.py": "84a4f2cc3c535628ccd4e16ae0480b3cc99310f1fb83fe28f98d98b621ab1dff",
+      "src/shamaos/hardware/memory.py": "f44923cd4376d10fb2f62d5daf3bf752fe340e269355ac3564fd26ee2b5a8517",
+      "src/shamaos/model.py": "1a0fd1f9eb9469989057e4486401e5161e7f0bb02eb69195b7a14a74e92f4b95",
+      "synth/redstone_aig.ys": "c6674ebcbfdc6171eeab5a61a2de91ec083cdb5dd2a5b8c0711502d739db16bf",
+      "experiments/assembler_operand_sharing/measure_size.py": "e4f39d29702c3b02e9684eafbb46bdd6654fdd78da55e623db59fa81fde47fe6"
+    },
+    "preprocessing": {
+      "artifact-source": {
+        "source_sha256": "34d04460a043e31b45d412b93762b7ebfd413c718679a73d1fad8f0f0481fc65",
+        "header_sha256": "60bdee42eed3e35a8c5dd9099e7f199334aa2c8cad828cc1a3573f98b9d04011",
+        "preprocessed_sha256": "8f8491e4bf6099d68abbf38642b814cbda9d807dfdf35dcf085743e9d55c2702",
+        "effective_macros": {
+          "SHAMA_RAM_BYTES": "32'h00018000"
+        }
+      },
+      "baseline": {
+        "source_sha256": "34d04460a043e31b45d412b93762b7ebfd413c718679a73d1fad8f0f0481fc65",
+        "header_sha256": "3ec00fbefe06958cc2b918e52caa18129384cb267453a9fc976270bc72fa8025",
+        "preprocessed_sha256": "8f8491e4bf6099d68abbf38642b814cbda9d807dfdf35dcf085743e9d55c2702",
+        "effective_macros": {
+          "SHAMA_RAM_BYTES": "32'h00018000"
+        }
+      },
+      "candidate": {
+        "source_sha256": "7f2ec4266e960dfa9083bff08aabc49cdea578b5bde8ecf5e281338d6f925770",
+        "header_sha256": "3ec00fbefe06958cc2b918e52caa18129384cb267453a9fc976270bc72fa8025",
+        "preprocessed_sha256": "8a80ee1eb7ec9fb390b040788f90734493779d107374b98f394069574a709026",
+        "effective_macros": {
+          "SHAMA_RAM_BYTES": "32'h00018000"
+        }
+      }
+    },
+    "synthesis_script_sha256": "a9a62f005d3a4f302431033e996e0973904c17449f1e17ce257123d741154a99",
+    "rtl_files_in_order": [
+      "rtl/sha256_compress.sv",
+      "rtl/sha256_fixed64.sv",
+      "rtl/bitcoin_dsha256.sv",
+      "rtl/shama_cpu.sv",
+      "rtl/shama_font5x7.sv",
+      "rtl/shama_gpu.sv",
+      "rtl/shama_display_bridge.sv",
+      "rtl/shama_input.sv",
+      "rtl/shama_onehot_ring.sv",
+      "rtl/shama_ring_memctl.sv",
+      "rtl/shama_memory_adapter.sv",
+      "rtl/shama_services.sv",
+      "rtl/shama_kernel_accel.sv",
+      "rtl/shama_fs_accel.sv",
+      "rtl/shama_asm_accel.sv",
+      "rtl/shama_soc.sv"
+    ],
+    "baseline_netlist": "/workspace/scratch/fb0eaf1c89fe/experiments/partition-planner/artifacts/current-asm-4e933a5/partition-u_asm-shama_asm_accel.json",
+    "baseline_provenance": "/workspace/scratch/fb0eaf1c89fe/experiments/partition-planner/artifacts/current-asm-4e933a5/effective-rtl-provenance.json",
+    "baseline_provenance_sha256": "cda9db3fe207552ec837ca3e65f464f96dd061a8ed73b26d4c5cc9b3c6d764f3",
+    "expected_baseline_json_sha256": "78a6ab3abcbbe4bde94acaf6bbfdb8388dbeebf301757f34c49172f97b1664ee",
+    "expected_baseline_json_bytes": 283098586,
+    "expected_baseline_lowered_native_cells": 559453,
+    "expected_baseline_literal_cell_placements": 23025358,
+    "baseline_artifact_ci_run": 43333367519
+  },
+  "baseline": {
+    "status": "counted",
+    "top": "shama_asm_accel",
+    "mapped_json_sha256": "78a6ab3abcbbe4bde94acaf6bbfdb8388dbeebf301757f34c49172f97b1664ee",
+    "mapped_json_bytes": 283098586,
+    "creator": "Yosys 0.33 (git sha1 2584903a060)",
+    "raw_cells": 505104,
+    "raw_cell_types": {
+      "$_AND_": 265196,
+      "$_DFFE_PN_": 4705,
+      "$_DFFE_PP_": 12288,
+      "$_NOT_": 222422,
+      "$_SDFFE_PP0P_": 475,
+      "$_SDFFE_PP1P_": 14,
+      "$_SDFF_PN0_": 4
+    },
+    "lowered_native_cells": 559453,
+    "native_cell_types": {
+      "$_AND_": 265196,
+      "$_DFF_P_": 17486,
+      "$_NAND_": 53925,
+      "$_NOT_": 222846
+    },
+    "templates": {
+      "$_AND_": {
+        "native_template": "AND",
+        "emitted_placements": 62,
+        "unique_blocks": 62,
+        "literal_sha256": "58b4e992009a3a6364764a5579d0e10d4f4a6b0da499fdbbc3eb1e42c249fed9"
+      },
+      "$_DFF_P_": {
+        "native_template": "DFF",
+        "emitted_placements": 108,
+        "unique_blocks": 108,
+        "literal_sha256": "51ba0745a9340c454bf6116ae4616001680486de5ef70c48dfb8b941e606a95a"
+      },
+      "$_NAND_": {
+        "native_template": "NAND",
+        "emitted_placements": 54,
+        "unique_blocks": 54,
+        "literal_sha256": "68a661234f78b64e01401c091415a34ad7830574f7faa4f918c72bd3106f4bb0"
+      },
+      "$_NOT_": {
+        "native_template": "NOT",
+        "emitted_placements": 8,
+        "unique_blocks": 8,
+        "literal_sha256": "05a656c8a793ac9a8599ec67b50ddea8c08de4ef11f128bb57ab0c32d9d232b2"
+      }
+    },
+    "literal_cell_placements": 23025358,
+    "literal_unique_cell_blocks": 23025358,
+    "logical_stats": {
+      "scope": "unit native-gate depth between primary inputs/DFF Q and DFF D/top outputs; no route or redstone timing",
+      "combinational_cells": 541967,
+      "maximum_unit_gate_depth": 1208,
+      "maximum_endpoint_unit_gate_depth": 1208,
+      "maximum_fanout_including_clocks": 17486,
+      "maximum_fanout_excluding_DFF_clock_pins": 672,
+      "constant_input_uses": {
+        "0": 480,
+        "1": 18
+      }
+    },
+    "excluded": [
+      "intercell wiring",
+      "port terminals",
+      "constant source blocks",
+      "placement spacing",
+      "all other partitions"
+    ],
+    "whole_machine_chunks": null,
+    "physical_clock_speed_verified": false
+  },
+  "candidate": {
+    "status": "counted",
+    "top": "shama_asm_accel",
+    "mapped_json_sha256": "96665222c9fce4928fd38418bbe43aa9788655741b5fc150a79141d1d742023a",
+    "mapped_json_bytes": 241805889,
+    "creator": "Yosys 0.33 (git sha1 2584903a060)",
+    "raw_cells": 427596,
+    "raw_cell_types": {
+      "$_AND_": 225427,
+      "$_DFFE_PN_": 4705,
+      "$_DFFE_PP_": 12288,
+      "$_NOT_": 184683,
+      "$_SDFFE_PP0P_": 475,
+      "$_SDFFE_PP1P_": 14,
+      "$_SDFF_PN0_": 4
+    },
+    "lowered_native_cells": 481945,
+    "native_cell_types": {
+      "$_AND_": 225427,
+      "$_DFF_P_": 17486,
+      "$_NAND_": 53925,
+      "$_NOT_": 185107
+    },
+    "templates": {
+      "$_AND_": {
+        "native_template": "AND",
+        "emitted_placements": 62,
+        "unique_blocks": 62,
+        "literal_sha256": "58b4e992009a3a6364764a5579d0e10d4f4a6b0da499fdbbc3eb1e42c249fed9"
+      },
+      "$_DFF_P_": {
+        "native_template": "DFF",
+        "emitted_placements": 108,
+        "unique_blocks": 108,
+        "literal_sha256": "51ba0745a9340c454bf6116ae4616001680486de5ef70c48dfb8b941e606a95a"
+      },
+      "$_NAND_": {
+        "native_template": "NAND",
+        "emitted_placements": 54,
+        "unique_blocks": 54,
+        "literal_sha256": "68a661234f78b64e01401c091415a34ad7830574f7faa4f918c72bd3106f4bb0"
+      },
+      "$_NOT_": {
+        "native_template": "NOT",
+        "emitted_placements": 8,
+        "unique_blocks": 8,
+        "literal_sha256": "05a656c8a793ac9a8599ec67b50ddea8c08de4ef11f128bb57ab0c32d9d232b2"
+      }
+    },
+    "literal_cell_placements": 20257768,
+    "literal_unique_cell_blocks": 20257768,
+    "logical_stats": {
+      "scope": "unit native-gate depth between primary inputs/DFF Q and DFF D/top outputs; no route or redstone timing",
+      "combinational_cells": 464459,
+      "maximum_unit_gate_depth": 1256,
+      "maximum_endpoint_unit_gate_depth": 1256,
+      "maximum_fanout_including_clocks": 17486,
+      "maximum_fanout_excluding_DFF_clock_pins": 491,
+      "constant_input_uses": {
+        "0": 480,
+        "1": 18
+      }
+    },
+    "excluded": [
+      "intercell wiring",
+      "port terminals",
+      "constant source blocks",
+      "placement spacing",
+      "all other partitions"
+    ],
+    "whole_machine_chunks": null,
+    "physical_clock_speed_verified": false
+  },
+  "delta": {
+    "lowered_native_cells": {
+      "baseline": 559453,
+      "candidate": 481945,
+      "saved": 77508,
+      "reduction_percent": 13.854246916184202
+    },
+    "literal_cell_placements": {
+      "baseline": 23025358,
+      "candidate": 20257768,
+      "saved": 2767590,
+      "reduction_percent": 12.01974796656799
+    },
+    "literal_unique_cell_blocks": {
+      "baseline": 23025358,
+      "candidate": 20257768,
+      "saved": 2767590,
+      "reduction_percent": 12.01974796656799
+    }
+  },
+  "measurement": {
+    "synthesis": {
+      "method": "external parent os.wait4 after complete child exit",
+      "platform": "linux",
+      "elapsed_seconds": 417.9137842669952,
+      "peak_rss_kib": 1522428,
+      "user_seconds": 406.006318,
+      "system_seconds": 10.707574,
+      "returncode": 0,
+      "command": [
+        "/workspace/scratch/fb0eaf1c89fe/validation-tools/bin/yosys",
+        "-q",
+        "-s",
+        "/workspace/scratch/fb0eaf1c89fe/experiments/assembler-size-reviewed/candidate.ys"
+      ]
+    },
+    "baseline": {
+      "method": "external parent os.wait4 after complete child exit",
+      "platform": "linux",
+      "elapsed_seconds": 11.119366733997595,
+      "peak_rss_kib": 1258724,
+      "user_seconds": 9.480795,
+      "system_seconds": 1.601579,
+      "returncode": 0,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/fb0eaf1c89fe/ShamaOS-asm-sharing/experiments/assembler_operand_sharing/measure_size.py",
+        "--count",
+        "/workspace/scratch/fb0eaf1c89fe/experiments/partition-planner/artifacts/current-asm-4e933a5/partition-u_asm-shama_asm_accel.json",
+        "--output",
+        "/workspace/scratch/fb0eaf1c89fe/experiments/assembler-size-reviewed/baseline-counts.json"
+      ]
+    },
+    "candidate": {
+      "method": "external parent os.wait4 after complete child exit",
+      "platform": "linux",
+      "elapsed_seconds": 9.668984799995087,
+      "peak_rss_kib": 1085992,
+      "user_seconds": 8.096788,
+      "system_seconds": 1.5170219999999999,
+      "returncode": 0,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/fb0eaf1c89fe/ShamaOS-asm-sharing/experiments/assembler_operand_sharing/measure_size.py",
+        "--count",
+        "/workspace/scratch/fb0eaf1c89fe/experiments/assembler-size-reviewed/candidate-mapped.json",
+        "--output",
+        "/workspace/scratch/fb0eaf1c89fe/experiments/assembler-size-reviewed/candidate-counts.json"
+      ]
+    }
+  },
+  "whole_machine_chunks": null,
+  "complete_machine_runtime_verified": false,
+  "physical_clock_speed_verified": false
+}

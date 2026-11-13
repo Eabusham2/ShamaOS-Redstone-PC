@@ -1,0 +1,42 @@
+{
+  "status": "independent-subtree-bindings-passed",
+  "root_cluster": 11,
+  "complete_partition": true,
+  "clusters": 12,
+  "physical_modules": 16,
+  "native_cells": 3,
+  "original_port_bits": 6,
+  "signal_endpoint_records": 48,
+  "local_signal_uses": 7,
+  "constant_terminals": 3,
+  "internal_shared_contacts": 18,
+  "crossing_full_plan_boundaries": 0,
+  "incoming_boundary_sources": 0,
+  "outgoing_boundary_consumers": 0,
+  "actual_boundary_faces_checked": 36,
+  "exposed_parent_interfaces": [
+    {
+      "cluster": 9,
+      "ports": 3,
+      "z": 94,
+      "y_values": [
+        40
+      ]
+    },
+    {
+      "cluster": 10,
+      "ports": 3,
+      "z": 46,
+      "y_values": [
+        136
+      ]
+    }
+  ],
+  "full_plan_topology_sha256": "79b15f06c8410678c43f75f89b167154f8280633e60e4f4a40138a86b393e498",
+  "scope": "Selected subtree native pins, constants, contacts, directed graph and declared escape faces; full graph retains outside consumers. Literal collision/isolation and actual-engine timing are separate gates.",
+  "literal_union_recomputed": false,
+  "runtime_verified_by_this_audit": false,
+  "manifest_sha256": "592c0034b27b5c5c9fa8ddcd5bec6546be8a5f404d0d3a5b66e4ed0a0e43f346",
+  "uncompressed_manifest_sha256": "f8dac02db2ba835246f68201d18db8d19280d95c2c0ea485bd14002db48198f8",
+  "auditor_sha256": "8d84378b7712dcf9bbca01f2d32811db99617158f2010565df7edf95cc63da6b"
+}

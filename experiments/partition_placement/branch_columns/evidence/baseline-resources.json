@@ -1,0 +1,22 @@
+{
+  "method": "external parent os.wait4 kernel rusage after complete child exit",
+  "elapsed_seconds": 30.56115418599802,
+  "max_rss_kib": 194332,
+  "user_seconds": 28.28078,
+  "system_seconds": 2.357242,
+  "exit_status": 0,
+  "command": [
+    "python",
+    "/workspace/scratch/fb0eaf1c89fe/experiments/partition-planner/branch-search/run_candidate_pytest.py",
+    "-q",
+    "tests/test_partition_placement.py",
+    "tests/test_partition_generated_clock.py",
+    "tests/test_local_router.py",
+    "tests/test_external_router.py",
+    "tests/test_routing_partition.py",
+    "tests/test_mchprs_runtime.py::test_actual_external_routes_keep_four_nearby_signals_independent",
+    "tests/test_mchprs_runtime.py::test_actual_external_route_fans_out_in_both_directions_and_across_heights",
+    "tests/test_mchprs_runtime.py::test_actual_router_honors_forced_west_escapes_for_source_and_sink",
+    "--junitxml=build/branch-unit-baseline-tests.xml"
+  ]
+}

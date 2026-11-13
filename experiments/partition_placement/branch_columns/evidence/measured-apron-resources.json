@@ -1,0 +1,17 @@
+{
+  "method": "external parent os.wait4 kernel rusage after complete child exit",
+  "elapsed_seconds": 7.83560176500032,
+  "max_rss_kib": 69036,
+  "user_seconds": 7.271586,
+  "system_seconds": 0.651346,
+  "exit_status": 0,
+  "command": [
+    "python",
+    "/workspace/scratch/fb0eaf1c89fe/experiments/partition-planner/branch-search/run_candidate_pytest.py",
+    "--measured-apron",
+    "-q",
+    "tests/test_partition_placement.py",
+    "tests/test_partition_generated_clock.py",
+    "--junitxml=build/branch-unit-measured-tests.xml"
+  ]
+}

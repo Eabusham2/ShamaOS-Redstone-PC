@@ -1,0 +1,1725 @@
+{
+  "schema": "shama-independent-prefix-precheck-v1",
+  "auditor_sha256": "b3a29f1bd33d086cfc20ca8c6f72e34e17641755f52baa88515367de8d155552",
+  "source_review": {
+    "baseline_sha256": "96834193a37bb485ab225ea21dc1ae460afcc3ab9ac41a434e45660be2f7666d",
+    "candidate_sha256": "0e9cba0c16c7be1916a9eea4f3f5fb28f9a50f92d41866417bc713d2f088bb0e",
+    "only_reviewed_insertion": true,
+    "all_original_allocation_emission_and_final_checks_ast_identical": true,
+    "proof": [
+      "One plain North/South access face has flat-leg distances clearance+6*lane; prefixes are nested.",
+      "Every prechecked point is distinct from the endpoint and belongs to every later alternative.",
+      "Prior wire/headroom reservations, terminals, component envelopes and placed states do not mutate while searching one endpoint.",
+      "Each precheck rejection is an unconditional original rejection on that point; SUPPORT below the wire and the own-envelope access exemption are preserved.",
+      "Alternative-dependent own-climb headroom, track turns and emitted diode states are not used to prune future alternatives.",
+      "Mixed, East/West and wall faces bypass the precheck; every accepted path still passes all original checks."
+    ]
+  },
+  "cases": [
+    {
+      "name": "unobstructed-north",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 1,
+              "z": 0
+            },
+            "escape_z": -6,
+            "branch_x": 4,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 440,
+        "literal_sha256": "c8de891bd700099ff4c6a1009e312efd9ef7ee8a7e586ecca8b1a674ea9f5767"
+      }
+    },
+    {
+      "name": "unobstructed-south",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 1,
+              "z": 0
+            },
+            "escape_z": 6,
+            "branch_x": 4,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 440,
+        "literal_sha256": "892c3f2d513d68469757633a254a0fc3817749a7dc5d0bad353780cf7d510d0f"
+      }
+    },
+    {
+      "name": "declared-endpoint-state-is-permitted",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 1,
+              "z": 0
+            },
+            "escape_z": -6,
+            "branch_x": 4,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 440,
+        "literal_sha256": "c8de891bd700099ff4c6a1009e312efd9ef7ee8a7e586ecca8b1a674ea9f5767"
+      }
+    },
+    {
+      "name": "support-below-flat-wire-is-permitted",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 1,
+              "z": 0
+            },
+            "escape_z": -6,
+            "branch_x": 4,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 440,
+        "literal_sha256": "c8de891bd700099ff4c6a1009e312efd9ef7ee8a7e586ecca8b1a674ea9f5767"
+      }
+    },
+    {
+      "name": "active-state-below-flat-wire-is-rejected",
+      "result": {
+        "error": "cannot isolate physical endpoint Vec3(x=0, y=1, z=0); dense endpoint placement needs a wider access corridor or a different placement"
+      }
+    },
+    {
+      "name": "same-position-support-is-rejected",
+      "result": {
+        "error": "cannot isolate physical endpoint Vec3(x=0, y=1, z=0); dense endpoint placement needs a wider access corridor or a different placement"
+      }
+    },
+    {
+      "name": "adjacent-active-state-is-rejected",
+      "result": {
+        "error": "cannot isolate physical endpoint Vec3(x=0, y=1, z=0); dense endpoint placement needs a wider access corridor or a different placement"
+      }
+    },
+    {
+      "name": "support-above-flat-wire-is-permitted",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 1,
+              "z": 0
+            },
+            "escape_z": -6,
+            "branch_x": 4,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 440,
+        "literal_sha256": "c8de891bd700099ff4c6a1009e312efd9ef7ee8a7e586ecca8b1a674ea9f5767"
+      }
+    },
+    {
+      "name": "alternative-dependent-climb-obstacle-can-move",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 1,
+              "z": 0
+            },
+            "escape_z": -12,
+            "branch_x": 4,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 464,
+        "literal_sha256": "28213406ce0389b95f3494a43c40098caa656adc43937b99168d8556205fcfff"
+      }
+    },
+    {
+      "name": "own-envelope-flat-access-is-permitted",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 1,
+              "z": 0
+            },
+            "escape_z": -6,
+            "branch_x": 4,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 440,
+        "literal_sha256": "c8de891bd700099ff4c6a1009e312efd9ef7ee8a7e586ecca8b1a674ea9f5767"
+      }
+    },
+    {
+      "name": "foreign-envelope-is-rejected",
+      "result": {
+        "error": "cannot isolate physical endpoint Vec3(x=0, y=1, z=0); dense endpoint placement needs a wider access corridor or a different placement"
+      }
+    },
+    {
+      "name": "blocked-north-can-use-south",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 1,
+              "z": 0
+            },
+            "escape_z": 6,
+            "branch_x": 4,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 440,
+        "literal_sha256": "892c3f2d513d68469757633a254a0fc3817749a7dc5d0bad353780cf7d510d0f"
+      }
+    },
+    {
+      "name": "south-fixed-prefix-is-rejected",
+      "result": {
+        "error": "cannot isolate physical endpoint Vec3(x=0, y=1, z=0); dense endpoint placement needs a wider access corridor or a different placement"
+      }
+    },
+    {
+      "name": "north-branch-turn-target",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 1,
+              "z": 0
+            },
+            "escape_z": -18,
+            "branch_x": 4,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": 1
+          }
+        ],
+        "literal_emissions": 488,
+        "literal_sha256": "45ec727f34366b33a9208775bd1124181aae0d044c116b6c4896ed48852a68cc"
+      }
+    },
+    {
+      "name": "south-branch-turn-target",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 1,
+              "z": 0
+            },
+            "escape_z": 18,
+            "branch_x": 4,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 488,
+        "literal_sha256": "249c8083224920887028fa3674fbfaa41190e7b3f8e6c4188308f59d0ca3104b"
+      }
+    },
+    {
+      "name": "reserved-columns-unchanged",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 1,
+              "z": 0
+            },
+            "escape_z": -6,
+            "branch_x": 16,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 488,
+        "literal_sha256": "5fc9c042937eb905b4d471e5a52229bee126ddb4a72d9fd34804abd4be3c1aa0"
+      }
+    },
+    {
+      "name": "minimum-height-is-rejected",
+      "result": {
+        "error": "endpoint Vec3(x=0, y=1, z=0) support would violate build height 1..319"
+      }
+    },
+    {
+      "name": "ceiling-is-rejected",
+      "result": {
+        "error": "cannot isolate physical endpoint Vec3(x=0, y=1, z=0); dense endpoint placement needs a wider access corridor or a different placement"
+      }
+    },
+    {
+      "name": "invalid-mode-is-rejected",
+      "result": {
+        "error": "invalid access directions for endpoint Vec3(x=0, y=1, z=0): ()"
+      }
+    },
+    {
+      "name": "invalid-north-budget-is-rejected",
+      "result": {
+        "error": "North escape search budget must be a positive integer"
+      }
+    },
+    {
+      "name": "bypass-west",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 1,
+              "z": 0
+            },
+            "escape_z": -4,
+            "branch_x": 4,
+            "escape_x": -6,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 480,
+        "literal_sha256": "3580e2d170bf94dbf36b2369ba0e9ae74434976efe0879cd5e4d125065813a8d"
+      }
+    },
+    {
+      "name": "bypass-east",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 1,
+              "z": 0
+            },
+            "escape_z": -4,
+            "branch_x": 4,
+            "escape_x": 6,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 448,
+        "literal_sha256": "11bc5c724326970cc15712ad780064845f0e8a9a56a33e3b7e63b41c55c8dfe4"
+      }
+    },
+    {
+      "name": "bypass-wall-north",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 1,
+              "z": 0
+            },
+            "escape_z": -10,
+            "branch_x": 8,
+            "escape_x": null,
+            "wall_lead_z": -6,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 472,
+        "literal_sha256": "fe43ea72204fbcbc7c0f003055c6974ac8c50dfe16fe4a0f0f0a586b2c26f6ad"
+      }
+    },
+    {
+      "name": "bypass-wall-south",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 1,
+              "z": 0
+            },
+            "escape_z": 2,
+            "branch_x": 8,
+            "escape_x": null,
+            "wall_lead_z": 6,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 472,
+        "literal_sha256": "1c83467b0c6f144da8b376dcf3ee41c589b722d64804acb38864909a7cd0f2a3"
+      }
+    },
+    {
+      "name": "prior-stair-reservations-north",
+      "result": {
+        "error": "cannot isolate physical endpoint Vec3(x=4, y=11, z=0); dense endpoint placement needs a wider access corridor or a different placement"
+      }
+    },
+    {
+      "name": "same-plane-terminal-prefix-north",
+      "result": {
+        "error": "cannot isolate physical endpoint Vec3(x=0, y=1, z=0); dense endpoint placement needs a wider access corridor or a different placement"
+      }
+    },
+    {
+      "name": "prior-stair-reservations-south",
+      "result": {
+        "error": "cannot isolate physical endpoint Vec3(x=4, y=11, z=0); dense endpoint placement needs a wider access corridor or a different placement"
+      }
+    },
+    {
+      "name": "same-plane-terminal-prefix-south",
+      "result": {
+        "error": "cannot isolate physical endpoint Vec3(x=0, y=1, z=0); dense endpoint placement needs a wider access corridor or a different placement"
+      }
+    },
+    {
+      "name": "seeded-mixed-geometry-0",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 1,
+              "z": 0
+            },
+            "escape_z": -6,
+            "branch_x": 14,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 12,
+              "y": 6,
+              "z": 12
+            },
+            "escape_z": 6,
+            "branch_x": 19,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 932,
+        "literal_sha256": "85e5acdbbc049de37d86e8741da8237fc67355cf5d0b9c86863b621bcd5e0910"
+      }
+    },
+    {
+      "name": "seeded-mixed-geometry-1",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 2,
+              "z": 12
+            },
+            "escape_z": 18,
+            "branch_x": 17,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 12,
+              "y": 3,
+              "z": 0
+            },
+            "escape_z": 6,
+            "branch_x": 28,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 24,
+              "y": 1,
+              "z": 4
+            },
+            "escape_z": 10,
+            "branch_x": 42,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 36,
+              "y": 1,
+              "z": 12
+            },
+            "escape_z": 24,
+            "branch_x": 54,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 1996,
+        "literal_sha256": "9d4c6ec64bb5d7e7ee1478a7f75f783a9ab7a2fdc241917b397c7dc6e0324a34"
+      }
+    },
+    {
+      "name": "seeded-mixed-geometry-2",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 5,
+              "z": 12
+            },
+            "escape_z": 6,
+            "branch_x": 14,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 480,
+        "literal_sha256": "edd62cf4177b9bf8ce73c52f9b08a10d83e294082571ef1ff8addacb75105b65"
+      }
+    },
+    {
+      "name": "seeded-mixed-geometry-3",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 3,
+              "z": 0
+            },
+            "escape_z": -16,
+            "branch_x": 16,
+            "escape_x": -6,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 12,
+              "y": 2,
+              "z": 4
+            },
+            "escape_z": -13,
+            "branch_x": 29,
+            "escape_x": 6,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 24,
+              "y": 8,
+              "z": 4
+            },
+            "escape_z": -5,
+            "branch_x": 33,
+            "escape_x": 18,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 1680,
+        "literal_sha256": "4befe059109b0d9d7f8ae55dd403405d206bf169f8bbd57d8b5c6310ef1b8909"
+      }
+    },
+    {
+      "name": "seeded-mixed-geometry-4",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 6,
+              "z": 12
+            },
+            "escape_z": 0,
+            "branch_x": 7,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 12,
+              "y": 1,
+              "z": 12
+            },
+            "escape_z": -6,
+            "branch_x": 26,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 24,
+              "y": 8,
+              "z": 12
+            },
+            "escape_z": 6,
+            "branch_x": 29,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 36,
+              "y": 7,
+              "z": 4
+            },
+            "escape_z": -2,
+            "branch_x": 42,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 1896,
+        "literal_sha256": "9a9c9c7640b11cd710ff4fad14fde209b2bc3ce4812e6a61686221c54ed294fc"
+      }
+    },
+    {
+      "name": "seeded-mixed-geometry-5",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 3,
+              "z": 12
+            },
+            "escape_z": 18,
+            "branch_x": 16,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 12,
+              "y": 3,
+              "z": 0
+            },
+            "escape_z": 6,
+            "branch_x": 28,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 976,
+        "literal_sha256": "896f724dd5b4d01024cd693afeef7eb455dafe4f2295dadb71749719ec3bd749"
+      }
+    },
+    {
+      "name": "seeded-mixed-geometry-6",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 4,
+              "z": 4
+            },
+            "escape_z": -2,
+            "branch_x": 19,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 12,
+              "y": 6,
+              "z": 0
+            },
+            "escape_z": -6,
+            "branch_x": 29,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 992,
+        "literal_sha256": "873cda3a70ad98546711cd408ce9b79d31c8443a7c51f81cb52ba12c5cf0e7c3"
+      }
+    },
+    {
+      "name": "seeded-mixed-geometry-7",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 9,
+              "z": 0
+            },
+            "escape_z": -4,
+            "branch_x": 4,
+            "escape_x": -6,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 480,
+        "literal_sha256": "23441db0768ad8f65dd07f5243aafb4ffb49536520f01c85e7a16f36be23fece"
+      }
+    },
+    {
+      "name": "seeded-mixed-geometry-8",
+      "result": {
+        "error": "cannot isolate physical endpoint Vec3(x=0, y=9, z=12); dense endpoint placement needs a wider access corridor or a different placement"
+      }
+    },
+    {
+      "name": "seeded-mixed-geometry-9",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 1,
+              "z": 12
+            },
+            "escape_z": 18,
+            "branch_x": 22,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 12,
+              "y": 9,
+              "z": 4
+            },
+            "escape_z": 10,
+            "branch_x": 26,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 24,
+              "y": 1,
+              "z": 12
+            },
+            "escape_z": 18,
+            "branch_x": 46,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 1504,
+        "literal_sha256": "21a94a3da90f88c97667f5137ee4c24459f341437c95062c6026ff9056e7678f"
+      }
+    },
+    {
+      "name": "seeded-mixed-geometry-10",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 7,
+              "z": 4
+            },
+            "escape_z": -2,
+            "branch_x": 6,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 12,
+              "y": 9,
+              "z": 4
+            },
+            "escape_z": -2,
+            "branch_x": 16,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 888,
+        "literal_sha256": "45ce5ba52029a91f914d94fc19f2b68c1caffcce6a8d73242c5ea943c864c7bf"
+      }
+    },
+    {
+      "name": "seeded-mixed-geometry-11",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 3,
+              "z": 12
+            },
+            "escape_z": -8,
+            "branch_x": 20,
+            "escape_x": -6,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 12,
+              "y": 6,
+              "z": 0
+            },
+            "escape_z": -17,
+            "branch_x": 29,
+            "escape_x": 6,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 1192,
+        "literal_sha256": "113a932d6ffe0bc3440f1393b9757ca5a6bb4ef889eedca66def11ab7835c54b"
+      }
+    },
+    {
+      "name": "seeded-mixed-geometry-12",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 9,
+              "z": 0
+            },
+            "escape_z": -6,
+            "branch_x": 14,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 12,
+              "y": 7,
+              "z": 0
+            },
+            "escape_z": -12,
+            "branch_x": 28,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 992,
+        "literal_sha256": "b6c1941495d19f4839129fc53465ed1e075c3d99d9619e9f6f923a2415f33842"
+      }
+    },
+    {
+      "name": "seeded-mixed-geometry-13",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 2,
+              "z": 4
+            },
+            "escape_z": 10,
+            "branch_x": 17,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 12,
+              "y": 4,
+              "z": 0
+            },
+            "escape_z": 12,
+            "branch_x": 27,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 24,
+              "y": 5,
+              "z": 0
+            },
+            "escape_z": 6,
+            "branch_x": 38,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 1480,
+        "literal_sha256": "c857e2b94013fcb1da2fcce75ab5ce6106cce2615041548e2a3116d26507637d"
+      }
+    },
+    {
+      "name": "seeded-mixed-geometry-14",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 9,
+              "z": 12
+            },
+            "escape_z": 6,
+            "branch_x": 14,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 12,
+              "y": 3,
+              "z": 12
+            },
+            "escape_z": 6,
+            "branch_x": 32,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 984,
+        "literal_sha256": "4bd3bebc421f42b12735ad830e3ca0dd7f5db6b9c09ef1df65190c1aaa799898"
+      }
+    },
+    {
+      "name": "seeded-mixed-geometry-15",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 3,
+              "z": 12
+            },
+            "escape_z": 2,
+            "branch_x": 10,
+            "escape_x": -6,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 12,
+              "y": 2,
+              "z": 12
+            },
+            "escape_z": 6,
+            "branch_x": 25,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 1004,
+        "literal_sha256": "85e747da730026cc150a04e2c259675f2f5b1caaa176ec380f5920dfa895c20b"
+      }
+    },
+    {
+      "name": "seeded-mixed-geometry-16",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 7,
+              "z": 4
+            },
+            "escape_z": -2,
+            "branch_x": 10,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 12,
+              "y": 2,
+              "z": 0
+            },
+            "escape_z": -6,
+            "branch_x": 29,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 24,
+              "y": 1,
+              "z": 12
+            },
+            "escape_z": 6,
+            "branch_x": 42,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 1452,
+        "literal_sha256": "2fc60289231905550823ec1dce6ca085a6fc07e0f6a54c3511ee385cf367eae1"
+      }
+    },
+    {
+      "name": "seeded-mixed-geometry-17",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 2,
+              "z": 12
+            },
+            "escape_z": 18,
+            "branch_x": 21,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 12,
+              "y": 3,
+              "z": 4
+            },
+            "escape_z": 10,
+            "branch_x": 32,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 1012,
+        "literal_sha256": "27a57dad709c7aa40912672a45e5ae72bef5967f3650f5b7d336cd187f040ecd"
+      }
+    },
+    {
+      "name": "seeded-mixed-geometry-18",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 6,
+              "z": 12
+            },
+            "escape_z": 6,
+            "branch_x": 7,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 12,
+              "y": 1,
+              "z": 12
+            },
+            "escape_z": 6,
+            "branch_x": 26,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 932,
+        "literal_sha256": "dc61e0a0d5c75f6aa6e6fb8d58ed5b8413489e86ca8e6ad70d0574da9f70e949"
+      }
+    },
+    {
+      "name": "seeded-mixed-geometry-19",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 1,
+              "z": 0
+            },
+            "escape_z": -22,
+            "branch_x": 22,
+            "escape_x": -6,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 624,
+        "literal_sha256": "d09aaa2b1ca509d7596b43e83e3beaac513f4029f27ebccf2b9ddab92475c629"
+      }
+    },
+    {
+      "name": "seeded-mixed-geometry-20",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 7,
+              "z": 12
+            },
+            "escape_z": 6,
+            "branch_x": 16,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 12,
+              "y": 5,
+              "z": 0
+            },
+            "escape_z": -6,
+            "branch_x": 30,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 984,
+        "literal_sha256": "4b0d35a02f96e48649219566c95b29f21d87403c84ecb44e1892efc18dcd0e82"
+      }
+    },
+    {
+      "name": "seeded-mixed-geometry-21",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 3,
+              "z": 12
+            },
+            "escape_z": 24,
+            "branch_x": 20,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 12,
+              "y": 7,
+              "z": 12
+            },
+            "escape_z": 18,
+            "branch_x": 28,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 24,
+              "y": 7,
+              "z": 4
+            },
+            "escape_z": 10,
+            "branch_x": 40,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 36,
+              "y": 2,
+              "z": 12
+            },
+            "escape_z": 30,
+            "branch_x": 57,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 2060,
+        "literal_sha256": "11d05bc2c9c6903dcc5103319e16af3bb9f34b529d2101decc1146c90dfff0a5"
+      }
+    },
+    {
+      "name": "seeded-mixed-geometry-22",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 5,
+              "z": 0
+            },
+            "escape_z": -6,
+            "branch_x": 8,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 12,
+              "y": 1,
+              "z": 12
+            },
+            "escape_z": 6,
+            "branch_x": 26,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 936,
+        "literal_sha256": "ae36d450af4a45f9d00f12810ea72f14e54d5d4937518d04a8a8645b0ac12097"
+      }
+    },
+    {
+      "name": "seeded-mixed-geometry-23",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 7,
+              "z": 4
+            },
+            "escape_z": -6,
+            "branch_x": 10,
+            "escape_x": -6,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 528,
+        "literal_sha256": "4b52e3434dcc083ecfe25913ac05006195b294fb9850dc908bd5b7a2f4e9bab2"
+      }
+    },
+    {
+      "name": "seeded-mixed-geometry-24",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 3,
+              "z": 12
+            },
+            "escape_z": 6,
+            "branch_x": 20,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 12,
+              "y": 7,
+              "z": 4
+            },
+            "escape_z": -2,
+            "branch_x": 28,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 24,
+              "y": 6,
+              "z": 0
+            },
+            "escape_z": -6,
+            "branch_x": 41,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 1484,
+        "literal_sha256": "677d2fc571ed9de22580888c1fda0c00ea53b47e3a843be9c29468c4cf4e1224"
+      }
+    },
+    {
+      "name": "seeded-mixed-geometry-25",
+      "result": {
+        "error": "cannot isolate physical endpoint Vec3(x=0, y=7, z=0); dense endpoint placement needs a wider access corridor or a different placement"
+      }
+    },
+    {
+      "name": "seeded-mixed-geometry-26",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 2,
+              "z": 12
+            },
+            "escape_z": 6,
+            "branch_x": 13,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 12,
+              "y": 2,
+              "z": 0
+            },
+            "escape_z": -6,
+            "branch_x": 25,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 952,
+        "literal_sha256": "b7f344123d22b8d441bb3bed2fc77cae3bb4b0742398ca69f82f07ac8771106c"
+      }
+    },
+    {
+      "name": "seeded-mixed-geometry-27",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 1,
+              "z": 12
+            },
+            "escape_z": 6,
+            "branch_x": 22,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 12,
+              "y": 2,
+              "z": 4
+            },
+            "escape_z": -17,
+            "branch_x": 33,
+            "escape_x": 6,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 24,
+              "y": 8,
+              "z": 4
+            },
+            "escape_z": -11,
+            "branch_x": 39,
+            "escape_x": 18,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 1696,
+        "literal_sha256": "25c0a7aeede5b6c312b21abad087f2a87e38928ad692397441e48d50a138868d"
+      }
+    },
+    {
+      "name": "seeded-mixed-geometry-28",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 2,
+              "z": 0
+            },
+            "escape_z": -6,
+            "branch_x": 21,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 12,
+              "y": 2,
+              "z": 4
+            },
+            "escape_z": -2,
+            "branch_x": 33,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 1016,
+        "literal_sha256": "07fdde5efb4e5252df571c0308f975cbae6c6f86ae1797fd9e34c62ebf6478bd"
+      }
+    },
+    {
+      "name": "seeded-mixed-geometry-29",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 9,
+              "z": 12
+            },
+            "escape_z": 18,
+            "branch_x": 8,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 12,
+              "y": 5,
+              "z": 0
+            },
+            "escape_z": 12,
+            "branch_x": 26,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 24,
+              "y": 5,
+              "z": 4
+            },
+            "escape_z": 10,
+            "branch_x": 38,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 36,
+              "y": 9,
+              "z": 0
+            },
+            "escape_z": 6,
+            "branch_x": 44,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 1896,
+        "literal_sha256": "73d1bb8d879c25ca320e5e5d8a259935a2139c01ac64f4887acc4e8853af2e76"
+      }
+    },
+    {
+      "name": "seeded-mixed-geometry-30",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 2,
+              "z": 0
+            },
+            "escape_z": -6,
+            "branch_x": 21,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 12,
+              "y": 1,
+              "z": 12
+            },
+            "escape_z": 6,
+            "branch_x": 34,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 24,
+              "y": 9,
+              "z": 0
+            },
+            "escape_z": -6,
+            "branch_x": 38,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 36,
+              "y": 9,
+              "z": 12
+            },
+            "escape_z": 6,
+            "branch_x": 50,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 1980,
+        "literal_sha256": "040d845d0d8f02b293914e3ea9a5547efb952a58a9e109f42b2b56d382066d91"
+      }
+    },
+    {
+      "name": "seeded-mixed-geometry-31",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 1,
+              "z": 4
+            },
+            "escape_z": -18,
+            "branch_x": 22,
+            "escape_x": -6,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 624,
+        "literal_sha256": "25ca0b2f381c2191b7073ad22b574e65f2b21bba321fbabc6588cf7a4d355490"
+      }
+    },
+    {
+      "name": "seeded-mixed-geometry-32",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 6,
+              "z": 12
+            },
+            "escape_z": 6,
+            "branch_x": 7,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 12,
+              "y": 5,
+              "z": 0
+            },
+            "escape_z": -6,
+            "branch_x": 20,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 24,
+              "y": 9,
+              "z": 4
+            },
+            "escape_z": -2,
+            "branch_x": 28,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 1348,
+        "literal_sha256": "cf32f617db263488133243d5bcac24ee35c9b44c8e2100b0adfeb7b9bd7c9d9a"
+      }
+    },
+    {
+      "name": "seeded-mixed-geometry-33",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 6,
+              "z": 4
+            },
+            "escape_z": 10,
+            "branch_x": 13,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 476,
+        "literal_sha256": "f3866db2b0546237a016ee7d586fa5d703238f45f1e2284f66d4aa0ca363d4ef"
+      }
+    },
+    {
+      "name": "seeded-mixed-geometry-34",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 7,
+              "z": 12
+            },
+            "escape_z": 6,
+            "branch_x": 6,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 12,
+              "y": 6,
+              "z": 4
+            },
+            "escape_z": -2,
+            "branch_x": 19,
+            "escape_x": null,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 900,
+        "literal_sha256": "72b3976c0f32dcca75751f5d4a7e534b2c8074b3afd6a9e35fbc27d24064f853"
+      }
+    },
+    {
+      "name": "seeded-mixed-geometry-35",
+      "result": {
+        "escapes": [
+          {
+            "endpoint": {
+              "x": 0,
+              "y": 8,
+              "z": 12
+            },
+            "escape_z": -3,
+            "branch_x": 9,
+            "escape_x": -12,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 12,
+              "y": 9,
+              "z": 12
+            },
+            "escape_z": 4,
+            "branch_x": 20,
+            "escape_x": 6,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 24,
+              "y": 5,
+              "z": 0
+            },
+            "escape_z": -14,
+            "branch_x": 38,
+            "escape_x": 18,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          },
+          {
+            "endpoint": {
+              "x": 36,
+              "y": 6,
+              "z": 4
+            },
+            "escape_z": -9,
+            "branch_x": 49,
+            "escape_x": 30,
+            "wall_lead_z": null,
+            "branch_direction": -1
+          }
+        ],
+        "literal_emissions": 2216,
+        "literal_sha256": "8a26a829384504d76fbbe24815ea835ff124bda7ed5bcdf35839ddb6b5a70463"
+      }
+    }
+  ],
+  "summary": {
+    "exact_escape_or_failure_cases": 64,
+    "successful_cases": 49,
+    "rejected_cases": 15,
+    "exact_emitted_source_and_sink_state_operations": 47472,
+    "seconds": 1.355709,
+    "scope": "Small differential/source proof only; retained 896-endpoint equivalence and broader integration remain separate gates. No preparation-speed, chunk or runtime-speed claim."
+  },
+  "retained_small_pipeline": {
+    "complete_modules_clusters_contacts_identical": true,
+    "dense_cases": {
+      "512": {
+        "bytes": 1045024,
+        "sha256": "189409d548334fc232cd1035587675d19416719d3d7e4363a9300dadbc1827af"
+      },
+      "20": {
+        "bytes": 1044886,
+        "sha256": "8789e205d1f1f8baf3d1fdd4700a6b582a06c818709dc163440257082298d863"
+      }
+    },
+    "scope": "Read-only exact comparison of retained small geometry and inputs; fresh engine replay is the owner/sibling gate."
+  }
+}

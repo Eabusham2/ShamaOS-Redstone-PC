@@ -1,0 +1,169 @@
+{
+  "scope": "Exact branch-reservation arithmetic reconstructed from complete full-plan direct-terminal identities and measured child boxes/export planes. No escape paths, geometry, chunk or runtime proof is claimed. Parent outer apron is the initial24-block attempt.",
+  "cluster": 221,
+  "full_topology_sha256": "d6ddfd1b1b332d2e56c9d5dcc76d857442373a9ff1cd53ce77330a6bbbc3c24a",
+  "progress_sha256": "8d2eb6adfdadacf33829d1e3220ae43ee2f80f206f59bf6adb4af73ae78f907e",
+  "placement_source_sha256": "ac748b28fcff26b21dc77315d33b3ad40e2c98c83a7b8ad8142a776c643fe7a5",
+  "layouts": [
+    {
+      "packing": {
+        "vertical_tiers": 2,
+        "horizontal_stacks": 2,
+        "horizontal_columns": 1,
+        "horizontal_layout": "compact",
+        "child_heights": [
+          110,
+          110,
+          110,
+          110
+        ],
+        "stacked_child_ids": [
+          [
+            177,
+            179
+          ],
+          [
+            178,
+            180
+          ]
+        ],
+        "reserved_maximum_child_y": 265,
+        "vertical_gap": 4
+      },
+      "direct_terminal_count": 896,
+      "parent_external_contacts": 288,
+      "branch_y": 177,
+      "old": {
+        "minimum_branch_x": 1,
+        "maximum_branch_x": 3591,
+        "span": 3591,
+        "reservation_loop_iterations": 214209,
+        "skipped_earlier_legal_columns": 607,
+        "largest_skipped_distance": 1139,
+        "first_three_skips": [
+          {
+            "point": {
+              "x": 0,
+              "y": 154,
+              "z": 1152
+            },
+            "initial": 21,
+            "selected": 29,
+            "earliest_legal": 28
+          },
+          {
+            "point": {
+              "x": 8,
+              "y": 154,
+              "z": 580
+            },
+            "initial": 29,
+            "selected": 37,
+            "earliest_legal": 36
+          },
+          {
+            "point": {
+              "x": 8,
+              "y": 154,
+              "z": 1152
+            },
+            "initial": 29,
+            "selected": 45,
+            "earliest_legal": 44
+          }
+        ]
+      },
+      "unit_step": {
+        "minimum_branch_x": 1,
+        "maximum_branch_x": 3266,
+        "span": 3266,
+        "reservation_loop_iterations": 803656,
+        "skipped_earlier_legal_columns": 0,
+        "largest_skipped_distance": 0,
+        "first_three_skips": []
+      },
+      "selected_columns_changed": 607,
+      "total_absolute_column_motion": 53180
+    },
+    {
+      "packing": {
+        "vertical_tiers": 2,
+        "horizontal_stacks": 2,
+        "horizontal_columns": 2,
+        "horizontal_layout": "row",
+        "child_heights": [
+          110,
+          110,
+          110,
+          110
+        ],
+        "stacked_child_ids": [
+          [
+            177,
+            178
+          ],
+          [
+            179,
+            180
+          ]
+        ],
+        "reserved_maximum_child_y": 265,
+        "vertical_gap": 4
+      },
+      "direct_terminal_count": 896,
+      "parent_external_contacts": 288,
+      "branch_y": 177,
+      "old": {
+        "minimum_branch_x": 1,
+        "maximum_branch_x": 4799,
+        "span": 4799,
+        "reservation_loop_iterations": 184508,
+        "skipped_earlier_legal_columns": 316,
+        "largest_skipped_distance": 2959,
+        "first_three_skips": [
+          {
+            "point": {
+              "x": 0,
+              "y": 40,
+              "z": 606
+            },
+            "initial": 159,
+            "selected": 3539,
+            "earliest_legal": 996
+          },
+          {
+            "point": {
+              "x": 8,
+              "y": 40,
+              "z": 606
+            },
+            "initial": 167,
+            "selected": 3543,
+            "earliest_legal": 996
+          },
+          {
+            "point": {
+              "x": 16,
+              "y": 40,
+              "z": 606
+            },
+            "initial": 175,
+            "selected": 3547,
+            "earliest_legal": 996
+          }
+        ]
+      },
+      "unit_step": {
+        "minimum_branch_x": 1,
+        "maximum_branch_x": 3575,
+        "span": 3575,
+        "reservation_loop_iterations": 153901,
+        "skipped_earlier_legal_columns": 0,
+        "largest_skipped_distance": 0,
+        "first_three_skips": []
+      },
+      "selected_columns_changed": 316,
+      "total_absolute_column_motion": 584131
+    }
+  ]
+}

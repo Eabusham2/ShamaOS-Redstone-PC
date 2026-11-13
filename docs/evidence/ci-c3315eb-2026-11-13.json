@@ -1,0 +1,155 @@
+{
+  "kind": "exact-commit-github-actions-checkpoint",
+  "status": "passed",
+  "source_commit": "c3315eb35b3d52c1828e0d5c0c93dc0139ebd6e9",
+  "run_id": 43354526384,
+  "workflow_url": "https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/43354526384",
+  "observed_utc": "2026-11-13 03:44:05 UTC",
+  "completed_jobs": 20,
+  "successful_jobs": 20,
+  "required_behavioral_job": {
+    "job_id": 131653256326,
+    "tests": 986,
+    "failures": 0,
+    "skipped": 0,
+    "pytest_seconds": 2815.96,
+    "skip_gate": "The successful required step parses JUnit XML and rejects skipped tests",
+    "native_rust_storage_tests": 2
+  },
+  "saved_world_fixtures": {
+    "logic": "passed actual-engine run and independent native readback",
+    "stacked_memory": "passed actual-engine run and independent native readback",
+    "artifact_id": 14008820312,
+    "artifact_bytes": 423222
+  },
+  "jobs": [
+    {
+      "id": 131653256326,
+      "name": "behavioral-and-redstone",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 131653256632,
+      "name": "full-physical-partitions (u_ram, shama_ram_adapter, 10)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 131653256667,
+      "name": "world-backend",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 131653256695,
+      "name": "test (windows-latest, 3.12)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 131653256704,
+      "name": "rtl",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 131653256716,
+      "name": "full-physical-partitions (u_vram, shama_vram_adapter, 4)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 131653256741,
+      "name": "full-physical-partitions (u_asm, shama_asm_accel, 8)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 131653256742,
+      "name": "full-physical-partitions (u_services, shama_services, 5)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 131653256772,
+      "name": "test (ubuntu-24.04, 3.11)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 131653256781,
+      "name": "test (windows-latest, 3.11)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 131653256800,
+      "name": "full-physical-partitions (u_fs, shama_fs_accel, 7)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 131653256804,
+      "name": "test (ubuntu-24.04, 3.12)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 131653256821,
+      "name": "full-physical-partitions (u_cache, shama_cache_adapter, 9)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 131653256829,
+      "name": "full-physical-partitions (u_kernel, shama_kernel_accel, 6)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 131653256872,
+      "name": "full-physical-partitions (u_gpu, shama_gpu, 2)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 131653256919,
+      "name": "full-physical-partitions (u_display_bridge, shama_display_bridge, 3)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 131653256922,
+      "name": "full-physical-partitions (u_cpu, shama_cpu, 0)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 131653256953,
+      "name": "full-physical-partitions (u_input, shama_input, 1)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 131653256956,
+      "name": "full-physical-partitions (u_flash, shama_flash_adapter, 11)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 131669021673,
+      "name": "full-physical-synthesis",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "capacities": {
+    "ram_bytes": 98304,
+    "cache_bytes": 8192,
+    "vram_bytes": 16384,
+    "flash_bytes": 204800
+  },
+  "scope": "Exact published source checkpoint only. Includes all four Linux/Windows Python variants, RTL, required behavioral/redstone tests, world backend, all twelve complete partition mappings and reconnection. Complete physical routing, clock/data timing, full-world boot and release acceptance remain unverified.",
+  "complete_machine_runtime_verified": false
+}

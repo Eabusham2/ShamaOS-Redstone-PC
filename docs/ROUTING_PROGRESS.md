@@ -77,11 +77,11 @@ found while expanding beyond the previous two-register demonstration:
    constant-one terminals. Dropped clock leaves, missing cells, rewired inputs
    and shortened ports are negative regression cases.
 
-An internally generated clock consumed both inside its source tile and in
-another tile is rejected. That topology does not share the imported-clock root
-assumed by the current parent-tail matching algorithm. A future clock-tree
-implementation must handle every such leaf explicitly; the small imported-clock
-proof cannot be applied to it by analogy.
+The older `stack_tiles` helper rejects an internally generated clock consumed
+both inside its source tile and in another tile. Its parent-tail algorithm
+assumes an imported-clock root. The separate complete-plan clock-tree pass
+starts at the original native source and follows every directed boundary; its
+generated-clock proof and remaining delay-capacity limit are described below.
 
 The new [`mapped_cell_cut`](../src/shamaos/hardware/netlist_cut.py) helper retains
 selected mapped cells unchanged, exposes every incoming signal and every output
@@ -149,6 +149,53 @@ The ten new tests pass alongside all seven existing local-router tests, which
 include the retained 64-cell combinational assembler cut and positive/negative
 two-register pipeline timing tests. These are bounded regression results,
 not full assembler or full-machine acceptance.
+
+## Native generated clock across multiple parents
+
+[`test_partition_generated_clock.py`](../tests/test_partition_generated_clock.py)
+now synthesizes a native toggle divider and a two-register pipeline from
+[`generated_clock.sv`](../tests/fixtures/generated_clock.sv). Its four native
+cells occupy nine leaves and four hierarchy levels, with routing domains capped
+at five terminals. The exact emitted fixture has 28,378 unique blocks. The test
+preserves the divider's original Q as the generated-clock source, both downstream
+C pins, the inverter feedback input, the original divided-clock output port,
+and every shared clock handoff. The engine drives only `raw_clk` and `data`;
+it does not inject an artificial signal at the derived clock.
+
+The actual engine observations are retained in
+[`generated-clock-hierarchy-2026-11-13.json`](evidence/generated-clock-hierarchy-2026-11-13.json).
+
+| Observation | Matched hierarchy | Too-fast raw clock | Actual matching modification removed |
+|---|---:|---:|---:|
+| Raw clock half-period | 512 RT | 20 RT | 512 RT |
+| Raw edges at the divider C pin | 32 | 32 | 32 |
+| Generated rising edges at each downstream C pin | 16 | 5 | 16 |
+| Complete generated pulse width | 1,024 RT | Incorrect; final pulse remains high | 1,024 RT |
+| Actual source-to-leaf delay, rising and falling | 133 / 133 RT | 133 / 133 RT | 133 / 132 RT |
+| Downstream clock skew | 0 RT | 0 RT | 1 RT |
+| Incorrect divider transfers | 0 | 16 | 0 |
+| Timing oracle | Passes | Rejects | Rejects |
+
+At the passing setting, conservative observed setup/hold margins are 897/126 RT
+for the divider, 1,199/2,643 RT for the first downstream register and 1,452/69 RT
+for the second. All 16 pipeline transfers and the original output-port checks
+pass. The fixture's 512 RT half-period is a conservative test setting; it is not
+an accepted whole-machine clock setting.
+
+The missing-padding control preserves the reported matching metadata but removes
+one actual repeater delay modification. Its data transfers still succeed, while
+the independent pulse oracle exposes one tick of skew. The too-fast control
+retains adequate local pin setup/hold but samples stale feedback data for the
+intended divider cycle. Both controls demonstrate why local margins, metadata
+and final settled output values cannot substitute for complete transfer checks.
+
+A separate asymmetric, three-child hierarchy cannot accommodate the required
+delay within one private branch. The regression requires an explicit capacity
+failure and verifies restoration of every module's prior overrides, clock
+reports and balanced-position sets after both clock passes have begun. Repeated
+successful balancing is also required to leave the emitted states unchanged.
+All five focused checks pass. These results establish this small generated-clock
+fixture; they do not establish arbitrary hierarchy or whole-machine timing.
 
 ## Smallest credible route to production
 

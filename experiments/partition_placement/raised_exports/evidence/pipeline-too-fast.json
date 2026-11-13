@@ -1,0 +1,132 @@
+{
+  "clock_skew_ticks": 0,
+  "clock_edges": 16,
+  "half_period_redstone_ticks": 20,
+  "minimum_setup_ticks": 33,
+  "minimum_hold_ticks": 8,
+  "pipeline_failures": [
+    {
+      "edge": 3258,
+      "register": "b",
+      "expected": true,
+      "actual": false
+    },
+    {
+      "edge": 3298,
+      "register": "b",
+      "expected": true,
+      "actual": false
+    },
+    {
+      "edge": 5466,
+      "register": "b",
+      "expected": false,
+      "actual": true
+    },
+    {
+      "edge": 5506,
+      "register": "b",
+      "expected": false,
+      "actual": true
+    },
+    {
+      "edge": 7674,
+      "register": "b",
+      "expected": true,
+      "actual": false
+    },
+    {
+      "edge": 7714,
+      "register": "b",
+      "expected": true,
+      "actual": false
+    },
+    {
+      "edge": 9842,
+      "register": "b",
+      "expected": false,
+      "actual": true
+    },
+    {
+      "edge": 9882,
+      "register": "b",
+      "expected": false,
+      "actual": true
+    }
+  ],
+  "actual_ticks": 11904,
+  "native_to_dense_translation": {
+    "x": 32,
+    "y": 92,
+    "z": 32
+  },
+  "expected_transfers": [
+    [
+      false,
+      false
+    ],
+    [
+      false,
+      false
+    ],
+    [
+      true,
+      false
+    ],
+    [
+      true,
+      true
+    ],
+    [
+      true,
+      true
+    ],
+    [
+      true,
+      true
+    ],
+    [
+      false,
+      true
+    ],
+    [
+      false,
+      false
+    ],
+    [
+      false,
+      false
+    ],
+    [
+      false,
+      false
+    ],
+    [
+      true,
+      false
+    ],
+    [
+      true,
+      true
+    ],
+    [
+      true,
+      true
+    ],
+    [
+      false,
+      true
+    ],
+    [
+      false,
+      false
+    ],
+    [
+      false,
+      false
+    ]
+  ],
+  "topology_sha256": "79b15f06c8410678c43f75f89b167154f8280633e60e4f4a40138a86b393e498",
+  "dense_case_sha256": "8789e205d1f1f8baf3d1fdd4700a6b582a06c818709dc163440257082298d863",
+  "scope": "all literal native cells and all 18 parent-child handoffs; two-level proof only"
+}

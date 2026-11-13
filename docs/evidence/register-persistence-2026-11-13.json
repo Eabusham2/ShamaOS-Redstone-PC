@@ -1,0 +1,177 @@
+{
+  "kind": "actual-native-register-persistence-review",
+  "status": "passed",
+  "source_base_commit": "819f6b887a69aec590b421266a42b87b68150d78",
+  "source_state": "new regression; production snapshot, native writer and register sources unchanged from this checkpoint",
+  "validation": {
+    "tests": 2,
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "seconds": 5.634,
+    "junit_sha256": "f88baafcb8219280e88f2ffc95bff4572769c31a0ddf081bad85492925e1632b",
+    "independent_agent_source_review": "passed; no blocking finding; reviewed saved-state independence, exact native checks, both clock levels, resumed edges and specific false-versus-true negative witness"
+  },
+  "cases": [
+    {
+      "kind": "native-register-quiescent-save-reopen",
+      "status": "passed",
+      "clock_stopped_high": false,
+      "native_registers": 4,
+      "saved_bits": [
+        true,
+        false,
+        true,
+        false
+      ],
+      "next_edge_bits": [
+        false,
+        true,
+        false,
+        true
+      ],
+      "native_register_bits_checked_before_reimport": 4,
+      "held_snapshot_exactly_unchanged": true,
+      "unchanged_initial_world_rejected": true,
+      "circuit_unique_blocks": 448,
+      "source_chunks": 16,
+      "restored_chunks": 16,
+      "restore": {
+        "status": "quiescent-snapshot-native-readback-passed",
+        "chunks": 16,
+        "sections": 384,
+        "nonair": 16832,
+        "comparators": 0,
+        "snapshot_sha256": "44e7347755c2d3e7bdd83343a58289cf60b22c8b25540fbcb9f3f44f126a86df",
+        "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+        "engine_registry_patch_sha256": "8ebd0e097d07e93a6b2b158e08ad19c2660b0b7e2521c6b6d34a4583a10bfbdc",
+        "parent_imported_stream_sha256": "0c4707f4cfd1a64010fce9823be581d8eb704368d3b3f72a7349417f74883a3e",
+        "parent_scenario_sha256": "e738b09ff70a4765ca5cbd4fd4a62763fc84d73facfa748f701a555370b15243",
+        "original_source_chunks": 16,
+        "additional_runtime_chunks": 0,
+        "original_chunk_inventory_preserved": true,
+        "original_chunk_inventory_sha256": "2bc8b5685bccdf030d63e7a26d294698c465916b21a30e527f6d1df9bc5a0f82",
+        "pending_scheduled_ticks": 0,
+        "complete_machine_runtime_verified": false
+      },
+      "runtime": {
+        "write": {
+          "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+          "ticks": 384,
+          "assertions": 20,
+          "pending_ticks_after_scenario": 0,
+          "imported_stream_sha256": "0c4707f4cfd1a64010fce9823be581d8eb704368d3b3f72a7349417f74883a3e",
+          "scenario_sha256": "e738b09ff70a4765ca5cbd4fd4a62763fc84d73facfa748f701a555370b15243"
+        },
+        "hold": {
+          "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+          "ticks": 192,
+          "assertions": 4,
+          "pending_ticks_after_scenario": 0,
+          "imported_stream_sha256": "121cff7dd82bdef1c4a9f889c5410455219a156364d0e3174157df6a6586f7c9",
+          "scenario_sha256": "1ff8f05787c546b6fdcff1a7ee285a14dd9185b0280ccbaa0b50773b5148fdda"
+        },
+        "resume": {
+          "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+          "ticks": 192,
+          "assertions": 8,
+          "pending_ticks_after_scenario": 0,
+          "imported_stream_sha256": "121cff7dd82bdef1c4a9f889c5410455219a156364d0e3174157df6a6586f7c9",
+          "scenario_sha256": "09a91206b803140402c169d7380acdb26998ad547b0d233943084e87ec85150f"
+        }
+      },
+      "source_sha256": {
+        "tests/test_mchprs_register_persistence.py": "ab2f85093d375779c62b3a62d74919394c8aa0547e6ea16334851b06ef7225a9",
+        "tests/mchprs_snapshot_fixture.py": "e3a85a351923bfd414332671918ad61693b168d32e03ed012e3aa4340e282f00",
+        "src/shamaos/hardware/logic.py": "84a4f2cc3c535628ccd4e16ae0480b3cc99310f1fb83fe28f98d98b621ab1dff",
+        "src/shamaos/mchprs_snapshot.py": "e0c92da3d8ced59a65879a4fcc411ffbf994f625714d0fee0ba3adae52fcb91e",
+        "src/shamaos/mchprs_import.py": "0680be7ad82c53561bd1401be2b8133c7cd19a55b591bba6ea18410a6d5de0ea",
+        "src/shamaos/worldio.py": "08e163497c981357b3aa4ce444709f38769001fb512700b0ffd2a8fc4ebda69c"
+      },
+      "runner_sha256": "16764976970e59e31d1af1646f72778b73a8c00f058c5fd29efd557b663e063e",
+      "complete_machine_runtime_verified": false,
+      "scope": "Four independent physical registers with saved levers; no complete-machine or active-tick persistence claim"
+    },
+    {
+      "kind": "native-register-quiescent-save-reopen",
+      "status": "passed",
+      "clock_stopped_high": true,
+      "native_registers": 4,
+      "saved_bits": [
+        true,
+        false,
+        true,
+        false
+      ],
+      "next_edge_bits": [
+        false,
+        true,
+        false,
+        true
+      ],
+      "native_register_bits_checked_before_reimport": 4,
+      "held_snapshot_exactly_unchanged": true,
+      "unchanged_initial_world_rejected": true,
+      "circuit_unique_blocks": 448,
+      "source_chunks": 16,
+      "restored_chunks": 16,
+      "restore": {
+        "status": "quiescent-snapshot-native-readback-passed",
+        "chunks": 16,
+        "sections": 384,
+        "nonair": 16832,
+        "comparators": 0,
+        "snapshot_sha256": "fcee0dfcaec9e8bf813f7c136de9c6c6812e7f838e88bdc2cf058f8d0193917b",
+        "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+        "engine_registry_patch_sha256": "8ebd0e097d07e93a6b2b158e08ad19c2660b0b7e2521c6b6d34a4583a10bfbdc",
+        "parent_imported_stream_sha256": "3608e5d5961d442a5f62cfff3e1108fb1648cf0de9f67d6c2d96d21270517aa4",
+        "parent_scenario_sha256": "1235f51cb591044aa59fc74fd779b4b033c4f57eed9157b8fd04447667433e49",
+        "original_source_chunks": 16,
+        "additional_runtime_chunks": 0,
+        "original_chunk_inventory_preserved": true,
+        "original_chunk_inventory_sha256": "2bc8b5685bccdf030d63e7a26d294698c465916b21a30e527f6d1df9bc5a0f82",
+        "pending_scheduled_ticks": 0,
+        "complete_machine_runtime_verified": false
+      },
+      "runtime": {
+        "write": {
+          "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+          "ticks": 320,
+          "assertions": 16,
+          "pending_ticks_after_scenario": 0,
+          "imported_stream_sha256": "3608e5d5961d442a5f62cfff3e1108fb1648cf0de9f67d6c2d96d21270517aa4",
+          "scenario_sha256": "1235f51cb591044aa59fc74fd779b4b033c4f57eed9157b8fd04447667433e49"
+        },
+        "hold": {
+          "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+          "ticks": 192,
+          "assertions": 4,
+          "pending_ticks_after_scenario": 0,
+          "imported_stream_sha256": "2411b175f9efe5c1cde94d0bd91d972ef39856865a650bb94e01306af85cc0ec",
+          "scenario_sha256": "1ff8f05787c546b6fdcff1a7ee285a14dd9185b0280ccbaa0b50773b5148fdda"
+        },
+        "resume": {
+          "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+          "ticks": 256,
+          "assertions": 12,
+          "pending_ticks_after_scenario": 0,
+          "imported_stream_sha256": "2411b175f9efe5c1cde94d0bd91d972ef39856865a650bb94e01306af85cc0ec",
+          "scenario_sha256": "6040b8b6b779d97386b1f40a7b90a5d1b6a5af595ee31a00bd5405d31b6cdfca"
+        }
+      },
+      "source_sha256": {
+        "tests/test_mchprs_register_persistence.py": "ab2f85093d375779c62b3a62d74919394c8aa0547e6ea16334851b06ef7225a9",
+        "tests/mchprs_snapshot_fixture.py": "e3a85a351923bfd414332671918ad61693b168d32e03ed012e3aa4340e282f00",
+        "src/shamaos/hardware/logic.py": "84a4f2cc3c535628ccd4e16ae0480b3cc99310f1fb83fe28f98d98b621ab1dff",
+        "src/shamaos/mchprs_snapshot.py": "e0c92da3d8ced59a65879a4fcc411ffbf994f625714d0fee0ba3adae52fcb91e",
+        "src/shamaos/mchprs_import.py": "0680be7ad82c53561bd1401be2b8133c7cd19a55b591bba6ea18410a6d5de0ea",
+        "src/shamaos/worldio.py": "08e163497c981357b3aa4ce444709f38769001fb512700b0ffd2a8fc4ebda69c"
+      },
+      "runner_sha256": "16764976970e59e31d1af1646f72778b73a8c00f058c5fd29efd557b663e063e",
+      "complete_machine_runtime_verified": false,
+      "scope": "Four independent physical registers with saved levers; no complete-machine or active-tick persistence claim"
+    }
+  ],
+  "reproduction": "PYTHONPATH=src:tests SHAMA_MCHPRS_TERRAIN_RUNNER=<built terrain-enabled sparse runtime> python -m pytest tests/test_mchprs_register_persistence.py -q",
+  "complete_machine_runtime_verified": false
+}

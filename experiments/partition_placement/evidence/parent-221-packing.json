@@ -1,0 +1,51 @@
+{
+  "cluster_id": 221,
+  "leaf": false,
+  "native_cells": 1024,
+  "computed_unique_blocks": 11324130,
+  "bounds": {
+    "min": {
+      "x": 0,
+      "y": -60,
+      "z": -42
+    },
+    "max": {
+      "x": 4886,
+      "y": 181,
+      "z": 3422
+    }
+  },
+  "modules": 28,
+  "shared_contacts": 1500,
+  "packing": {
+    "vertical_tiers": 2,
+    "horizontal_stacks": 2,
+    "horizontal_columns": 2,
+    "horizontal_layout": "row",
+    "child_heights": [
+      110,
+      110,
+      110,
+      110
+    ],
+    "stacked_child_ids": [
+      [
+        177,
+        178
+      ],
+      [
+        179,
+        180
+      ]
+    ],
+    "reserved_maximum_child_y": 265,
+    "vertical_gap": 4,
+    "rejected_layouts": [
+      {
+        "horizontal_layout": "compact",
+        "error": "cluster 221, bounded parent escape prefixes: cannot isolate physical endpoint Vec3(x=32, y=-59, z=1542); dense endpoint placement needs a wider access corridor or a different placement"
+      }
+    ]
+  },
+  "seconds": 490.5047066059997
+}

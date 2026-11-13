@@ -1,0 +1,30 @@
+{
+  "status": "passed",
+  "scope": "Combined operand lookup and definition fixes; focused host/RTL/cycle/DMA validation, not physical timing or size",
+  "source_sha256": {
+    "rtl/shama_asm_accel.sv": "a79537dcd0d9ae46d43ef8b08324b73f15d65ab1bb27c70ac475a3adf6b0b588",
+    "src/shamaos/assembler.py": "45b248f5bda95a993f7a43eb813993cc55ac927f86b5815a11782668ea67e71b",
+    "tests/test_assembler_definitions.py": "07109d6cd5798906a38fa2a5e416888baa3a1d8f6ea2e87ae071d901647d5f03",
+    "tests/test_hardware_operand_selection.py": "e39e18e1f7739745b02f0c64828e770d6acae4d6659f83cc2a40d8541f6cab2f",
+    "tests/test_assembler_operand_sharing_experiment.py": "eabc35df7e3ac99173d9173b17d634b320d8dce0dad24f676a9e1588b1edf94d"
+  },
+  "focused_tests": {
+    "tests": "177",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0",
+    "time": "26.379"
+  },
+  "focused_junit_sha256": "e191b78f43268828df390e3c86c006f0179d4baffe47bcca858893e9e1a692ee",
+  "cycle_dma_comparison": {
+    "runs": 232,
+    "sources": 116,
+    "sha256": "842eeac76acd5c36d231ee61ae86a8fe22fad8a7f72846bf13e1a0ad7aa69b2b",
+    "baseline": "c3315eb35b3d52c1828e0d5c0c93dc0139ebd6e9",
+    "scope": "RTL clock/state and active DMA equivalence; no native redstone timing, area or complete-machine claim"
+  },
+  "known_intentional_difference": "Corrected definition declarations are tested separately because their old baseline behavior was incorrect.",
+  "isolated_size_report_sha256": "0abed54b6b8373b68b7f2ba34535930e5952bdf534193c2e59c4d14e2901af7e",
+  "complete_machine_runtime_verified": false,
+  "combined_source_physical_count": null
+}

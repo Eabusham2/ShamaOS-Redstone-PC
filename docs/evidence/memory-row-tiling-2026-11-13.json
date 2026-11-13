@@ -1,0 +1,205 @@
+{
+  "scope": "One exact 4 KiB logical bank; literal geometry only, no production change or runtime proof",
+  "decision": "Do not promote this front/rear horizontal fanout layout: every measured tiling increases occupied chunks",
+  "future_opportunity": "Compact or vertically multiplex the 32 independent write/read fanout buses before reconsidering row tiling; keep all signals physically connected",
+  "cases": [
+    {
+      "tiles": 1,
+      "rows_per_tile": 1024,
+      "capacity_bytes": 4096,
+      "stored_bits": 32768,
+      "shared_connections_emitted": false,
+      "emitted_placements": 3166362,
+      "unique_positions": 3151814,
+      "coordinate_state_conflicts": 0,
+      "conflict_examples": [],
+      "components_emitted": {
+        "local": 2453538,
+        "decoder": 712824
+      },
+      "occupied_horizontal_chunks": 7715,
+      "bounds": {
+        "minimum": [
+          114,
+          -60,
+          492
+        ],
+        "maximum": [
+          418,
+          52,
+          6664
+        ]
+      },
+      "horizontal_dimensions_blocks": [
+        305,
+        6173
+      ],
+      "horizontal_chunk_envelope": [
+        20,
+        387
+      ],
+      "envelope_chunks": 7740,
+      "elapsed_seconds": 11.680271855002502,
+      "process_peak_rss_kib": 118884,
+      "actual_runtime_verified": false,
+      "complete_machine_runtime_verified": false,
+      "experiment_source_sha256": "e1e77f15a2f4d03f4d731af5e00557c8837acd945a454af4c65419eac14a152f",
+      "perimeter_blocks": 12956,
+      "occupied_chunk_change_pct": 0.0,
+      "unique_block_change_pct": 0.0,
+      "perimeter_change_pct": 0.0
+    },
+    {
+      "tiles": 2,
+      "rows_per_tile": 512,
+      "capacity_bytes": 4096,
+      "stored_bits": 32768,
+      "shared_connections_emitted": true,
+      "emitted_placements": 3311484,
+      "unique_positions": 3295840,
+      "coordinate_state_conflicts": 0,
+      "conflict_examples": [],
+      "components_emitted": {
+        "local": 2455620,
+        "decoder": 712944,
+        "write": 59296,
+        "read": 57696,
+        "address": 19700,
+        "enable": 6228
+      },
+      "occupied_horizontal_chunks": 9154,
+      "bounds": {
+        "minimum": [
+          96,
+          -60,
+          176
+        ],
+        "maximum": [
+          750,
+          52,
+          3870
+        ]
+      },
+      "horizontal_dimensions_blocks": [
+        655,
+        3695
+      ],
+      "horizontal_chunk_envelope": [
+        41,
+        231
+      ],
+      "envelope_chunks": 9471,
+      "elapsed_seconds": 12.779321128000447,
+      "process_peak_rss_kib": 123060,
+      "actual_runtime_verified": false,
+      "complete_machine_runtime_verified": false,
+      "experiment_source_sha256": "e1e77f15a2f4d03f4d731af5e00557c8837acd945a454af4c65419eac14a152f",
+      "perimeter_blocks": 8700,
+      "occupied_chunk_change_pct": 18.651976668826965,
+      "unique_block_change_pct": 4.569622445994592,
+      "perimeter_change_pct": -32.84964495214573
+    },
+    {
+      "tiles": 4,
+      "rows_per_tile": 256,
+      "capacity_bytes": 4096,
+      "stored_bits": 32768,
+      "shared_connections_emitted": true,
+      "emitted_placements": 3477280,
+      "unique_positions": 3460328,
+      "coordinate_state_conflicts": 0,
+      "conflict_examples": [],
+      "components_emitted": {
+        "local": 2459784,
+        "decoder": 713184,
+        "write": 124320,
+        "read": 120416,
+        "address": 45340,
+        "enable": 14236
+      },
+      "occupied_horizontal_chunks": 10680,
+      "bounds": {
+        "minimum": [
+          96,
+          -60,
+          176
+        ],
+        "maximum": [
+          1406,
+          52,
+          2334
+        ]
+      },
+      "horizontal_dimensions_blocks": [
+        1311,
+        2159
+      ],
+      "horizontal_chunk_envelope": [
+        82,
+        135
+      ],
+      "envelope_chunks": 11070,
+      "elapsed_seconds": 13.378670222999062,
+      "process_peak_rss_kib": 127636,
+      "actual_runtime_verified": false,
+      "complete_machine_runtime_verified": false,
+      "experiment_source_sha256": "e1e77f15a2f4d03f4d731af5e00557c8837acd945a454af4c65419eac14a152f",
+      "perimeter_blocks": 6940,
+      "occupied_chunk_change_pct": 38.431626701231366,
+      "unique_block_change_pct": 9.788458329076533,
+      "perimeter_change_pct": -46.43408459401049
+    },
+    {
+      "tiles": 8,
+      "rows_per_tile": 128,
+      "capacity_bytes": 4096,
+      "stored_bits": 32768,
+      "shared_connections_emitted": true,
+      "emitted_placements": 3808872,
+      "unique_positions": 3789304,
+      "coordinate_state_conflicts": 0,
+      "conflict_examples": [],
+      "components_emitted": {
+        "local": 2468112,
+        "decoder": 713664,
+        "write": 254368,
+        "read": 245856,
+        "address": 96620,
+        "enable": 30252
+      },
+      "occupied_horizontal_chunks": 13732,
+      "bounds": {
+        "minimum": [
+          96,
+          -60,
+          176
+        ],
+        "maximum": [
+          2718,
+          52,
+          1566
+        ]
+      },
+      "horizontal_dimensions_blocks": [
+        2623,
+        1391
+      ],
+      "horizontal_chunk_envelope": [
+        164,
+        87
+      ],
+      "envelope_chunks": 14268,
+      "elapsed_seconds": 13.67844404799689,
+      "process_peak_rss_kib": 137880,
+      "actual_runtime_verified": false,
+      "complete_machine_runtime_verified": false,
+      "experiment_source_sha256": "e1e77f15a2f4d03f4d731af5e00557c8837acd945a454af4c65419eac14a152f",
+      "perimeter_blocks": 8028,
+      "occupied_chunk_change_pct": 77.99092676604018,
+      "unique_block_change_pct": 20.226130095240393,
+      "perimeter_change_pct": -38.03643099722136
+    }
+  ],
+  "complete_machine_runtime_verified": false,
+  "reproduction_script": "experiments/memory_row_tiles/measure.py"
+}

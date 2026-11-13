@@ -96,9 +96,10 @@ module shama_asm_accel(
     logic emit_two;
 
     integer i,k;
-    integer mn_idx,arg_count;
+    integer mn_idx,arg_count,operand_index;
     logic [18:0] dec;
-    logic [31:0] v1,v2,v3,v4;
+    logic [31:0] operand_value;
+    logic operand_exists;
     logic [3:0] r1,r2,r3,r4;
     logic args_valid;
     logic [7:0] selected_byte;
@@ -744,7 +745,8 @@ module shama_asm_accel(
                     end else begin
                         if(line_is_label[0]) begin
                             if(!pass_two) begin
-                                if(label_count>=MAX_SYMBOLS || label_exists(line_hash[0]) || def_exists(line_hash[0])) begin
+                                if(label_count>=MAX_SYMBOLS || label_exists(line_hash[0]) ||
+                                   def_exists(line_hash[0]) || syscall_value(line_hash[0])!=32'hffffffff) begin
                                     error_code<=3;
                                     error_line<=line_no+1'b1;
                                     state<=ST_ERROR;
@@ -760,14 +762,19 @@ module shama_asm_accel(
 
                         if(!(line_is_label[0] &&
                              !pass_two &&
-                             (label_count>=MAX_SYMBOLS || label_exists(line_hash[0]) || def_exists(line_hash[0])))) begin
+                             (label_count>=MAX_SYMBOLS || label_exists(line_hash[0]) ||
+                              def_exists(line_hash[0]) || syscall_value(line_hash[0])!=32'hffffffff))) begin
                             if(mn_idx>=line_token_count) begin
                                 state<=ST_LINE_DONE;
                             end else if(line_hash[mn_idx]==HASH_DEFINE) begin
                                 if(!pass_two) begin
                                     if(mn_idx+3!=line_token_count || def_count>=MAX_SYMBOLS ||
+                                       line_is_number[mn_idx+1] ||
                                        def_exists(line_hash[mn_idx+1]) || label_exists(line_hash[mn_idx+1]) ||
-                                       !line_value_exists(mn_idx+2)) begin
+                                       syscall_value(line_hash[mn_idx+1])!=32'hffffffff ||
+                                       (line_is_label[0] && line_hash[mn_idx+1]==line_hash[0]) ||
+                                       !(line_is_number[mn_idx+2] || def_exists(line_hash[mn_idx+2]) ||
+                                         syscall_value(line_hash[mn_idx+2])!=32'hffffffff)) begin
                                         error_code<=4;
                                         error_line<=line_no+1'b1;
                                         state<=ST_ERROR;
@@ -796,23 +803,32 @@ module shama_asm_accel(
                                 end else begin
                                     arg_count=line_token_count-(mn_idx+1);
                                     args_valid=dec[18];
-                                    v1=0;v2=0;v3=0;v4=0;
                                     r1=0;r2=0;r3=0;r4=0;
 
+                                    // Every instruction format consumes at most
+                                    // one immediate value. Select its token
+                                    // before looking through the full symbol
+                                    // tables so those lookups share one circuit.
+                                    // Register operands still retain their own
+                                    // positions and the same arity checks below.
+                                    case(dec[9:6])
+                                        FMT_RI32,FMT_BRCOND,FMT_RSYS: operand_index=mn_idx+2;
+                                        FMT_MEM: operand_index=mn_idx+3;
+                                        default: operand_index=mn_idx+1;
+                                    endcase
+                                    operand_value=line_resolve(operand_index);
+                                    operand_exists=line_value_exists(operand_index);
+
                                     if(arg_count>0) begin
-                                        v1=line_resolve(mn_idx+1);
                                         r1=line_reg[mn_idx+1];
                                     end
                                     if(arg_count>1) begin
-                                        v2=line_resolve(mn_idx+2);
                                         r2=line_reg[mn_idx+2];
                                     end
                                     if(arg_count>2) begin
-                                        v3=line_resolve(mn_idx+3);
                                         r3=line_reg[mn_idx+3];
                                     end
                                     if(arg_count>3) begin
-                                        v4=line_resolve(mn_idx+4);
                                         r4=line_reg[mn_idx+4];
                                     end
 
@@ -854,50 +870,50 @@ module shama_asm_accel(
                                         FMT_RI32: begin
                                             args_valid=args_valid && arg_count==2 &&
                                                        line_is_reg[mn_idx+1] &&
-                                                       line_value_exists(mn_idx+2);
+                                                       operand_exists;
                                             emit0=enc_header(dec[17:10],r1,0,0,0);
-                                            emit1=v2;
+                                            emit1=operand_value;
                                         end
                                         FMT_J32: begin
                                             args_valid=args_valid && arg_count==1 &&
-                                                       line_value_exists(mn_idx+1);
+                                                       operand_exists;
                                             emit0=enc_header(dec[17:10],0,0,0,0);
-                                            emit1=v1;
+                                            emit1=operand_value;
                                         end
                                         FMT_BR32: begin
                                             args_valid=args_valid && arg_count==1 &&
-                                                       line_value_exists(mn_idx+1);
+                                                       operand_exists;
                                             emit0=enc_header(8'h41,dec[3:0],0,0,0);
-                                            emit1=v1;
+                                            emit1=operand_value;
                                         end
                                         FMT_BRCOND: begin
                                             args_valid=args_valid && arg_count==2 &&
                                                        condition_code(line_hash[mn_idx+1])!=4'hf &&
-                                                       line_value_exists(mn_idx+2);
+                                                       operand_exists;
                                             emit0=enc_header(8'h41,condition_code(line_hash[mn_idx+1]),0,0,0);
-                                            emit1=v2;
+                                            emit1=operand_value;
                                         end
                                         FMT_MEM: begin
                                             args_valid=args_valid && arg_count==3 &&
                                                        line_is_reg[mn_idx+1] &&
                                                        line_is_reg[mn_idx+2] &&
-                                                       line_value_exists(mn_idx+3) &&
-                                                       ($signed(v3)>=-2048 && $signed(v3)<=2047);
+                                                       operand_exists &&
+                                                       ($signed(operand_value)>=-2048 && $signed(operand_value)<=2047);
                                             if(dec[17:10]>=8'h53 && dec[17:10]<=8'h55)
-                                                emit0=enc_header(dec[17:10],0,r1,r2,v3[11:0]);
+                                                emit0=enc_header(dec[17:10],0,r1,r2,operand_value[11:0]);
                                             else
-                                                emit0=enc_header(dec[17:10],r1,r2,0,v3[11:0]);
+                                                emit0=enc_header(dec[17:10],r1,r2,0,operand_value[11:0]);
                                         end
                                         FMT_SYS: begin
                                             args_valid=args_valid && arg_count==1 &&
-                                                       line_value_exists(mn_idx+1) && v1<=4095;
-                                            emit0=enc_header(dec[17:10],0,0,0,v1[11:0]);
+                                                       operand_exists && operand_value<=4095;
+                                            emit0=enc_header(dec[17:10],0,0,0,operand_value[11:0]);
                                         end
                                         FMT_RSYS: begin
                                             args_valid=args_valid && arg_count==2 &&
                                                        line_is_reg[mn_idx+1] &&
-                                                       line_value_exists(mn_idx+2) && v2<=4095;
-                                            emit0=enc_header(dec[17:10],r1,0,0,v2[11:0]);
+                                                       operand_exists && operand_value<=4095;
+                                            emit0=enc_header(dec[17:10],r1,0,0,operand_value[11:0]);
                                         end
                                         default:args_valid=0;
                                     endcase

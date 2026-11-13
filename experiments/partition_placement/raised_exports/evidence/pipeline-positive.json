@@ -1,0 +1,83 @@
+{
+  "clock_skew_ticks": 0,
+  "clock_edges": 16,
+  "half_period_redstone_ticks": 512,
+  "minimum_setup_ticks": 878,
+  "minimum_hold_ticks": 88,
+  "pipeline_failures": [],
+  "actual_ticks": 27648,
+  "native_to_dense_translation": {
+    "x": 32,
+    "y": 92,
+    "z": 32
+  },
+  "expected_transfers": [
+    [
+      false,
+      false
+    ],
+    [
+      false,
+      false
+    ],
+    [
+      true,
+      false
+    ],
+    [
+      true,
+      true
+    ],
+    [
+      true,
+      true
+    ],
+    [
+      true,
+      true
+    ],
+    [
+      false,
+      true
+    ],
+    [
+      false,
+      false
+    ],
+    [
+      false,
+      false
+    ],
+    [
+      false,
+      false
+    ],
+    [
+      true,
+      false
+    ],
+    [
+      true,
+      true
+    ],
+    [
+      true,
+      true
+    ],
+    [
+      false,
+      true
+    ],
+    [
+      false,
+      false
+    ],
+    [
+      false,
+      false
+    ]
+  ],
+  "topology_sha256": "79b15f06c8410678c43f75f89b167154f8280633e60e4f4a40138a86b393e498",
+  "dense_case_sha256": "189409d548334fc232cd1035587675d19416719d3d7e4363a9300dadbc1827af",
+  "scope": "all literal native cells and all 18 parent-child handoffs; two-level proof only"
+}

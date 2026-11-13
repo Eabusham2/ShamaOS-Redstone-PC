@@ -1,0 +1,17 @@
+{
+  "scope": "Isolated raised-parent-export and shorter-apron geometry candidate; no production/default change",
+  "baseline_path": "src/shamaos/hardware/partition_placement.py",
+  "baseline_sha256": "10c6a4b5aba6b5c4776326d0a863bf57cd1fc5b0d216115ca496d851d6a82e90",
+  "candidate_path": "experiments/partition_placement/raised_exports/partition_placement.py",
+  "candidate_sha256": "ac748b28fcff26b21dc77315d33b3ad40e2c98c83a7b8ad8142a776c643fe7a5",
+  "changes": {
+    "front_z = max(box.max.z for box in boxes) + 6 * (len(external) + len(children) + 1) + 16": "front_z = max(box.max.z for box in boxes) + export_apron; see measured retry wrapper",
+    "Vec3(8 * index, context.minimum_y + 1, front_z)": "Vec3(8 * index, roof + 9, front_z)"
+  },
+  "export_y": "highest child block Y + 9",
+  "front_z": "maximum child Z + measured apron starting at24; retry beyond emitted maximumZ+4 until every own export is on the South boundary",
+  "all_original_access_faces_preserved": true,
+  "all_original_geometry_guards_preserved": true,
+  "maximum_apron_attempts": 8,
+  "apron_guard": "Every own export must lie at the actual final maximumZ; all prior geometry guards retained"
+}

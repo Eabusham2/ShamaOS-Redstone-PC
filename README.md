@@ -11,6 +11,12 @@ boot are separate checks. A verified complete ShamaOS Minecraft world has not ye
 been released. See [implementation status](docs/IMPLEMENTATION_STATUS.md) and the
 [requirements and release gates](docs/REQUIREMENTS.md).
 
+The latest fully green 200 KiB checkpoint is
+[`c3315eb`](https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/43354526384):
+all 20 CI jobs pass, including 986 required behavioral/redstone tests with no
+skips. Newer work and the remaining complete-world gates are tracked separately
+in the implementation status document.
+
 ## Agreed machine
 
 | Subsystem | Contract |
@@ -186,6 +192,22 @@ The focused assembler regression passes 84 cases without skips. This is a logic
 size reduction; complete routing, chunk savings and world timing still need
 measurement in the full build.
 
+A second [shared operand lookup](experiments/assembler_operand_sharing/README.md)
+reduces the current assembler mapping from **559,453 to 481,945 native cells
+(13.85%)** and removes **2,767,590 cell-template blocks (12.02%)**. All 17,486
+registers and the cycle counts in 232 differential runs are preserved. Maximum
+data fanout falls 26.93%, while maximum unit-gate depth rises 3.97%; this is a
+size improvement with an unverified physical timing tradeoff. Those counts bind
+the isolated optimization before the declaration correction below. Fresh full
+synthesis is required for the combined source, and wiring/chunks are excluded.
+
+The [assembly declaration rules](docs/ISA.md#assembly-language-and-compatibility)
+now reject ambiguous label/constant names and invalid definition values while
+supporting syscall aliases and same-line labels consistently. The focused
+[declaration regression](docs/evidence/assembler-definitions-2026-11-13.json)
+passes 136 host/RTL/resource cases without skips. The installed 200 KiB image
+remains byte-for-byte identical.
+
 The native Java 1.20.4 Anvil backend creates a grass superflat world without Amulet,
 preserves the ground, writes exact block properties, and reads the saved chunks
 back independently. Every part of the full build stays above the grass. Stacking
@@ -199,6 +221,12 @@ Amulet path remains available for existing unrelated saves. Conflicting block
 assignments are errors. Full generation also runs a resource/capacity preflight.
 Large-scale routing/timing and a workable full-world loading configuration remain
 release gates; local cell tests cannot establish them by themselves.
+
+The [native runtime](docs/NATIVE_RUNTIME.md) now also saves actual settled circuit
+state, restores a fresh native world and checks it in a new engine process.
+Complete small-bank writes and nonzero registers survive reopening, including
+register clocks stopped high or low. This path rejects pending circuit events;
+these fixtures do not establish complete-world persistence or boot.
 
 ## Start here
 

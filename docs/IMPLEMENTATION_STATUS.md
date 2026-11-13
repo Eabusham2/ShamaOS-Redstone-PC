@@ -5,6 +5,29 @@ has not been certified or released.** The package version `1.0.0` is not evidenc
 that all acceptance gates have passed. [REQUIREMENTS.md](REQUIREMENTS.md) is the
 feature contract; [VALIDATION.md](VALIDATION.md) defines the evidence required.
 
+## Owner request tracking
+
+The published implementation checkpoint is
+[`c3315eb`](https://github.com/Eabusham2/ShamaOS-Redstone-PC/commit/c3315eb35b3d52c1828e0d5c0c93dc0139ebd6e9).
+The table distinguishes completed code/component work from the remaining
+complete-world deliverable; it is not a percentage-complete estimate.
+
+| Requested work | Verified progress | Remaining acceptance |
+|---|---|---|
+| Reduced RCC and 200 KiB flash | 96 KiB RAM, 8 KiB cache, 16 KiB VRAM and 200 KiB flash; all nine shipped apps and full editable sources retained | Exercise the same capacities in the completed physical computer |
+| History save copy at most 8 KiB | 128-byte record journal plus 24-byte descriptor in reserved metadata; all 256 records and interrupted-save recovery retained | Full-world persistence across actual shutdown/reopen |
+| Compact above-grass build | Memory stacks stay above preserved grass; screen uses 108 occupied chunks; all 79 actuators fit a walkable 16×16 area | Finish the logic and connecting wires, then report their actual complete union |
+| Editor/Files/Miner and capacity protections | Full-source editing, folders/handoff, assembly, both hashing paths, resource cleanup, graceful fault recovery and 95% flash warning/protection exercised in software/RTL | Repeat the complete user flows on the saved full world |
+| Faster and smaller circuits | Shared assembler arithmetic, compact software/workspaces, binary row addressing and upward memory returns implemented; timing tradeoffs documented | Scale bounded routing and close complete clock/data timing |
+| Component colors | Colors replace existing supports without adding blocks or enlarging the build; actual-engine fixtures pass | Inspect the final complete build and screen in the client |
+| World ZIP, schematic, installer and simple guide | Packaging/workflow and copied-world installer implemented and tested; README includes acceleration and viewing guidance | Generate and validate the full world before publishing these complete-machine assets |
+| Agents implement, audit, then redistribute | Separate placement, native persistence and clock/conservation reviews are active; root independently reviews results | Continue through full routing, loading, runtime and release acceptance |
+
+The current regular-component union is **23,328 occupied X/Z chunks**. It
+excludes synthesized CPU/GPU/assembler/OS logic and their connecting routes.
+**No verified complete-computer chunk total or complete-world download exists
+at this checkpoint.**
+
 ## Current 200 KiB integration checkpoint
 
 The execution workspace has been restored and the owner's latest capacity
@@ -36,7 +59,10 @@ record journal and preserves the firmware's complete record/state format.
 The subsequent exact-commit run passed 842 behavior/redstone tests and exposed
 one stale keyboard test that sampled before the relocated column signal arrived.
 The corrected test preserves full pulse/isolation checks and now verifies all
-4,480 key/clock-phase combinations; the next exact-commit CI run must pass too.
+4,480 key/clock-phase combinations. The corrected `c3315eb` revision now passes
+all 20 exact-commit CI jobs, including 986 required behavioral/redstone cases
+with no skips and both saved-world fixtures. Newer local work requires its own
+exact-commit CI result before receiving the same status.
 
 ## Connected routing and saved-world execution checkpoint
 
@@ -60,6 +86,34 @@ blocks and 9,332 occupied chunks. These are subtree measurements, not an estimat
 of the complete bridge or computer. Larger connected placement and global clock
 timing remain substantial open work.
 
+A subsequent complete 1,024-cell subtree passes the same literal geometry and
+isolation checks: 28 modules, 1,500 shared contacts, **11,324,130 unique blocks
+and 55,494 occupied chunks**. Its two vertical tiers and two horizontal stacks
+fit Y=-60..181. All eight recorded generator source hashes match the published
+checkpoint. This substantial wiring cost is preserved in the
+[subtree report](../experiments/partition_placement/evidence/parent-221-north-workload.json);
+it is neither full-bridge runtime proof nor part of the regular-component
+23,328-chunk subtotal. Raising parent export contacts and shortening their
+clearance corridors is being measured separately before any default changes.
+
+The isolated [raised-export experiment](../experiments/partition_placement/raised_exports/README.md)
+now has a composable 256-cell result: **916,260 unique blocks and 4,275 occupied
+chunks**, down 28.8% and 54.2% respectively from the same original subtree.
+It measures the complete routing extent and rebuilds until every export is at
+the actual outer face. The first smaller fixed-apron result buried exports and
+was rejected. The small connected pipeline falls from 90 to 74 chunks and
+preserves its passing and deliberately too-fast native-world traces. The
+1,024-cell trial completed route generation but was interrupted during its final
+exact block-union check; it has no accepted chunk count. Production geometry
+defaults remain unchanged.
+
+The separate [branch-column experiment](../experiments/partition_placement/branch_columns/README.md)
+removes another 116 blocks on that small pipeline, with its 74-chunk footprint
+unchanged. Its 67 original-router and 45 combined placement/clock cases pass.
+A conservative escape-prefix precheck also preserves the independently audited
+64-case geometry corpus; its full 896-endpoint equivalence run is pending.
+Neither experiment weakens the existing collision, headroom or timing checks.
+
 The [native-world runner](NATIVE_RUNTIME.md) now imports every saved section into
 one connected sparse world using the pinned engine's real scheduled redstone
 behavior. An explicit terrain-registry extension preserves grass, dirt and
@@ -73,6 +127,38 @@ retains all 153 distinct passing planner/router/importer, benchmark-guard and
 console cases, exact reviewed source and runtime binary hashes, and the scope of
 these checks.
 
+The next persistence checkpoint executes writes in the actual engine, saves the
+resulting quiescent block states and comparator strengths, restores a fresh
+native world, and reads it in a second engine process. All 128 stored bits are
+independently checked before that process starts; its 1,449 read assertions pass
+after 1,932 write-phase assertions. All 37 original chunks and the one additional
+runtime chunk remain. The final independent root regression passes **133 cases
+without skips**, including malformed snapshots, exact source/digest binding,
+analog comparator strengths, missing-chunk rejection, partial-directory cleanup
+and concurrent-destination protection. The
+[persistence report](evidence/native-persistence-2026-11-13.json) records the
+exact sources and runner. This experimental Linux restore path requires zero
+pending scheduled ticks; it does not claim to serialize active circuits or the
+complete computer.
+
+Two further [native register-persistence cases](evidence/register-persistence-2026-11-13.json)
+retain four nonzero physical registers with the clock stopped high or low and
+all data inputs cleared. Native latch/output states are inspected before a fresh
+engine process holds them unchanged and then captures new data on the next edge.
+The unchanged initial world fails the specific retained-bit negative control.
+Both cases pass; production persistence and register sources are unchanged.
+
+Selective native-runner traces now retain chosen signal samples while leaving
+every declared boundary/continuous assertion intact. The native memory fixture
+keeps all 320 boundary checks and identical saved circuit states while reducing
+retained samples from 71,680 to 3,584. Wrong untraced bits still fail at the same
+tick. The independent root regression passes **60 cases without skips**, covering
+legacy traces, loading, native memory persistence and both stopped-clock register
+cases with the rebuilt ordinary and terrain runners. The
+[report](evidence/selective-trace-runtime-2026-11-13.json) retains their exact
+source and binary bindings. This reduces validation capture costs; it is not a
+Minecraft execution-speed claim or a complete-cache runtime result.
+
 A further independent review passes all four
 [physical-console-to-input-RTL cases](evidence/console-input-integration-2026-11-13.json)
 without skips. Actual native and exported waveforms exercise both keyboard banks
@@ -81,6 +167,17 @@ FIFO order, urgent-action priority and overflow. Unmodified traces deliberately
 fail capture at a 140-tick raw period. This connects the measured source interface
 to real RTL behavior; it does not close propagation timing inside the complete
 mapped input circuit or the whole machine.
+
+The new [generated-clock regression](evidence/generated-clock-hierarchy-2026-11-13.json)
+also passes five focused cases in both the implementing agent's run and an
+independent root rerun, with no skips. A real native divider drives two downstream
+registers across four hierarchy levels. At the passing test rate, both clock
+leaves receive all 16 generated pulses with 133-redstone-tick source-to-leaf
+delay and no observed skew. Removing a real delay modification produces detected
+skew even though the settled data remains correct; a too-fast clock produces
+missing pulses and incorrect divider transfers. An unbalanceable layout is
+rejected with complete rollback. These negative controls verify the timing
+checks on this fixture, not the final computer's clock rate.
 
 The complete graph's remaining routing, clock/data timing, loaded-chunk behavior,
 in-client view and end-to-end application flows must pass on the actual finished
@@ -277,8 +374,9 @@ placement operations and 589 chunks; those numbers belong to that cut only.
 The new [routing audit](ROUTING_PROGRESS.md) adds bounded parent-interface
 clearance and complete driver/sink/port/clock conservation, plus a real sequential
 assembler cut with deliberate passing and failing cycle rates. A complete graph
-partition tree, horizontal fallback and global timing/loading closure are still
-required before selecting that routing path in the production generator.
+partition tree and horizontal fallback are now implemented experimentally;
+emitting and verifying the entire graph, plus global timing/loading closure,
+remain required before selecting that path in the production generator.
 
 ## Shared assembler arithmetic
 
@@ -307,8 +405,62 @@ literals; quoted bytes; 48-character symbols sharing the same short prefix;
 128 labels plus 128 definitions; source/output and physical RAM boundaries.
 All nine shipped app sources retain their exact assembly cycle counts, including
 Editor 67,555, Files 82,267 and Miner 102,541. Firmware image sizes and RCC
-occupancy do not change. The normal physical-builder and complete CI gates
-must still pass on the exact candidate commit.
+occupancy do not change. The published `c3315eb` checkpoint subsequently passes
+all 20 CI jobs. The earlier matched cell counts above belong to their recorded
+source/tool snapshot; the complete current baseline below is separately bound
+to its source-equivalent retained mapping.
+
+### Shared immediate operand lookup
+
+Each instruction uses at most one immediate operand. Selecting that token before
+the symbol tables shares one lookup without adding parser states or cycles.
+The [complete isolated measurement](../experiments/assembler_operand_sharing/README.md)
+uses the same Yosys 0.33 AIG flow and production native-cell lowering for both
+versions. It reproduces the complete baseline before comparing the candidate:
+
+| Measured assembler property | Baseline | Shared lookup |
+|---|---:|---:|
+| Native logic cells | 559,453 | 481,945 |
+| Literal cell-template blocks, excluding wiring | 23,025,358 | 20,257,768 |
+| DFFs | 17,486 | 17,486 |
+| Maximum data fanout, excluding DFF clocks | 672 | 491 |
+| Maximum unit native-gate depth | 1,208 | 1,256 |
+
+The reduction is **77,508 cells / 13.85%** and **2,767,590 template blocks /
+12.02%**. The larger unit-gate depth is a **3.97% increase**, so the result is
+not a physical speed measurement. The retained differential miter passes 232
+runs over 116 sources with ready and stalled DMA, matching 761,468 clocks,
+316,068 reads and 11,776 writes, including all nine shipped applications.
+All 15 measurement guards pass independently. These results describe the frozen
+resolver-only source before the declaration fix below; the combined source
+requires its own complete mapping and exact-commit CI. No whole-machine chunk
+count is inferred from these cell-template totals.
+
+After integration with the declaration corrections, the root rerun passes
+**177 focused cases with zero skips** and the same **232 ready/stalled-DMA
+comparison runs**. Its source hashes and exact evidence are retained in the
+experiment's integrated root report; the isolated physical counts above are not
+silently transferred to this newer RTL.
+
+## Assembler declaration consistency
+
+An independent source review reproduced hardware acceptance of a label address
+as a definition value even though the declaration's assignment path had no label
+lookup. It also found reserved-name and same-line redeclaration gaps, host-side
+label/definition namespace mismatches, and numeric/quoted definition names that
+could shadow literal values only in the host assembler. These cases now report
+the original source line instead of producing a conflicting value. Valid
+definitions may use literals, earlier definitions and builtin syscall constants;
+same-line labels retain the current instruction address without emitting data.
+
+The [retained report](evidence/assembler-definitions-2026-11-13.json) includes the
+initial 11 failing cases, the independent literal-name reproductions, and the
+final **136 passing host/RTL/resource cases with zero skips**. Both positive
+alias cases cover all 54 builtin syscalls; all nine shipped app binaries and the
+complete installed 200 KiB image remain unchanged. This is focused declaration
+coverage, not a proof over the entire assembly language. The separately measured
+operand-sharing optimization predates this correction; combined-source synthesis
+and exact-commit CI remain required.
 
 ## Component appearance and release automation
 
@@ -380,8 +532,16 @@ The 200 KiB revision includes the host history-model fix. Its separate
 finished with 19 of 20 jobs successful, including all twelve mappings and their
 reconnection. The behavioral job passed 842 tests and failed the single stale
 32-tick keyboard snapshot. The corrected test measures the actual input-clock
-window and independently verifies every key at every clock phase; a fresh run
-on the corrected revision is still required. [Current CI results](https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/workflows/ci.yml)
+window and independently verifies every key at every clock phase. The corrected
+[`c3315eb` run](https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/43354526384)
+completed with **all 20 jobs successful**, including **986 behavioral/redstone
+tests with zero skips**, both saved-world fixtures, all four Python/platform
+variants, RTL, world-backend, all twelve partition mappings and reconnection.
+The [retained CI record](evidence/ci-c3315eb-2026-11-13.json) binds these results
+to that exact source revision; newer changes need a separate full run. The
+published revision has 157 distinct focused root-reviewed passing checks
+(153 in the routing/native review and four physical-input integration cases).
+[Current CI results](https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/workflows/ci.yml)
 are the authority for the exact candidate. Passing synthesis does not establish
 complete-world routing or in-game boot.
 The behavioral CI budget is now 75 minutes to include production-controller

@@ -1,0 +1,257 @@
+{
+  "status": "passed-focused-validation",
+  "scope": "Constant declarations and their host/RTL diagnostics; no whole-language proof or complete-world runtime claim",
+  "baseline_commit": "c3315eb35b3d52c1828e0d5c0c93dc0139ebd6e9",
+  "source_hashes": {
+    "src/shamaos/assembler.py": "45b248f5bda95a993f7a43eb813993cc55ac927f86b5815a11782668ea67e71b",
+    "rtl/shama_asm_accel.sv": "431b9ff7185d48c1b03e54ebc0d0b172904222186ab0b27ca58079c073b51b62",
+    "rtl/tb_asm_cases.sv": "3e9bf823e2e59f8478707acb884d02763c837c3396190f2cacd5efed40550c85",
+    "tests/test_assembler_definitions.py": "07109d6cd5798906a38fa2a5e416888baa3a1d8f6ea2e87ae071d901647d5f03",
+    "tests/test_hardware_assembler.py": "ca9b6b851a19a20ebef1d8f979ab7813731d59ae0833d4ebdb1ae8f8c3547eca",
+    "tests/test_hardware_numeric_literals.py": "ac0024e63682912ebe92d734667cd7821ca716463bbd4a040fba1a0638a544c3",
+    "tests/test_assembler.py": "79871e8c8b6d56d6cb9bc07067fb4c669e9c11d8fe1481c13a6c4d085136067d",
+    "tests/test_software_resources.py": "54e1e18d8546032a78aa0a6d6f027959d977b824e7e09dbf4d34370f712ed5b7",
+    "docs/ISA.md": "13352a08702532a3a814cb21025b2d08e1abb2bb97d0ef244cb5d26a406aa8c6"
+  },
+  "reproduced_before_fix": {
+    "test_count": 30,
+    "failures": 11,
+    "errors": 0,
+    "skipped": 0,
+    "junit_sha256": "39a20fa68259ad98d94139b2bb6393c1af30dfc900dbe2b57c68be4edd74fa60",
+    "cases": [
+      {
+        "name": "earlier_label_value",
+        "source": "origin: NOP\ndefine X origin\nHLT\n",
+        "expected_error_code": 4,
+        "expected_line": 2,
+        "host": {
+          "accepted": false,
+          "error": "line 2: unknown symbol/immediate 'origin'"
+        },
+        "rtl_exit": 1,
+        "rtl_output": "FATAL: rtl/tb_asm_cases.sv:46: diagnostic expected line=2 code=4 actual=0000000000000008\n       Time: 1640  Scope: tb_asm_cases\n"
+      },
+      {
+        "name": "reserved_definition",
+        "source": "define SYS_EXIT 37\nHLT\n",
+        "expected_error_code": 4,
+        "expected_line": 1,
+        "host": {
+          "accepted": false,
+          "error": "line 1: duplicate/reserved definition SYS_EXIT"
+        },
+        "rtl_exit": 1,
+        "rtl_output": "FATAL: rtl/tb_asm_cases.sv:46: diagnostic expected line=1 code=4 actual=0000000000000004\n       Time: 1190  Scope: tb_asm_cases\n"
+      },
+      {
+        "name": "reserved_label",
+        "source": "SYS_EXIT: NOP\nHLT\n",
+        "expected_error_code": 3,
+        "expected_line": 1,
+        "host": {
+          "accepted": true,
+          "words": [
+            0,
+            16777216
+          ]
+        },
+        "rtl_exit": 1,
+        "rtl_output": "FATAL: rtl/tb_asm_cases.sv:46: diagnostic expected line=1 code=3 actual=0000000000000008\n       Time: 980  Scope: tb_asm_cases\n"
+      },
+      {
+        "name": "label_then_definition",
+        "source": "X: NOP\ndefine X 3\nHLT\n",
+        "expected_error_code": 4,
+        "expected_line": 2,
+        "host": {
+          "accepted": true,
+          "words": [
+            0,
+            16777216
+          ]
+        },
+        "rtl_exit": 0,
+        "rtl_output": "ASSEMBLER CASE PASS 22 bytes 45 cycles\nrtl/tb_asm_cases.sv:54: $finish called at 480 (1s)\n"
+      },
+      {
+        "name": "definition_then_label",
+        "source": "define X 3\nX: HLT\n",
+        "expected_error_code": 3,
+        "expected_line": 2,
+        "host": {
+          "accepted": true,
+          "words": [
+            16777216
+          ]
+        },
+        "rtl_exit": 0,
+        "rtl_output": "ASSEMBLER CASE PASS 18 bytes 45 cycles\nrtl/tb_asm_cases.sv:54: $finish called at 480 (1s)\n"
+      },
+      {
+        "name": "same_line_redefinition",
+        "source": "same: define same 3\nHLT\n",
+        "expected_error_code": 4,
+        "expected_line": 1,
+        "host": {
+          "accepted": false,
+          "error": "line 1: unknown instruction define"
+        },
+        "rtl_exit": 1,
+        "rtl_output": "FATAL: rtl/tb_asm_cases.sv:46: diagnostic expected line=1 code=4 actual=0000000000000004\n       Time: 1250  Scope: tb_asm_cases\n"
+      }
+    ]
+  },
+  "independent_review": {
+    "scope": "Read-only independent edge-case review of the current declaration fix; no production edits",
+    "source_sha256": {
+      "src/shamaos/assembler.py": "02eaf8d62554cbe9a193245adbab57930c6cd32839259596cdfc41741bb6e83c",
+      "rtl/shama_asm_accel.sv": "2b1871ffc72a54ce800f3827065886f298f715f11b38940757e8737565ad4830",
+      "docs/ISA.md": "a6169d731366ab3f82293896c861df1a314a49d35c8a70828ef79b6e834169cc"
+    },
+    "cases": [
+      {
+        "name": "numeric_definition_name",
+        "source": "define 1 2\nLDI r1 1\nHLT\n",
+        "host_words": [
+          51380224,
+          2,
+          16777216
+        ],
+        "host_definitions": {
+          "1": 2
+        },
+        "host_labels": {},
+        "rtl_exit_code": 1,
+        "rtl_stdout": "FATAL: /workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/rtl/tb_asm_cases.sv:50: machine-code mismatch word=1 actual=00000001 expected=00000002\n       Time: 1350  Scope: tb_asm_cases\n",
+        "rtl_stderr": ""
+      },
+      {
+        "name": "character_definition_name",
+        "source": "define 'A' 5\nLDI r1 'A'\nHLT\n",
+        "host_words": [
+          51380224,
+          5,
+          16777216
+        ],
+        "host_definitions": {
+          "'A'": 5
+        },
+        "host_labels": {},
+        "rtl_exit_code": 1,
+        "rtl_stdout": "FATAL: /workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/rtl/tb_asm_cases.sv:50: machine-code mismatch word=1 actual=00000041 expected=00000005\n       Time: 1510  Scope: tb_asm_cases\n",
+        "rtl_stderr": ""
+      },
+      {
+        "name": "signed_numeric_definition_name",
+        "source": "define -1 2\nLDI r1 -1\nHLT\n",
+        "host_words": [
+          51380224,
+          2,
+          16777216
+        ],
+        "host_definitions": {
+          "-1": 2
+        },
+        "host_labels": {},
+        "rtl_exit_code": 1,
+        "rtl_stdout": "FATAL: /workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/rtl/tb_asm_cases.sv:50: machine-code mismatch word=1 actual=ffffffff expected=00000002\n       Time: 1430  Scope: tb_asm_cases\n",
+        "rtl_stderr": ""
+      },
+      {
+        "name": "same_line_after_two_word_instruction",
+        "source": "LDI r0 7\nloop: define EXIT SYS_EXIT\n.define: define VALUE '\\x41'\nLDI r1 VALUE\nJMP loop\nSYS EXIT\nHLT\n",
+        "host_words": [
+          50331648,
+          7,
+          51380224,
+          65,
+          1073741824,
+          2,
+          1610612737,
+          16777216
+        ],
+        "host_definitions": {
+          "EXIT": 1,
+          "VALUE": 65
+        },
+        "host_labels": {
+          "LOOP": 2,
+          ".DEFINE": 2
+        },
+        "rtl_exit_code": 0,
+        "rtl_stdout": "ASSEMBLER CASE PASS 100 bytes 481 cycles\n/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/rtl/tb_asm_cases.sv:54: $finish called at 4840 (1s)\n",
+        "rtl_stderr": ""
+      },
+      {
+        "name": "case_insensitive_chain_and_comments",
+        "source": "Define alpha -0x80000000 // signed\nentry: DEFINE beta alpha\nLDI r1 bEtA\nsecond: define EX sys_exit ; alias\nSYS EX\nHLT\n",
+        "host_words": [
+          51380224,
+          2147483648,
+          1610612737,
+          16777216
+        ],
+        "host_definitions": {
+          "ALPHA": -2147483648,
+          "BETA": -2147483648,
+          "EX": 1
+        },
+        "host_labels": {
+          "ENTRY": 0,
+          "SECOND": 2
+        },
+        "rtl_exit_code": 0,
+        "rtl_stdout": "ASSEMBLER CASE PASS 118 bytes 509 cycles\n/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/rtl/tb_asm_cases.sv:54: $finish called at 5120 (1s)\n",
+        "rtl_stderr": ""
+      },
+      {
+        "name": "same_line_character_comment_delimiters",
+        "source": "value: define A ';'\ndefine B '/'\nLDI r1 A\nLDI r2 B\nJMP value\nHLT\n",
+        "host_words": [
+          51380224,
+          59,
+          52428800,
+          47,
+          1073741824,
+          0,
+          16777216
+        ],
+        "host_definitions": {
+          "A": 59,
+          "B": 47
+        },
+        "host_labels": {
+          "VALUE": 0
+        },
+        "rtl_exit_code": 0,
+        "rtl_stdout": "ASSEMBLER CASE PASS 65 bytes 330 cycles\n/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/rtl/tb_asm_cases.sv:54: $finish called at 3330 (1s)\n",
+        "rtl_stderr": ""
+      }
+    ]
+  },
+  "corrected_behavior": [
+    "Only literal values, earlier definitions and builtin syscall constants are valid definition values",
+    "Builtin syscall names are reserved; labels and definitions cannot redeclare one another, including on the same line",
+    "Definition names cannot be numeric or quoted literals",
+    "The host accepts syscall aliases and same-line labels on definitions, matching existing valid RTL behavior",
+    "Unused definitions still enforce the documented 32-bit value bounds"
+  ],
+  "final_regression": {
+    "tests": 136,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 19.231,
+    "junit_sha256": "b2fa5621dd0e6d54911e4c22614aa73a4118d86b09a2fa5dd7463bd37fbf3d94",
+    "command": "PATH=<HDL tools>:$PATH PYTHONPATH=src:tests pytest -q tests/test_assembler_definitions.py tests/test_assembler.py tests/test_hardware_assembler.py tests/test_hardware_numeric_literals.py tests/test_software_resources.py --junitxml=build/definition-repro/final.xml",
+    "builtin_syscall_aliases_per_positive_case": 54
+  },
+  "installed_image": {
+    "bytes": 204800,
+    "sha256": "06c9faf5fafd4821885ae1153a099bbc8a2017b00783c10f8077c152b87757e7",
+    "identical_to_published_200_kib_image": true
+  },
+  "physical_counts": "This source is separate from the frozen resolver-sharing measurement; combined-source synthesis remains required.",
+  "complete_machine_runtime_verified": false
+}

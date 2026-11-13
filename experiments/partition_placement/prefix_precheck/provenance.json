@@ -1,0 +1,7 @@
+{
+  "scope": "Frozen same-route preparation-speed comparison; no production/default change",
+  "fixture": "experiments/partition_placement/evidence/parent-221-row-prefix-input.json.gz",
+  "north_lane_limit": 512,
+  "baseline_sha256": "96834193a37bb485ab225ea21dc1ae460afcc3ab9ac41a434e45660be2f7666d",
+  "candidate_sha256": "0e9cba0c16c7be1916a9eea4f3f5fb28f9a50f92d41866417bc713d2f088bb0e"
+}

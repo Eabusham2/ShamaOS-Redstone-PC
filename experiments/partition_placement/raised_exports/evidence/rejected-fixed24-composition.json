@@ -1,0 +1,230 @@
+{
+  "status": "rejected-before-complete-parent-emission",
+  "scope": "Fixed24-apron child interfaces are not composable; larger allocation interrupted after this measured precondition failure",
+  "complete_parent_result": false,
+  "runtime_verified": false,
+  "candidate_sha256": "cd36c4b4a8b97d41787c53d269b7f20f593eba249233bdf23781e7943f38a9c4",
+  "child_records": [
+    {
+      "cluster_id": 177,
+      "leaf": false,
+      "native_cells": 256,
+      "computed_unique_blocks": 895628,
+      "bounds": {
+        "min": {
+          "x": 0,
+          "y": -60,
+          "z": -380
+        },
+        "max": {
+          "x": 2134,
+          "y": 49,
+          "z": 222
+        }
+      },
+      "modules": 6,
+      "shared_contacts": 248,
+      "packing": {
+        "vertical_tiers": 4,
+        "horizontal_stacks": 1,
+        "horizontal_columns": 1,
+        "horizontal_layout": "compact",
+        "child_heights": [
+          20,
+          20,
+          20,
+          20
+        ],
+        "stacked_child_ids": [
+          [
+            0,
+            1,
+            2,
+            3
+          ]
+        ],
+        "reserved_maximum_child_y": 247,
+        "vertical_gap": 4,
+        "rejected_layouts": []
+      },
+      "seconds": 8.546450123001705,
+      "own_declared_export_points": 163,
+      "own_export_y_range": [
+        40,
+        40
+      ],
+      "own_export_z_range": [
+        158,
+        158
+      ],
+      "own_exports_at_south_envelope": false
+    },
+    {
+      "cluster_id": 178,
+      "leaf": false,
+      "native_cells": 256,
+      "computed_unique_blocks": 760316,
+      "bounds": {
+        "min": {
+          "x": 0,
+          "y": -60,
+          "z": -280
+        },
+        "max": {
+          "x": 2142,
+          "y": 49,
+          "z": 170
+        }
+      },
+      "modules": 6,
+      "shared_contacts": 174,
+      "packing": {
+        "vertical_tiers": 4,
+        "horizontal_stacks": 1,
+        "horizontal_columns": 1,
+        "horizontal_layout": "compact",
+        "child_heights": [
+          20,
+          20,
+          20,
+          20
+        ],
+        "stacked_child_ids": [
+          [
+            4,
+            5,
+            6,
+            7
+          ]
+        ],
+        "reserved_maximum_child_y": 247,
+        "vertical_gap": 4,
+        "rejected_layouts": []
+      },
+      "seconds": 5.978191689006053,
+      "own_declared_export_points": 122,
+      "own_export_y_range": [
+        40,
+        40
+      ],
+      "own_export_z_range": [
+        170,
+        170
+      ],
+      "own_exports_at_south_envelope": true
+    },
+    {
+      "cluster_id": 179,
+      "leaf": false,
+      "native_cells": 256,
+      "computed_unique_blocks": 882456,
+      "bounds": {
+        "min": {
+          "x": 0,
+          "y": -60,
+          "z": -384
+        },
+        "max": {
+          "x": 2142,
+          "y": 49,
+          "z": 192
+        }
+      },
+      "modules": 6,
+      "shared_contacts": 235,
+      "packing": {
+        "vertical_tiers": 4,
+        "horizontal_stacks": 1,
+        "horizontal_columns": 1,
+        "horizontal_layout": "compact",
+        "child_heights": [
+          20,
+          20,
+          20,
+          20
+        ],
+        "stacked_child_ids": [
+          [
+            8,
+            9,
+            10,
+            11
+          ]
+        ],
+        "reserved_maximum_child_y": 247,
+        "vertical_gap": 4,
+        "rejected_layouts": []
+      },
+      "seconds": 8.125922399995034,
+      "own_declared_export_points": 153,
+      "own_export_y_range": [
+        40,
+        40
+      ],
+      "own_export_z_range": [
+        158,
+        158
+      ],
+      "own_exports_at_south_envelope": false
+    },
+    {
+      "cluster_id": 180,
+      "leaf": false,
+      "native_cells": 256,
+      "computed_unique_blocks": 874024,
+      "bounds": {
+        "min": {
+          "x": 0,
+          "y": -60,
+          "z": -360
+        },
+        "max": {
+          "x": 2134,
+          "y": 49,
+          "z": 164
+        }
+      },
+      "modules": 6,
+      "shared_contacts": 235,
+      "packing": {
+        "vertical_tiers": 4,
+        "horizontal_stacks": 1,
+        "horizontal_columns": 1,
+        "horizontal_layout": "compact",
+        "child_heights": [
+          20,
+          20,
+          20,
+          20
+        ],
+        "stacked_child_ids": [
+          [
+            12,
+            13,
+            14,
+            15
+          ]
+        ],
+        "reserved_maximum_child_y": 247,
+        "vertical_gap": 4,
+        "rejected_layouts": []
+      },
+      "seconds": 8.126882516000478,
+      "own_declared_export_points": 170,
+      "own_export_y_range": [
+        40,
+        40
+      ],
+      "own_export_z_range": [
+        150,
+        150
+      ],
+      "own_exports_at_south_envelope": false
+    }
+  ],
+  "failed_outer_faces": [
+    177,
+    179,
+    180
+  ]
+}

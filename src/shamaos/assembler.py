@@ -137,27 +137,11 @@ def _tokenize_instruction(text: str) -> tuple[str, tuple[str, ...]]:
 def parse_source(source: str) -> tuple[list[SourceLine], dict[str, int]]:
     parsed: list[SourceLine] = []
     definitions: dict[str, int] = {}
+    declared_labels: set[str] = set()
 
     for line_no, raw in enumerate(source.splitlines(), 1):
         text = _strip_comment(raw)
         if not text:
-            continue
-
-        try:
-            token, arguments = _tokenize_instruction(text)
-        except AssemblyError as exc:
-            raise AssemblyError(f"line {line_no}: {exc}") from exc
-        parts = (token, *arguments)
-        if parts[0].lower() == "define":
-            if len(parts) != 3:
-                raise AssemblyError(f"line {line_no}: define syntax is 'define NAME value'")
-            name = parts[1].upper()
-            if name in definitions or name in SYSCALLS:
-                raise AssemblyError(f"line {line_no}: duplicate/reserved definition {name}")
-            try:
-                definitions[name] = _int(parts[2], definitions)
-            except AssemblyError as exc:
-                raise AssemblyError(f"line {line_no}: {exc}") from exc
             continue
 
         label = None
@@ -165,18 +149,44 @@ def parse_source(source: str) -> tuple[list[SourceLine], dict[str, int]]:
         if colon_label:
             label = colon_label.group(1).upper()
             text = colon_label.group(2)
-            if not text:
-                parsed.append(SourceLine(line_no, raw, label, None, ()))
-                continue
         elif text.startswith("."):
             first, *rest = text.split(maxsplit=1)
             label = first.upper()
             text = rest[0] if rest else ""
+        if label is not None:
+            if label in declared_labels or label in definitions or label in SYSCALLS:
+                raise AssemblyError(f"line {line_no}: duplicate/reserved label {label}")
+            declared_labels.add(label)
             if not text:
                 parsed.append(SourceLine(line_no, raw, label, None, ()))
                 continue
 
-        mnemonic, args = _tokenize_instruction(text)
+        try:
+            mnemonic, args = _tokenize_instruction(text)
+        except AssemblyError as exc:
+            raise AssemblyError(f"line {line_no}: {exc}") from exc
+        if mnemonic.lower() == "define":
+            if len(args) != 2:
+                raise AssemblyError(f"line {line_no}: define syntax is 'define NAME value'")
+            name = args[0].upper()
+            if name[0] in "0123456789+-'\"":
+                raise AssemblyError(f"line {line_no}: a definition name cannot be a literal: {name}")
+            if name in definitions or name in declared_labels or name in SYSCALLS:
+                raise AssemblyError(f"line {line_no}: duplicate/reserved definition {name}")
+            try:
+                # Definitions are resolved in source order. A label address is
+                # not a constant declaration; syscall constants and earlier
+                # definitions are available in both assembler implementations.
+                value = _int(args[1], {**SYSCALLS, **definitions})
+                if not -(1 << 31) <= value <= 0xFFFFFFFF:
+                    raise AssemblyError("definition value out of 32-bit range")
+                definitions[name] = value
+            except AssemblyError as exc:
+                raise AssemblyError(f"line {line_no}: {exc}") from exc
+            if label is not None:
+                parsed.append(SourceLine(line_no, raw, label, None, ()))
+            continue
+
         if mnemonic.upper() == "BRH" or (mnemonic.upper() == "BR" and len(args) == 2):
             if len(args) != 2:
                 raise AssemblyError(f"line {line_no}: BRH requires condition and target")

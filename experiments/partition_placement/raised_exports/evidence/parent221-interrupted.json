@@ -1,0 +1,363 @@
+{
+  "status": "incomplete-after-parent-emission",
+  "scope": "The selected parent returned after local geometry/isolation/envelope checks; final complete literal union, exact chunk count and runtime were not completed.",
+  "checked_at_utc": "2026-11-13T03:54:29Z",
+  "wall_budget_seconds": 2400,
+  "execution_session_id": 39680,
+  "execution_session_status": "write_stdin reports Unknown process id; execution is no longer registered",
+  "termination_action": "No live registered process remained to signal at recovery; no broad process kill was issued.",
+  "termination_reason": "Unknown; execution disappeared during final streamed union. This is not a layout rejection or a complete proof pass.",
+  "computed_parent_progress": {
+    "cluster_id": 221,
+    "leaf": false,
+    "native_cells": 1024,
+    "computed_unique_blocks": 10962588,
+    "bounds": {
+      "min": {
+        "x": 0,
+        "y": -60,
+        "z": -1060
+      },
+      "max": {
+        "x": 4799,
+        "y": 181,
+        "z": 2480
+      }
+    },
+    "modules": 28,
+    "shared_contacts": 1500,
+    "packing": {
+      "vertical_tiers": 2,
+      "horizontal_stacks": 2,
+      "horizontal_columns": 2,
+      "horizontal_layout": "row",
+      "child_heights": [
+        110,
+        110,
+        110,
+        110
+      ],
+      "stacked_child_ids": [
+        [
+          177,
+          178
+        ],
+        [
+          179,
+          180
+        ]
+      ],
+      "reserved_maximum_child_y": 265,
+      "vertical_gap": 4,
+      "export_apron": 1874,
+      "export_apron_attempts": [
+        {
+          "apron": 24,
+          "export_z": 630,
+          "actual_maximum_z": 2476
+        }
+      ],
+      "rejected_layouts": [
+        {
+          "horizontal_layout": "compact",
+          "error": "cluster 221, bounded parent escape prefixes: cannot isolate physical endpoint Vec3(x=112, y=154, z=580); dense endpoint placement needs a wider access corridor or a different placement"
+        }
+      ]
+    },
+    "seconds": 2139.642184466,
+    "own_declared_export_points": 288,
+    "own_export_y_range": [
+      172,
+      172
+    ],
+    "own_export_z_range": [
+      2480,
+      2480
+    ],
+    "own_exports_at_south_envelope": true
+  },
+  "literal_union_verified": false,
+  "occupied_chunks": null,
+  "runtime_verified": false,
+  "whole_computer_verified": false,
+  "full_graph_topology_sha256": "d6ddfd1b1b332d2e56c9d5dcc76d857442373a9ff1cd53ce77330a6bbbc3c24a",
+  "mapped_source": {
+    "path": "/workspace/scratch/fb0eaf1c89fe/ShamaOS-bounded/tests/fixtures/display_bridge_abc.json.gz",
+    "sha256": "bdc22086b9146cdf7ea9d58cbfddfeea09120bd19a744f704b9605ff573609a4",
+    "container_sha256": "2abc0695787b7490387790563fa099cf42d4e2bd9fdc2a3dc3db5472d3184a14",
+    "encoding": "gzip",
+    "top": "shama_display_bridge",
+    "raw_cells": 10910,
+    "lowered_cells": 10910,
+    "lowering_source_sha256": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274"
+  },
+  "effective_candidate_sha256": "ac748b28fcff26b21dc77315d33b3ad40e2c98c83a7b8ad8142a776c643fe7a5",
+  "source_bindings": {
+    "src/shamaos/hardware/partition_placement.py": {
+      "recorded_sha256": "10c6a4b5aba6b5c4776326d0a863bf57cd1fc5b0d216115ca496d851d6a82e90",
+      "current_sha256": "10c6a4b5aba6b5c4776326d0a863bf57cd1fc5b0d216115ca496d851d6a82e90"
+    },
+    "src/shamaos/hardware/partition_planner.py": {
+      "recorded_sha256": "82e7f39548af7443b29ffd322a118cb42474f6f0bf3da2273b1ecdefb38164b4",
+      "current_sha256": "82e7f39548af7443b29ffd322a118cb42474f6f0bf3da2273b1ecdefb38164b4"
+    },
+    "src/shamaos/hardware/local_router.py": {
+      "recorded_sha256": "63054c806442499ba0aa27f65b1ec2b35c339c0c8595521dbc3097a334307bc6",
+      "current_sha256": "63054c806442499ba0aa27f65b1ec2b35c339c0c8595521dbc3097a334307bc6"
+    },
+    "src/shamaos/hardware/external_router.py": {
+      "recorded_sha256": "96834193a37bb485ab225ea21dc1ae460afcc3ab9ac41a434e45660be2f7666d",
+      "current_sha256": "96834193a37bb485ab225ea21dc1ae460afcc3ab9ac41a434e45660be2f7666d"
+    },
+    "src/shamaos/hardware/logic.py": {
+      "recorded_sha256": "84a4f2cc3c535628ccd4e16ae0480b3cc99310f1fb83fe28f98d98b621ab1dff",
+      "current_sha256": "84a4f2cc3c535628ccd4e16ae0480b3cc99310f1fb83fe28f98d98b621ab1dff"
+    },
+    "src/shamaos/hardware/routing.py": {
+      "recorded_sha256": "d2b885f908a5942036269992c3fff7e3eb19ffe5a4753b97f5494aaf7120ccce",
+      "current_sha256": "d2b885f908a5942036269992c3fff7e3eb19ffe5a4753b97f5494aaf7120ccce"
+    },
+    "src/shamaos/hardware/memory.py": {
+      "recorded_sha256": "f44923cd4376d10fb2f62d5daf3bf752fe340e269355ac3564fd26ee2b5a8517",
+      "current_sha256": "f44923cd4376d10fb2f62d5daf3bf752fe340e269355ac3564fd26ee2b5a8517"
+    },
+    "src/shamaos/synthesis.py": {
+      "recorded_sha256": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274",
+      "current_sha256": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274"
+    }
+  },
+  "all_source_bindings_still_match": true,
+  "input_command": "python -u raised-exports-measured/run_geometry.py --cluster 221 --literal-union --output raised-exports-measured/parent221.json",
+  "input_working_directory": "/workspace/scratch/fb0eaf1c89fe/experiments/partition-placement",
+  "proof_driver_sha256": "07227f4b7c7dbf24a35683ff23f6553dfdba8c9fd8f4b25df76fa451859b848d",
+  "progress_sha256": "6e26aa116f99ada7740a87927e2e8bc9ee80f444304734f39a51db0f47a8bd7a",
+  "log_sha256": "1ce939e2ab657f2db936401dd10d9aae07679dd70a544e4c2f6d151258605525",
+  "partial_union_spool": {
+    "path": "/tmp/shama-literal-union-c27rqcfn",
+    "sort_runs": 43,
+    "record_bytes": 12,
+    "complete_records_in_runs": 2818048,
+    "total_bytes": 33816576,
+    "files": [
+      {
+        "name": "run-00000000.bin",
+        "bytes": 786432,
+        "sha256": "6e499d7298689e7993e7e6f5db101691ae9e6b331ec13d84ff908752f42b3d5a"
+      },
+      {
+        "name": "run-00000001.bin",
+        "bytes": 786432,
+        "sha256": "77b07ef23fc737ebb71684720910bb27147682f88c75e822711cf7989da9840b"
+      },
+      {
+        "name": "run-00000002.bin",
+        "bytes": 786432,
+        "sha256": "b529594513c834e9af539f66fe5a9cce8074b562d1009da6a21e242d976a6fd6"
+      },
+      {
+        "name": "run-00000003.bin",
+        "bytes": 786432,
+        "sha256": "866e96edb5b11f28a990227e4ffe065c81ae284a5a715d4195c7446851b532e4"
+      },
+      {
+        "name": "run-00000004.bin",
+        "bytes": 786432,
+        "sha256": "178a09850e3739ca0b64990433b8bb6112865ceecb58e2c6cbb254c5fb884c6b"
+      },
+      {
+        "name": "run-00000005.bin",
+        "bytes": 786432,
+        "sha256": "832e11bcc5f14f83d2f656cb00d3ae585b96ad168bc31eb7e267b79e99f2eb61"
+      },
+      {
+        "name": "run-00000006.bin",
+        "bytes": 786432,
+        "sha256": "d7c290aa23ade01aa32e24c45517e9ffd9f5170f96774ea0c861c8609642cd41"
+      },
+      {
+        "name": "run-00000007.bin",
+        "bytes": 786432,
+        "sha256": "c5e827e1440303c047c278754c5b3e0ee1a7e7fb0c9593d210f054385b6fedbd"
+      },
+      {
+        "name": "run-00000008.bin",
+        "bytes": 786432,
+        "sha256": "3cdb2b29744f64f8a7abf317a01f4d534c0eeb9fc4732f289ce9521fba17cf98"
+      },
+      {
+        "name": "run-00000009.bin",
+        "bytes": 786432,
+        "sha256": "35e1ab693f63714e69e0d26623e732170035be889bde074606407f81492ec820"
+      },
+      {
+        "name": "run-00000010.bin",
+        "bytes": 786432,
+        "sha256": "13382f665226f91cb0b4f9017612d9a6d722e857ce4c85e0e9356994ad35bd39"
+      },
+      {
+        "name": "run-00000011.bin",
+        "bytes": 786432,
+        "sha256": "5d3badd464ed69885e0e2d4a5d94b39db97afe4c44dd7bc6f62f7ae8eeffc173"
+      },
+      {
+        "name": "run-00000012.bin",
+        "bytes": 786432,
+        "sha256": "b5238c905b09ab7f7ad0d4f2432ab89e19769b066acfd8694deac621b99fc198"
+      },
+      {
+        "name": "run-00000013.bin",
+        "bytes": 786432,
+        "sha256": "eeaecd81fe67dd62635d6eefa841ef6405251e764e1f31c08c3672bfcbcf22d9"
+      },
+      {
+        "name": "run-00000014.bin",
+        "bytes": 786432,
+        "sha256": "8e029b1fbd737fd1d7ca3b86e2cd1bbfa95f9a4d6b6611123fda3e7ba9ece4fb"
+      },
+      {
+        "name": "run-00000015.bin",
+        "bytes": 786432,
+        "sha256": "cfa1ec66d45d15a7c704175f57823742e46dabc3efd7e9363bea4c36a0673b02"
+      },
+      {
+        "name": "run-00000016.bin",
+        "bytes": 786432,
+        "sha256": "2f04e1757728fea3a3c45bf88ff871c150781d47bae16e642770bc384e0578c0"
+      },
+      {
+        "name": "run-00000017.bin",
+        "bytes": 786432,
+        "sha256": "c32932f68d9be7441fc8b7b79ae25f6ef9a604970c548a602380427f29a4ff40"
+      },
+      {
+        "name": "run-00000018.bin",
+        "bytes": 786432,
+        "sha256": "fe8a780b4d6d8c820182e4da7d78e494381b302e407d4ca70cde4569cfef72e7"
+      },
+      {
+        "name": "run-00000019.bin",
+        "bytes": 786432,
+        "sha256": "6cb450f13f110ce7006528a2ad6e3e8ae894b9f8f6ed7250445fae4eca7cbf83"
+      },
+      {
+        "name": "run-00000020.bin",
+        "bytes": 786432,
+        "sha256": "1a4fb045923a907fc44544802d29eabbc858024e57a0b4700c9d9b83f951047d"
+      },
+      {
+        "name": "run-00000021.bin",
+        "bytes": 786432,
+        "sha256": "4a89aeb65c32f8efb31b36175644c85f991c1ce60559a37c4243c30bc11ed451"
+      },
+      {
+        "name": "run-00000022.bin",
+        "bytes": 786432,
+        "sha256": "b0c36259b1f7aeaac4fe7eb2751769f3b48c41e0d067c18886eb4d890d278740"
+      },
+      {
+        "name": "run-00000023.bin",
+        "bytes": 786432,
+        "sha256": "5288e9733fd73db73428ede41e7b97f9d4d238091ad2a588a32ba9a6b695783c"
+      },
+      {
+        "name": "run-00000024.bin",
+        "bytes": 786432,
+        "sha256": "97567b1ae98e2f117cf8c7241ffd5ba5eb9e84bb227e71896b687cab40080d83"
+      },
+      {
+        "name": "run-00000025.bin",
+        "bytes": 786432,
+        "sha256": "25d54c5d35a9c3beaf22e1b08c5fe2814e6b36c68c2c5956795a23c9d270116e"
+      },
+      {
+        "name": "run-00000026.bin",
+        "bytes": 786432,
+        "sha256": "97234272c060ab63f760bd6d1c32f50be22cd0becb29ee08322081972fee526c"
+      },
+      {
+        "name": "run-00000027.bin",
+        "bytes": 786432,
+        "sha256": "b817de5fac39e4483f4dd548434e7211014ec19829453653951fcc53fbe4c09b"
+      },
+      {
+        "name": "run-00000028.bin",
+        "bytes": 786432,
+        "sha256": "e9b28b7a74b9b659dabdca30ade153d1c59b9811373be42d12ca9065e7ec92b1"
+      },
+      {
+        "name": "run-00000029.bin",
+        "bytes": 786432,
+        "sha256": "bd8ae10ed260788bf7132965948fe121c754b4af2b4a23a7eeae5756c3669346"
+      },
+      {
+        "name": "run-00000030.bin",
+        "bytes": 786432,
+        "sha256": "10d757a3799ff30cfd3e81efe5853ff38d834076acfbe01489592a02a3f49757"
+      },
+      {
+        "name": "run-00000031.bin",
+        "bytes": 786432,
+        "sha256": "3fe977953229e1cdd654b350081ee0e49e9da3a7720da1797dcd134f0f66b3a2"
+      },
+      {
+        "name": "run-00000032.bin",
+        "bytes": 786432,
+        "sha256": "a0c2ac46ea31bb1eeda7e23b1eb299ef58f395d30ec301f0f24dfd6175fb0618"
+      },
+      {
+        "name": "run-00000033.bin",
+        "bytes": 786432,
+        "sha256": "297d7a959a95957ca82acfafc7f7085664ee619c6a7f9ac7a3bf43142ec7b6be"
+      },
+      {
+        "name": "run-00000034.bin",
+        "bytes": 786432,
+        "sha256": "c93ba07148c95d89a04f40aa0b818f5a7b4560bb39ecda80905eb98033ce986c"
+      },
+      {
+        "name": "run-00000035.bin",
+        "bytes": 786432,
+        "sha256": "fe07d600c5dc99f45b416f0ffeacfb2f72f00b6cef9414cb78742e960efd48ab"
+      },
+      {
+        "name": "run-00000036.bin",
+        "bytes": 786432,
+        "sha256": "a554da2a6ad096c018e44fb6f64c980609ea6fa011489600f4c4fd6b73f316a8"
+      },
+      {
+        "name": "run-00000037.bin",
+        "bytes": 786432,
+        "sha256": "bd552baec97ec674684bf3be42c57116b3879b34155962bbadfbf4e96bd65bb3"
+      },
+      {
+        "name": "run-00000038.bin",
+        "bytes": 786432,
+        "sha256": "3ce3d19eb4671ed4389229e6dcbe09c366291c259a109c69e44ed413a402baae"
+      },
+      {
+        "name": "run-00000039.bin",
+        "bytes": 786432,
+        "sha256": "35a711dd339da9989becb796a88793e44a1041510f10427d49943366be5ca338"
+      },
+      {
+        "name": "run-00000040.bin",
+        "bytes": 786432,
+        "sha256": "c456b54e762d8c783853ef33900c719882a86ed2f73d97b888360e95b967cf6a"
+      },
+      {
+        "name": "run-00000041.bin",
+        "bytes": 786432,
+        "sha256": "c490b1cf5796410b3fd5f058f5939e7438bd18ead614eea9f2ae584fe623bba3"
+      },
+      {
+        "name": "run-00000042.bin",
+        "bytes": 786432,
+        "sha256": "c40f0136503e30dee9e7c8d462b2f05dd4b93ce59cfc21631a17b414abff0b89"
+      }
+    ]
+  },
+  "wall_seconds_since_parent_visit_start_at_recovery": 2883.952659338589,
+  "last_observed_active_duration_seconds": 2139.642184466,
+  "wall_budget_expired_before_recovery": true,
+  "active_runtime_after_last_progress": "Unknown; wall time since log output includes the interval after the session disappeared."
+}

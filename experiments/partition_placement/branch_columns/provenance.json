@@ -1,0 +1,33 @@
+{
+  "scope": "isolated bounded-local-router column-search candidate; production and active placement run unchanged",
+  "change": "Only candidate+=4 becomes candidate+=1 inside the occupied-column loop; all exclusion and later geometry checks retained",
+  "base_external_sha256": "96834193a37bb485ab225ea21dc1ae460afcc3ab9ac41a434e45660be2f7666d",
+  "unit_external_sha256": "fad9c3a38e39deaf870d9b64bcb334dd3ad769d7e47895cfd091527096a5b2b9",
+  "placement_sha256": "ac748b28fcff26b21dc77315d33b3ad40e2c98c83a7b8ad8142a776c643fe7a5",
+  "dependency_sha256": {
+    "src/shamaos/hardware/local_router.py": "63054c806442499ba0aa27f65b1ec2b35c339c0c8595521dbc3097a334307bc6",
+    "src/shamaos/hardware/partition_planner.py": "82e7f39548af7443b29ffd322a118cb42474f6f0bf3da2273b1ecdefb38164b4",
+    "src/shamaos/hardware/partition_placement.py": "10c6a4b5aba6b5c4776326d0a863bf57cd1fc5b0d216115ca496d851d6a82e90",
+    "src/shamaos/hardware/logic.py": "84a4f2cc3c535628ccd4e16ae0480b3cc99310f1fb83fe28f98d98b621ab1dff",
+    "src/shamaos/hardware/routing.py": "d2b885f908a5942036269992c3fff7e3eb19ffe5a4753b97f5494aaf7120ccce",
+    "src/shamaos/hardware/memory.py": "f44923cd4376d10fb2f62d5daf3bf752fe340e269355ac3564fd26ee2b5a8517",
+    "src/shamaos/synthesis.py": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274",
+    "tests/test_partition_placement.py": "6e1c202b444cc3f5daba337f7aace87f5bc5400f06e622d8b8def4ec2fb7223f",
+    "tests/test_mchprs_runtime.py": "dbed21d53ca860494f3f3c75a5b8e06a0167ff6edc514f6aee9420c5294da0c2"
+  },
+  "recorded_probe_sha256": "9bcf8676405148c8e8a146e1ef2897f36fbfbb9fe93df2e97712aab8641106a1",
+  "unchanged_test_batches": [
+    {
+      "scope": "only unit-step column selection; baseline parent geometry",
+      "tests": 67,
+      "failures": 0,
+      "skipped": 0
+    },
+    {
+      "scope": "unit-step plus measured-apron snapshot; placement and generated-clock tests",
+      "tests": 45,
+      "failures": 0,
+      "skipped": 0
+    }
+  ]
+}

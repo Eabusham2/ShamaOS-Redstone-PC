@@ -381,7 +381,7 @@ def _decode_chunk(root: nbtlib.File, cx: int, cz: int) -> _Chunk:
             raise WorldWriteError("chunk has invalid height or generation status")
         chunk = _Chunk(cx, cz)
         seen = set()
-        expected_comparators: dict[tuple[int, int, int], int] = {}
+        expected_comparators: dict[tuple[int, int, int], bool] = {}
         for encoded in root["sections"]:
             if not isinstance(encoded.get("Y"), nbtlib.Byte):
                 raise WorldWriteError("chunk section Y is not an NBT byte")
@@ -431,7 +431,7 @@ def _decode_chunk(root: nbtlib.File, cx: int, cz: int) -> _Chunk:
                 for index, palette_index in enumerate(indices):
                     state = palette[palette_index]
                     if state.name == "minecraft:comparator":
-                        expected_comparators[(cx * 16 + (index & 15), sy * 16 + (index >> 8), cz * 16 + ((index >> 4) & 15))] = 15 if dict(state.properties)["powered"] == "true" else 0
+                        expected_comparators[(cx * 16 + (index & 15), sy * 16 + (index >> 8), cz * 16 + ((index >> 4) & 15))] = dict(state.properties)["powered"] == "true"
         if seen != set(range(-4, 20)):
             raise WorldWriteError("native chunk is missing a height/biome section")
         found_entities: set[tuple[int, int, int]] = set()
@@ -439,7 +439,10 @@ def _decode_chunk(root: nbtlib.File, cx: int, cz: int) -> _Chunk:
             coordinate = (int(entity["x"]), int(entity["y"]), int(entity["z"]))
             if str(entity["id"]) != "minecraft:comparator" or coordinate in found_entities or coordinate not in expected_comparators:
                 raise WorldWriteError("invalid/duplicate comparator block entity")
-            if int(entity["OutputSignal"]) != expected_comparators[coordinate]:
+            strength = entity["OutputSignal"]
+            if not isinstance(strength, nbtlib.Int) or not 0 <= int(strength) <= 15:
+                raise WorldWriteError("comparator output must be an NBT int in 0..15")
+            if (int(strength) > 0) != expected_comparators[coordinate]:
                 raise WorldWriteError("comparator block entity disagrees with powered state")
             found_entities.add(coordinate)
         if found_entities != set(expected_comparators):

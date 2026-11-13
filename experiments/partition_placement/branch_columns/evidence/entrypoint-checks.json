@@ -1,0 +1,28 @@
+{
+  "checks": [
+    {
+      "script": "probe_unit_step.py",
+      "optimized": false,
+      "returncode": 0,
+      "status": "help available"
+    },
+    {
+      "script": "probe_unit_step.py",
+      "optimized": true,
+      "returncode": 1,
+      "status": "expected rejection"
+    },
+    {
+      "script": "run_candidate_pytest.py",
+      "optimized": false,
+      "returncode": 0,
+      "status": "help available"
+    },
+    {
+      "script": "run_candidate_pytest.py",
+      "optimized": true,
+      "returncode": 1,
+      "status": "expected rejection"
+    }
+  ]
+}

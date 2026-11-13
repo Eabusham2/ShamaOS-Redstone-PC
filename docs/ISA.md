@@ -190,6 +190,12 @@ Faults halt the CPU and retain a visible diagnostic code:
 Labels can be `.name` or `name:`. `define NAME value` supplies constants. Comments
 begin with `//` or `;` outside quoted literals. Decimal, hexadecimal (`0x`), and
 binary (`0b`) integers are accepted; zero-padded decimal remains decimal.
+Definition values may be byte character literals, 32-bit integers, built-in
+syscall constants or earlier definitions. Forward definitions and label addresses
+are rejected as definition values. Labels and definitions share one namespace;
+built-in syscall names are reserved, and definition names cannot be numeric or
+quoted literals. A label may precede a definition on the same
+line and marks the current instruction address without emitting a word.
 Character literals contain exactly one byte. Both assemblers support ordinary
 quoted characters, newline/carriage-return/tab/NUL escapes, escaped quotes and
 backslash, two-digit hexadecimal byte escapes, and up to three octal digits.

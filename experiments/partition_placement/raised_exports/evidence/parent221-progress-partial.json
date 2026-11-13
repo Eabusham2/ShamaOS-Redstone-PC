@@ -1,0 +1,825 @@
+[
+  {
+    "cluster_id": 0,
+    "leaf": true,
+    "native_cells": 64,
+    "computed_unique_blocks": 61888,
+    "bounds": {
+      "min": {
+        "x": 32,
+        "y": -60,
+        "z": -54
+      },
+      "max": {
+        "x": 2066,
+        "y": -41,
+        "z": 48
+      }
+    },
+    "modules": 1,
+    "shared_contacts": 0,
+    "packing": {},
+    "seconds": 0.4151288380016922,
+    "own_declared_export_points": 75,
+    "own_export_y_range": [
+      -59,
+      -59
+    ],
+    "own_export_z_range": [
+      48,
+      48
+    ],
+    "own_exports_at_south_envelope": true
+  },
+  {
+    "cluster_id": 1,
+    "leaf": true,
+    "native_cells": 64,
+    "computed_unique_blocks": 90936,
+    "bounds": {
+      "min": {
+        "x": 32,
+        "y": -60,
+        "z": -86
+      },
+      "max": {
+        "x": 2074,
+        "y": -41,
+        "z": 48
+      }
+    },
+    "modules": 1,
+    "shared_contacts": 0,
+    "packing": {},
+    "seconds": 0.5866058499959763,
+    "own_declared_export_points": 52,
+    "own_export_y_range": [
+      -59,
+      -59
+    ],
+    "own_export_z_range": [
+      48,
+      48
+    ],
+    "own_exports_at_south_envelope": true
+  },
+  {
+    "cluster_id": 2,
+    "leaf": true,
+    "native_cells": 64,
+    "computed_unique_blocks": 79258,
+    "bounds": {
+      "min": {
+        "x": 32,
+        "y": -60,
+        "z": -66
+      },
+      "max": {
+        "x": 2074,
+        "y": -41,
+        "z": 48
+      }
+    },
+    "modules": 1,
+    "shared_contacts": 0,
+    "packing": {},
+    "seconds": 0.43680893599957926,
+    "own_declared_export_points": 70,
+    "own_export_y_range": [
+      -59,
+      -59
+    ],
+    "own_export_z_range": [
+      48,
+      48
+    ],
+    "own_exports_at_south_envelope": true
+  },
+  {
+    "cluster_id": 3,
+    "leaf": true,
+    "native_cells": 64,
+    "computed_unique_blocks": 85352,
+    "bounds": {
+      "min": {
+        "x": 32,
+        "y": -60,
+        "z": -82
+      },
+      "max": {
+        "x": 2078,
+        "y": -41,
+        "z": 48
+      }
+    },
+    "modules": 1,
+    "shared_contacts": 0,
+    "packing": {},
+    "seconds": 0.7518186949964729,
+    "own_declared_export_points": 51,
+    "own_export_y_range": [
+      -59,
+      -59
+    ],
+    "own_export_z_range": [
+      48,
+      48
+    ],
+    "own_exports_at_south_envelope": true
+  },
+  {
+    "cluster_id": 177,
+    "leaf": false,
+    "native_cells": 256,
+    "computed_unique_blocks": 916260,
+    "bounds": {
+      "min": {
+        "x": 0,
+        "y": -60,
+        "z": -380
+      },
+      "max": {
+        "x": 2134,
+        "y": 49,
+        "z": 226
+      }
+    },
+    "modules": 6,
+    "shared_contacts": 248,
+    "packing": {
+      "vertical_tiers": 4,
+      "horizontal_stacks": 1,
+      "horizontal_columns": 1,
+      "horizontal_layout": "compact",
+      "child_heights": [
+        20,
+        20,
+        20,
+        20
+      ],
+      "stacked_child_ids": [
+        [
+          0,
+          1,
+          2,
+          3
+        ]
+      ],
+      "reserved_maximum_child_y": 247,
+      "vertical_gap": 4,
+      "export_apron": 92,
+      "export_apron_attempts": [
+        {
+          "apron": 24,
+          "export_z": 158,
+          "actual_maximum_z": 222
+        }
+      ],
+      "rejected_layouts": []
+    },
+    "seconds": 16.238356978996308,
+    "own_declared_export_points": 163,
+    "own_export_y_range": [
+      40,
+      40
+    ],
+    "own_export_z_range": [
+      226,
+      226
+    ],
+    "own_exports_at_south_envelope": true
+  },
+  {
+    "cluster_id": 4,
+    "leaf": true,
+    "native_cells": 64,
+    "computed_unique_blocks": 102312,
+    "bounds": {
+      "min": {
+        "x": 32,
+        "y": -60,
+        "z": -98
+      },
+      "max": {
+        "x": 2074,
+        "y": -41,
+        "z": 48
+      }
+    },
+    "modules": 1,
+    "shared_contacts": 0,
+    "packing": {},
+    "seconds": 0.5797383629978867,
+    "own_declared_export_points": 56,
+    "own_export_y_range": [
+      -59,
+      -59
+    ],
+    "own_export_z_range": [
+      48,
+      48
+    ],
+    "own_exports_at_south_envelope": true
+  },
+  {
+    "cluster_id": 5,
+    "leaf": true,
+    "native_cells": 64,
+    "computed_unique_blocks": 81622,
+    "bounds": {
+      "min": {
+        "x": 32,
+        "y": -60,
+        "z": -74
+      },
+      "max": {
+        "x": 2074,
+        "y": -41,
+        "z": 48
+      }
+    },
+    "modules": 1,
+    "shared_contacts": 0,
+    "packing": {},
+    "seconds": 0.5068240149994381,
+    "own_declared_export_points": 46,
+    "own_export_y_range": [
+      -59,
+      -59
+    ],
+    "own_export_z_range": [
+      48,
+      48
+    ],
+    "own_exports_at_south_envelope": true
+  },
+  {
+    "cluster_id": 6,
+    "leaf": true,
+    "native_cells": 64,
+    "computed_unique_blocks": 85764,
+    "bounds": {
+      "min": {
+        "x": 32,
+        "y": -60,
+        "z": -86
+      },
+      "max": {
+        "x": 2074,
+        "y": -41,
+        "z": 48
+      }
+    },
+    "modules": 1,
+    "shared_contacts": 0,
+    "packing": {},
+    "seconds": 0.4887906779986224,
+    "own_declared_export_points": 38,
+    "own_export_y_range": [
+      -59,
+      -59
+    ],
+    "own_export_z_range": [
+      48,
+      48
+    ],
+    "own_exports_at_south_envelope": true
+  },
+  {
+    "cluster_id": 7,
+    "leaf": true,
+    "native_cells": 64,
+    "computed_unique_blocks": 82242,
+    "bounds": {
+      "min": {
+        "x": 32,
+        "y": -60,
+        "z": -82
+      },
+      "max": {
+        "x": 2074,
+        "y": -41,
+        "z": 48
+      }
+    },
+    "modules": 1,
+    "shared_contacts": 0,
+    "packing": {},
+    "seconds": 0.5372414970042882,
+    "own_declared_export_points": 34,
+    "own_export_y_range": [
+      -59,
+      -59
+    ],
+    "own_export_z_range": [
+      48,
+      48
+    ],
+    "own_exports_at_south_envelope": true
+  },
+  {
+    "cluster_id": 178,
+    "leaf": false,
+    "native_cells": 256,
+    "computed_unique_blocks": 760316,
+    "bounds": {
+      "min": {
+        "x": 0,
+        "y": -60,
+        "z": -280
+      },
+      "max": {
+        "x": 2142,
+        "y": 49,
+        "z": 170
+      }
+    },
+    "modules": 6,
+    "shared_contacts": 174,
+    "packing": {
+      "vertical_tiers": 4,
+      "horizontal_stacks": 1,
+      "horizontal_columns": 1,
+      "horizontal_layout": "compact",
+      "child_heights": [
+        20,
+        20,
+        20,
+        20
+      ],
+      "stacked_child_ids": [
+        [
+          4,
+          5,
+          6,
+          7
+        ]
+      ],
+      "reserved_maximum_child_y": 247,
+      "vertical_gap": 4,
+      "export_apron": 24,
+      "export_apron_attempts": [],
+      "rejected_layouts": []
+    },
+    "seconds": 5.8083977150017745,
+    "own_declared_export_points": 122,
+    "own_export_y_range": [
+      40,
+      40
+    ],
+    "own_export_z_range": [
+      170,
+      170
+    ],
+    "own_exports_at_south_envelope": true
+  },
+  {
+    "cluster_id": 8,
+    "leaf": true,
+    "native_cells": 64,
+    "computed_unique_blocks": 65320,
+    "bounds": {
+      "min": {
+        "x": 32,
+        "y": -60,
+        "z": -54
+      },
+      "max": {
+        "x": 2074,
+        "y": -41,
+        "z": 48
+      }
+    },
+    "modules": 1,
+    "shared_contacts": 0,
+    "packing": {},
+    "seconds": 0.3428904250031337,
+    "own_declared_export_points": 64,
+    "own_export_y_range": [
+      -59,
+      -59
+    ],
+    "own_export_z_range": [
+      48,
+      48
+    ],
+    "own_exports_at_south_envelope": true
+  },
+  {
+    "cluster_id": 9,
+    "leaf": true,
+    "native_cells": 64,
+    "computed_unique_blocks": 91790,
+    "bounds": {
+      "min": {
+        "x": 32,
+        "y": -60,
+        "z": -86
+      },
+      "max": {
+        "x": 2078,
+        "y": -41,
+        "z": 48
+      }
+    },
+    "modules": 1,
+    "shared_contacts": 0,
+    "packing": {},
+    "seconds": 0.5540408369997749,
+    "own_declared_export_points": 56,
+    "own_export_y_range": [
+      -59,
+      -59
+    ],
+    "own_export_z_range": [
+      48,
+      48
+    ],
+    "own_exports_at_south_envelope": true
+  },
+  {
+    "cluster_id": 10,
+    "leaf": true,
+    "native_cells": 64,
+    "computed_unique_blocks": 86790,
+    "bounds": {
+      "min": {
+        "x": 32,
+        "y": -60,
+        "z": -78
+      },
+      "max": {
+        "x": 2074,
+        "y": -41,
+        "z": 48
+      }
+    },
+    "modules": 1,
+    "shared_contacts": 0,
+    "packing": {},
+    "seconds": 0.5756508380000014,
+    "own_declared_export_points": 61,
+    "own_export_y_range": [
+      -59,
+      -59
+    ],
+    "own_export_z_range": [
+      48,
+      48
+    ],
+    "own_exports_at_south_envelope": true
+  },
+  {
+    "cluster_id": 11,
+    "leaf": true,
+    "native_cells": 64,
+    "computed_unique_blocks": 92152,
+    "bounds": {
+      "min": {
+        "x": 32,
+        "y": -60,
+        "z": -86
+      },
+      "max": {
+        "x": 2074,
+        "y": -41,
+        "z": 48
+      }
+    },
+    "modules": 1,
+    "shared_contacts": 0,
+    "packing": {},
+    "seconds": 0.6003624869990745,
+    "own_declared_export_points": 54,
+    "own_export_y_range": [
+      -59,
+      -59
+    ],
+    "own_export_z_range": [
+      48,
+      48
+    ],
+    "own_exports_at_south_envelope": true
+  },
+  {
+    "cluster_id": 179,
+    "leaf": false,
+    "native_cells": 256,
+    "computed_unique_blocks": 892932,
+    "bounds": {
+      "min": {
+        "x": 0,
+        "y": -60,
+        "z": -384
+      },
+      "max": {
+        "x": 2142,
+        "y": 49,
+        "z": 196
+      }
+    },
+    "modules": 6,
+    "shared_contacts": 235,
+    "packing": {
+      "vertical_tiers": 4,
+      "horizontal_stacks": 1,
+      "horizontal_columns": 1,
+      "horizontal_layout": "compact",
+      "child_heights": [
+        20,
+        20,
+        20,
+        20
+      ],
+      "stacked_child_ids": [
+        [
+          8,
+          9,
+          10,
+          11
+        ]
+      ],
+      "reserved_maximum_child_y": 247,
+      "vertical_gap": 4,
+      "export_apron": 62,
+      "export_apron_attempts": [
+        {
+          "apron": 24,
+          "export_z": 158,
+          "actual_maximum_z": 192
+        }
+      ],
+      "rejected_layouts": []
+    },
+    "seconds": 14.555591349999304,
+    "own_declared_export_points": 153,
+    "own_export_y_range": [
+      40,
+      40
+    ],
+    "own_export_z_range": [
+      196,
+      196
+    ],
+    "own_exports_at_south_envelope": true
+  },
+  {
+    "cluster_id": 12,
+    "leaf": true,
+    "native_cells": 64,
+    "computed_unique_blocks": 80200,
+    "bounds": {
+      "min": {
+        "x": 32,
+        "y": -60,
+        "z": -74
+      },
+      "max": {
+        "x": 2074,
+        "y": -41,
+        "z": 48
+      }
+    },
+    "modules": 1,
+    "shared_contacts": 0,
+    "packing": {},
+    "seconds": 0.4072746819947497,
+    "own_declared_export_points": 53,
+    "own_export_y_range": [
+      -59,
+      -59
+    ],
+    "own_export_z_range": [
+      48,
+      48
+    ],
+    "own_exports_at_south_envelope": true
+  },
+  {
+    "cluster_id": 13,
+    "leaf": true,
+    "native_cells": 64,
+    "computed_unique_blocks": 67950,
+    "bounds": {
+      "min": {
+        "x": 32,
+        "y": -60,
+        "z": -54
+      },
+      "max": {
+        "x": 2074,
+        "y": -41,
+        "z": 48
+      }
+    },
+    "modules": 1,
+    "shared_contacts": 0,
+    "packing": {},
+    "seconds": 0.5451419340024586,
+    "own_declared_export_points": 73,
+    "own_export_y_range": [
+      -59,
+      -59
+    ],
+    "own_export_z_range": [
+      48,
+      48
+    ],
+    "own_exports_at_south_envelope": true
+  },
+  {
+    "cluster_id": 14,
+    "leaf": true,
+    "native_cells": 64,
+    "computed_unique_blocks": 83812,
+    "bounds": {
+      "min": {
+        "x": 32,
+        "y": -60,
+        "z": -78
+      },
+      "max": {
+        "x": 2074,
+        "y": -41,
+        "z": 48
+      }
+    },
+    "modules": 1,
+    "shared_contacts": 0,
+    "packing": {},
+    "seconds": 0.5387519849973614,
+    "own_declared_export_points": 52,
+    "own_export_y_range": [
+      -59,
+      -59
+    ],
+    "own_export_z_range": [
+      48,
+      48
+    ],
+    "own_exports_at_south_envelope": true
+  },
+  {
+    "cluster_id": 15,
+    "leaf": true,
+    "native_cells": 64,
+    "computed_unique_blocks": 82452,
+    "bounds": {
+      "min": {
+        "x": 32,
+        "y": -60,
+        "z": -74
+      },
+      "max": {
+        "x": 2074,
+        "y": -41,
+        "z": 48
+      }
+    },
+    "modules": 1,
+    "shared_contacts": 0,
+    "packing": {},
+    "seconds": 0.5194746840061271,
+    "own_declared_export_points": 57,
+    "own_export_y_range": [
+      -59,
+      -59
+    ],
+    "own_export_z_range": [
+      48,
+      48
+    ],
+    "own_exports_at_south_envelope": true
+  },
+  {
+    "cluster_id": 180,
+    "leaf": false,
+    "native_cells": 256,
+    "computed_unique_blocks": 879280,
+    "bounds": {
+      "min": {
+        "x": 0,
+        "y": -60,
+        "z": -360
+      },
+      "max": {
+        "x": 2134,
+        "y": 49,
+        "z": 168
+      }
+    },
+    "modules": 6,
+    "shared_contacts": 235,
+    "packing": {
+      "vertical_tiers": 4,
+      "horizontal_stacks": 1,
+      "horizontal_columns": 1,
+      "horizontal_layout": "compact",
+      "child_heights": [
+        20,
+        20,
+        20,
+        20
+      ],
+      "stacked_child_ids": [
+        [
+          12,
+          13,
+          14,
+          15
+        ]
+      ],
+      "reserved_maximum_child_y": 247,
+      "vertical_gap": 4,
+      "export_apron": 42,
+      "export_apron_attempts": [
+        {
+          "apron": 24,
+          "export_z": 150,
+          "actual_maximum_z": 164
+        }
+      ],
+      "rejected_layouts": []
+    },
+    "seconds": 13.132087817000865,
+    "own_declared_export_points": 170,
+    "own_export_y_range": [
+      40,
+      40
+    ],
+    "own_export_z_range": [
+      168,
+      168
+    ],
+    "own_exports_at_south_envelope": true
+  },
+  {
+    "cluster_id": 221,
+    "leaf": false,
+    "native_cells": 1024,
+    "computed_unique_blocks": 10962588,
+    "bounds": {
+      "min": {
+        "x": 0,
+        "y": -60,
+        "z": -1060
+      },
+      "max": {
+        "x": 4799,
+        "y": 181,
+        "z": 2480
+      }
+    },
+    "modules": 28,
+    "shared_contacts": 1500,
+    "packing": {
+      "vertical_tiers": 2,
+      "horizontal_stacks": 2,
+      "horizontal_columns": 2,
+      "horizontal_layout": "row",
+      "child_heights": [
+        110,
+        110,
+        110,
+        110
+      ],
+      "stacked_child_ids": [
+        [
+          177,
+          178
+        ],
+        [
+          179,
+          180
+        ]
+      ],
+      "reserved_maximum_child_y": 265,
+      "vertical_gap": 4,
+      "export_apron": 1874,
+      "export_apron_attempts": [
+        {
+          "apron": 24,
+          "export_z": 630,
+          "actual_maximum_z": 2476
+        }
+      ],
+      "rejected_layouts": [
+        {
+          "horizontal_layout": "compact",
+          "error": "cluster 221, bounded parent escape prefixes: cannot isolate physical endpoint Vec3(x=112, y=154, z=580); dense endpoint placement needs a wider access corridor or a different placement"
+        }
+      ]
+    },
+    "seconds": 2139.642184466,
+    "own_declared_export_points": 288,
+    "own_export_y_range": [
+      172,
+      172
+    ],
+    "own_export_z_range": [
+      2480,
+      2480
+    ],
+    "own_exports_at_south_envelope": true
+  }
+]

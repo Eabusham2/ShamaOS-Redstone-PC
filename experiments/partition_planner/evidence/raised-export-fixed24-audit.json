@@ -1,0 +1,87 @@
+{
+  "status": "small complete candidate independently audited",
+  "scope": "Complete retained small fixture and candidate source; larger subtree evidence is a separate gate",
+  "source_review": {
+    "core_geometry_edits_only": true,
+    "all_other_module_code_ast_identical": true,
+    "measured_retry_wrapper": false,
+    "baseline_sha256": "10c6a4b5aba6b5c4776326d0a863bf57cd1fc5b0d216115ca496d851d6a82e90",
+    "candidate_sha256": "cd36c4b4a8b97d41787c53d269b7f20f593eba249233bdf23781e7943f38a9c4"
+  },
+  "wrapper_controls": {
+    "applicable": false
+  },
+  "inventory": {
+    "status": "independent-artifact-graph-audit-passed",
+    "physical_modules": 16,
+    "native_cells": 3,
+    "original_ports": 6,
+    "signals": 5,
+    "original_sink_uses": 7,
+    "constant_terminals": 3,
+    "physical_endpoint_records": 48,
+    "local_directed_edges": 25,
+    "shared_contact_edges": 18,
+    "clock_leaf_uses": 2,
+    "electrical_runtime_verified_by_this_audit": false
+  },
+  "literal_emission_operations": 10532,
+  "literal_unique_blocks": 10340,
+  "occupied_chunks": 74,
+  "bounds": {
+    "min": {
+      "x": 0,
+      "y": -60,
+      "z": 0
+    },
+    "max": {
+      "x": 161,
+      "y": 169,
+      "z": 100
+    }
+  },
+  "actual_contact_faces_and_diodes_checked": 36,
+  "all_recorded_engine_placements_equal_regenerated_states": true,
+  "runtime_observations": [
+    {
+      "status": "passing waveform",
+      "half_period_rt": 512,
+      "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+      "clock_edges_per_leaf": 16,
+      "clock_pulse_width_rt": 512,
+      "leaf_clock_skew_rt": 0,
+      "incorrect_transfers": 0,
+      "minimum_fully_stable_setup_rt": 877,
+      "minimum_fully_stable_hold_rt": 87,
+      "oracle_expected_values_derived_from_input_steps": true,
+      "retained_actual_trace_audited": true,
+      "fresh_engine_rerun_in_this_audit": false
+    },
+    {
+      "status": "expected invalid timing detected",
+      "half_period_rt": 20,
+      "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+      "clock_edges_per_leaf": 16,
+      "clock_pulse_width_rt": 20,
+      "leaf_clock_skew_rt": 0,
+      "incorrect_transfers": 8,
+      "minimum_fully_stable_setup_rt": 32,
+      "minimum_fully_stable_hold_rt": 7,
+      "oracle_expected_values_derived_from_input_steps": true,
+      "retained_actual_trace_audited": true,
+      "fresh_engine_rerun_in_this_audit": false
+    }
+  ],
+  "artifact_sha256": {
+    "mapped.json": "2a37f7df1af88b9ba97458adce135192b33561102f989cef801809c0a4dd2458",
+    "pipeline-20-dense-case.json": "8789e205d1f1f8baf3d1fdd4700a6b582a06c818709dc163440257082298d863",
+    "pipeline-20-dense-result.json.gz": "d9853a0a2455b3f111fe07245fdc1db5c5f5113ac90b89826214457f83c63c07",
+    "pipeline-20-runtime.json": "8f6da791975c59a54a0e15ef452674ca4bf755fd023ca60fdb9aa6fb339a3b7b",
+    "pipeline-512-dense-case.json": "189409d548334fc232cd1035587675d19416719d3d7e4363a9300dadbc1827af",
+    "pipeline-512-dense-result.json.gz": "6a2f2f757e545e15d3a93d67e5bdd0a8d36a18fc09f343900628c8a2f0235116",
+    "pipeline-512-runtime.json": "73cbb85828795cc1585294ec70ca35ff63e41eb21da67eab63a4857a3c29ff60",
+    "placement.json": "85299e60c41cda453a564725167d88cad08d4ae8dde5a7643e3391026c335c03",
+    "plan.json": "4c02a3096e3950ba0712b5c65ceaa72b46cc51c2a5db50bb7a459ce809a8cc99"
+  },
+  "auditor_sha256": "657811f849089984cf0098954ac32b82f782bf3fb5f5a6d9bb1a6828e333bd18"
+}

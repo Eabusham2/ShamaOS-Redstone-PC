@@ -1,7 +1,7 @@
 # Bounded physical placement checkpoint
 
 This directory retains successful connected geometry, a reproduced routing
-failure and the bounded search adjustment being tested against it. The
+failure and the bounded search adjustment that clears its larger parent. The
 production generator has not switched to this experimental path.
 The input is the complete retained ABC mapping of `shama_display_bridge`, with
 10,910 native cells, 351 original port bits and all 649 clock leaves. No cell,
@@ -42,9 +42,9 @@ wire from an obstruction directly above it, and expose the short caused by an
 independent crossing wire only two blocks above. Active-wire adjacency, literal
 overlap and the required climbing air space remain enforced.
 
-## Next gate and retained failure
+## Larger parent and retained failure
 
-Parent 221 must connect all four successful parents, preserving 1,024 native cells.
+Parent 221 connects all four successful parents, preserving 1,024 native cells.
 With the earlier 128-lane North search limit, the compact X/Z grid fails at
 endpoint `(32,−59,1542)`. The implemented fallback keeps the safe vertical tiers
 and places horizontal stacks side by side along X; that attempt also fails, at a
@@ -65,12 +65,31 @@ North run is 840 blocks, or 140 lanes: beyond the earlier 128-lane cap. That
 report is retained as `evidence/parent-221-north512-prefix.json`. This is prefix
 allocation evidence only. The bounded parent path now derives its North search
 budget from the complete parent endpoint count; the general router still
-defaults to 128. Each direction keeps its own independent search limit. A full
-parent retry must still pass emitted-wire isolation and its complete literal
-block union before a successful geometry claim is made.
+defaults to 128. Each direction keeps its own independent search limit.
 
-The remaining gates include this dense parent connection, all remaining complete
-bridge clusters, clock and data timing closure, whole-system physical routing,
+The complete parent retry now passes emitted-wire isolation, child-envelope
+exclusion, above-grass height checks and its independently materialized literal
+block union. The compact grid still fails at the retained South endpoint; the
+row fallback succeeds with two parent tiers in each of two horizontal stacks.
+
+| Parent 221 result | Measured value |
+| --- | ---: |
+| Native cells | 1,024 |
+| Physical modules | 28 |
+| Shared contacts, including descendant contacts | 1,500 |
+| Unique blocks, recursive count and independent literal union | 11,324,130 |
+| Occupied horizontal chunks | 55,494 |
+| Bounds | `(0,−60,−42)` through `(4886,181,3422)` |
+| Complete proof time | 548.25 seconds |
+| Process peak RSS | 3,585,632 KiB |
+
+`evidence/parent-221-north-workload.json` retains the exact mapping, topology and
+source hashes. `evidence/parent-221-packing.json` retains the successful packing
+and the rejected compact layout. These remain subtree measurements: actual
+runtime and the complete bridge have not been established by this geometry run.
+
+The remaining gates include all remaining complete bridge clusters, clock and
+data timing closure, whole-system physical routing,
 and real saved-world execution of the complete computer. A parent exceeding the
 explicit 4,096-prefix allocation budget fails and requires real horizontal banks
 with all delivery paths; allocating empty bank boxes cannot satisfy that gate.
