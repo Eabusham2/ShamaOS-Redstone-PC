@@ -1,0 +1,52 @@
+{
+  "command": "SHAMA_MCHPRS_TERRAIN_RUNNER=/workspace/scratch/b1e71409d064/native-runtime/target/release/shama-sparse-world-check-terrain PYTHONPATH=src:tests pytest tests/test_cache_provenance_bridge.py tests/test_spec_lock.py tests/test_native_fingerprint_compatibility.py tests/test_native_snapshot_fastpaths.py tests/test_mchprs_snapshot.py tests/test_connected_native_recovery.py --junitxml=build/cache-followup-integrated.xml",
+  "complete_cache_runtime_verified": false,
+  "complete_machine_runtime_verified": false,
+  "evidence": {
+    "cache-followup-integrated-root.txt": "077e79f80bebd1515e72e45999671206017b8dd0fece404d79c87c4cfc04011c",
+    "cache-followup-integrated-root.xml": "23af0d057bf9f61bfa1f4a35ad4b9e3cbf4b7b61d9278f34a9a3322dedef6872"
+  },
+  "published_base": "55449200dc2513b114ec988938ab58c50c8a4dd5",
+  "python": "3.12.14",
+  "python311_validation_scope": "AST-field-shape simulation locally; actual Python 3.11 execution awaits renewed CI.",
+  "runner": {
+    "path": "/workspace/scratch/b1e71409d064/native-runtime/target/release/shama-sparse-world-check-terrain",
+    "sha256": "74e11d2563d9b70f8d21b1a030124c155cf617c241366d49cbd4da4b3f882f31"
+  },
+  "schema": "cache-followup-integrated-root-review-v1",
+  "scope": "Combined strict portable provenance, spec contract, canonical chunk fingerprints, snapshot fast paths, actual-engine snapshot save/reopen and connected-world recovery guards. Does not execute the complete cache.",
+  "source_commit": "6aad4cb89042eb2cceec8547075e539f89a538a8",
+  "sources": {
+    "configs/default.toml": "00a45a92c618c6df815a4f6f1f69c5e72d6c65a81857f11f560124800c43c594",
+    "experiments/firmware_cache/audit_connected_checkpoint.py": "ba57420d77e5f4ba2a884c2d0577a403d66b81b2af6641441b06e6cf61af057c",
+    "experiments/memory_controller_runtime/audit_native_connected.py": "2b83cd1893c23b306261531c3981046e93ac9bb345d7434ee9c48ec5bc0d3454",
+    "experiments/memory_controller_runtime/probe_controller.py": "7d1469b07b1f6b046f6adf2d1ea9414a8c77784d02c513fa5ee98339698ea485",
+    "experiments/memory_controller_runtime/resume_connected.py": "1d36d5f365e85febdf9e8a8e8878d6204ca671eea74d49c4bf48f6e5bbff77c7",
+    "experiments/memory_controller_runtime/run_connected.py": "15c3d26cb83553ec98c5708d029e27904067b6a976b908da5c104d2084c62639",
+    "src/shamaos/mchprs_snapshot.py": "6de6d761158a6cdcf2ce8fbc05fac1fea3c317a4ce69d3e9f94184624a2f1805",
+    "src/shamaos/worldio.py": "f02cb999c0ecde4841d042def5f4b5c2200509cee025977c340eabd03e5d10d8",
+    "tests/test_cache_provenance_bridge.py": "3a255bcb7e286fbec917311ed7320a4d762bfa43028e72b43f9e826bfd6b2a83",
+    "tests/test_connected_native_recovery.py": "dbdc12225e0b3fda9e1599bca09c24ec6d13cca48615474b2d71a3ff4c9a3278",
+    "tests/test_mchprs_snapshot.py": "2a0f340399e4ff1bf2002223263b786e2fb0a5e06282eec29ddece7e648c78ac",
+    "tests/test_native_fingerprint_compatibility.py": "1f75dcc436ad0c387dbae86af1d3b819330d9cc97e025cb937fdf1490d68c394",
+    "tests/test_native_snapshot_fastpaths.py": "7ba3a5c154456104147c5c43838fd86f673291b97821c5197d7d2e00703c3ba4",
+    "tests/test_spec_lock.py": "5b7223d4ecb93112de85c4e0fce93ba1717e4857afce1affe5fc735ee2ba70bc"
+  },
+  "status": "passed",
+  "tests": {
+    "errors": 0,
+    "failed": 0,
+    "passed": 136,
+    "skipped": 0,
+    "suite": {
+      "errors": "0",
+      "failures": "0",
+      "hostname": "186771e51f5b",
+      "name": "pytest",
+      "skipped": "0",
+      "tests": "136",
+      "time": "29.139",
+      "timestamp": "2026-11-13T19:38:14.943242-06:00"
+    }
+  }
+}

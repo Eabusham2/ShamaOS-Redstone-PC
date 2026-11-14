@@ -1,0 +1,23 @@
+{
+  "actual_python_version": "3.13.5 (main, Aug 10 2026, 12:06:59) [GCC 14.2.0]",
+  "auditor_sha256": "ba57420d77e5f4ba2a884c2d0577a403d66b81b2af6641441b06e6cf61af057c",
+  "integrated_worldio_sha256": "f02cb999c0ecde4841d042def5f4b5c2200509cee025977c340eabd03e5d10d8",
+  "python311_execution_performed": false,
+  "python311_validation_scope": "Exact field-shape simulation in the accompanying tests; no local Python 3.11 binary was available",
+  "remaining_module_ast_identical": true,
+  "retained_worldio_sha256": "08e163497c981357b3aa4ce444709f38769001fb512700b0ffd2a8fc4ebda69c",
+  "reviewed_method_hashes": {
+    "fingerprint": {
+      "integrated": "66a27bf9520986c21c1645b300d4d4fd659c75896edf9f968d52725a1fbb7bec",
+      "retained": "e39a12a195b0a0989ea5d4e928a32efa912245194e4fda1fbfab69824f405bda"
+    },
+    "native_nbt": {
+      "integrated": "1ff22bbb2eb222b4e2aa4cd83bfe4c7bba215e60ffade7d8e5d93c5647186ba9",
+      "retained": "9ce10c2c3183af5dee20ccff3e986a7cb6db2b02476ce9641e1dd45d45eecd7f"
+    }
+  },
+  "schema": "exact-native-ast-runtime-review-v1",
+  "scope": "Actual Python 3.13 AST normalization and strict source rejection only; no native engine or geometry run",
+  "status": "passed",
+  "strict_negative_cases": 13
+}

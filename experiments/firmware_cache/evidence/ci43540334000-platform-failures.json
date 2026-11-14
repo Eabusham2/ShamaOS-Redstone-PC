@@ -1,0 +1,52 @@
+{
+  "run_id": 43540334000,
+  "head_sha": "55449200dc2513b114ec988938ab58c50c8a4dd5",
+  "url": "https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/43540334000",
+  "scope": "Completed platform jobs only; remaining synthesis and behavioral jobs were still active when this failure record was made.",
+  "jobs": [
+    {
+      "job_id": 132279151045,
+      "name": "test (ubuntu-24.04, 3.12)",
+      "url": "https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/43540334000/job/132279151045",
+      "conclusion": "failure",
+      "failure_summary": [
+        "2026-11-14T01:29:57.0323762Z FAILED tests/test_spec_lock.py::test_canonical_document_matches_locked_spec - AssertionError: assert 'Owner-authorized cache reduction — 2026-11-14' in '# Initial Specification and Transcript-Derived Requirements\\n\\n**Status:** canonical initial project agreement  \\n**P...t branch: **main**.\\n- Initial semantic version: **0.1.0**.\\n- Documentation is part of the implementation contract.\\n'",
+        "2026-11-14T01:29:57.0325061Z 1 failed, 1127 passed, 647 skipped in 344.78s (0:05:44)"
+      ]
+    },
+    {
+      "job_id": 132279151145,
+      "name": "test (windows-latest, 3.11)",
+      "url": "https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/43540334000/job/132279151145",
+      "conclusion": "failure",
+      "failure_summary": [
+        "2026-11-14T01:29:22.4061514Z FAILED tests/test_cache_provenance_bridge.py::test_bridge_checks_retained_and_optimized_fingerprints_directly - AssertionError",
+        "2026-11-14T01:29:22.4062113Z FAILED tests/test_cache_provenance_bridge.py::test_bridge_rejects_a_native_encoding_change_outside_the_reviewed_method - AssertionError",
+        "2026-11-14T01:29:22.4063286Z FAILED tests/test_spec_lock.py::test_canonical_document_matches_locked_spec - AssertionError: assert 'Owner-authorized cache reduction � 2026-11-14' in '# Initial Specification and Transcript-Derived Requirements\\n\\n**Status:** canonical initial project agreement  \\n**P...t branch: **main**.\\n- Initial semantic version: **0.1.0**.\\n- Documentation is part of the implementation contract.\\n'",
+        "2026-11-14T01:29:22.4064090Z 3 failed, 1125 passed, 647 skipped in 308.55s (0:05:08)"
+      ]
+    },
+    {
+      "job_id": 132279151168,
+      "name": "test (ubuntu-24.04, 3.11)",
+      "url": "https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/43540334000/job/132279151168",
+      "conclusion": "failure",
+      "failure_summary": [
+        "2026-11-14T01:29:59.1342811Z FAILED tests/test_cache_provenance_bridge.py::test_bridge_checks_retained_and_optimized_fingerprints_directly - AssertionError",
+        "2026-11-14T01:29:59.1343472Z FAILED tests/test_cache_provenance_bridge.py::test_bridge_rejects_a_native_encoding_change_outside_the_reviewed_method - AssertionError",
+        "2026-11-14T01:29:59.1344942Z FAILED tests/test_spec_lock.py::test_canonical_document_matches_locked_spec - AssertionError: assert 'Owner-authorized cache reduction — 2026-11-14' in '# Initial Specification and Transcript-Derived Requirements\\n\\n**Status:** canonical initial project agreement  \\n**P...t branch: **main**.\\n- Initial semantic version: **0.1.0**.\\n- Documentation is part of the implementation contract.\\n'",
+        "2026-11-14T01:29:59.1346007Z 3 failed, 1125 passed, 647 skipped in 355.69s (0:05:55)"
+      ]
+    },
+    {
+      "job_id": 132279151180,
+      "name": "test (windows-latest, 3.12)",
+      "url": "https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/43540334000/job/132279151180",
+      "conclusion": "failure",
+      "failure_summary": [
+        "2026-11-14T01:33:17.7060711Z FAILED tests/test_spec_lock.py::test_canonical_document_matches_locked_spec - AssertionError: assert 'Owner-authorized cache reduction � 2026-11-14' in '# Initial Specification and Transcript-Derived Requirements\\n\\n**Status:** canonical initial project agreement  \\n**P...t branch: **main**.\\n- Initial semantic version: **0.1.0**.\\n- Documentation is part of the implementation contract.\\n'",
+        "2026-11-14T01:33:17.7063220Z 1 failed, 1127 passed, 647 skipped in 536.95s (0:08:56)"
+      ]
+    }
+  ]
+}

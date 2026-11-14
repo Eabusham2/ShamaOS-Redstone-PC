@@ -346,17 +346,18 @@ def _chunk_nbt(chunk: _Chunk) -> nbtlib.File:
             if len(palette) > 1:
                 bits = max(4, (len(palette) - 1).bit_length())
                 block_states["data"] = nbtlib.LongArray(_pack_indices((compact[index] for index in section.indices), bits))
-            for index, palette_id in enumerate(section.indices):
-                state = section.palette[palette_id]
-                if state.name == "minecraft:comparator":
-                    entities.append(nbtlib.Compound({
-                        "id": nbtlib.String("minecraft:comparator"),
-                        "x": nbtlib.Int(chunk.x * 16 + (index & 15)),
-                        "y": nbtlib.Int(sy * 16 + (index >> 8)),
-                        "z": nbtlib.Int(chunk.z * 16 + ((index >> 4) & 15)),
-                        "OutputSignal": nbtlib.Int(15 if dict(state.properties)["powered"] == "true" else 0),
-                        "keepPacked": nbtlib.Byte(0),
-                    }))
+            if any(section.palette[palette_id].name == "minecraft:comparator" for palette_id in used_ids):
+                for index, palette_id in enumerate(section.indices):
+                    state = section.palette[palette_id]
+                    if state.name == "minecraft:comparator":
+                        entities.append(nbtlib.Compound({
+                            "id": nbtlib.String("minecraft:comparator"),
+                            "x": nbtlib.Int(chunk.x * 16 + (index & 15)),
+                            "y": nbtlib.Int(sy * 16 + (index >> 8)),
+                            "z": nbtlib.Int(chunk.z * 16 + ((index >> 4) & 15)),
+                            "OutputSignal": nbtlib.Int(15 if dict(state.properties)["powered"] == "true" else 0),
+                            "keepPacked": nbtlib.Byte(0),
+                        }))
         entry = nbtlib.Compound({
             "Y": nbtlib.Byte(sy), "block_states": block_states,
             "biomes": nbtlib.Compound({"palette": nbtlib.List[nbtlib.String]([nbtlib.String("minecraft:plains")])}),

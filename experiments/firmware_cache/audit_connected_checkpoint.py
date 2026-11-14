@@ -1,8 +1,8 @@
 """Bind the retained complete-cache measurement to the final 4 KiB defaults.
 
 The original source archive remains immutable. The integrated default cache,
-source-provenance binding and exact canonical-fingerprint optimization are
-checked separately. The measured fixture already uses explicit 4 KiB inputs.
+source-provenance binding and exact fingerprint/comparator-scan optimizations
+are checked separately. The measured fixture already uses explicit 4 KiB inputs.
 """
 from __future__ import annotations
 
@@ -12,6 +12,7 @@ import ast
 from copy import deepcopy
 from dataclasses import asdict
 import hashlib
+import io
 import json
 from pathlib import Path
 import sys
@@ -24,6 +25,22 @@ sys.path[:0] = [str(ROOT / "src"), str(ROOT)]
 
 def digest(data):
     return hashlib.sha256(data).hexdigest()
+
+
+def reviewed_ast_dump(tree):
+    """Keep the exact Python 3.12 AST representation across supported runtimes.
+
+    Python 3.11 omits the empty generic-parameter field; 3.13 hides empty lists
+    in dumps by default. Neither changes these reviewed methods. Preserve all
+    present fields, including any nonempty generic parameters, for rejection.
+    """
+    tree = deepcopy(tree)
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)) and "type_params" not in node._fields:
+            node._fields = (*node._fields, "type_params")
+            node.type_params = getattr(node, "type_params", [])
+    options = {"show_empty": True} if sys.version_info >= (3, 13) else {}
+    return ast.dump(tree, include_attributes=False, **options)
 
 
 def normalized_defaults(data, expected_bytes):
@@ -64,6 +81,10 @@ FINGERPRINT_AST_SHA256 = {
     False: "e39a12a195b0a0989ea5d4e928a32efa912245194e4fda1fbfab69824f405bda",
     True: "66a27bf9520986c21c1645b300d4d4fd659c75896edf9f968d52725a1fbb7bec",
 }
+NBT_AST_SHA256 = {
+    False: "9ce10c2c3183af5dee20ccff3e986a7cb6db2b02476ce9641e1dd45d45eecd7f",
+    True: "1ff22bbb2eb222b4e2aa4cd83bfe4c7bba215e60ffade7d8e5d93c5647186ba9",
+}
 
 
 def fingerprint_method(tree):
@@ -74,12 +95,22 @@ def fingerprint_method(tree):
     return methods[0]
 
 
-def normalized_fingerprint_source(data, *, integrated):
-    """Admit exactly the two independently reviewed method ASTs, no others."""
+def nbt_function(tree):
+    functions = [node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name == "_chunk_nbt"]
+    assert len(functions) == 1
+    return functions[0]
+
+
+def normalized_fingerprint_source(data, *, integrated, native_nbt=False):
+    """Admit only exact reviewed function ASTs, retaining everything else."""
     tree = ast.parse(data)
     method = fingerprint_method(tree)
-    assert digest(ast.dump(method, include_attributes=False).encode()) == FINGERPRINT_AST_SHA256[integrated]
+    assert digest(reviewed_ast_dump(method).encode()) == FINGERPRINT_AST_SHA256[integrated]
     method.body = [ast.Pass()]
+    if native_nbt:
+        function = nbt_function(tree)
+        assert digest(reviewed_ast_dump(function).encode()) == NBT_AST_SHA256[integrated]
+        function.body = [ast.Pass()]
     return ast.dump(tree, include_attributes=False)
 
 
@@ -89,8 +120,8 @@ def fingerprint_equivalence(original, integrated):
     from shamaos.hardware.memory import redstone_wire, repeater
     from shamaos.model import BlockState
 
-    expected = normalized_fingerprint_source(original, integrated=False)
-    assert expected == normalized_fingerprint_source(integrated, integrated=True)
+    expected = normalized_fingerprint_source(original, integrated=False, native_nbt=True)
+    assert expected == normalized_fingerprint_source(integrated, integrated=True, native_nbt=True)
     namespace = vars(worldio).copy()
     method = fingerprint_method(ast.parse(original))
     exec(compile(ast.Module(body=[method], type_ignores=[]), "retained-connected-worldio", "exec"), namespace)
@@ -137,20 +168,77 @@ def fingerprint_equivalence(original, integrated):
             raise AssertionError("fingerprint lost invalid palette-index rejection")
     altered = ast.parse(integrated)
     next(node for node in altered.body if isinstance(node, ast.FunctionDef) and node.name == "_signed_long").body = [ast.Return(ast.Constant(0))]
-    assert expected != normalized_fingerprint_source(ast.unparse(altered), integrated=True)
+    assert expected != normalized_fingerprint_source(ast.unparse(altered), integrated=True, native_nbt=True)
     altered = ast.parse(integrated)
     fingerprint_method(altered).body = [ast.Return(ast.Constant(None))]
     try:
-        normalized_fingerprint_source(ast.unparse(altered), integrated=True)
+        normalized_fingerprint_source(ast.unparse(altered), integrated=True, native_nbt=True)
     except AssertionError:
         pass
     else:
         raise AssertionError("unreviewed fingerprint replacement accepted")
+    comparator_review = native_nbt_equivalence(original, probes)
     return {"function": "_Chunk.fingerprint", "retained_method_ast_sha256": FINGERPRINT_AST_SHA256[False],
         "integrated_method_ast_sha256": FINGERPRINT_AST_SHA256[True], "entire_remaining_module_ast_identical": True,
+        "excluded_exactly_reviewed_functions": ["_Chunk.fingerprint", "_chunk_nbt"],
+        "native_nbt_comparator_fastpath": comparator_review,
         "retained_method_current_method_comparisons": checked, "invalid_palette_indices_rejected_by_both": True,
         "changed_native_writer_rejected": True, "unreviewed_fingerprint_change_rejected": True,
-        "scope": "Exact reviewed palette-lookup optimization only; no geometry emission, native writer, decoder or digest contract change"}
+        "scope": "Exact reviewed palette lookup and absent-comparator scan optimizations only; no emitted geometry, serialized native bytes, decoder or digest contract change"}
+
+
+def native_nbt_equivalence(original, probes):
+    """Compare actual serialized NBT, including used and unused comparators."""
+    from shamaos import worldio
+    from shamaos.model import BlockState
+
+    namespace = vars(worldio).copy()
+    function = nbt_function(ast.parse(original))
+    exec(compile(ast.Module(body=[function], type_ignores=[]), "retained-connected-native-nbt", "exec"), namespace)
+    reference = namespace["_chunk_nbt"]
+    off, on = (worldio.canonical_block_state(BlockState.of("minecraft:comparator", powered=value)) for value in ("false", "true"))
+    extra = {}
+    for name in ("unused-comparator", "unused-invalid-comparator", "mixed-comparators", "uniform-comparators"):
+        chunk = worldio._new_chunk(-7, 31, -61)
+        section = worldio._Section(palette=[worldio.AIR, off, on])
+        if name == "unused-invalid-comparator":
+            section.palette.append(BlockState.of("minecraft:comparator", powered="invalid"))
+        elif name == "mixed-comparators":
+            for index, value in ((0, 1), (255, 2), (4095, 2)):
+                section.indices[index] = value
+                section.assigned[index >> 3] |= 1 << (index & 7)
+        elif name == "uniform-comparators":
+            section.palette = [on]
+            section.assigned[:] = b"\xff" * 512
+        chunk.sections[4] = section
+        extra[name] = chunk
+
+    def serialized(root):
+        stream = io.BytesIO()
+        root.write(stream)
+        return stream.getvalue()
+
+    checked = {}
+    for name, chunk in (probes | extra).items():
+        before, after = reference(chunk), worldio._chunk_nbt(chunk)
+        original_bytes, current_bytes = serialized(before), serialized(after)
+        assert original_bytes == current_bytes
+        checked[name] = {"serialized_native_sha256": digest(current_bytes), "bytes": len(current_bytes),
+                         "comparator_entities": len(after["block_entities"])}
+    invalid = worldio._Chunk(0, 0, {0: worldio._Section()})
+    invalid.sections[0].indices[4095] = 65535
+    missing_power = worldio._Chunk(0, 0, {0: worldio._Section(palette=[BlockState.of("minecraft:comparator")])})
+    for candidate in (reference, worldio._chunk_nbt):
+        for chunk, expected_error in ((invalid, IndexError), (missing_power, KeyError)):
+            try:
+                candidate(chunk)
+            except expected_error:
+                pass
+            else:
+                raise AssertionError("native NBT fast path lost invalid-state rejection")
+    return {"function": "_chunk_nbt", "retained_function_ast_sha256": NBT_AST_SHA256[False],
+        "integrated_function_ast_sha256": NBT_AST_SHA256[True], "exact_native_bytes_compared": checked,
+        "invalid_used_indices_and_comparator_properties_rejected_by_both": True}
 
 
 def audit(output):
@@ -229,8 +317,8 @@ def audit(output):
         assert historical[key] == checkpoint["historical_comparison"][key]
         assert abs(100 * (historical[key] - checkpoint[key]) / historical[key]
                    - checkpoint["historical_comparison"][key + "_reduction_percent"]) < 1e-12
-    result = {"schema": "current-cache-final-integration-provenance-review-v2", "status": "passed",
-        "scope": "Retained complete-union integrity; explicit final default, metadata-only source binding and exact reviewed canonical-fingerprint optimization; exact integrated physical bank/route inputs; no fresh literal union or native run",
+    result = {"schema": "current-cache-final-integration-provenance-review-v3", "status": "passed",
+        "scope": "Retained complete-union integrity; explicit final default, metadata-only source binding and exact reviewed fingerprint/native comparator-scan optimizations; exact integrated physical bank/route inputs; no fresh literal union or native run",
         "audit_source_sha256": digest(Path(__file__).read_bytes()),
         "checkpoint_sha256": digest(checkpoint_path.read_bytes()),
         "retained_source_zip_sha256": digest(source_zip.read_bytes()),

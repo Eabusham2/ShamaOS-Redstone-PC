@@ -66,6 +66,11 @@ def check_file(record):
     return path
 
 
+def file_record(path):
+    path = Path(path).resolve()
+    return {"path": str(path), "sha256": sha(path), "bytes": path.stat().st_size}
+
+
 def check_process(case):
     elapsed, limit = case.get("wall_seconds"), case.get("wall_limit_seconds")
     require(case.get("exit_code") == 0 and case.get("explicit_wall_timeout_reached") is False
@@ -441,6 +446,7 @@ def main(build, runtime, output, *, clocks=None, transactions=None):
     result = {"schema": "independent-complete-cache-native-audit-v1", "status": "native-inputs-verified-runtime-pending",
         "auditor_sha256": sha(__file__), "build_report_sha256": sha(build / "connected-build-report.json"),
         "prepared_sha256": sha(prepared_path), "physical_input_review": physical,
+        "build_report": file_record(build / "connected-build-report.json"), "prepared": file_record(prepared_path),
         "native_clock_verified": False, "connected_cache_runtime_verified": False, "native_persistence_verified": False,
         "complete_machine_runtime_verified": False}
     if clocks:
@@ -449,6 +455,7 @@ def main(build, runtime, output, *, clocks=None, transactions=None):
                 and clock_report["helper_source"] == prepared["preparation_source"]
                 and clock_report["runtime_helper_sources"] == prepared["runtime_helper_sources"], "clock gate uses another prepared/helper identity")
         result["clocks"] = verify_clocks(clocks, prepared, imported, inputs, outputs, names)
+        result["clock_report"] = file_record(clocks)
         result.update(status="complete-cache-clocks-independently-verified-transactions-pending", native_clock_verified=True)
     if transactions:
         require(clocks is not None, "independent complete transaction proof requires native clock evidence")
@@ -461,6 +468,7 @@ def main(build, runtime, output, *, clocks=None, transactions=None):
                 and transaction_report["runtime_helper_sources"] == prepared["runtime_helper_sources"],
                 "transactions differ from the verified native clock/preparation/runner identity")
         result["transactions"] = verify_transactions(transactions, imported, inputs, outputs, prepared)
+        result["transaction_report"] = file_record(transactions)
         result.update(status="complete-cache-native-transactions-and-reopen-independently-verified",
                       connected_cache_runtime_verified=True, native_persistence_verified=True)
     output.parent.mkdir(parents=True, exist_ok=True)

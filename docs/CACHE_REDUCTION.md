@@ -160,6 +160,20 @@ retains all trials, exact sources and correctness checks. The frozen large-world
 recovery continues with its original source bytes; subsequent runtime preparation
 can separately bind the reviewed faster reader/writer.
 
+Snapshot restoration also avoids recounting all 4,096 positions in an already
+validated uniform section and skips the comparator-position scan only when no
+used palette entry is a comparator. The same strict state, count and index
+validation remains, and comparator sections keep their original entity loop.
+Independent comparison against the previous functions preserves exact native
+NBT bytes and ownership, including malformed-input rejection. A separate
+64-chunk, 1,536-section restoration benchmark falls from a median 6.539 to 4.942
+seconds, approximately **24.4% less time**. Its synthetic snapshot benchmark is
+separate from the actual-engine save/reopen regression, which checks all 128
+stored bits and a saved analog comparator output. The
+[snapshot restoration review](../experiments/firmware_cache/evidence/native-snapshot-fastpaths-review.md)
+retains all trials, exact sources and 133 focused passing tests without skips.
+Neither fixture timing establishes a complete-cache or complete-computer rate.
+
 ## Verification and remaining physical proof
 
 - The new instruction encodings pass 193 focused assembler/CPU cases, followed
@@ -210,6 +224,14 @@ fault paths in the SoC and the corrected clock-spacing/recovery guards. See
 and [root verification](../experiments/firmware_cache/evidence/recovered-root-verification.json)
 for the exact source scopes; these results are not a single combined full-suite
 or physical-cache runtime pass.
+
+The combined snapshot/provenance followup also passes **136 focused tests with
+no skips** in the integrated checkout. This run uses the actual terrain engine
+for the focused snapshot save/reopen cases, alongside exact source receipts,
+malformed-input rejection and connected-world recovery guards. Its
+[root review](../experiments/firmware_cache/evidence/cache-followup-integrated-root.json)
+binds the tested files and native runner; complete-cache transactions remain a
+separate execution target.
 
 The connected physical cache still needs its own saved-world electrical and
 persistence proof. Earlier two-bank mapping/world evidence is retained as an

@@ -7,6 +7,19 @@ feature contract; [VALIDATION.md](VALIDATION.md) defines the evidence required.
 
 ## Owner request tracking
 
+The recovered 4 KiB cache revision
+[`5544920`](https://github.com/Eabusham2/ShamaOS-Redstone-PC/commit/55449200dc2513b114ec988938ab58c50c8a4dd5)
+passes all twelve physical synthesis partitions, their final reconnection, RTL
+and exact world-block-state CI jobs in
+[run 43540334000](https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/43540334000).
+Its four platform jobs exposed a stale specification-heading assertion and,
+on Python 3.11, a different representation of an empty AST field. The followup
+corrects both while preserving the exact pinned source hashes and strict
+rejection of unreviewed changes. The
+[failure and correction record](../experiments/firmware_cache/evidence/ci43540334000-platform-fix.md)
+retains the original failures. Renewed platform and full behavioral CI remain
+required for the followup; partition synthesis is not saved-world execution.
+
 The retained checkpoint with all 20 CI jobs green, including full synthesis, is
 [`1c1b3a1`](https://github.com/Eabusham2/ShamaOS-Redstone-PC/commit/1c1b3a150ec0a5abbc7cd697da35e0298298e197).
 Its [exact-commit CI run](https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/43364358101)
@@ -22,7 +35,7 @@ Editor is 3,476 bytes, Files 3,584 and Miner 5,004; Miner uses a 908-byte RAM ta
 The current installed image uses 143.25 KiB / 71.625% of the unchanged 200 KiB
 flash. [CACHE_REDUCTION.md](CACHE_REDUCTION.md) records the measured savings,
 source identities, instruction semantics, tests and remaining physical proof.
-Full CI for this new revision remains required. Completing physical routing,
+The current CI scopes are recorded above. Completing physical routing,
 saved-world operation and the release is still the overall objective.
 The table distinguishes completed code/component work from the remaining
 complete-world deliverable; it is not a percentage-complete estimate.

@@ -160,6 +160,27 @@ the bridge. The same physical bank, initial bytes and all 77 routes still
 match the original measured geometry. Original archives and earlier receipts
 are preserved; this does not rerun the full geometry union or native circuit.
 
+`experiments/firmware_cache/evidence/connected-final-native-fastpath-provenance.json`
+adds the subsequent exact `_chunk_nbt` comparator-scan guard. The auditor now
+binds both reviewed function ASTs and still requires every other part of
+`worldio.py` to be identical. It directly compares the retained serializer
+with the optimized serializer on 17 cases, including uniform and mixed
+comparators, unused comparator entries, terrain and explicit air ownership.
+All native NBT bytes match; used invalid indices and missing comparator
+properties still fail. The uniform snapshot-section count improvement is
+covered by the accompanying strict state/count tests and is bound separately
+when the runtime helper sources are frozen. Earlier fingerprint-only evidence
+remains unchanged.
+
+The final portability replay is
+`experiments/firmware_cache/evidence/connected-final-portable-native-provenance.json`.
+Pinned function hashes retain Python 3.12's AST representation: normalization
+adds only an absent empty generic-parameter field and retains all nonempty
+parameters for rejection. Both fingerprint and serializer hashes pass on
+actual Python 3.12 and 3.13, including strict changed-body and changed-writer
+negative controls. Python 3.11 field shape is simulated in the focused tests;
+that local check is not presented as execution by a Python 3.11 interpreter.
+
 ## Independent saved-world and native-evidence audit
 
 `experiments/memory_controller_runtime/audit_native_connected.py` checks each

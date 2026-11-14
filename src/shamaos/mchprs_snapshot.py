@@ -66,6 +66,7 @@ def _section(record):
     if record["kind"] == "uniform_section":
         palette = [_state(record["state"])]
         indices = array("H", [0]) * 4096
+        nonair = 0 if palette[0] == AIR else 4096
     else:
         palette = list(map(_state, record["palette"]))
         if not 1 <= len(palette) <= 4096 or len(set(palette)) != len(palette):
@@ -75,7 +76,7 @@ def _section(record):
             raise WorldWriteError("snapshot palette width does not match its palette")
         data = [_integer(word, "packed word", 0, (1 << 64) - 1) for word in record["data"]]
         indices = _unpack_indices(data, 4096, bits, len(palette))
-    nonair = sum(palette[index] != AIR for index in indices)
+        nonair = sum(palette[index] != AIR for index in indices)
     if _integer(record["nonair"], "nonair", 0, 4096) != nonair:
         raise WorldWriteError("snapshot non-air count does not match actual section states")
     return _Section(palette=palette, indices=indices, lookup={state: i for i, state in enumerate(palette)}), nonair

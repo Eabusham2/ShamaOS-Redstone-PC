@@ -1,0 +1,5 @@
+3.13.5 (main, Aug 10 2026, 12:06:59) [GCC 14.2.0]
+Exact reviewed digest: False e39a12a195b0a0989ea5d4e928a32efa912245194e4fda1fbfab69824f405bda
+Exact reviewed digest: True 66a27bf9520986c21c1645b300d4d4fd659c75896edf9f968d52725a1fbb7bec
+Unreviewed method changes remain rejected
+Audit source SHA-256: 000401cc8055296effcabb1a2a561faa7e5d1dee6300194c5f5c52b5b63a813a

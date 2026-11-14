@@ -1,0 +1,140 @@
+{
+  "run_id": 43540334000,
+  "head_sha": "55449200dc2513b114ec988938ab58c50c8a4dd5",
+  "run_url": "https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/43540334000",
+  "observed_at": "2026-11-14T01:38:52.205Z",
+  "scope": "All twelve mapped physical RTL partitions and the final partitioned SoC shell reconnect succeeded on this exact published source. This is synthesis evidence, not native electrical execution or complete-machine runtime acceptance.",
+  "partition_jobs_passed": 12,
+  "reconnect_job_passed": true,
+  "successful_synthesis_jobs": [
+    {
+      "id": 132279151115,
+      "name": "full-physical-partitions (u_ram, shama_ram_adapter, 10)",
+      "url": "https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/43540334000/job/132279151115",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 132279151187,
+      "name": "full-physical-partitions (u_display_bridge, shama_display_bridge, 3)",
+      "url": "https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/43540334000/job/132279151187",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 132279151198,
+      "name": "full-physical-partitions (u_asm, shama_asm_accel, 8)",
+      "url": "https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/43540334000/job/132279151198",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 132279151257,
+      "name": "full-physical-partitions (u_vram, shama_vram_adapter, 4)",
+      "url": "https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/43540334000/job/132279151257",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 132279151305,
+      "name": "full-physical-partitions (u_cpu, shama_cpu, 0)",
+      "url": "https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/43540334000/job/132279151305",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 132279151327,
+      "name": "full-physical-partitions (u_fs, shama_fs_accel, 7)",
+      "url": "https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/43540334000/job/132279151327",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 132279151328,
+      "name": "full-physical-partitions (u_cache, shama_cache_adapter, 9)",
+      "url": "https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/43540334000/job/132279151328",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 132279151335,
+      "name": "full-physical-partitions (u_input, shama_input, 1)",
+      "url": "https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/43540334000/job/132279151335",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 132279151360,
+      "name": "full-physical-partitions (u_flash, shama_flash_adapter, 11)",
+      "url": "https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/43540334000/job/132279151360",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 132279151368,
+      "name": "full-physical-partitions (u_kernel, shama_kernel_accel, 6)",
+      "url": "https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/43540334000/job/132279151368",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 132279151372,
+      "name": "full-physical-partitions (u_gpu, shama_gpu, 2)",
+      "url": "https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/43540334000/job/132279151372",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 132279151544,
+      "name": "full-physical-partitions (u_services, shama_services, 5)",
+      "url": "https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/43540334000/job/132279151544",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 132282868564,
+      "name": "full-physical-synthesis",
+      "url": "https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/43540334000/job/132282868564",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "manifest": {
+    "top": "shama_soc",
+    "strategy": "partitioned-blackbox-shell",
+    "cell_count": 1731760,
+    "net_count": 1737422,
+    "routing_tracks": 1737422
+  },
+  "retained_artifact": {
+    "id": 14092456900,
+    "name": "full-soc-report-55449200dc2513b114ec988938ab58c50c8a4dd5",
+    "url": "https://api.github.com/repos/Eabusham2/ShamaOS-Redstone-PC/actions/artifacts/14092456900",
+    "archive_file": "ci43540334000-full-soc-report.zip",
+    "bytes": 38625,
+    "sha256": "3478aa38df425c5da7ac35c04d1beb7c264cf722c8827dbfe147e43f4ce8e6d7",
+    "contents": [
+      "physical-soc-manifest.json",
+      "shama_soc-shell-mapped.yosys.log"
+    ],
+    "manifest_sha256": "665feeaba04b26197c6d7cdacdeb2052c44bb5db7922979f95f18c7686e350c7",
+    "original_expiry": "2026-11-28T01:38:06Z"
+  },
+  "overall_job_counts_at_observation": {
+    "success": 15,
+    "failure": 4,
+    "cancelled": 0,
+    "in_progress": 1,
+    "queued": 0,
+    "skipped": 0
+  },
+  "platform_jobs": "All four failed for the documented stale heading and Python 3.11 AST dump differences; see ci43540334000-platform-failures.json.",
+  "behavioral_job": {
+    "id": 132279151132,
+    "status": "in_progress",
+    "conclusion": null,
+    "not_accepted_as_passed": true
+  },
+  "full_run_passed": false,
+  "newer_local_snapshot_fastpaths_included": false
+}

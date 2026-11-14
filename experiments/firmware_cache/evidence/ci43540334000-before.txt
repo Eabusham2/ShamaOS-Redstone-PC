@@ -1,0 +1,26 @@
+....F                                                                    [100%]
+=================================== FAILURES ===================================
+_________________ test_canonical_document_matches_locked_spec __________________
+
+    def test_canonical_document_matches_locked_spec():
+        spec = (ROOT / "docs/INITIAL_SPEC_AND_TRANSCRIPTS.md").read_text(encoding="utf-8")
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    
+        assert "**96 KiB main RAM**" in spec
+        assert "**4 KiB cache / fast scratch**" in spec
+>       assert "Owner-authorized cache reduction — 2026-11-14" in spec
+E       AssertionError: assert 'Owner-authorized cache reduction — 2026-11-14' in '# Initial Specification and Transcript-Derived Requirements\n\n**Status:** canonical initial project agreement  \n**P...t branch: **main**.\n- Initial semantic version: **0.1.0**.\n- Documentation is part of the implementation contract.\n'
+
+tests/test_spec_lock.py:33: AssertionError
+=============================== warnings summary ===============================
+../../../../opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/anyio/pytest_plugin.py:14
+  /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/anyio/pytest_plugin.py:14: PytestRemovedIn10Warning: _pytest.python.CallSpec2 has been renamed to CallSpec.
+  The CallSpec2 alias will be removed in pytest 10.
+  Update imports to use CallSpec instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#callspec2-renamed
+    from _pytest.python import CallSpec2
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_spec_lock.py::test_canonical_document_matches_locked_spec
+1 failed, 4 passed, 1 warning in 0.43s

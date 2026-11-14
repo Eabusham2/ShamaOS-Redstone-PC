@@ -30,7 +30,7 @@ def test_canonical_document_matches_locked_spec():
 
     assert "**96 KiB main RAM**" in spec
     assert "**4 KiB cache / fast scratch**" in spec
-    assert "Owner-authorized cache reduction — 2026-11-14" in spec
+    assert "Owner-authorized cache reduction — November 13, 2026 (America/Chicago)" in spec
     assert "**200 KiB flash**" in spec
     assert "Owner-approved capacity amendment — 2026-11-13" in spec
     assert "95%" in spec
