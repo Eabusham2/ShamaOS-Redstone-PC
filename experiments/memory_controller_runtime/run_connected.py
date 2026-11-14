@@ -2,7 +2,7 @@
 
 Preparation, all-register clock delivery, and functional save/reopen are
 separate resumable phases. Python supplies only the 72 original host inputs.
-Every memory response and all 65,536 stored-bit observations come from the
+Every memory response and every installed stored-bit observation come from the
 saved native blocks running in the pinned redstone engine.
 """
 from __future__ import annotations
@@ -65,23 +65,41 @@ def _same(record):
         raise ValueError(f"accepted native input changed: {record['path']}")
 
 
-def _maps(inputs, outputs):
+def _maps(inputs, outputs, *, capacity_bytes=8192, register_count=115):
     required = {scenarios.host(name, bit) for name, width in scenarios.HOST_WIDTHS.items()
                 for bit in range(width)}
     if set(inputs) != required:
         raise ValueError("connected native runtime must retain exactly the 72 original host inputs")
     if len({tuple(point) for point in inputs.values()}) != 72:
         raise ValueError("connected native host terminals must all be distinct")
-    stored = scenarios.storage_expect(scenarios.initial_words()).keys()
-    if not stored <= outputs.keys() or sum(name.startswith("storage:") for name in outputs) != 65536:
+    scenarios.check_capacity(capacity_bytes)
+    if type(register_count) is not int or register_count < 1:
+        raise ValueError("native cache proof needs its exact positive register count")
+    stored = scenarios.storage_expect(scenarios.initial_words(capacity_bytes=capacity_bytes), capacity_bytes=capacity_bytes).keys()
+    if not stored <= outputs.keys() or sum(name.startswith("storage:") for name in outputs) != capacity_bytes * 8:
         raise ValueError("connected native runtime lost physical stored-bit observations")
-    if len({tuple(outputs[name]) for name in stored}) != 65536:
+    if len({tuple(outputs[name]) for name in stored}) != capacity_bytes * 8:
         raise ValueError("connected native stored-bit observations alias different physical bits")
     clocks = {name: Vec3(*point) for name, point in outputs.items()
               if name.startswith("register:") and name.endswith(":C")}
-    if len(clocks) != 115 or len(set(clocks.values())) != 115:
-        raise ValueError("connected native runtime lost one of the 115 original register clocks")
+    if len(clocks) != register_count or len(set(clocks.values())) != register_count:
+        raise ValueError("connected native runtime lost an original register clock")
     return clocks
+
+
+def _physical_profile(report):
+    memory = report["physical_memory"]
+    capacity = memory["capacity_bytes"]
+    scenarios.check_capacity(capacity)
+    banks = (capacity + 4095) // 4096
+    if (memory["banks"], memory["rows_per_bank"], memory["stored_bits"]) != (banks, 1024, capacity * 8):
+        raise ValueError("native execution requires every installed physical cache bit")
+    if report["external_interface"]["nets"] != 76 + banks or report["external_interface"]["host_drive_pads"] != 72:
+        raise ValueError("native execution requires the complete connected interface")
+    registers = report["controller_graph_audit"]["clock_leaf_uses"]
+    if type(registers) is not int or registers < 1:
+        raise ValueError("accepted controller graph has no exact positive clock inventory")
+    return {"capacity_bytes": capacity, "register_count": registers}
 
 
 def prepare(build: Path, destination: Path) -> dict:
@@ -92,17 +110,13 @@ def prepare(build: Path, destination: Path) -> dict:
     report = json.loads(build_report_path.read_text())
     if report.get("status") != GENERATED or report.get("independent_union_agreement") is not True:
         raise ValueError("native execution requires the complete accepted connected world")
-    memory = report["physical_memory"]
-    if (memory["capacity_bytes"], memory["banks"], memory["rows_per_bank"], memory["stored_bits"]) != (8192, 2, 1024, 65536):
-        raise ValueError("native execution requires both complete physical cache banks")
-    if report["external_interface"]["nets"] != 78 or report["external_interface"]["host_drive_pads"] != 72:
-        raise ValueError("native execution requires the complete connected interface")
+    profile = _physical_profile(report)
     inputs_path, outputs_path = build / "native-inputs.json", build / "native-outputs.json"
     if (_sha(inputs_path) != report["native_input_map_sha256"]
             or _sha(outputs_path) != report["native_output_map_sha256"]):
         raise ValueError("connected native interface maps changed after saved-world validation")
     inputs, outputs = json.loads(inputs_path.read_text()), json.loads(outputs_path.read_text())
-    _maps(inputs, outputs)
+    _maps(inputs, outputs, **profile)
     world = build / "world"
     inventory = release_io.file_inventory(world)
     if release_io.inventory_digest(inventory) != report["world_inventory_sha256"]:
@@ -117,6 +131,7 @@ def prepare(build: Path, destination: Path) -> dict:
         "world_inventory_sha256": report["world_inventory_sha256"],
         "preparation_source": _record(Path(__file__)),
         "runtime_helper_sources": _helper_sources(),
+        "physical_profile": profile,
         "connected_cache_runtime_verified": False, "complete_machine_runtime_verified": False}
     _write(destination / "prepared.json", prepared)
     try:
@@ -159,7 +174,12 @@ def _load(prepared_directory):
     imported = json.loads(Path(prepared["import_report"]["path"]).read_text())
     if imported["stream_sha256"] != prepared["stream"]["sha256"]:
         raise ValueError("native preparation and complete import disagree")
-    return prepared, imported, inputs, outputs, _maps(inputs, outputs)
+    build_report = json.loads(Path(prepared["build_report"]["path"]).read_text())
+    profile = _physical_profile(build_report)
+    if prepared.get("physical_profile", profile) != profile:
+        raise ValueError("prepared native capacity differs from its accepted connected world")
+    prepared["physical_profile"] = profile
+    return prepared, imported, inputs, outputs, _maps(inputs, outputs, **profile)
 
 
 def execute(runner, stream, scenario, destination, name, maximum_chunks, *,
@@ -357,20 +377,39 @@ def clocks(prepared_directory, runner, destination, *, half_period, settle_ticks
         raise
 
 
-def _stored_native_bits(world, outputs, words):
+def _stored_native_bits(world, outputs, words, *, capacity_bytes=8192):
     """Inspect saved locked repeaters before a fresh engine can initialize them."""
     reader = NativeWorldReader(world, max_cached_chunks=2)
     count = 0
-    for name, expected in scenarios.storage_expect(words).items():
+    for name, expected in scenarios.storage_expect(words, capacity_bytes=capacity_bytes).items():
         state = reader.get_block(Vec3(*outputs[name]))
         properties = dict(state.properties)
         if (state.name != "minecraft:repeater" or properties.get("locked") != "true"
                 or properties.get("powered") != str(expected).lower()):
             raise ValueError(f"saved native storage differs before fresh execution: {name}")
         count += 1
-    if count != 65536:
+    if count != capacity_bytes * 8:
         raise ValueError("native cache readback lost a stored bit")
     return count
+
+
+def _transaction_inventory(capacity_bytes):
+    """Retained whole-cache RTL oracles, never inferred from successful traces."""
+    scenarios.check_capacity(capacity_bytes)
+    counts = {4096: (601, 49, 1_605_632), 8192: (649, 53, 3_473_408)}
+    if capacity_bytes not in counts:
+        raise ValueError("complete native transaction acceptance needs a retained exact-capacity RTL oracle")
+    return counts[capacity_bytes]
+
+
+def _smoke_frames(capacity_bytes):
+    """Cold reset, boundary reads, one complete write and its actual readback."""
+    cold = list(scenarios.functional_frames(capacity_bytes=capacity_bytes))
+    end = next(index for index, frame in enumerate(cold) if frame.label == "cold-reset:storage")
+    result = cold[:end + 1]
+    result.extend(scenarios.functional_frames(scenarios.initial_words(capacity_bytes=capacity_bytes),
+                                              resume=True, capacity_bytes=capacity_bytes))
+    return result
 
 
 def transactions(prepared_directory, runner, clock_report_path, destination, *,
@@ -392,13 +431,12 @@ def transactions(prepared_directory, runner, clock_report_path, destination, *,
     path = destination / "transaction-report.json"
     _write(path, report)
     try:
-        cold = list(scenarios.functional_frames())
-        if smoke:
-            end = next(index for index, frame in enumerate(cold)
-                       if frame.label == "initial-0000:return-idle:fall")
-            cold = cold[:end + 1]
+        capacity_bytes = prepared.get("physical_profile", {"capacity_bytes": 8192})["capacity_bytes"]
+        expected_inventory = _transaction_inventory(capacity_bytes)
+        cold = (_smoke_frames(capacity_bytes) if smoke
+                else list(scenarios.functional_frames(capacity_bytes=capacity_bytes)))
         cold_summary = scenarios.summarize_frames(cold)
-        continuation = list(scenarios.functional_frames(cold_summary["final_words"], resume=True))
+        continuation = list(scenarios.functional_frames(cold_summary["final_words"], resume=True, capacity_bytes=capacity_bytes))
 
         def run_case(name, frames, stream, imported_case, snapshot):
             _check_helpers(report["runtime_helper_sources"])
@@ -440,7 +478,7 @@ def transactions(prepared_directory, runner, clock_report_path, destination, *,
             for name in ("runner", "prepared", "clock_gate", "helper_source"):
                 _same(report[name])
             _check_helpers(report["runtime_helper_sources"])
-            report["status"] = "complete-connected-cache-first-read-passed-full-proof-pending"
+            report["status"] = "complete-connected-cache-first-read-write-passed-full-proof-pending"
             _write(path, report)
             return report
         restored_world = destination / "reopened-world"
@@ -454,7 +492,7 @@ def transactions(prepared_directory, runner, clock_report_path, destination, *,
             raise ValueError("restored native snapshot is not bound to the actual cold transaction run")
         report["native_restore"] = restored
         report["native_storage_bits_checked_before_fresh_process"] = _stored_native_bits(
-            restored_world, outputs, cold_summary["final_words"])
+            restored_world, outputs, cold_summary["final_words"], capacity_bytes=capacity_bytes)
         reopened_stream = destination / "reopened-world.jsonl"
         report["stage"] = "export-every-reopened-native-section"
         _write(path, report)
@@ -467,7 +505,7 @@ def transactions(prepared_directory, runner, clock_report_path, destination, *,
         total_frames = first["summary"]["frames"] + second["summary"]["frames"]
         total_boundaries = first["summary"]["storage_boundaries"] + second["summary"]["storage_boundaries"]
         total_storage = first["summary"]["full_storage_assertions"] + second["summary"]["full_storage_assertions"]
-        if (total_frames, total_boundaries, total_storage) != (649, 53, 3_473_408):
+        if (total_frames, total_boundaries, total_storage) != expected_inventory:
             raise ValueError("complete connected runtime lost part of the independent transaction oracle")
         for name in ("runner", "prepared", "clock_gate", "helper_source"):
             _same(report[name])

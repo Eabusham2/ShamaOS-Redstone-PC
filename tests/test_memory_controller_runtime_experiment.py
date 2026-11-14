@@ -4,6 +4,7 @@ import gzip
 import hashlib
 import json
 from pathlib import Path
+import zipfile
 
 import pytest
 
@@ -25,6 +26,43 @@ from shamaos.system_build import memory_fabric_nets
 @pytest.fixture(scope="module")
 def complete_cache():
     return fixture.graph_and_fabric()
+
+
+def test_historical_cache_elaboration_is_independent_of_current_production_capacity(tmp_path, monkeypatch):
+    # The saved 8 KiB proof cannot silently become a proof of today's cache.
+    # Deliberately unusable live inputs must not replace its retained inputs.
+    (tmp_path / "configs").mkdir()
+    (tmp_path / "configs/default.toml").write_text("not valid toml")
+    (tmp_path / "rtl").mkdir()
+    (tmp_path / "rtl/shama_memory_adapter.sv").write_text("different controller")
+    monkeypatch.setattr(fixture, "ROOT", tmp_path)
+    graph, geometry, fabric, _ = fixture.graph_and_fabric()
+    assert graph.source["sha256"] == fixture.MAPPED_SHA
+    assert geometry.cache_bytes == fabric.total_bytes == 8192
+    assert fabric.bank_count == 2
+
+
+@pytest.mark.parametrize("fault", ["rtl", "config", "missing", "extra", "duplicate"])
+def test_historical_input_binding_rejects_changed_or_incomplete_archive(tmp_path, monkeypatch, fault):
+    inputs = fixture.historical_inputs()
+    if fault == "rtl":
+        inputs["rtl/shama_memory_adapter.sv"] += b"\n// unbound change\n"
+    elif fault == "config":
+        inputs["configs/default.toml"] = inputs["configs/default.toml"].replace(b"cache_bytes = 8192", b"cache_bytes = 4096")
+    elif fault == "missing":
+        inputs.pop("rtl/shama_boot_params.svh")
+    elif fault == "extra":
+        inputs["unbound.txt"] = b"not a retained source"
+    archive_path = tmp_path / "modified-inputs.zip"
+    with zipfile.ZipFile(archive_path, "w") as archive:
+        for name, data in inputs.items():
+            archive.writestr(name, data)
+        if fault == "duplicate":
+            with pytest.warns(UserWarning, match="Duplicate name"):
+                archive.writestr("rtl/shama_memory_adapter.sv", inputs["rtl/shama_memory_adapter.sv"])
+    monkeypatch.setattr(fixture, "HISTORICAL_INPUTS", archive_path)
+    with pytest.raises(ValueError, match="historical cache elaboration input"):
+        fixture.graph_and_fabric()
 
 
 @pytest.fixture(scope="module")
@@ -347,6 +385,21 @@ def test_complete_clock_analyzer_rejects_missing_pulses_wrong_width_and_skew():
         analyze_clocks({"traces": {"a": pulse}}, ("a", "b"), 2)
 
 
+def test_complete_clock_analyzer_rejects_shared_spacing_distortion():
+    """Equal widths and zero register skew cannot hide a distorted period."""
+    from experiments.memory_controller_runtime.probe_controller import analyze_clocks
+    trace = [False] * 14
+    for start in (1, 6, 9):
+        trace[start:start + 2] = [True, True]
+    result = analyze_clocks({"traces": {"a": trace, "b": trace}}, ("a", "b"), 2)
+    assert result["all_arrivals_and_widths_identical"]
+    assert len(result["reference_pulses"]) == 3
+    assert all(width == 2 for _, width in result["reference_pulses"])
+    assert not result["requested_pulse_spacing_preserved"]
+    assert not result["all_three_requested_pulses_preserved"]
+    assert not result["clock_gate_passed"]
+
+
 @pytest.fixture(scope="module")
 def small_connected_facade():
     """Small real graph for binding guards, never a complete-cache surrogate."""
@@ -432,9 +485,9 @@ def test_connected_interconnect_rejects_reduced_physical_capacity_before_routing
     graph, _, fabric, origin = complete_cache
     reduced = SimpleNamespace(total_bytes=4096, bank_count=1, bank=fabric.bank,
                               layers=1, layer_pitch=fabric.layer_pitch, decoder_x_offset=fabric.decoder_x_offset)
-    with pytest.raises(ValueError, match="both complete"):
+    with pytest.raises(ValueError, match="complete installed banks"):
         connect_cache(graph, None, reduced, origin)
-    with pytest.raises(ValueError, match="exactly 8 KiB"):
+    with pytest.raises(ValueError, match="exact installed capacity"):
         list(iter_complete_banks(None, fabric, bytes(4096)))
 
 

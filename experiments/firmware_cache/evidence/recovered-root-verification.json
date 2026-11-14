@@ -1,0 +1,53 @@
+{
+  "scope": "Final app image resource recovery through fast RTL memory backend; exact native clock and recovery guards on the resumed checkpoint. Full physical cache runtime is separate.",
+  "resource_faults": {
+    "junit": "recovered-resource-tail.xml",
+    "junit_sha256": "1a9a791e91799178ed6810e3975893ae03d98331ea7dc27b091f54c899996d4a",
+    "cases": [
+      "test_real_app_resource_faults_recover_and_protected_flash_rejects_cpu_stores[ram-2]",
+      "test_real_app_resource_faults_recover_and_protected_flash_rejects_cpu_stores[heap-2]",
+      "test_real_app_resource_faults_recover_and_protected_flash_rejects_cpu_stores[cache-3]",
+      "test_real_app_resource_faults_recover_and_protected_flash_rejects_cpu_stores[vram-4]",
+      "test_real_app_resource_faults_recover_and_protected_flash_rejects_cpu_stores[protected_flash-1]"
+    ],
+    "passed": 5,
+    "skipped": 0,
+    "seconds": 676.246,
+    "source_receipt": "system-regression-source.json",
+    "flash_image_sha256": "02bb7459cd74356f02533b2d5446fec8ee44304242b9fad3a0efd207becc56bf",
+    "test_count": 5
+  },
+  "native_guards": [
+    {
+      "junit": "recovered-native-guards-corrected.xml",
+      "junit_sha256": "ac5466d50d5f50e2f10429b6fd0b65b3801a6a98f75997e0b46d6057753cfdb4",
+      "cases": 48,
+      "passed": 47,
+      "skipped": 1,
+      "seconds": 2.136
+    },
+    {
+      "junit": "recovered-native-guards-leaf.xml",
+      "junit_sha256": "f2ce3ec9348d335d393b1b8d91a1253b57145d1e63e2dcab3aa036f191916674",
+      "cases": 1,
+      "passed": 1,
+      "skipped": 0,
+      "seconds": 3.538
+    }
+  ],
+  "source_bindings": {
+    "experiments/memory_controller_runtime/resume_connected.py": "1d36d5f365e85febdf9e8a8e8878d6204ca671eea74d49c4bf48f6e5bbff77c7",
+    "experiments/memory_controller_runtime/probe_controller.py": "7d1469b07b1f6b046f6adf2d1ea9414a8c77784d02c513fa5ee98339698ea485",
+    "tests/test_connected_native_recovery.py": "dbdc12225e0b3fda9e1599bca09c24ec6d13cca48615474b2d71a3ff4c9a3278",
+    "tests/test_memory_controller_runtime_experiment.py": "96c14821de7fdcc728ae754960c5266f70670aafcc40fdba2a96aef6a5aa9af8",
+    "tests/test_soc_integration.py": "92f66a36da0b3c602bd10bf8863374a34fe03ed0d9b67b734b98a81f536931ac",
+    "rtl/shama_soc.sv": "5387762f974450c8b33fd67c77b49ede0107c69ecd6930e07f8fdc30f9ed8c26",
+    "rtl/shama_services.sv": "ffe1a290d8b8239def5622d7d12d6800904b6c80209914d11985d81c0fa79366"
+  },
+  "native_guard_scope": "48 distinct cases passed across the main guard batch and the separately executed real-engine clock case; original native skip retained in its JUnit.",
+  "console_logs": {
+    "recovered-resource-tail.txt": "14ad18c02b268677e6b5d48f813c9e3b686230ab9c2b85e7c3f998e5c48942a5",
+    "recovered-native-guards-corrected.txt": "210d78ee4823b673f589fdf7f4b99c372039ab505f11ad586f8f002db173a0ff",
+    "recovered-native-guards-leaf.txt": "d0b682e5a914d97861a3cedae99e7fa107dd64316422e9effa3ecfa0d7d1c4b7"
+  }
+}

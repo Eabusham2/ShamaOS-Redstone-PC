@@ -87,9 +87,12 @@ def analyze_clocks(result, clock_names, half_period):
     entries = {name: _runs(traces[name]) for name in sorted(clock_names)}
     first = entries[next(iter(entries))]
     matched = all(value == first for value in entries.values())
-    complete = len(first) == 3 and all(width == half_period for _, width in first)
+    spaced = len(first) == 3 and all(start == first[0][0] + 2 * index * half_period
+                                   for index, (start, _) in enumerate(first))
+    complete = spaced and all(width == half_period for _, width in first)
     return {"register_clocks": len(entries), "all_arrivals_and_widths_identical": matched,
             "all_three_requested_pulses_preserved": complete, "reference_pulses": first,
+            "requested_pulse_spacing_preserved": spaced,
             "actual_half_period_ticks": half_period,
             "clock_gate_passed": matched and complete,
             "scope": "Physical controller clock pulses only; no memory transaction or whole-machine timing claim"}

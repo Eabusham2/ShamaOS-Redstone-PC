@@ -1,8 +1,9 @@
 """Physical RAM ownership shared by the image, services and resource reports.
 
 The CPU maps addresses below CACHE_BYTES to its separate executable cache.
-Services DMA can still address the underlying RAM there, so it holds the app's
-write-through backing without consuming a second CPU-visible code slot.
+Services DMA can still address the underlying RAM there. The complete original
+8 KiB executable window keeps its RAM backing: the prefix is cached and the
+tail executes directly from RAM, without allocating another code slot.
 Foreground workspaces may overlap only because app replacement drains saves,
 frees allocations and clears the outgoing workspace before starting its peer.
 """
@@ -12,7 +13,7 @@ from .machine_spec import CACHE_BYTES, RAM_BYTES
 
 APP_SLOT_BYTES = 16 << 10  # assembly/save capacity; execution is limited below
 APP_RAM_BASE = 0
-APP_BACKING_BYTES = CACHE_BYTES
+APP_BACKING_BYTES = 8 << 10
 KERNEL_RAM_BASE = 0x2000
 KERNEL_SLOT_BYTES = 0x400
 EDIT_NAME = 0x2400

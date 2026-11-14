@@ -10,6 +10,7 @@ import sys
 import time
 import tomllib
 import traceback
+import zipfile
 
 if not __debug__:
     raise SystemExit("complete-cache fixture requires assertions")
@@ -33,8 +34,11 @@ from shamaos.system_build import _geometry_from_config
 TOP = "shama_cache_adapter"
 MAPPED_SHA = "d4989124e9dca8b5afa865d954ded3be680b99f0b1e2f472aed6b5ecc42dd468"
 HERE = Path(__file__).resolve().parent
+HISTORICAL_INPUTS = HERE / "evidence/cache-controller-c331-inputs.zip"
+HISTORICAL_CONFIG_SHA = "630b70f01ac7de1f1b74250f8b454c9d090e461891f347fadc4c375c27cc5b20"
 SOURCE_PATHS = (
-    "configs/default.toml", "rtl/shama_memory_adapter.sv", "rtl/shama_boot_params.svh",
+    "experiments/memory_controller_runtime/evidence/cache-controller-c331-inputs.zip",
+    "experiments/memory_controller_runtime/evidence/cache-vram-scope.json",
     "src/shamaos/synthesis.py", "src/shamaos/layout.py", "src/shamaos/system_build.py",
     "src/shamaos/model.py", "src/shamaos/machine_spec.py", "src/shamaos/generator.py",
     "src/shamaos/hardware/partition_planner.py", "src/shamaos/hardware/partition_placement.py",
@@ -61,28 +65,45 @@ def save(path: Path, value) -> None:
         stream.write(json.dumps(value, indent=2) + "\n")
 
 
+def historical_inputs():
+    """Validate the exact elaboration inputs of the retained 8 KiB mapping.
+
+    Current production capacities and RTL may evolve without rewriting this
+    historical experiment's source identity. Its original hashes remain
+    authoritative, and every archived input is checked before its config is
+    used. This does not validate a new production controller or capacity.
+    """
+    scope = json.loads((HERE / "evidence/cache-vram-scope.json").read_text())
+    expected = dict(scope["source_sha256"], **{"configs/default.toml": HISTORICAL_CONFIG_SHA})
+    with zipfile.ZipFile(HISTORICAL_INPUTS) as archive:
+        if len(archive.namelist()) != len(expected) or set(archive.namelist()) != set(expected):
+            raise ValueError("historical cache elaboration input inventory changed")
+        contents = {name: archive.read(name) for name in expected}
+    for name, digest in expected.items():
+        if hashlib.sha256(contents[name]).hexdigest() != digest:
+            raise ValueError(f"historical cache elaboration input changed: {name}")
+    return contents
+
+
 def graph_and_fabric():
+    """Return the frozen c331 8 KiB case, never the current production cache."""
     mapped = HERE / "evidence/cache-controller-c331.json.gz"
     graph = Graph.read(mapped, TOP)
     if graph.source["sha256"] != MAPPED_SHA or graph.cell_count != 1144:
-        raise ValueError("fixture must use the exact complete current c331 cache mapping")
+        raise ValueError("fixture must use the exact complete historical c331 cache mapping")
     if sum(entity["kind"] == "port" for entity in graph.entities) != 183:
         raise ValueError("original cache pin inventory changed")
     flops = [entity for entity in graph.entities if entity["kind"] == "cell"
              and template_for(entity["cell_type"]).cell_type == "DFF"]
     if len(flops) != 115:
         raise ValueError("original cache register inventory changed")
-    scope = json.loads((HERE / "evidence/cache-vram-scope.json").read_text())
-    for name, expected in scope["source_sha256"].items():
-        if sha(ROOT / name) != expected:
-            raise ValueError(f"current effective controller source differs from mapped artifact: {name}")
-    config = tomllib.loads((ROOT / "configs/default.toml").read_text())
+    config = tomllib.loads(historical_inputs()["configs/default.toml"].decode())
     geometry = _geometry_from_config(config)
     fabric = memory_specs(geometry)[0]
     origin = default_origins(geometry).cache
     if (fabric.total_bytes, fabric.bank_count, fabric.bank.words, fabric.bank.word_bits,
             fabric.layers, fabric.layer_pitch, fabric.decoder_x_offset) != (8192, 2, 1024, 32, 2, 12, -170):
-        raise ValueError("production cache geometry/capacity changed")
+        raise ValueError("historical cache geometry/capacity changed")
     if geometry.surface_y != -61 or geometry.minimum_build_y != -60:
         raise ValueError("fixture uses the default superflat grass without ground edits")
     return graph, geometry, fabric, origin
@@ -112,6 +133,8 @@ def prepare(directory: Path, *, controller_ceiling=285, clock_track_padding=0) -
     routing = cache_route_contract(origin, fabric)
     report = {
         "schema": "complete-cache-native-fixture-v1", "status": "prepared-not-placed",
+        "configuration_scope": "Frozen c331 8 KiB controller and capacity; current production cache is a separate proof",
+        "historical_elaboration_inputs_sha256": sha(HISTORICAL_INPUTS),
         "mapped_source": graph.source, "source_hashes": {name: sha(ROOT / name) for name in SOURCE_PATHS},
         "plan_sha256": sha(directory / "plan.json"), "plan_summary": plan["summary"], "plan_audit": audit,
         "initial_bytes": len(initial), "initial_sha256": sha(directory / "initial.bin"),

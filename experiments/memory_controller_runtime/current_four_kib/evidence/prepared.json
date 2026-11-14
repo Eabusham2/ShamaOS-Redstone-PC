@@ -1,0 +1,158 @@
+{
+  "schema": "current-cache-native-fixture-v1",
+  "status": "mapped-prepared-native-runtime-pending",
+  "scope": "Fresh exact-capacity mapped controller, complete logical plan, physical bank contract and real RTL frame oracle; complete geometry and native execution remain pending",
+  "capacity_bytes": 4096,
+  "banks": 1,
+  "stored_bits": 32768,
+  "input_hashes": {
+    "configs/default.toml": "00a45a92c618c6df815a4f6f1f69c5e72d6c65a81857f11f560124800c43c594",
+    "rtl/shama_memory_adapter.sv": "8aac951cc7fd9a2914b289f2ee3c3673eb37aec7150c2c26f3b17086507cbd09",
+    "rtl/shama_boot_params.svh": "ce84216693c92a7c40edd053140535e3961ba5ea3605fa0e8fc3eaa96fd65b08",
+    "synth/redstone.ys": "47e9b12996019e8d08b34fb0ecb3561528bf4e74e73a3146e328ed99caf8df42",
+    "synth/redstone.lib": "04d704e7ccad8c0be9d794b3a7fe95b6e99e753a359b1144211b7aca97cf29bd"
+  },
+  "generator_hashes": {
+    "experiments/memory_controller_runtime/current_fixture.py": "6287e84c92f26bf0245d7609e46d50ede78b2bbe9be77862b4f175e95b8fa37e",
+    "experiments/memory_controller_runtime/geometry.py": "941cfc86bc670980da3b850a89268af02653b214a6393ffcb6c981b7eedd9343",
+    "experiments/memory_controller_runtime/scenarios.py": "2e9c26c904752cd633d85fc9dde9fd8171be723288fecb418f5dcf5932762e4c",
+    "experiments/partition_planner/audit_cache_frames.py": "c0dc8c45e8fb89d47be78b8af31c864eb4e4a8ed7460f7afc16cea0cd0a27c44",
+    "src/shamaos/synthesis.py": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274",
+    "src/shamaos/layout.py": "e6db5143f7b2d9c0ae477e649cfc4421e476f14038fd861e8a65b1ebec946eaa",
+    "src/shamaos/system_build.py": "26ff06d346ae30699108b823b62efe5aaa58d3e4bd6d0ada1d6bbf07b85418d5",
+    "src/shamaos/hardware/partition_planner.py": "5b7daafbd5eda35abb621fc6c64731c8fb3a6e56ab2422c8108812b1f26623fd",
+    "src/shamaos/hardware/logic.py": "84a4f2cc3c535628ccd4e16ae0480b3cc99310f1fb83fe28f98d98b621ab1dff",
+    "src/shamaos/hardware/memory.py": "f44923cd4376d10fb2f62d5daf3bf752fe340e269355ac3564fd26ee2b5a8517",
+    "src/shamaos/hardware/memory_backbone.py": "8a6c22218be1e0a32189817318f72aad8bd31bd365141da556578c3b4398075d"
+  },
+  "yosys_version": "Yosys 0.52 (git sha1 fee39a3284c90249e1d9684cf6944ffbbcbb8f90)",
+  "mapped_source": {
+    "path": "/workspace/scratch/b1e71409d064/ShamaOS-cache-physical/build/cache-4k-20261114/mapped.json",
+    "sha256": "e22c6014d91d061aebddc121868cc6a8a2894c8f08f174ebee17b3b4f3d3f572",
+    "container_sha256": "e22c6014d91d061aebddc121868cc6a8a2894c8f08f174ebee17b3b4f3d3f572",
+    "encoding": "plain",
+    "top": "shama_cache_adapter",
+    "raw_cells": 1178,
+    "lowered_cells": 1178,
+    "lowering_source_sha256": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274"
+  },
+  "metadata_removal": {
+    "raw_mapped_sha256": "d67ff62eb3bd32d014dce4375a79790ffad4487f3d4e548e7ce4d689c3bdd167",
+    "pinless_scope_records": 1,
+    "scope_metadata": {
+      "shama_cache_adapter": [
+        "u"
+      ]
+    },
+    "validated_library_pin_annotations_added": 115,
+    "all_native_cells_ports_nets_unchanged": true
+  },
+  "plan_sha256": "8c39078054d977e6f6e1049d595ffb179bc81e7375064a07802c8661f6f9ad9b",
+  "plan_summary": {
+    "native_cells": 1178,
+    "original_port_bits": 182,
+    "signals": 1282,
+    "original_sink_uses": 2208,
+    "clock_leaf_uses": 115,
+    "constant_terminals": 0,
+    "leaf_clusters": 22,
+    "internal_clusters": 8,
+    "hierarchy_depth": 4,
+    "bounded_router_domains": 11,
+    "signal_tree_links": 1428,
+    "explicit_fanout_branches": 99,
+    "maximum_router_fanout": 4,
+    "maximum_leaf_boundary": 64,
+    "maximum_domain_terminals": 256,
+    "maximum_domains_at_one_cluster": 2,
+    "topology_sha256": "8f8011e75dbb839c0a0a727228dfce6849e2dc34c8ca39592474e930a31ebe18",
+    "original_signal_endpoints_sha256": "62227883ddce93b68a79f3f4fd48b38aa36aba1e37a150752d8f2077faa3ef5c",
+    "all_signal_records_retained": true
+  },
+  "plan_audit": {
+    "status": "passed",
+    "signals": 1282,
+    "native_cells": 1178,
+    "scope": "complete structural graph reconstruction; no physical routing or timing claim"
+  },
+  "interface": {
+    "original_port_bits": 182,
+    "host_bits": 72,
+    "bank_select_bits": 1,
+    "memory_nets": 77,
+    "registers": 115
+  },
+  "initial_sha256": "3ff677f08f94ef3619464ab7fa24b8dc68077471608150dffab014a367ce8d48",
+  "bank_bounds": {
+    "min": {
+      "x": 2400,
+      "y": -60,
+      "z": -20
+    },
+    "max": {
+      "x": 2736,
+      "y": 52,
+      "z": 6152
+    }
+  },
+  "physical_memory_terminals": 77,
+  "rtl_oracle": {
+    "frames": 601,
+    "boundaries": 49,
+    "word_boundary_assertions": 50176,
+    "bit_boundary_assertions": 1605632,
+    "controller_bit_assertions": 13660,
+    "testbench_sha256": "1e15af977e236ce5493a31357c0c280940ede2ee6b14aa4be6bf7bec3490c65e",
+    "capacity_bytes": 4096,
+    "negative_storage_address_xor": 1,
+    "rtl_source_hashes": {
+      "rtl/shama_memory_adapter.sv": "8aac951cc7fd9a2914b289f2ee3c3673eb37aec7150c2c26f3b17086507cbd09",
+      "rtl/shama_boot_params.svh": "ce84216693c92a7c40edd053140535e3961ba5ea3605fa0e8fc3eaa96fd65b08"
+    },
+    "initial_plan": {
+      "frames": 547,
+      "clock_rising_edges": 228,
+      "half_period_units": 511,
+      "storage_boundaries": 43,
+      "storage_bits_per_boundary": 32768,
+      "full_storage_assertions": 1409024
+    },
+    "continuation_frames": 54,
+    "outcomes": [
+      {
+        "case": "positive",
+        "exit_code": 0,
+        "output": "CACHE FRAME ORACLE PASS frames=601 boundaries=49 rises=250 commits=24\n/workspace/scratch/b1e71409d064/ShamaOS-cache-physical/build/cache-4k-20261114/rtl-review/cache_frames.sv:4277: $finish called at 11340000 (1ps)"
+      },
+      {
+        "case": "swapped-model-read-bank",
+        "exit_code": 1,
+        "output": "FATAL: /workspace/scratch/b1e71409d064/ShamaOS-cache-physical/build/cache-4k-20261114/rtl-review/cache_frames.sv:149: FRAME 20 initial-0000:response:rise req_rdata expected=3b0bef49 actual=99526582\n       Time: 460000  Scope: cache_frames"
+      },
+      {
+        "case": "swapped-model-write-bank",
+        "exit_code": 1,
+        "output": "FATAL: /workspace/scratch/b1e71409d064/ShamaOS-cache-physical/build/cache-4k-20261114/rtl-review/cache_frames.sv:364: STORAGE 50 all-zero-low-bank:storage word=510 expected=75876eb7 actual=00000000\n       Time: 1000000  Scope: cache_frames"
+      }
+    ]
+  },
+  "cold_frames": {
+    "frames": 547,
+    "clock_rising_edges": 228,
+    "half_period_units": 511,
+    "storage_boundaries": 43,
+    "storage_bits_per_boundary": 32768,
+    "full_storage_assertions": 1409024
+  },
+  "resume_frames": {
+    "frames": 54,
+    "clock_rising_edges": 22,
+    "half_period_units": 56,
+    "storage_boundaries": 6,
+    "storage_bits_per_boundary": 32768,
+    "full_storage_assertions": 196608
+  },
+  "geometry_verified": false,
+  "native_runtime_verified": false,
+  "whole_machine_verified": false
+}

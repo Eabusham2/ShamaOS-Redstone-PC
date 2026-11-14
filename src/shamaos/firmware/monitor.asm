@@ -8,10 +8,10 @@ SYS SYS_UI_MONITOR_VIEW
 
 SYS SYS_GET_EVENT
 CMP r1 r0
-BR.EQ .idle
+BRS.EQ .idle
 SYS SYS_APP_EVENT
-JMP .loop
+JMPS .loop
 
 .idle
 SYS SYS_YIELD
-JMP .loop
+JMPS .loop

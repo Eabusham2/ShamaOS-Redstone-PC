@@ -1,0 +1,21 @@
+{
+  "clock_skew_ticks": 0,
+  "clock_edges": 16,
+  "half_period_redstone_ticks": 512,
+  "minimum_setup_ticks": 969,
+  "minimum_hold_ticks": 20,
+  "pipeline_failures": [],
+  "actual_ticks": 27648,
+  "topology_sha256": "a2ac510c79e18f4d0145609795dc269eabe489507296d9a89aee6b3fc644c1d3",
+  "exterior_original_ports": 6,
+  "facade": {
+    "status": "original-io-facade-structure-passed-runtime-unverified",
+    "original_port_bits": 6,
+    "facade_modules": 3,
+    "directed_handoffs": 6,
+    "runtime_verified": false,
+    "electrical_route_isolation_verified": false,
+    "scope": "Directed endpoint/contact conservation only; fresh placement isolation guards or replayed runtime remain separate evidence",
+    "base_clock_matching_scope": "Original mapped input pin to registers; facade input delivery adds an uncounted common prefix and requires exterior runtime timing"
+  }
+}

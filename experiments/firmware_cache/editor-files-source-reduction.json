@@ -1,0 +1,25 @@
+{
+  "baseline_commit": "184faa9d28d871b77ff4de73c022b620d57536a7",
+  "apps": {
+    "editor": {
+      "baseline_source_sha256": "7dc3f2df8b19f648783ab888c8f4517e73485a0f38690f923a4377f0c847f8d4",
+      "candidate_source_sha256": "92ab5bd37aa05749b15c77552744c5b6f76b5cf1e6d56b7a3b31c1d92a452290",
+      "baseline_source_bytes": 14938,
+      "candidate_source_bytes": 14779,
+      "baseline_executable_bytes": 4696,
+      "candidate_executable_bytes": 4544,
+      "executable_bytes_saved": 152,
+      "executable_reduction_percent": 3.2367972742759794
+    },
+    "files": {
+      "baseline_source_sha256": "fd136829207f68d5f002d6962c1a61ff321c7aff35404a4811b30dca084f9e9c",
+      "candidate_source_sha256": "289911f0ffb0a1da0be3fc0837dff841abe2598706026606c7f018e25cf582cc",
+      "baseline_source_bytes": 17938,
+      "candidate_source_bytes": 15926,
+      "baseline_executable_bytes": 5320,
+      "candidate_executable_bytes": 4636,
+      "executable_bytes_saved": 684,
+      "executable_reduction_percent": 12.857142857142858
+    }
+  }
+}

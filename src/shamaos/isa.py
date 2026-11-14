@@ -12,8 +12,11 @@ class Format(str):
     RRR = "rrr"
     RRRR = "rrrr"
     RI32 = "ri32"
+    RI20 = "ri20"
     J32 = "j32"
+    J24 = "j24"
     BR32 = "br32"
+    BR20 = "br20"
     MEM = "mem"
     SYS = "sys"
     R_SYS = "r_sys"
@@ -76,6 +79,7 @@ SPECS: Final[tuple[InstructionSpec, ...]] = (
     _s("MOV", 0x02, Format.RR, d="Copy register"),
     _s("LDI", 0x03, Format.RI32, words=2, d="Load 32-bit immediate"),
     _s("LUI", 0x04, Format.RI32, words=2, d="Load upper immediate"),
+    _s("LDIS", 0x05, Format.RI20, d="Load signed 20-bit immediate"),
 
     _s("ADD", 0x10, Format.RRR, flags=True),
     _s("ADC", 0x11, Format.RRR, flags=True),
@@ -89,6 +93,8 @@ SPECS: Final[tuple[InstructionSpec, ...]] = (
     _s("DEC", 0x19, Format.R, flags=True),
     _s("ADDI", 0x1A, Format.RI32, words=2, flags=True),
     _s("SUBI", 0x1B, Format.RI32, words=2, flags=True),
+    _s("ADDIS", 0x1C, Format.RI20, flags=True),
+    _s("SUBIS", 0x1D, Format.RI20, flags=True),
 
     _s("AND", 0x20, Format.RRR, flags=True),
     _s("OR", 0x21, Format.RRR, flags=True),
@@ -109,6 +115,9 @@ SPECS: Final[tuple[InstructionSpec, ...]] = (
 
     _s("CMP", 0x30, Format.RR, flags=True),
     _s("TEST", 0x31, Format.RR, flags=True),
+    _s("ANDIS", 0x32, Format.RI20, flags=True),
+    _s("ORIS", 0x33, Format.RI20, flags=True),
+    _s("XORIS", 0x34, Format.RI20, flags=True),
 
     _s("JMP", 0x40, Format.J32, words=2),
     _s("BR", 0x41, Format.BR32, words=2),
@@ -116,6 +125,9 @@ SPECS: Final[tuple[InstructionSpec, ...]] = (
     _s("RET", 0x43, Format.NONE),
     _s("PUSH", 0x44, Format.R),
     _s("POP", 0x45, Format.R),
+    _s("JMPS", 0x46, Format.J24, d="Jump to unsigned 24-bit word address"),
+    _s("BRS", 0x47, Format.BR20, d="Branch to unsigned 20-bit word address"),
+    _s("CALLS", 0x48, Format.J24, d="Call unsigned 24-bit word address"),
 
     _s("LDB", 0x50, Format.MEM),
     _s("LDH", 0x51, Format.MEM),

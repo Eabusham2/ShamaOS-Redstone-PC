@@ -1,0 +1,32 @@
+{
+  "scope": "Actual adapter RTL behavior and exact historical fixture provenance; no new native-world acceptance",
+  "command": "PATH=/workspace/scratch/b1e71409d064/validation-tools/bin:$PATH PYTHONPATH=src python -m pytest -q tests/test_memory_adapter_rtl.py tests/test_memory_controller_runtime_experiment.py -k 'not actual_clock_pulses' --junitxml=build/cache-root-io/one-bank-and-historical-tests.xml",
+  "tests": 122,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "single_bank_capacities_bytes": [
+    1024,
+    2048,
+    4096
+  ],
+  "single_bank_wrappers": [
+    "CACHE",
+    "RAM",
+    "FLASH",
+    "VRAM"
+  ],
+  "source_hashes": {
+    "rtl/shama_memory_adapter.sv": "8aac951cc7fd9a2914b289f2ee3c3673eb37aec7150c2c26f3b17086507cbd09",
+    "rtl/shama_boot_params.svh": "3ec00fbefe06958cc2b918e52caa18129384cb267453a9fc976270bc72fa8025",
+    "rtl/tb_memory_adapter.sv": "cf16e54a794f0b9aa7f9eba4c60a2ec00b99ff88e22cd870f89896605dce5585",
+    "rtl/tb_memory_adapter_reset.sv": "53825f8d5772cb54aeb08c620e6f52eec793485ff509d0764371b551977b6e93",
+    "tests/test_memory_adapter_rtl.py": "b2bea2bd0f34bfd24f82e408d75b2a97ee792be6bfdf3c2ffff999e458398e89",
+    "tests/test_memory_controller_runtime_experiment.py": "59fbf898fb65c29e2f51af2ea71e6bba5135ed35bf20b077342749b6ddc1dafa",
+    "experiments/memory_controller_runtime/fixture.py": "248bba4a123eb17d275898c0ad07c36b997ea658b889a2fcec23de3e34b92427",
+    "experiments/memory_controller_runtime/evidence/cache-controller-c331-inputs.zip": "60f62568f29bf59b3ad855d46e785bdb0b2de75234494c280433d2e18a5d37e7"
+  },
+  "junit_xml": "experiments/memory_controller_runtime/evidence/one-bank-and-historical-tests.xml",
+  "junit_sha256": "d8575fd66688deb308cf242770c665ecf373d10ab2bf514282c0fc43509ff0cb",
+  "new_cache_native_runtime_verified": false
+}

@@ -1,0 +1,33 @@
+{
+  "scope": "Native small root-I/O pipeline and exact saved-world sparse/dense comparison; fullcache native runtime remains pending",
+  "tests": 17,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "positive_half_period": 512,
+  "negative_half_period": 8,
+  "negative_missed_transfers": 4,
+  "clock_edges_in_both": 16,
+  "old_20_tick_stress_case_passes_new_layout": true,
+  "source_hashes": {
+    "src/shamaos/hardware/partition_planner.py": "5b7daafbd5eda35abb621fc6c64731c8fb3a6e56ab2422c8108812b1f26623fd",
+    "tests/test_root_port_partition.py": "d165e1db43027ee7b8e3da945f35c206270141c51e801519d3c23ae110902ae5",
+    "tests/test_port_egress_placement.py": "4a0a2eca4daa855f1add7773366dc76d1558afbf0f5ea0deb9e117ab3e0de9b7",
+    "tests/test_port_egress_saved_world.py": "f7cf5b180c25ef0f32947c73411bb457ea4fc807ef4cedbfd8a581e80ce9550d",
+    "tests/test_partition_placement.py": "6e1c202b444cc3f5daba337f7aace87f5bc5400f06e622d8b8def4ec2fb7223f",
+    "tests/test_mchprs_runtime.py": "dbed21d53ca860494f3f3c75a5b8e06a0167ff6edc514f6aee9420c5294da0c2",
+    "tests/test_mchprs_sparse_runtime.py": "098b73e0768a4838a82a155477a2d3d41da9d08de934a2a7d208a317feac9120"
+  },
+  "reports_sha256": {
+    "test_root_ports_actual_exterio0-exterior-io-runtime.json": "fd8416267c18707dc0a7dae23fb288f0b589d9412391d007256ad91be9eaed9c",
+    "test_root_ports_actual_exterio1-exterior-io-runtime.json": "38e0e3e106f2cbb7d9a42c290ccd177a8fc75026efd9b29735ce55d1dc9a3e77",
+    "test_root_ports_saved_world_re0-saved-facade-runtime.json": "90b340e07a958d426db136561b5db2cb77a9e48504ebc85f849bdd75a0e07961",
+    "test_root_ports_saved_world_re1-saved-facade-runtime.json": "72a2997342ccfef4eaecdf84484ed368ac503fab6cfc2cdfbc9477c25760e94e"
+  },
+  "runners": {
+    "shama-redstone-check": "71ad8a8f64910292dbda3d95a566dad68a429036a6ec10a0e6cd5255a3c7f321",
+    "shama-sparse-world-check-terrain": "74e11d2563d9b70f8d21b1a030124c155cf617c241366d49cbd4da4b3f882f31",
+    "shama-dense-world-check-terrain": "c3d3893fc10bff3a369f1a53dd7ab19588fe538bf08ee4de8d00587d2ef706ef"
+  },
+  "complete_cache_runtime_verified": false
+}

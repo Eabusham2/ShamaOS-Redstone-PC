@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from .isa import Condition, decode_header
+from .isa import Condition, Format, decode_header
 from .machine_spec import RAM_BYTES
 from .sha256 import (
     MASK32,
@@ -143,6 +143,16 @@ class CPUReference:
 
         a, b = self._r(ra), self._r(rb)
         m = spec.mnemonic
+        if spec.fmt == Format.RI20:
+            immediate = word & 0xFFFFF
+            ext = (immediate | 0xFFF00000) if immediate & 0x80000 else immediate
+            m = m[:-1]
+        elif spec.fmt == Format.J24:
+            ext = word & 0xFFFFFF
+            m = m[:-1]
+        elif spec.fmt == Format.BR20:
+            ext = word & 0xFFFFF
+            m = "BR"
         self.cycle_counter += 1
         self.retired_counter += 1
 

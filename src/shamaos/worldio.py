@@ -274,13 +274,23 @@ class _Chunk:
         digest.update(struct.pack(">ii", self.x, self.z))
         count = 0
         for sy, section in sorted(self.sections.items()):
-            if not any(section.assigned) and all(section.palette[i] == AIR for i in section.indices):
+            # Saved chunks include every height section, usually with only air.
+            # Resolve each used palette entry once instead of comparing or
+            # hashing a block state for all 4,096 indices in every section.
+            used_ids = set(section.indices)
+            if not any(section.assigned) and all(section.palette[i] == AIR for i in used_ids):
                 continue
-            used = sorted({section.palette[i] for i in section.indices}, key=lambda state: (state.name, state.properties))
+            used = sorted({section.palette[i] for i in used_ids}, key=lambda state: (state.name, state.properties))
             remap = {state: index for index, state in enumerate(used)}
+            # Palette entries are immutable states. Resolve their canonical
+            # IDs once, then remap integer indices without hashing a complete
+            # block state thousands of times. Unused entries stay irrelevant.
+            canonical_ids = [0] * len(section.palette)
+            for palette_id in used_ids:
+                canonical_ids[palette_id] = remap[section.palette[palette_id]]
             digest.update(struct.pack(">b", sy))
             digest.update(json.dumps([(state.name, state.properties) for state in used], separators=(",", ":")).encode())
-            digest.update(struct.pack(">4096H", *(remap[section.palette[index]] for index in section.indices)))
+            digest.update(struct.pack(">4096H", *(canonical_ids[index] for index in section.indices)))
             digest.update(section.assigned)
             count += sum(value.bit_count() for value in section.assigned)
         return digest.hexdigest(), count

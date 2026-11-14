@@ -7,20 +7,33 @@ operations. The software path does not call a native SHA opcode or a host hash
 function. Python `hashlib` is an independent test oracle, not a Minecraft runtime
 service.
 
-The current executable is **6,904 bytes / 84.2773% of the 8 KiB executable
-cache**, down from 8,508 bytes before compaction (18.85% smaller). The latest
-pass removes 404 bytes of redundant record-pointer reloads, dead drawing saves
-and address-only immediate instructions. Relative addressing and tail calls
-preserve the native and independent software SHA paths. Clearing a 53-character
-display line uses thirteen word stores and one byte store instead of 53 byte
-stores; bytes beyond that line are unchanged.
+The current executable is **5,004 bytes**, down from 6,904 (27.52%). Its first
+4,096 bytes occupy the smaller physical cache; the remaining 908 execute from
+the already allocated RAM backing. Native mining, controls and UI code occupy
+bytes 0..3,163. The independent software-SHA library crosses into the RAM tail.
+
+The preceding source-only checkpoint produced **5,944 bytes** (13.90% smaller),
+before the explicit one-word instruction forms were applied. Shared hexadecimal field drawing, loops for the four digest/configuration
+rows and common snapshot/save tails remove duplicated code. Private helper
+scratch registers avoid unnecessary stack work. Aligned workspace copies and
+clears use word accesses. The native and independent software SHA paths, every
+displayed digit and the saved record format remain intact. Clearing a
+53-character display line still uses thirteen word stores and one byte store;
+bytes beyond that line are unchanged.
 
 The complete workspace now uses **1,376 contiguous bytes**, down from 5,376.
 All simultaneously live header, digest, target, snapshot, history, edit and
 software-SHA regions remain distinct. Together with the 12-byte kernel and
-executable backing, Miner uses **8,292 bytes / 8.4351% of 96 KiB RAM** and leaves
+executable backing, the current app uses **6,392 bytes / 6.5023% of 96 KiB RAM** and leaves
 80 KiB of allocatable heap. Neighbor-guard tests exercise native/software hashing,
 configuration and full digest comparison without writes outside this workspace.
+
+The [source compaction measurements](evidence/miner-source-compaction-2026-11-14.json)
+retain both source and executable hashes. Reproduce them with
+`python tools/benchmark_miner_compaction.py`. Reference first boot falls from
+12,405 to 6,498 instruction steps, and a live redraw from 6,655 to 4,707.
+These counts measure firmware work in the reference model; physical cache size,
+hardware timing and Minecraft wall-clock speed require separate measurements.
 
 ## Controls
 
@@ -176,7 +189,7 @@ table slot. The 95% flash guard rejects new saves while allowing recovery of a
 previously committed record. See [FILESYSTEM.md](FILESYSTEM.md) for the exact
 journal format, recovery order and full-disk behavior.
 
-The complete installed image occupies **158.5 KiB / 79.25% of 200 KiB flash**.
+The complete installed image occupies **143.25 KiB / 71.625% of 200 KiB flash**.
 A history save does not increase that allocation. State saves temporarily need
 one additional 256-byte data block and reclaim the old block after commit.
 
@@ -217,3 +230,11 @@ accounting; stop/resume; persisted reload; generation rollover into history
 slots; cancellation; and maximum-nonce exhaustion. Physical cell/routed-net
 validation and full generated-world boot are separate gates. Passing these
 firmware/RTL tests does not by itself establish full-world execution.
+
+The rendering regression independently formats the record contract and checks
+every emitted text row in live, saved-history, empty-history, target-edit and
+header-edit views. It includes nonzero high counter words, all digest/target
+bytes, equal/invalid targets and zero/unknown/overflow rate cases. It also checks
+the drawing coordinates, buffer-swap order, untouched workspace and text staging
+bytes after the 53-character line. These checks accompany the complete Miner
+firmware suite and the CPU RTL software/native SHA comparison.

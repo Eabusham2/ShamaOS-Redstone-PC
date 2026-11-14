@@ -1,0 +1,101 @@
+{
+  "baseline_commit": "184faa9d28d871b77ff4de73c022b620d57536a7",
+  "physical_cache_before_bytes": 8192,
+  "physical_cache_after_bytes": 4096,
+  "unchanged_execution_window_bytes": 8192,
+  "apps": {
+    "desktop": {
+      "before_bytes": 232,
+      "after_bytes": 184,
+      "bytes_saved": 48,
+      "reduction_percent": 20.689655172413794,
+      "cached_bytes": 184,
+      "ram_tail_bytes": 0,
+      "source_sha256": "a5eb3b27667c53b47d0b3212c8d08033d9b8fc428b478c6c7dbbcf2bff101164",
+      "baseline_source_sha256": "4e8fa97b2db7afbdef55cad61f01b08dd48006670e9119b56063009f6860e90c"
+    },
+    "editor": {
+      "before_bytes": 4696,
+      "after_bytes": 3476,
+      "bytes_saved": 1220,
+      "reduction_percent": 25.979557069846678,
+      "cached_bytes": 3476,
+      "ram_tail_bytes": 0,
+      "source_sha256": "04ecc2815c4f8d89c13c6915be3fb2d5bd5dac09361d8fa070c5056c8aed1399",
+      "baseline_source_sha256": "7dc3f2df8b19f648783ab888c8f4517e73485a0f38690f923a4377f0c847f8d4"
+    },
+    "files": {
+      "before_bytes": 5320,
+      "after_bytes": 3584,
+      "bytes_saved": 1736,
+      "reduction_percent": 32.63157894736842,
+      "cached_bytes": 3584,
+      "ram_tail_bytes": 0,
+      "source_sha256": "52b743d81c889967601ad4b9bba4562dfeb4cea7111ac4a85b6defd9cad3c024",
+      "baseline_source_sha256": "fd136829207f68d5f002d6962c1a61ff321c7aff35404a4811b30dca084f9e9c"
+    },
+    "miner": {
+      "before_bytes": 6904,
+      "after_bytes": 5004,
+      "bytes_saved": 1900,
+      "reduction_percent": 27.520278099652376,
+      "cached_bytes": 4096,
+      "ram_tail_bytes": 908,
+      "source_sha256": "5b3974b097bd2f932a7ee12ef7f4e7487c1fb401c2d082e2c7be8a7b3587cd6d",
+      "baseline_source_sha256": "091dc204b645e26e5c4a2546ef8d26536060cf76bd92d5eb0098af4b373d2ce6"
+    },
+    "monitor": {
+      "before_bytes": 52,
+      "after_bytes": 40,
+      "bytes_saved": 12,
+      "reduction_percent": 23.076923076923077,
+      "cached_bytes": 40,
+      "ram_tail_bytes": 0,
+      "source_sha256": "4084b5ca3053a68a3e6e5d6f2c61e81428de017eed8485558441dd5cd428a03d",
+      "baseline_source_sha256": "533290e4e0c4bcb2c51329a19ee704e9f6fa326af12318312b83be4d4468dbfc"
+    },
+    "terminal": {
+      "before_bytes": 1920,
+      "after_bytes": 1488,
+      "bytes_saved": 432,
+      "reduction_percent": 22.5,
+      "cached_bytes": 1488,
+      "ram_tail_bytes": 0,
+      "source_sha256": "0ae8be4ae2398989017515a5a854a7ad48a437c0343a85d5d9bc31fa1d69fbca",
+      "baseline_source_sha256": "482eef23a48148fdc7ff59213122d211936b9129e10ea647c5ed860b86b541b5"
+    },
+    "calculator": {
+      "before_bytes": 1824,
+      "after_bytes": 1448,
+      "bytes_saved": 376,
+      "reduction_percent": 20.614035087719298,
+      "cached_bytes": 1448,
+      "ram_tail_bytes": 0,
+      "source_sha256": "fe12c920ff7cb8772f53511c44eaf44d13e118eba96b59bf2a20ea457fcab2e9",
+      "baseline_source_sha256": "a521856a53260a4605e8cdbd3adf398d20f212dcc83dd1bd8d3921216029583a"
+    },
+    "paint": {
+      "before_bytes": 868,
+      "after_bytes": 696,
+      "bytes_saved": 172,
+      "reduction_percent": 19.81566820276498,
+      "cached_bytes": 696,
+      "ram_tail_bytes": 0,
+      "source_sha256": "5fe4ee6db5d631f86fb45b1fa85af6e3aecd3d1c53e8696ff56b39e0a7a869ee",
+      "baseline_source_sha256": "fec3518e0e870c67b77f5cbe1736c793b3f7ac84efb97312859130e64c805091"
+    },
+    "settings": {
+      "before_bytes": 772,
+      "after_bytes": 608,
+      "bytes_saved": 164,
+      "reduction_percent": 21.243523316062177,
+      "cached_bytes": 608,
+      "ram_tail_bytes": 0,
+      "source_sha256": "05146284f8a88a60e2dc82fd0e6e59b7d88b88b8ba5d5ffc1e5fe921e41f74bf",
+      "baseline_source_sha256": "ce9e3095c4b755b2ffe2d9b94fe13c57842d729ca7a7d276638ee00901059c16"
+    }
+  },
+  "all_app_bytes_before": 22588,
+  "all_app_bytes_after": 16528,
+  "scope": "Exact assembled executables; retained complete sources; physical cache is a prefix, with existing RAM backing for all code."
+}

@@ -1,0 +1,18 @@
+{
+  "clock_skew_ticks": 0,
+  "clock_edges": 16,
+  "half_period_redstone_ticks": 512,
+  "minimum_setup_ticks": 969,
+  "minimum_hold_ticks": 20,
+  "pipeline_failures": [],
+  "actual_ticks": 27648,
+  "status": "saved-facade-native-and-dense-traces-match",
+  "compared_trace_samples": 958464,
+  "exact_saved_circuit_blocks": 16788,
+  "imported_chunks": 151,
+  "imported_stream_sha256": "6a2fe50bfc8225ec00a6472be72ba97e3dc795fcc9f0df62e42ccf7481e3d409",
+  "scenario_sha256": "4b2261444baa3f65bf2f50b7228b6357af51d543a0c9e90fd2b5fd4364fde06c",
+  "original_port_bits": 6,
+  "facade_handoffs": 6,
+  "complete_machine_runtime_verified": false
+}

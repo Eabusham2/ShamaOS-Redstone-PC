@@ -1,0 +1,52 @@
+{
+  "audit_source_sha256": "77fe77e021c8dc3a1e9f8e16caab7acd5ba5f18263baa48a21b8586ef3f7782a",
+  "both_exact_unions_agree": true,
+  "capacity_bytes": 4096,
+  "checkpoint_sha256": "44b9be7cd39751aa89fbbfb9e855b5cb866a9f91810999683e07b6df7ef1850a",
+  "connected_routes": 77,
+  "default_only_semantic_difference": {
+    "CACHE_BYTES": {
+      "integrated": 4096,
+      "retained": 8192
+    }
+  },
+  "explicit_input_hashes": {
+    "configs/default.toml": "00a45a92c618c6df815a4f6f1f69c5e72d6c65a81857f11f560124800c43c594",
+    "rtl/shama_boot_params.svh": "ce84216693c92a7c40edd053140535e3961ba5ea3605fa0e8fc3eaa96fd65b08",
+    "rtl/shama_memory_adapter.sv": "8aac951cc7fd9a2914b289f2ee3c3673eb37aec7150c2c26f3b17086507cbd09",
+    "synth/redstone.lib": "04d704e7ccad8c0be9d794b3a7fe95b6e99e753a359b1144211b7aca97cf29bd",
+    "synth/redstone.ys": "47e9b12996019e8d08b34fb0ecb3561528bf4e74e73a3146e328ed99caf8df42"
+  },
+  "generator_difference": {
+    "added_file_binding": "src/shamaos/hardware/cache_layout.py",
+    "changed_real_capacity_contract_rejected": true,
+    "entire_remaining_module_ast_identical": true,
+    "function": "source_provenance"
+  },
+  "historical_reduction_percentages_recomputed": true,
+  "integrated_bank_bounds_and_initial_bytes_exact": true,
+  "integrated_external_nets_exact": true,
+  "integrated_physical_configuration_exact": true,
+  "native_runtime_verified": false,
+  "occupied_chunks": 118781,
+  "physical_banks": 1,
+  "retained_source_zip_sha256": "ca82fcb66941595814d2a1bdd78ccfc6c7bc70aea901e311c0de25e09a3e416d",
+  "schema": "current-cache-final-integration-provenance-review-v1",
+  "scope": "Retained complete-union integrity, explicit final default and metadata-only source-binding differences, and exact integrated physical bank/route inputs; no fresh literal union or native run",
+  "sorted_unique_record_sha256": "b070e0c2ac33a53cc32e24e2232fc2a765b18ea6ae7be3fc69ad4813e728836e",
+  "source_differences": {
+    "src/shamaos/generator.py": {
+      "integrated_sha256": "f82fedcc6b2ed307b0ee2e52b032e78aad2b1bbb0be686df067f6a92a713f62b",
+      "retained_sha256": "089bad6b69f9987c6a0ef47e9cee1e095267af4f7aee7c1a76b86ce5f630f8dd"
+    },
+    "src/shamaos/machine_spec.py": {
+      "integrated_sha256": "99e1155524c39b0c1f6d30f07f77cb0b7b18a4a2303ded30df2f7392789157bd",
+      "retained_sha256": "446853768c8fdd1be7472bd3d27e2f882ab3ca5805241f3f3ab7f3d778febd59"
+    }
+  },
+  "source_files": 39,
+  "status": "passed",
+  "unchanged_archive": true,
+  "unique_blocks": 22805546,
+  "whole_machine_verified": false
+}

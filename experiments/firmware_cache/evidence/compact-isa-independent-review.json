@@ -1,0 +1,47 @@
+{
+  "review": "Independent compact-ISA review",
+  "reviewed_worktree_head": "eab31323e6b8d256518324c97a89b7c8bc8b7a10",
+  "candidate_includes_uncommitted_changes": true,
+  "source_sha256": {
+    "src/shamaos/isa.py": "8957d9b03343c3f0f800b95a09ffc63809e2bc7adc7bf0f6586506cda87338c6",
+    "src/shamaos/assembler.py": "85a6dff1424e1e3a348a81f63a076d88315e2caa9c49ec8df576f93295dec434",
+    "src/shamaos/simulator.py": "8cd89293a432c79b00e5e9a80c0ad250e7503d58f12fea87fc76bd51b944176c",
+    "rtl/shama_cpu.sv": "337927c852636cb69d54a1760fc36319f47cb9973a6c3ab385f044878420f8db",
+    "rtl/shama_asm_accel.sv": "c032045d6d8a79f9d87d3e3ed19fba35fc54c80953b4eceea4266aba1083ccbc",
+    "tests/test_compact_isa_audit.py": "642570104934b5c8eb7d1051cf9babef70e729f6ab84d4b8cc3d7dc202158175"
+  },
+  "primary_regression": {
+    "tests": 193,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "primary_regression_command": "PYTHONPATH=src python -m pytest tests/test_compact_instructions.py tests/test_cpu_rtl.py tests/test_hardware_assembler.py",
+  "preserved_independent_tests": "tests/test_compact_isa_audit.py",
+  "independent_test_count": 22,
+  "independent_checks": {
+    "raw_immediate_pairs": 1536,
+    "raw_branch_pairs": 1920,
+    "raw_jump_call_pairs": 12,
+    "actual_cpu_rtl_valid_and_nested_call_runs": 2,
+    "rtl_bus_stalls": [
+      0,
+      5
+    ]
+  },
+  "decoder_crosscheck": {
+    "fnv_hashes": 117,
+    "opcode_word_count_rows": 74,
+    "short_condition_aliases": 18
+  },
+  "findings": [],
+  "reviewed_invariants": [
+    "Signed 20-bit immediates preserve legacy operation, all register destinations and flag behavior.",
+    "The assembler accepts signed values or their matching 32-bit two-complement spelling without truncation.",
+    "Unsigned targets do not overlap branch condition bits; jump/call retain all 24 target bits.",
+    "Legacy two-word encodings and extension fetch remain unchanged.",
+    "Compact calls push the following one-word PC; mixed compact/legacy calls return correctly under stalled fetches.",
+    "VALID true and false are established by actual HASHCMP execution in RTL."
+  ],
+  "scope_limit": "High architectural target bits are checked in one-step CPUReference execution; this does not claim physical RAM exists at those targets or prove complete-world operation."
+}

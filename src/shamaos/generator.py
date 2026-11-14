@@ -57,7 +57,7 @@ def source_provenance() -> dict[str, object]:
              "src/shamaos/bounded_system.py", "src/shamaos/literal_union.py",
              "src/shamaos/hardware/partition_planner.py", "src/shamaos/hardware/partition_placement.py",
              "src/shamaos/hardware/bounded_facade.py", "src/shamaos/hardware/bounded_interfaces.py",
-             "src/shamaos/hardware/packed_parent_union.py",
+             "src/shamaos/hardware/packed_parent_union.py", "src/shamaos/hardware/cache_layout.py",
              "rtl/shama_display_bridge.sv", "rtl/shama_gpu.sv", "rtl/shama_soc.sv", "rtl/shama_font5x7.sv"]
     result: dict[str, object] = {
         "files_sha256": {name: hashlib.sha256((root / name).read_bytes()).hexdigest() for name in files if (root / name).is_file()},

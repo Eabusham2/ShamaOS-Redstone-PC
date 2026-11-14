@@ -1,0 +1,494 @@
+{
+  "scope": "Complete partition with actual original-I/O facade; connected memory and runtime remain separate gates",
+  "source_hashes": {
+    "src/shamaos/model.py": "1a0fd1f9eb9469989057e4486401e5161e7f0bb02eb69195b7a14a74e92f4b95",
+    "src/shamaos/synthesis.py": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274",
+    "src/shamaos/hardware/partition_planner.py": "5b7daafbd5eda35abb621fc6c64731c8fb3a6e56ab2422c8108812b1f26623fd",
+    "src/shamaos/hardware/partition_placement.py": "10c6a4b5aba6b5c4776326d0a863bf57cd1fc5b0d216115ca496d851d6a82e90",
+    "src/shamaos/hardware/local_router.py": "63054c806442499ba0aa27f65b1ec2b35c339c0c8595521dbc3097a334307bc6",
+    "src/shamaos/hardware/external_router.py": "96834193a37bb485ab225ea21dc1ae460afcc3ab9ac41a434e45660be2f7666d",
+    "src/shamaos/hardware/memory.py": "f44923cd4376d10fb2f62d5daf3bf752fe340e269355ac3564fd26ee2b5a8517",
+    "src/shamaos/hardware/routing.py": "d2b885f908a5942036269992c3fff7e3eb19ffe5a4753b97f5494aaf7120ccce",
+    "src/shamaos/hardware/logic.py": "84a4f2cc3c535628ccd4e16ae0480b3cc99310f1fb83fe28f98d98b621ab1dff",
+    "experiments/memory_controller_runtime/clock_reserve.py": "6a5bd0ba923dbb6aabf0046ad6a487905043373854e76bdec502432db815d8fb",
+    "experiments/partition_placement/port_egress.py": "9b9ca8e2209f4401d6c8a7783c72c4188ed9f9b018b8a57d63fb9aa1fc20c9f5",
+    "experiments/partition_placement/port_egress_manifest.py": "822e4d29bd605456a159e687411e829268b183a7962a09a128324ffe97e6ba1a",
+    "experiments/partition_placement/packed_parent_union.py": "a9982d5e230fb7fa4e8b4e666a42323fd59b55066564b1fbf1567d0d15281a50",
+    "experiments/partition_placement/targeted_clock_reserve.py": "02bf1a51c40e61910efb7fbda41480ec7ce1cc1bbb8369cd731988a5d90f46b0",
+    "experiments/partition_placement/raised_exports/replay_manifest.py": "308075b05664930ed457ca14054943bc7370e07ac45a86f54a9716ebf2c26ddb",
+    "experiments/partition_placement/raised_exports/streamed_union.py": "4732f29067e5d7aff013a9d2a5565e8e7037e4259b6cc1b74ffb0e45fd84281d",
+    "experiments/partition_placement/run_port_egress.py": "8ec6ea064afb4d519bccb9ba2158143fdb2a2db26818a9ab5532a6c73b1c91a5"
+  },
+  "clock_padding_blocks": 128,
+  "clock_domain_padding": {
+    "6": 160
+  },
+  "memory_limit_mib": 2048,
+  "wall_limit_seconds": 1200,
+  "runtime_verified": false,
+  "whole_computer_verified": false,
+  "mapped_source": {
+    "path": "/workspace/scratch/b1e71409d064/ShamaOS-cache-physical/build/cache-4k-20261114/mapped.json",
+    "sha256": "e22c6014d91d061aebddc121868cc6a8a2894c8f08f174ebee17b3b4f3d3f572",
+    "container_sha256": "e22c6014d91d061aebddc121868cc6a8a2894c8f08f174ebee17b3b4f3d3f572",
+    "encoding": "plain",
+    "top": "shama_cache_adapter",
+    "raw_cells": 1178,
+    "lowered_cells": 1178,
+    "lowering_source_sha256": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274"
+  },
+  "plan_sha256": "8c39078054d977e6f6e1049d595ffb179bc81e7375064a07802c8661f6f9ad9b",
+  "topology_sha256": "8f8011e75dbb839c0a0a727228dfce6849e2dc34c8ca39592474e930a31ebe18",
+  "clock_reservation_groups": [
+    {
+      "sibling_modules": [
+        "domain-0"
+      ],
+      "absolute_padding_blocks": 128,
+      "targeted_domains": []
+    },
+    {
+      "sibling_modules": [
+        "domain-1"
+      ],
+      "absolute_padding_blocks": 128,
+      "targeted_domains": []
+    },
+    {
+      "sibling_modules": [
+        "domain-2"
+      ],
+      "absolute_padding_blocks": 128,
+      "targeted_domains": []
+    },
+    {
+      "sibling_modules": [
+        "domain-3"
+      ],
+      "absolute_padding_blocks": 128,
+      "targeted_domains": []
+    },
+    {
+      "sibling_modules": [
+        "domain-5",
+        "domain-10"
+      ],
+      "absolute_padding_blocks": 128,
+      "targeted_domains": []
+    },
+    {
+      "sibling_modules": [
+        "domain-4"
+      ],
+      "absolute_padding_blocks": 128,
+      "targeted_domains": []
+    },
+    {
+      "sibling_modules": [
+        "domain-6",
+        "domain-8"
+      ],
+      "absolute_padding_blocks": 160,
+      "targeted_domains": [
+        6
+      ]
+    },
+    {
+      "sibling_modules": [
+        "domain-7",
+        "domain-9",
+        "original-io-29-0",
+        "original-io-29-1"
+      ],
+      "absolute_padding_blocks": 128,
+      "targeted_domains": []
+    }
+  ],
+  "graph_audit": {
+    "native_cells": 1178,
+    "original_port_bits": 182,
+    "shared_contacts": 1428,
+    "native_sink_uses": 2208,
+    "clock_leaf_uses": 115,
+    "constant_terminals": 0,
+    "status": "structural-contacts-passed",
+    "runtime_verified": false
+  },
+  "facade_audit": {
+    "status": "original-io-facade-structure-passed-runtime-unverified",
+    "original_port_bits": 182,
+    "facade_modules": 2,
+    "directed_handoffs": 182,
+    "runtime_verified": false,
+    "electrical_route_isolation_verified": false,
+    "scope": "Directed endpoint/contact conservation only; fresh placement isolation guards or replayed runtime remain separate evidence",
+    "base_clock_matching_scope": "Original mapped input pin to registers; facade input delivery adds an uncounted common prefix and requires exterior runtime timing"
+  },
+  "geometry_guards_passed": true,
+  "bounds": {
+    "min": {
+      "x": 0,
+      "y": -60,
+      "z": -1280
+    },
+    "max": {
+      "x": 7254,
+      "y": 265,
+      "z": 4532
+    }
+  },
+  "computed_unique_blocks": 15645176,
+  "unbalanced_manifest": {
+    "path": "build/cache-4k-20261114/facade/report-unbalanced.json.gz",
+    "sha256": "ccf0169b757f333d477ed4236f59a171d9237989aa91c3adc9576ace472a8672",
+    "uncompressed_sha256": "2a7198147d0da29eeaa08ab01d30865f85d7e32a4ba55204108eb5e076ae9776",
+    "compressed_bytes": 277479,
+    "graph_modules": 33,
+    "facade_modules": 2,
+    "facade_handoffs": 182
+  },
+  "clock_matching": {
+    "2": {
+      "balanced_repeater_delay": 2324,
+      "clock_leaves": 115,
+      "visited_modules": 27,
+      "runtime_verified": false
+    }
+  },
+  "balanced_manifest": {
+    "path": "build/cache-4k-20261114/facade/report-balanced.json.gz",
+    "sha256": "50135a293a9f0c5addae5e23f0b9818dba584ac53aa3e466b1898fce306644cc",
+    "uncompressed_sha256": "4f68c828a2bae5238b83b22171a7295e4d2d6657cb7f5de5c13f6c68893ecd27",
+    "compressed_bytes": 295973,
+    "graph_modules": 33,
+    "facade_modules": 2,
+    "facade_handoffs": 182
+  },
+  "literal_union": {
+    "scope": "Exact emitted-block union; routing adjacency/headroom are independent checks",
+    "emitted_blocks": 15672016,
+    "merged_records": 15672016,
+    "literal_unique_blocks": 15645176,
+    "identical_duplicate_blocks": 26840,
+    "occupied_chunks": 67206,
+    "bounds": {
+      "min": {
+        "x": 0,
+        "y": -60,
+        "z": -1280
+      },
+      "max": {
+        "x": 7254,
+        "y": 265,
+        "z": 4532
+      }
+    },
+    "palette": [
+      {
+        "name": "minecraft:stone",
+        "properties": []
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "0"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "1"
+          ],
+          [
+            "facing",
+            "west"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wall_torch",
+        "properties": [
+          [
+            "facing",
+            "east"
+          ],
+          [
+            "lit",
+            "true"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "1"
+          ],
+          [
+            "facing",
+            "south"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wall_torch",
+        "properties": [
+          [
+            "facing",
+            "north"
+          ],
+          [
+            "lit",
+            "true"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "1"
+          ],
+          [
+            "facing",
+            "south"
+          ],
+          [
+            "locked",
+            "true"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "4"
+          ],
+          [
+            "facing",
+            "south"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "1"
+          ],
+          [
+            "facing",
+            "east"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "1"
+          ],
+          [
+            "facing",
+            "north"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "up"
+          ],
+          [
+            "north",
+            "side"
+          ],
+          [
+            "power",
+            "0"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:redstone_wire",
+        "properties": [
+          [
+            "east",
+            "side"
+          ],
+          [
+            "north",
+            "up"
+          ],
+          [
+            "power",
+            "0"
+          ],
+          [
+            "south",
+            "side"
+          ],
+          [
+            "west",
+            "side"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "4"
+          ],
+          [
+            "facing",
+            "north"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "3"
+          ],
+          [
+            "facing",
+            "north"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      },
+      {
+        "name": "minecraft:repeater",
+        "properties": [
+          [
+            "delay",
+            "2"
+          ],
+          [
+            "facing",
+            "north"
+          ],
+          [
+            "locked",
+            "false"
+          ],
+          [
+            "powered",
+            "false"
+          ]
+        ]
+      }
+    ],
+    "sorted_unique_record_sha256": "33187750771708f4e831d4d1a0ea3528559c6bc4c7e6fc62827ae73ee9be6247",
+    "record_encoding": "big-endian u64 chunk-X/chunk-Z/local-X/local-Z/Y key, u32 palette index",
+    "record_bytes": 12,
+    "run_records": 65536,
+    "merge_fan_in": 64,
+    "initial_sort_runs": 240,
+    "intermediate_merge_passes": 1,
+    "memory_scope": "Bounded run buffers/open files; exact palette and run-path inventory retained"
+  },
+  "status": "complete-original-io-facade-geometry-passed-runtime-pending",
+  "seconds": 341.64767110799994,
+  "peak_rss_kib": 853716
+}

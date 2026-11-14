@@ -7,7 +7,7 @@ from .assembler import assemble
 from .flashfs import FileType, ShamaFS
 from .machine_spec import BANK_BYTES, CACHE_BYTES, FLASH_BYTES, FLASH_WRITE_LIMIT_PERCENT, RAM_BYTES, VRAM_BYTES
 from .memory_map import (
-    APP_RAM_BASE, APP_SLOT_BYTES, KERNEL_RAM_BASE, KERNEL_SLOT_BYTES,
+    APP_RAM_BASE, APP_SLOT_BYTES, APP_BACKING_BYTES, KERNEL_RAM_BASE, KERNEL_SLOT_BYTES,
     RTL_MEMORY_CONSTANTS,
 )
 
@@ -64,7 +64,7 @@ APP_IDS = {
 
 
 def app_pc_word(_app: str) -> int:
-    """Foreground app executes from the software-managed 8 KiB fast cache."""
+    """Foreground app uses the 8 KiB RAM window with a cached prefix."""
     return 0
 
 
@@ -106,7 +106,7 @@ def build_default_os_image(flash_bytes: int = FLASH_BYTES) -> OSImage:
     record_offsets: dict[str, int] = {}
     for name in BUNDLE_ORDER:
         binary = binaries[name]
-        limit = min(KERNEL_SLOT_BYTES if name == "kernel" else CACHE_BYTES, APP_SLOT_BYTES - 4)
+        limit = min(KERNEL_SLOT_BYTES if name == "kernel" else APP_BACKING_BYTES, APP_SLOT_BYTES - 4)
         if len(binary) > limit:
             raise ValueError(
                 f"{name} firmware is {len(binary)} bytes; exceeds "

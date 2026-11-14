@@ -1,0 +1,221 @@
+{
+  "method": "exact-regular-geometry-footprints-and-periodic-row-counts",
+  "screen_controls_debug_clock": {
+    "screen": {
+      "emitted_placements": 2371162,
+      "horizontal_chunks": 108,
+      "bounds": {
+        "min": {
+          "x": 489,
+          "y": -60,
+          "z": 512
+        },
+        "max": {
+          "x": 1808,
+          "y": 304,
+          "z": 529
+        }
+      }
+    },
+    "controls": {
+      "emitted_placements": 13254,
+      "horizontal_chunks": 47,
+      "bounds": {
+        "min": {
+          "x": 902,
+          "y": -60,
+          "z": -8
+        },
+        "max": {
+          "x": 1106,
+          "y": -17,
+          "z": 126
+        }
+      }
+    },
+    "debug_panel": {
+      "emitted_placements": 5958,
+      "horizontal_chunks": 9,
+      "bounds": {
+        "min": {
+          "x": 900,
+          "y": -56,
+          "z": -235
+        },
+        "max": {
+          "x": 1024,
+          "y": 97,
+          "z": -232
+        }
+      }
+    },
+    "clock": {
+      "emitted_placements": 766,
+      "horizontal_chunks": 17,
+      "bounds": {
+        "min": {
+          "x": 1080,
+          "y": -56,
+          "z": -86
+        },
+        "max": {
+          "x": 1176,
+          "y": -52,
+          "z": -44
+        }
+      }
+    }
+  },
+  "screen_controls_debug_clock_union_chunks": 181,
+  "player_interaction": {
+    "keyboard_buttons": 64,
+    "perimeter_controls": 15,
+    "activation_count": 79,
+    "activation_bounds": {
+      "min": {
+        "x": 960,
+        "y": -55,
+        "z": 43
+      },
+      "max": {
+        "x": 975,
+        "y": -54,
+        "z": 58
+      }
+    },
+    "activation_span_xz": [
+      16,
+      16
+    ],
+    "within_16_by_16_envelope": true,
+    "deck_entry": {
+      "x": 961,
+      "y": -55,
+      "z": 43
+    },
+    "deck_feet_y": -55,
+    "stairs_lowest_support_y": -60,
+    "screen_viewing_feet": {
+      "x": 967,
+      "y": -55,
+      "z": 64
+    },
+    "screen_viewing_eye": [
+      967.5,
+      -53.38,
+      64.5
+    ],
+    "dedicated_shift_duplicates_matrix_key": [
+      7,
+      7
+    ],
+    "verification": "actual-engine all-input regression and connected two-block player-clearance deck test",
+    "activation_width_blocks": 16,
+    "activation_depth_blocks": 16,
+    "walkability_verified": true,
+    "scope": "literal button/lever positions and verified console clearance; backend routing footprint is reported separately; full-screen viewing is a separate concern"
+  },
+  "memory_local_controls": {
+    "cache": {
+      "local_control_and_return_placements": 461986,
+      "binary_row_decoder_placements": 778360,
+      "storage_and_local_control_chunks": 8100,
+      "bounds": {
+        "min": {
+          "x": 2400,
+          "y": -60,
+          "z": -20
+        },
+        "max": {
+          "x": 2736,
+          "y": 52,
+          "z": 6152
+        }
+      }
+    },
+    "ram": {
+      "local_control_and_return_placements": 11144612,
+      "binary_row_decoder_placements": 712824,
+      "storage_and_local_control_chunks": 7330,
+      "bounds": {
+        "min": {
+          "x": 2432,
+          "y": 8,
+          "z": -20
+        },
+        "max": {
+          "x": 2736,
+          "y": 295,
+          "z": 6152
+        }
+      }
+    },
+    "flash": {
+      "local_control_and_return_placements": 23218148,
+      "binary_row_decoder_placements": 1425648,
+      "storage_and_local_control_chunks": 15045,
+      "bounds": {
+        "min": {
+          "x": 3249,
+          "y": -60,
+          "z": -20
+        },
+        "max": {
+          "x": 3913,
+          "y": 299,
+          "z": 6152
+        }
+      }
+    },
+    "vram": {
+      "local_control_and_return_placements": 1855372,
+      "binary_row_decoder_placements": 745592,
+      "storage_and_local_control_chunks": 7715,
+      "bounds": {
+        "min": {
+          "x": 2416,
+          "y": -44,
+          "z": -20
+        },
+        "max": {
+          "x": 2736,
+          "y": 68,
+          "z": 6152
+        }
+      }
+    }
+  },
+  "local_memory_control_and_return_placements": 36680118,
+  "binary_row_decoder_placements": 3662424,
+  "storage_and_local_control_union_chunks": 23147,
+  "memory_fabric_chunk_sum": 38190,
+  "shared_memory_chunk_savings": 15043,
+  "regular_fabric_union_chunks": 23328,
+  "regular_fabric_regions": 64,
+  "minimum_regular_fabric_region_bytes": 96075776,
+  "regular_fabric_envelope": {
+    "min": {
+      "x": 489,
+      "y": -60,
+      "z": -235
+    },
+    "max": {
+      "x": 3913,
+      "y": 304,
+      "z": 6152
+    },
+    "width_blocks": 3425,
+    "depth_blocks": 6388,
+    "height_blocks": 365,
+    "horizontal_area_blocks": 21878900,
+    "rectangle_perimeter_blocks": 19626,
+    "chunk_x_min": 30,
+    "chunk_x_max": 244,
+    "chunk_z_min": -15,
+    "chunk_z_max": 384,
+    "chunk_width": 215,
+    "chunk_depth": 400,
+    "envelope_chunks": 86000
+  },
+  "scope": "storage, local bank decoders and shared returns, screen, controls, debug and clock; synthesized logic and external routes are separate"
+}

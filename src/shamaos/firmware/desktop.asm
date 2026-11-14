@@ -19,7 +19,7 @@ SYS SYS_UI_STATUSBAR
 .loop
 SYS SYS_GET_EVENT
 CMP r1 r0
-BR.EQ .idle
+BRS.EQ .idle
 
 ; Extract event code: (r1 >> 10) & 0xff.
 MOV r9 r1
@@ -30,37 +30,37 @@ AND r9 r9 r10
 
 LEA r10 r0 EVT_UP
 CMP r9 r10
-BR.EQ .prev
+BRS.EQ .prev
 LEA r10 r0 EVT_LEFT
 CMP r9 r10
-BR.EQ .prev
+BRS.EQ .prev
 LEA r10 r0 EVT_DOWN
 CMP r9 r10
-BR.EQ .next
+BRS.EQ .next
 LEA r10 r0 EVT_RIGHT
 CMP r9 r10
-BR.EQ .next
+BRS.EQ .next
 LEA r10 r0 EVT_A
 CMP r9 r10
-BR.EQ .open
+BRS.EQ .open
 
 ; Kernel handles universal Home/Exit/Editor/Files.
 SYS SYS_APP_EVENT
-JMP .redraw
+JMPS .redraw
 
 .prev
 LEA r10 r0 1
 CMP r8 r10
-BR.LE .redraw
+BRS.LE .redraw
 DEC r8
-JMP .redraw
+JMPS .redraw
 
 .next
 LEA r10 r0 8
 CMP r8 r10
-BR.GE .redraw
+BRS.GE .redraw
 INC r8
-JMP .redraw
+JMPS .redraw
 
 .open
 MOV r1 r8
@@ -72,4 +72,4 @@ HLT
 MOV r1 r8
 SYS SYS_UI_STATUSBAR
 SYS SYS_YIELD
-JMP .loop
+JMPS .loop

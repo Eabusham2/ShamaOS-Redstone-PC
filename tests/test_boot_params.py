@@ -37,9 +37,10 @@ def test_rtl_boot_parameters_match_generated_flash_image():
     assert d["SHAMA_MINER_HISTORY_ENTRY"] == image.file_entry_indices["miner-history.log"]
     assert d["SHAMA_MINER_STATE_ENTRY"] == image.file_entry_indices["miner-state.cfg"]
     assert d["SHAMA_RAM_BYTES"] == 96 << 10
-    assert d["SHAMA_CACHE_BYTES"] == 8 << 10
+    assert d["SHAMA_CACHE_BYTES"] == 4 << 10
     assert d["SHAMA_VRAM_BYTES"] == 16 << 10
-    assert d["SHAMA_CACHE_BANKS"] == 2
+    assert d["SHAMA_CACHE_BANKS"] == 1
+    assert d["SHAMA_APP_BACKING_BYTES"] == 8 << 10
     assert d["SHAMA_VRAM_BANKS"] == 4
     assert d["SHAMA_FLASH_BYTES"] == len(image.image) == 200 << 10
     assert d["SHAMA_RAM_BANKS"] == 24

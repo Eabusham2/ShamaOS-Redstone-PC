@@ -1,0 +1,120 @@
+{
+  "audit_source_sha256": "e3f777fecbd4542aba02c353f4975253fad8c8ac63488a9bef661b7061ce6d82",
+  "both_exact_unions_agree": true,
+  "capacity_bytes": 4096,
+  "checkpoint_sha256": "44b9be7cd39751aa89fbbfb9e855b5cb866a9f91810999683e07b6df7ef1850a",
+  "connected_routes": 77,
+  "default_only_semantic_difference": {
+    "CACHE_BYTES": {
+      "integrated": 4096,
+      "retained": 8192
+    }
+  },
+  "explicit_input_hashes": {
+    "configs/default.toml": "00a45a92c618c6df815a4f6f1f69c5e72d6c65a81857f11f560124800c43c594",
+    "rtl/shama_boot_params.svh": "ce84216693c92a7c40edd053140535e3961ba5ea3605fa0e8fc3eaa96fd65b08",
+    "rtl/shama_memory_adapter.sv": "8aac951cc7fd9a2914b289f2ee3c3673eb37aec7150c2c26f3b17086507cbd09",
+    "synth/redstone.lib": "04d704e7ccad8c0be9d794b3a7fe95b6e99e753a359b1144211b7aca97cf29bd",
+    "synth/redstone.ys": "47e9b12996019e8d08b34fb0ecb3561528bf4e74e73a3146e328ed99caf8df42"
+  },
+  "generator_difference": {
+    "added_file_binding": "src/shamaos/hardware/cache_layout.py",
+    "changed_real_capacity_contract_rejected": true,
+    "entire_remaining_module_ast_identical": true,
+    "function": "source_provenance"
+  },
+  "historical_reduction_percentages_recomputed": true,
+  "integrated_bank_bounds_and_initial_bytes_exact": true,
+  "integrated_external_nets_exact": true,
+  "integrated_physical_configuration_exact": true,
+  "native_runtime_verified": false,
+  "occupied_chunks": 118781,
+  "physical_banks": 1,
+  "retained_source_zip_sha256": "ca82fcb66941595814d2a1bdd78ccfc6c7bc70aea901e311c0de25e09a3e416d",
+  "schema": "current-cache-final-integration-provenance-review-v2",
+  "scope": "Retained complete-union integrity; explicit final default, metadata-only source binding and exact reviewed canonical-fingerprint optimization; exact integrated physical bank/route inputs; no fresh literal union or native run",
+  "sorted_unique_record_sha256": "b070e0c2ac33a53cc32e24e2232fc2a765b18ea6ae7be3fc69ad4813e728836e",
+  "source_differences": {
+    "src/shamaos/generator.py": {
+      "integrated_sha256": "f82fedcc6b2ed307b0ee2e52b032e78aad2b1bbb0be686df067f6a92a713f62b",
+      "retained_sha256": "089bad6b69f9987c6a0ef47e9cee1e095267af4f7aee7c1a76b86ce5f630f8dd"
+    },
+    "src/shamaos/machine_spec.py": {
+      "integrated_sha256": "99e1155524c39b0c1f6d30f07f77cb0b7b18a4a2303ded30df2f7392789157bd",
+      "retained_sha256": "446853768c8fdd1be7472bd3d27e2f882ab3ca5805241f3f3ab7f3d778febd59"
+    },
+    "src/shamaos/worldio.py": {
+      "integrated_sha256": "389e525bc0a3bb5a47b53d6dae1362177f7d865dbec4f63c9fd4c84bbfaf3bd0",
+      "retained_sha256": "08e163497c981357b3aa4ce444709f38769001fb512700b0ffd2a8fc4ebda69c"
+    }
+  },
+  "source_files": 39,
+  "status": "passed",
+  "unchanged_archive": true,
+  "unique_blocks": 22805546,
+  "whole_machine_verified": false,
+  "worldio_difference": {
+    "changed_native_writer_rejected": true,
+    "entire_remaining_module_ast_identical": true,
+    "function": "_Chunk.fingerprint",
+    "integrated_method_ast_sha256": "66a27bf9520986c21c1645b300d4d4fd659c75896edf9f968d52725a1fbb7bec",
+    "invalid_palette_indices_rejected_by_both": true,
+    "retained_method_ast_sha256": "e39a12a195b0a0989ea5d4e928a32efa912245194e4fda1fbfab69824f405bda",
+    "retained_method_current_method_comparisons": {
+      "empty": {
+        "assigned_blocks": 0,
+        "sha256": "40c3475e9eeb54a6d52120c63694869e5abd506a8607e317bb7b51b9693db21c"
+      },
+      "mixed-stride-1": {
+        "assigned_blocks": 4096,
+        "sha256": "f11096f03a77ef377032b3aebc9aa3a2c092f13af51be03b7850eed55ff42dd5"
+      },
+      "mixed-stride-3": {
+        "assigned_blocks": 1366,
+        "sha256": "3878aa6f13dc3e88d44d278bf85b0305559c842e23d01e448deae7232a01ffe6"
+      },
+      "mixed-stride-37": {
+        "assigned_blocks": 111,
+        "sha256": "9301eda4d7dfa09cb66ff88277f85a1975925da63183f8443b39970e0bb87edd"
+      },
+      "mixed-stride-4095": {
+        "assigned_blocks": 2,
+        "sha256": "841ef67739a873146b9b6e2c8ce9b9b130b0ed11b714bfbcfc57733d6d95be5f"
+      },
+      "owned-air": {
+        "assigned_blocks": 2,
+        "sha256": "8079612d6e59e6d53908ae3a8ab1db5003487286f3ecb4707dae6a77cf81fc90"
+      },
+      "permuted-duplicate-unused-stride-1": {
+        "assigned_blocks": 4096,
+        "sha256": "f11096f03a77ef377032b3aebc9aa3a2c092f13af51be03b7850eed55ff42dd5"
+      },
+      "permuted-duplicate-unused-stride-3": {
+        "assigned_blocks": 1366,
+        "sha256": "3878aa6f13dc3e88d44d278bf85b0305559c842e23d01e448deae7232a01ffe6"
+      },
+      "permuted-duplicate-unused-stride-37": {
+        "assigned_blocks": 111,
+        "sha256": "9301eda4d7dfa09cb66ff88277f85a1975925da63183f8443b39970e0bb87edd"
+      },
+      "permuted-duplicate-unused-stride-4095": {
+        "assigned_blocks": 2,
+        "sha256": "841ef67739a873146b9b6e2c8ce9b9b130b0ed11b714bfbcfc57733d6d95be5f"
+      },
+      "terrain": {
+        "assigned_blocks": 0,
+        "sha256": "9300a9cf58b08c8939bd9228e80dbca057323dc5ce199885d7c4bb921f5c5c58"
+      },
+      "unowned-air": {
+        "assigned_blocks": 0,
+        "sha256": "40c3475e9eeb54a6d52120c63694869e5abd506a8607e317bb7b51b9693db21c"
+      },
+      "unused-palette": {
+        "assigned_blocks": 0,
+        "sha256": "40c3475e9eeb54a6d52120c63694869e5abd506a8607e317bb7b51b9693db21c"
+      }
+    },
+    "scope": "Exact reviewed palette-lookup optimization only; no geometry emission, native writer, decoder or digest contract change",
+    "unreviewed_fingerprint_change_rejected": true
+  }
+}

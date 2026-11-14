@@ -1,0 +1,28 @@
+{
+  "status": "passed",
+  "distinct_cases": 54,
+  "distinct_cases_passed": 54,
+  "all_native_cases_executed": true,
+  "scope": "Cache policy, fresh current4KiB fixture, and complete small bounded system backend including saved native slow/too-fast controls; full cache native runtime remains pending",
+  "runs": [
+    {
+      "file": "cache-integration-guards.xml",
+      "sha256": "8d687dc7fbed56fbbd0bdd3cc1269b8acbb093b83ece64061f97f3558b155e72",
+      "testcases": 54,
+      "passed": 52,
+      "skipped": 2,
+      "errors": 0,
+      "failures": 0
+    },
+    {
+      "file": "cache-integration-native.xml",
+      "sha256": "942cb03d82288cc304ca09349d134690c0bbafdb9510929fd23bc7dbd0b40ac1",
+      "testcases": 2,
+      "passed": 2,
+      "skipped": 0,
+      "errors": 0,
+      "failures": 0
+    }
+  ],
+  "first_run_native_skips_rerun_with_pinned_terrain_runner": true
+}

@@ -1,6 +1,6 @@
 `include "shama_boot_params.svh"
 module tb_services;
-    localparam integer TEST_SLOT=`SHAMA_SLOT_BYTES,TEST_CACHE=`SHAMA_CACHE_BYTES;
+    localparam integer TEST_SLOT=`SHAMA_SLOT_BYTES,TEST_CACHE=`SHAMA_CACHE_BYTES,TEST_EXEC=`SHAMA_APP_BACKING_BYTES;
     localparam [31:0] EDIT_CTX=`SHAMA_EDIT_CTX,EDIT_BUF=`SHAMA_EDIT_BUF,STAGE=`SHAMA_RUN_STAGING,RECORD=`SHAMA_MINER_RECORD;
     logic clk=0,rst=1,sys_valid=0,sys_ready,sys_jump_valid;
     logic [11:0] sys_id=0;
@@ -337,40 +337,46 @@ module tb_services;
 
         // Staged programs survive cleanup and load into executable fast memory.
         recovering_call(12'h061,32'he0000,4,2);
-        recovering_call(12'h061,STAGE,TEST_CACHE+4,3);
+        recovering_call(12'h061,STAGE,TEST_EXEC+4,3);
         ram[STAGE>>2]=32'h99999999;
         call2(12'h061,STAGE,4);
         if(foreground_app!=15 || cache_mem[0]!=32'h99999999 || ram[STAGE>>2]!=0 || ram_used_bytes!=8)
             $fatal(1,"staged run/copy-before-clear/accounting");
 
-        // A full-cache user executable can live in an allocated heap span.
-        // Cleanup retains the source until its first and last words are in
-        // cache and low RAM backing, then wipes the whole assembly span.
+        // A full 8 KiB user executable survives with only a 4 KiB cache.
+        // Cleanup retains the source until the prefix is cached and every
+        // word is in low RAM, then wipes the whole assembly span.
         call2(12'h006,0,0);
         call2(12'h010,`SHAMA_HEAP_PAGES*4096,0);
-        for(i=0;i<TEST_CACHE/4;i=i+1) ram[(STAGE>>2)+i]=32'hc0de0000+i;
+        for(i=0;i<TEST_EXEC/4;i=i+1) ram[(STAGE>>2)+i]=32'hc0de0000+i;
         ram[(`SHAMA_RAM_BYTES-4)>>2]=32'habadcafe;
         ram[`SHAMA_EDIT_NAME>>2]=32'h6d616e65;
         ram[(EDIT_CTX+64)>>2]=32'h13572468;
-        call2(12'h061,STAGE,TEST_CACHE);
-        if(foreground_app!=15 || ram_used_bytes!=TEST_CACHE+4 || cache_used_bytes!=TEST_CACHE ||
+        call2(12'h061,STAGE,TEST_EXEC);
+        if(foreground_app!=15 || ram_used_bytes!=TEST_EXEC+4 || cache_used_bytes!=TEST_CACHE ||
            cache_mem[0]!=32'hc0de0000 || cache_mem[TEST_CACHE/4-1]!=32'hc0de0000+TEST_CACHE/4-1 ||
-           ram[`SHAMA_APP_RAM_BASE>>2]!=32'hc0de0000 || ram[(`SHAMA_APP_RAM_BASE+TEST_CACHE-4)>>2]!=32'hc0de0000+TEST_CACHE/4-1 ||
-           ram[STAGE>>2]!=0 || ram[(STAGE+TEST_CACHE-4)>>2]!=0 || ram[(`SHAMA_RAM_BYTES-4)>>2]!=0)
-            $fatal(1,"heap cleanup lost full-cache staged source or retained it after copy");
+           ram[`SHAMA_APP_RAM_BASE>>2]!=32'hc0de0000 || ram[(`SHAMA_APP_RAM_BASE+TEST_EXEC-4)>>2]!=32'hc0de0000+TEST_EXEC/4-1 ||
+           ram[(`SHAMA_APP_RAM_BASE+TEST_CACHE)>>2]!=32'hc0de0000+TEST_CACHE/4 ||
+           ram[STAGE>>2]!=0 || ram[(STAGE+TEST_EXEC-4)>>2]!=0 || ram[(`SHAMA_RAM_BYTES-4)>>2]!=0)
+            $fatal(1,"heap cleanup lost full executable or retained its staging after copy");
+        // RAM-tail writes are already authoritative; flushing the prefix
+        // must never overrun the smaller cache or replace the tail with it.
+        ram[(`SHAMA_APP_RAM_BASE+TEST_EXEC-4)>>2]=32'hf00dbeef;
         cache_mem[0]=32'h01234567;cache_mem[TEST_CACHE/4-1]=32'h89abcdef;
         call2(12'h014,0,0);
         if(sys_ret!=TEST_CACHE || ram[`SHAMA_APP_RAM_BASE>>2]!=32'h01234567 ||
-           ram[(`SHAMA_APP_RAM_BASE+TEST_CACHE-4)>>2]!=32'h89abcdef)
+           ram[(`SHAMA_APP_RAM_BASE+TEST_CACHE-4)>>2]!=32'h89abcdef ||
+           ram[(`SHAMA_APP_RAM_BASE+TEST_EXEC-4)>>2]!=32'hf00dbeef)
             $fatal(1,"full-cache flush missed backing endpoints");
         call2(12'h006,0,0);
-        if(ram[`SHAMA_APP_RAM_BASE>>2]!=32'h22222222 || ram[(`SHAMA_APP_RAM_BASE+TEST_CACHE-4)>>2]!=0 ||
+        if(ram[`SHAMA_APP_RAM_BASE>>2]!=32'h22222222 || ram[(`SHAMA_APP_RAM_BASE+TEST_EXEC-4)>>2]!=0 ||
+           ram[(`SHAMA_APP_RAM_BASE+TEST_CACHE)>>2]!=0 ||
            cache_mem[TEST_CACHE/4-1]!=0 || ram[`SHAMA_KERNEL_RAM_BASE>>2]!=32'h11111111 ||
            ram[`SHAMA_EDIT_NAME>>2]!=32'h6d616e65 || ram[(EDIT_CTX+64)>>2]!=32'h13572468)
             $fatal(1,"app clear did not stop at 8 KiB or erased resident metadata");
         call2(12'h010,`SHAMA_HEAP_PAGES*4096,0);
         ram[STAGE>>2]=32'hdeadbeef;ram[(`SHAMA_RAM_BYTES-4)>>2]=32'habcdef01;
-        recovering_call(12'h061,STAGE,TEST_CACHE+4,3);
+        recovering_call(12'h061,STAGE,TEST_EXEC+4,3);
         if(dut.heap_used_bytes!=0 || ram[STAGE>>2]!=0 || ram[(`SHAMA_RAM_BYTES-4)>>2]!=0 ||
            ram[`SHAMA_KERNEL_RAM_BASE>>2]!=32'h11111111 || ram[`SHAMA_EDIT_NAME>>2]!=32'h6d616e65)
             $fatal(1,"oversized staged-run recovery retained heap data or erased resident state");

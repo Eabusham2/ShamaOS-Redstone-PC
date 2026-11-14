@@ -39,6 +39,30 @@ def run_case(binary,tmp_path,source,error=0,line=1):
     assert 'ASSEMBLER CASE PASS' in result.stdout
 
 
+def test_compact_forms_ranges_conditions_and_mixed_layout(rtl_assembler, tmp_path):
+    from shamaos.isa import CONDITION_ALIASES
+    lines = ['define NEGATIVE 0xfffffffe', '.start LDIS r1 NEGATIVE']
+    for op in ('LDIS', 'ADDIS', 'SUBIS', 'ANDIS', 'ORIS', 'XORIS'):
+        for value in (-524288, -1, 0, 524287, 0xfff80000, 0xffffffff):
+            lines.append(f'{op} r15 {value}')
+    for cond in CONDITION_ALIASES:
+        lines += [f'BRS.{cond} .end', f'BRS {cond} .start']
+    lines += ['JMPS 0xffffff', 'CALLS 0xffffff', 'BRS.EQ 0xfffff',
+              'CALL .end', 'CALLS .end', 'JMP .start', '.end HLT']
+    run_case(rtl_assembler, tmp_path, '\n'.join(lines) + '\n')
+
+
+@pytest.mark.parametrize('instruction', [
+    'LDIS r1 -524289', 'LDIS r1 524288', 'ADDIS r1 0xfff7ffff',
+    'SUBIS r1 0x80000000', 'ANDIS r1 0xfffff', 'ORIS r1 missing',
+    'XORIS r16 1', 'JMPS -1', 'JMPS 0x1000000', 'CALLS 0x1000000',
+    'BRS.EQ -1', 'BRS.NE 0x100000', 'BRS EQ 0x100000', 'BRS UNKNOWN 3',
+    'BRS 3', 'CALLS r1',
+])
+def test_compact_forms_reject_overflow_and_bad_operands(rtl_assembler, tmp_path, instruction):
+    run_case(rtl_assembler, tmp_path, 'NOP\n' + instruction + '\n', error=6, line=2)
+
+
 @pytest.mark.parametrize('filename',['editor.asm','files.asm','miner.asm','paint.asm','settings.asm','terminal.asm','calculator.asm','desktop.asm','monitor.asm'])
 def test_shipped_source_emits_exact_host_binary(rtl_assembler,tmp_path,filename):
     run_case(rtl_assembler,tmp_path,(ROOT/'src/shamaos/firmware'/filename).read_text())

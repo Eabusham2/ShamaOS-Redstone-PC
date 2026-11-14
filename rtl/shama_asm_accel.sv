@@ -31,7 +31,8 @@ module shama_asm_accel(
 
     localparam [3:0]
         FMT_NONE=0,FMT_R=1,FMT_RR=2,FMT_RRR=3,FMT_RRRR=4,
-        FMT_RI32=5,FMT_J32=6,FMT_BR32=7,FMT_MEM=8,FMT_SYS=9,FMT_RSYS=10,FMT_BRCOND=11;
+        FMT_RI32=5,FMT_J32=6,FMT_BR32=7,FMT_MEM=8,FMT_SYS=9,FMT_RSYS=10,FMT_BRCOND=11,
+        FMT_RI20=12,FMT_J24=13,FMT_BR20=14,FMT_BRSCOND=15;
 
     localparam [31:0] HASH_DEFINE=32'h3b4f3492;
     localparam [31:0] FNV_OFFSET=32'h811c9dc5;
@@ -450,6 +451,33 @@ module shama_asm_accel(
                 32'he6d3d6c4: decode_info={1'b1,8'h41,4'd7,2'd2,4'd1}; // BR.NOTZERO
                 32'h011f05d4: decode_info={1'b1,8'h41,4'd7,2'd2,4'd2}; // BR.CARRY
                 32'h70bf47e5: decode_info={1'b1,8'h41,4'd7,2'd2,4'd3}; // BR.NOTCARRY
+                32'h940769dd: decode_info={1'b1,8'h05,4'd12,2'd1,4'd0}; // LDIS
+                32'had96a39c: decode_info={1'b1,8'h1c,4'd12,2'd1,4'd0}; // ADDIS
+                32'h39dc6b25: decode_info={1'b1,8'h1d,4'd12,2'd1,4'd0}; // SUBIS
+                32'hb95762ca: decode_info={1'b1,8'h32,4'd12,2'd1,4'd0}; // ANDIS
+                32'h228cd26c: decode_info={1'b1,8'h33,4'd12,2'd1,4'd0}; // ORIS
+                32'h5288fb92: decode_info={1'b1,8'h34,4'd12,2'd1,4'd0}; // XORIS
+                32'hdc6fd7c9: decode_info={1'b1,8'h46,4'd13,2'd1,4'd0}; // JMPS
+                32'hc6fe60ce: decode_info={1'b1,8'h48,4'd13,2'd1,4'd0}; // CALLS
+                32'hec9c44d2: decode_info={1'b1,8'h47,4'd15,2'd1,4'd0}; // BRS
+                32'h760347b6: decode_info={1'b1,8'h47,4'd14,2'd1,4'd0}; // BRS.EQ
+                32'hb0f0beaa: decode_info={1'b1,8'h47,4'd14,2'd1,4'd0}; // BRS.Z
+                32'h3a3f48f6: decode_info={1'b1,8'h47,4'd14,2'd1,4'd0}; // BRS.ZERO
+                32'h3a1a4291: decode_info={1'b1,8'h47,4'd14,2'd1,4'd1}; // BRS.NE
+                32'h431a50bc: decode_info={1'b1,8'h47,4'd14,2'd1,4'd1}; // BRS.NZ
+                32'h15017063: decode_info={1'b1,8'h47,4'd14,2'd1,4'd1}; // BRS.NOTZERO
+                32'hb9f0ccd5: decode_info={1'b1,8'h47,4'd14,2'd1,4'd2}; // BRS.C
+                32'hb6ffeb63: decode_info={1'b1,8'h47,4'd14,2'd1,4'd2}; // BRS.CARRY
+                32'h3c1a45b7: decode_info={1'b1,8'h47,4'd14,2'd1,4'd3}; // BRS.NC
+                32'h1f36b790: decode_info={1'b1,8'h47,4'd14,2'd1,4'd3}; // BRS.NOTCARRY
+                32'h8514a874: decode_info={1'b1,8'h47,4'd14,2'd1,4'd4}; // BRS.LT
+                32'h761490d7: decode_info={1'b1,8'h47,4'd14,2'd1,4'd5}; // BRS.LE
+                32'h47090de7: decode_info={1'b1,8'h47,4'd14,2'd1,4'd6}; // BRS.GT
+                32'h3608f324: decode_info={1'b1,8'h47,4'd14,2'd1,4'd7}; // BRS.GE
+                32'h4d5736e2: decode_info={1'b1,8'h47,4'd14,2'd1,4'd8}; // BRS.NEG
+                32'hec379bfe: decode_info={1'b1,8'h47,4'd14,2'd1,4'd9}; // BRS.POS
+                32'hf3f8b366: decode_info={1'b1,8'h47,4'd14,2'd1,4'd10}; // BRS.VALID
+                32'h94f17680: decode_info={1'b1,8'h47,4'd14,2'd1,4'd11}; // BRS.NVALID
                 default: decode_info=19'd0;
             endcase
         end
@@ -812,7 +840,7 @@ module shama_asm_accel(
                                     // Register operands still retain their own
                                     // positions and the same arity checks below.
                                     case(dec[9:6])
-                                        FMT_RI32,FMT_BRCOND,FMT_RSYS: operand_index=mn_idx+2;
+                                        FMT_RI32,FMT_RI20,FMT_BRCOND,FMT_BRSCOND,FMT_RSYS: operand_index=mn_idx+2;
                                         FMT_MEM: operand_index=mn_idx+3;
                                         default: operand_index=mn_idx+1;
                                     endcase
@@ -867,31 +895,48 @@ module shama_asm_accel(
                                                        line_is_reg[mn_idx+4];
                                             emit0=enc_header(dec[17:10],r1,r2,r3,{8'd0,r4});
                                         end
-                                        FMT_RI32: begin
+                                        FMT_RI32,FMT_RI20: begin
                                             args_valid=args_valid && arg_count==2 &&
                                                        line_is_reg[mn_idx+1] &&
                                                        operand_exists;
                                             emit0=enc_header(dec[17:10],r1,0,0,0);
                                             emit1=operand_value;
+                                            if(dec[9:6]==FMT_RI20) begin
+                                                args_valid=args_valid &&
+                                                    operand_value=={{12{operand_value[19]}},operand_value[19:0]};
+                                                emit0={dec[17:10],r1,operand_value[19:0]};
+                                            end
                                         end
-                                        FMT_J32: begin
+                                        FMT_J32,FMT_J24: begin
                                             args_valid=args_valid && arg_count==1 &&
                                                        operand_exists;
                                             emit0=enc_header(dec[17:10],0,0,0,0);
                                             emit1=operand_value;
+                                            if(dec[9:6]==FMT_J24) begin
+                                                args_valid=args_valid && operand_value<=32'h00ffffff;
+                                                emit0={dec[17:10],operand_value[23:0]};
+                                            end
                                         end
-                                        FMT_BR32: begin
+                                        FMT_BR32,FMT_BR20: begin
                                             args_valid=args_valid && arg_count==1 &&
                                                        operand_exists;
-                                            emit0=enc_header(8'h41,dec[3:0],0,0,0);
+                                            emit0=enc_header(dec[17:10],dec[3:0],0,0,0);
                                             emit1=operand_value;
+                                            if(dec[9:6]==FMT_BR20) begin
+                                                args_valid=args_valid && operand_value<=32'h000fffff;
+                                                emit0={dec[17:10],dec[3:0],operand_value[19:0]};
+                                            end
                                         end
-                                        FMT_BRCOND: begin
+                                        FMT_BRCOND,FMT_BRSCOND: begin
                                             args_valid=args_valid && arg_count==2 &&
                                                        condition_code(line_hash[mn_idx+1])!=4'hf &&
                                                        operand_exists;
-                                            emit0=enc_header(8'h41,condition_code(line_hash[mn_idx+1]),0,0,0);
+                                            emit0=enc_header(dec[17:10],condition_code(line_hash[mn_idx+1]),0,0,0);
                                             emit1=operand_value;
+                                            if(dec[9:6]==FMT_BRSCOND) begin
+                                                args_valid=args_valid && operand_value<=32'h000fffff;
+                                                emit0={dec[17:10],condition_code(line_hash[mn_idx+1]),operand_value[19:0]};
+                                            end
                                         end
                                         FMT_MEM: begin
                                             args_valid=args_valid && arg_count==3 &&

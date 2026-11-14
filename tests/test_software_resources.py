@@ -73,6 +73,9 @@ def test_every_app_fits_with_peak_workspace_and_all_eligible_heap_pages(image):
         assert app["available_heap_bytes"] == len(eligible) * HEAP_PAGE_BYTES
         assert app["peak_ram_bytes_with_all_available_heap"] <= RAM_BYTES
         assert app["fast_bytes"] <= CACHE_BYTES
+        assert app["executable_bytes"] == image.slot_binary_lengths[app["app"]]
+        assert app["fast_bytes"] == min(app["executable_bytes"], CACHE_BYTES)
+        assert app["uncached_code_bytes"] == app["executable_bytes"] - app["fast_bytes"]
         assert app["vram_shared_reserved_bytes"] <= VRAM_BYTES
         expected = app["ram_bytes"] + app["fast_bytes"] + report["flash"]["used_bytes"] + report["vram"]["total_reserved_bytes"]
         assert app["all_memory_pools_used_bytes"] == expected

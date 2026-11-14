@@ -232,4 +232,5 @@ def test_full_1024_row_mixed_fabric_external_access_clears_neighboring_tile():
     boxes.append(stacked_tile_bounds(origin.offset(dx=-360), StackedMemoryTileSpec(bank, 30, 12)))
     routes = _plan_escapes(points, 314, obstacles, access=access, endpoint_bounds=endpoint_bounds,
                            obstacle_bounds=boxes, minimum_y=-60)
-    assert len(routes) == len(points) == 258
+    # One cache bank removes one bank-select contact from the old two-bank stack.
+    assert len(routes) == len(points) == 257

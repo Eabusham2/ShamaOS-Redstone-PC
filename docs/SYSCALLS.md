@@ -25,8 +25,8 @@ state and resumes the new executable at PC 0.
 | `010` | SYS_ALLOC | r1 requested bytes; return zeroed allocation base; exhaustion initiates visible OS recovery |
 | `011` | SYS_FREE | r1 exact allocation base; clear and release allocation |
 | `012` | SYS_RAM_USAGE | r1 used bytes, r2 total bytes (98,304) |
-| `013` | SYS_CACHE_USAGE | r1 used executable fast-memory bytes, r2 total (8,192) |
-| `014` | SYS_CACHE_FLUSH_APP | Copy active executable fast memory to its RAM backing; retain executable contents; return copied bytes |
+| `013` | SYS_CACHE_USAGE | r1 used cached-prefix bytes, r2 physical total (4,096); the complete executable is also counted in RAM |
+| `014` | SYS_CACHE_FLUSH_APP | Copy only the active cached prefix to its RAM backing; retain executable contents and the direct-RAM tail; return copied bytes |
 | `030` | SYS_GET_KEY | Consume a queued key event and return its byte, otherwise 0 |
 | `031` | SYS_GET_CONTROLLER | Current/presented 10-bit controller state |
 | `032` | SYS_INPUT_STATUS | r1 bits 0–7 queued count, bit 8 sticky overflow, bit 9 keyboard Shift state |
@@ -219,10 +219,11 @@ valid executable; callers must retain their previous BIN until assembly succeeds
 Staging normally lies within `0x14000..0x17FFF`; Editor and Files may instead
 borrow a nonoverrunning range within `0x4000..0x13FFF`. The pointer and byte
 length must be word aligned and the length nonzero. Executables may use at most
-8,192 bytes of fast memory. Larger results can still be assembled and saved,
+8,192 bytes in the existing executable RAM window. Its first 4,096 bytes also
+reside in physical cache; any tail executes directly from RAM. Larger results can still be assembled and saved,
 but attempting to execute them initiates the visible code-capacity recovery.
-Normal close/save precedes copying into executable fast memory; the staging
-workspace is cleared only after both executable copies finish, before control
+Normal close/save precedes loading; the staging
+workspace is cleared only after the complete RAM copy and cached prefix finish, before control
 transfers. Packed built-in boot records are additionally bounded by their
 generated individual lengths so a corrupted length cannot read the next record.
 

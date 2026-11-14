@@ -1,0 +1,43 @@
+{
+  "clock_skew_ticks": 0,
+  "clock_edges": 16,
+  "half_period_redstone_ticks": 8,
+  "minimum_setup_ticks": 13,
+  "minimum_hold_ticks": 4,
+  "pipeline_failures": [
+    {
+      "edge": 3295,
+      "register": "b",
+      "expected": true,
+      "actual": false
+    },
+    {
+      "edge": 5407,
+      "register": "b",
+      "expected": false,
+      "actual": true
+    },
+    {
+      "edge": 7519,
+      "register": "b",
+      "expected": true,
+      "actual": false
+    },
+    {
+      "edge": 9615,
+      "register": "b",
+      "expected": false,
+      "actual": true
+    }
+  ],
+  "actual_ticks": 11520,
+  "status": "saved-facade-native-and-dense-traces-match",
+  "compared_trace_samples": 377856,
+  "exact_saved_circuit_blocks": 16788,
+  "imported_chunks": 151,
+  "imported_stream_sha256": "01265bd985c2ca6d8d82d07da778164975368fe1a0652a929b8e94c7b5f34fe7",
+  "scenario_sha256": "fc8f027f4c77f290cc22f55251d9d44d31937892f1f18797fe3ac46b2be5dc12",
+  "original_port_bits": 6,
+  "facade_handoffs": 6,
+  "complete_machine_runtime_verified": false
+}

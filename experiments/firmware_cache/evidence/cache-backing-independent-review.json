@@ -1,0 +1,47 @@
+{
+  "review": "Independent 4 KiB cache and 8 KiB RAM executable backing review",
+  "reviewed_worktree_head": "eab31323e6b8d256518324c97a89b7c8bc8b7a10",
+  "candidate_includes_uncommitted_changes": true,
+  "capacity_bytes": {
+    "cache": 4096,
+    "application_ram_backing": 8192,
+    "assembly_and_save_slot": 16384,
+    "ram": 98304
+  },
+  "source_sha256": {
+    "rtl/shama_services.sv": "ffe1a290d8b8239def5622d7d12d6800904b6c80209914d11985d81c0fa79366",
+    "rtl/shama_soc.sv": "5387762f974450c8b33fd67c77b49ede0107c69ecd6930e07f8fdc30f9ed8c26",
+    "rtl/shama_boot_params.svh": "ce84216693c92a7c40edd053140535e3961ba5ea3605fa0e8fc3eaa96fd65b08",
+    "rtl/tb_services.sv": "8b147e4d4fdc40e9ca3d1c2ffe8ca49ed0e52fe11ac0524b2bc1662ec1d62266",
+    "src/shamaos/machine_spec.py": "99e1155524c39b0c1f6d30f07f77cb0b7b18a4a2303ded30df2f7392789157bd",
+    "src/shamaos/memory_map.py": "817c59f5ced00bb9faee09cc9ca2dc932bd9715c8055a4423dd9613f81b784a1",
+    "src/shamaos/os_image.py": "635533d52dd246580c0379e8c2c289623d2c9c68752aa56098c9ccdedce95e46",
+    "src/shamaos/software_resources.py": "32e3a5231dd0f2b63104e446a71199ae251dab47251bc8a1192faadc2ba36425",
+    "tests/test_software_resources.py": "ca9cb52e5be739f34cb59ad94793be01dcb56b2db7d383940b8b9c35eafc4a35",
+    "tests/test_boot_params.py": "f30263d8d1fcf0b8da4a6f6bddcc9726041835748fa23cac6494eb106c8b9b3a",
+    "tests/test_compact_isa_audit.py": "642570104934b5c8eb7d1051cf9babef70e729f6ab84d4b8cc3d7dc202158175"
+  },
+  "focused_regression": {
+    "tests": 28,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "focused_regression_command": "PYTHONPATH=src python -m pytest tests/test_compact_isa_audit.py 'tests/test_input_services_rtl.py::test_input_and_services_protocols[services-SERVICES SAVE CLOSE OWNERSHIP CLEAR FLUSH SNAPSHOT SHUTDOWN PASS]' tests/test_software_resources.py tests/test_boot_params.py",
+  "findings": [],
+  "reviewed_invariants": [
+    "Application cleanup erases exactly the 8192-byte RAM backing and 4096-byte cache without touching the resident kernel or Editor metadata.",
+    "Every executable word is copied to RAM; only offsets below 4096 are copied to cache.",
+    "RAM tail copies advance only after a completed RAM write; source staging remains live through the final word.",
+    "Staged executable size still permits 8192 bytes, while larger programs take the existing recovery path.",
+    "Cache flush reads/writes only min(executable_bytes,4096), preserves direct-RAM tail contents, and reports bytes actually flushed.",
+    "The existing SoC address mux uses cache for CPU addresses below SHAMA_CACHE_BYTES and RAM for the tail.",
+    "Resource reports count the complete executable once in RAM and only its cached prefix in the separate fast-memory pool."
+  ],
+  "pending_integration": [
+    "Root-owned complete-SoC cache/RAM boundary execution test.",
+    "Update the canonical capacity/documentation lock and explain cached prefix versus total executable length.",
+    "Full physical cache generation and saved-world execution remain separate acceptance gates."
+  ],
+  "scope_limit": "The focused suite uses real services and CPU RTL plus host image/accounting tests; it is not complete physical world acceptance."
+}

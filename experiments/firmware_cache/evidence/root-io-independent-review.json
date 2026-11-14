@@ -1,0 +1,168 @@
+{
+  "status": "passed-with-explicit-runtime-and-production-gates",
+  "scope": "Frozen historical 8 KiB cache controller only; source/graph/typed geometry and clock audit, not a new large literal-union run.",
+  "comparison": {
+    "baseline": {
+      "bundle_sha256": "371cfb98d77ec07a0f5ab3a87ec899e9e090c003d10b692fe3468baaf1343659",
+      "source_bindings_verified": 17,
+      "mapped_sha256": "d4989124e9dca8b5afa865d954ded3be680b99f0b1e2f472aed6b5ecc42dd468",
+      "plan_sha256": "0c81a0a49d447669adfc82facb682b805fbdd72df5690acb6f22b7a6a3a30362",
+      "manifest_sha256": "3dc614564d5b57c3e31acff94ecc374260d27a8e8ea17594097fb8a85d0332df",
+      "raw_inventory": {
+        "cells": 1144,
+        "port_bits": 183,
+        "signals": 1248,
+        "sink_uses": 2155,
+        "constant_terminals": 0,
+        "port_alias_groups": 0,
+        "unused_driver_bits": 0
+      },
+      "graph_audit": {
+        "native_cells": 1144,
+        "original_port_bits": 183,
+        "shared_contacts": 1484,
+        "native_sink_uses": 2155,
+        "clock_leaf_uses": 115,
+        "constant_terminals": 0,
+        "status": "structural-contacts-passed",
+        "runtime_verified": false
+      },
+      "facade_audit": {
+        "status": "original-io-facade-structure-passed-runtime-unverified",
+        "original_port_bits": 183,
+        "facade_modules": 5,
+        "directed_handoffs": 494,
+        "runtime_verified": false,
+        "electrical_route_isolation_verified": false,
+        "scope": "Directed endpoint/contact conservation only; fresh placement isolation guards or replayed runtime remain separate evidence",
+        "base_clock_matching_scope": "Original mapped input pin to registers; facade input delivery adds an uncounted common prefix and requires exterior runtime timing"
+      },
+      "clock_overrides_recomputed_without_changes": true,
+      "physical_clock_arrivals": {
+        "2": {
+          "clock_leaves": 115,
+          "all_original_pin_arrivals": 3843,
+          "facade_common_prefix": 3773,
+          "all_exterior_arrivals": 7616,
+          "clock_facade_handoffs": 3,
+          "runtime_verified": false
+        }
+      },
+      "retained_literal_union": {
+        "emitted_blocks": 27186360,
+        "merged_records": 27186360,
+        "literal_unique_blocks": 27156924,
+        "identical_duplicate_blocks": 29436,
+        "occupied_chunks": 136764,
+        "bounds": {
+          "min": {
+            "x": 0,
+            "y": -60,
+            "z": 0
+          },
+          "max": {
+            "x": 7522,
+            "y": 199,
+            "z": 7450
+          }
+        },
+        "sorted_unique_record_sha256": "e69863be965e5bdd42ef7945736ecd8fcff4dd2929b4a3023e4a75a7e052a1c7"
+      }
+    },
+    "candidate": {
+      "bundle_sha256": "0e0c5738cb6370a1d376d8b0e44b810e976177a524f720c4d1dbce39852bcb6c",
+      "source_bindings_verified": 17,
+      "mapped_sha256": "d4989124e9dca8b5afa865d954ded3be680b99f0b1e2f472aed6b5ecc42dd468",
+      "plan_sha256": "450ee68660d027214199a643ffd8e98b13a35604ef3a99f99d6dd27f0fccfde0",
+      "manifest_sha256": "bda8580cfc4bcf42b12c30df9cdcb06a586211b1e76b3daf09d201c5d6453f74",
+      "raw_inventory": {
+        "cells": 1144,
+        "port_bits": 183,
+        "signals": 1248,
+        "sink_uses": 2155,
+        "constant_terminals": 0,
+        "port_alias_groups": 0,
+        "unused_driver_bits": 0
+      },
+      "graph_audit": {
+        "native_cells": 1144,
+        "original_port_bits": 183,
+        "shared_contacts": 1380,
+        "native_sink_uses": 2155,
+        "clock_leaf_uses": 115,
+        "constant_terminals": 0,
+        "status": "structural-contacts-passed",
+        "runtime_verified": false
+      },
+      "facade_audit": {
+        "status": "original-io-facade-structure-passed-runtime-unverified",
+        "original_port_bits": 183,
+        "facade_modules": 2,
+        "directed_handoffs": 183,
+        "runtime_verified": false,
+        "electrical_route_isolation_verified": false,
+        "scope": "Directed endpoint/contact conservation only; fresh placement isolation guards or replayed runtime remain separate evidence",
+        "base_clock_matching_scope": "Original mapped input pin to registers; facade input delivery adds an uncounted common prefix and requires exterior runtime timing"
+      },
+      "clock_overrides_recomputed_without_changes": true,
+      "physical_clock_arrivals": {
+        "2": {
+          "clock_leaves": 115,
+          "all_original_pin_arrivals": 3023,
+          "facade_common_prefix": 1479,
+          "all_exterior_arrivals": 4502,
+          "clock_facade_handoffs": 1,
+          "runtime_verified": false
+        }
+      },
+      "retained_literal_union": {
+        "emitted_blocks": 16051660,
+        "merged_records": 16051660,
+        "literal_unique_blocks": 16025544,
+        "identical_duplicate_blocks": 26116,
+        "occupied_chunks": 70081,
+        "bounds": {
+          "min": {
+            "x": 0,
+            "y": -60,
+            "z": -1372
+          },
+          "max": {
+            "x": 6140,
+            "y": 283,
+            "z": 4294
+          }
+        },
+        "sorted_unique_record_sha256": "94b83ebe9dc7c84aee3ff9ac0c2e2e88d4739e7817f9805d13bd6185eaadcdf4"
+      }
+    }
+  },
+  "small_regressions": {
+    "tests": 35,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "small_runtime": {
+    "dense_and_saved_world": true,
+    "positive_clock_half_period": 512,
+    "negative_clock_half_period": 8,
+    "previous_20_tick_negative_is_now_valid": true
+  },
+  "default_plan_unchanged": true,
+  "candidate_plan_reproduced": true,
+  "source_driver_sink_alias_constant_and_clock_inventory_preserved": true,
+  "large_literal_union_independently_reemitted": false,
+  "large_controller_runtime_verified": false,
+  "complete_machine_runtime_verified": false,
+  "production_integration_at_review": "Root-I/O flag and measured clock reservations not yet selected by production bounded-system builder; a cache-only exact-policy hook is in progress.",
+  "outstanding_gates": [
+    "accepted current 4 KiB mapping/geometry rather than extrapolation from historical 8 KiB",
+    "exact cache policy integrated and recorded in production manifest",
+    "complete physical bank and external memory interconnection",
+    "clock/data timing and native saved-world execution of the complete connected cache",
+    "whole-machine loading, boot and application acceptance"
+  ],
+  "seconds": 5.98153102099991,
+  "peak_rss_kib": 86608
+}

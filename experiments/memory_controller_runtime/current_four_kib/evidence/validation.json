@@ -1,0 +1,48 @@
+{
+  "complete_machine_verified": false,
+  "current_controller_native_runtime_verified": false,
+  "note": "Runs overlap and must not be summed as distinct tests. Final policy guards extend the earlier batch; native complete-cache execution remains pending.",
+  "runs": [
+    {
+      "errors": 0,
+      "failures": 0,
+      "report": "current-and-policy-tests.xml",
+      "scope": "Current-capacity RTL/provenance/native-helper guards and compact policy; one existing controller clock test excluded because its native path is covered separately",
+      "sha256": "a0aad8c2a5eecdb40cbb519b596221f48150f1fe8cb893c2902208ad7ca22774",
+      "skipped": 0,
+      "tests": 110
+    },
+    {
+      "errors": 0,
+      "failures": 0,
+      "report": "bounded-backend-policy-tests.xml",
+      "scope": "Production bounded backend, including its actual saved-world positive and too-fast negative; preliminary compact policy guards",
+      "sha256": "4b973905f4e4d24129dd3c1dba3c34527df69f5ff4bbf019cb6366c9dfd32454",
+      "skipped": 0,
+      "tests": 31
+    },
+    {
+      "errors": 0,
+      "failures": 0,
+      "report": "final-policy-tests.xml",
+      "scope": "Final compact policy, exact frozen plan/geometry equivalence, explicit selector/configuration guards",
+      "sha256": "a440f41bcc943bc86de4eb19121dfb1fe514eab7424a0e5eddf2d10be9b888b4",
+      "skipped": 0,
+      "tests": 21
+    }
+  ],
+  "source_hashes": {
+    "experiments/memory_controller_runtime/current_fixture.py": "6287e84c92f26bf0245d7609e46d50ede78b2bbe9be77862b4f175e95b8fa37e",
+    "experiments/memory_controller_runtime/geometry.py": "941cfc86bc670980da3b850a89268af02653b214a6393ffcb6c981b7eedd9343",
+    "experiments/memory_controller_runtime/interconnect.py": "47c1fc27195ca69141478d42fb81240c36f01bb2e26b9ad44b35b50cda8a9b88",
+    "experiments/memory_controller_runtime/run_connected.py": "15c3d26cb83553ec98c5708d029e27904067b6a976b908da5c104d2084c62639",
+    "experiments/memory_controller_runtime/save_connected.py": "a3c1a70ac358412ddd0a3ef52a46f0d210196ce32c251185a29478024bad2453",
+    "experiments/memory_controller_runtime/scenarios.py": "2e9c26c904752cd633d85fc9dde9fd8171be723288fecb418f5dcf5932762e4c",
+    "experiments/partition_planner/audit_cache_frames.py": "c0dc8c45e8fb89d47be78b8af31c864eb4e4a8ed7460f7afc16cea0cd0a27c44",
+    "src/shamaos/bounded_system.py": "76f632427b8539af8b0fda0d78323916f24bbb6c5fcce9be76b8090372333287",
+    "src/shamaos/hardware/cache_layout.py": "25c7a51a4de354e0eae9b13a64ffd75bfd6e7de65c12f78ea811f25ca3a60974",
+    "tests/test_cache_layout_policy.py": "b2d1ec90fc3d709139453fe56bdf27fe46175ef5b14e03f23ce0d9a12034eeb4",
+    "tests/test_current_cache_fixture.py": "7df86d10afad4b08f878d6943c9335d9516777a47f3fe9bcffac1e9ccfe108d7"
+  },
+  "status": "focused-current-cache-and-policy-checks-passed"
+}

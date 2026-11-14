@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from .flashfs import MAX_FILES, FileType, ShamaFS
 from .machine_spec import CACHE_BYTES, FLASH_BYTES, FLASH_WRITE_LIMIT_BYTES, RAM_BYTES, VRAM_BYTES
-from .memory_map import HEAP_BASE, HEAP_PAGE_BYTES, HEAP_PAGES, MINER_WORKSPACE_BYTES, app_heap_spans
+from .memory_map import APP_BACKING_BYTES, HEAP_BASE, HEAP_PAGE_BYTES, HEAP_PAGES, MINER_WORKSPACE_BYTES, app_heap_spans
 from .os_image import APP_IDS, APP_SLOT_BYTES, BUNDLE_ORDER, FIRMWARE, OSImage, build_default_os_image
 
 
@@ -111,7 +111,8 @@ def software_resource_usage(image: OSImage | None = None) -> dict[str, object]:
 
     RAM follows the services' public counter: kernel bytes + app executable
     backing + app workspace, with no extra SYS_ALLOC pages. The software-managed
-    fast memory holds the same executable and is counted in its separate pool.
+    fast memory holds its prefix and is counted in its separate pool. Any tail
+    executes directly from the already counted RAM backing.
     A custom image must still match the owner's current physical flash size.
     """
     image = image or build_default_os_image()
@@ -127,15 +128,16 @@ def software_resource_usage(image: OSImage | None = None) -> dict[str, object]:
     rows = []
     for app in APP_IDS:
         executable = image.slot_binary_lengths[app]
+        cached = min(executable, CACHE_BYTES)
         workspace = APP_WORKSPACE_BYTES[app]
         ram_used = kernel_bytes + executable + workspace
         extra_staging = APP_SLOT_BYTES if app == "editor" else 0
         peak_ram = ram_used + extra_staging
         heap_spans = app_heap_spans(app)
         heap_bytes = sum(size for _, size in heap_spans)
-        if peak_ram + heap_bytes > RAM_BYTES or executable > CACHE_BYTES:
+        if peak_ram + heap_bytes > RAM_BYTES or executable > APP_BACKING_BYTES:
             raise ValueError(f"{app} does not fit the agreed physical memory")
-        combined_used = ram_used + executable + fs.used_bytes + vram_reserved
+        combined_used = ram_used + cached + fs.used_bytes + vram_reserved
         rows.append({
             "app": app,
             "ram_bytes": ram_used,
@@ -150,9 +152,11 @@ def software_resource_usage(image: OSImage | None = None) -> dict[str, object]:
             "heap_spans": [{"base": base, "bytes": size} for base, size in heap_spans],
             "peak_ram_bytes_with_all_available_heap": peak_ram + heap_bytes,
             "peak_ram_percent_with_all_available_heap": 100 * (peak_ram + heap_bytes) / RAM_BYTES,
-            "fast_bytes": executable,
-            "fast_kib": executable / 1024,
-            "fast_percent": 100 * executable / CACHE_BYTES,
+            "executable_bytes": executable,
+            "uncached_code_bytes": executable - cached,
+            "fast_bytes": cached,
+            "fast_kib": cached / 1024,
+            "fast_percent": 100 * cached / CACHE_BYTES,
             "vram_shared_reserved_bytes": vram_reserved,
             "vram_shared_reserved_percent": 100 * vram_reserved / VRAM_BYTES,
             "all_memory_pools_used_bytes": combined_used,

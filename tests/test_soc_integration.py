@@ -9,7 +9,7 @@ import pytest
 from shamaos.assembler import assemble, assemble_file
 from shamaos.flashfs import FileType, ShamaFS
 from shamaos.machine_spec import CACHE_BYTES, FLASH_BYTES, RAM_BYTES
-from shamaos.memory_map import HEAP_BASE, RUN_STAGING
+from shamaos.memory_map import APP_BACKING_BYTES, HEAP_BASE, RUN_STAGING
 from shamaos.os_image import build_default_os_image, render_boot_parameters
 from shamaos.system_build import SOC_RTL_FILES
 
@@ -137,6 +137,31 @@ def test_real_memory_controllers_assemble_typed_source_and_run_saved_binary(
     assert "SOC PROGRAM ASSEMBLE RUN HOME PASS" in output, output
 
 
+@pytest.mark.parametrize("backend", ["soc_executable", "real_adapter_soc_executable"])
+def test_full_execution_window_crosses_smaller_cache_and_retains_writeback(
+    backend, request, os_image, tmp_path,
+):
+    # The legacy two-word LDI deliberately straddles the cache/RAM boundary.
+    # A short call enters it from cache and returns to cache. The tail writes
+    # both memory regions, flushes the prefix, and reads its direct RAM write.
+    lines = ['CALLS .edge', 'LDI r7 0x5a17c0de', 'HLT']
+    prefix_words = len(assemble('\n'.join(lines) + '\n.edge\n').words)
+    lines += ['NOP'] * (CACHE_BYTES // 4 - 1 - prefix_words)
+    lines += ['.edge LDI r5 0x01234567', 'LDIS r6 128', 'LDI r4 0x89abcdef',
+              'STW r6 r4 0', f'LDIS r6 {CACHE_BYTES + 64}', 'STW r6 r4 0',
+              'CFLUSH', 'LDW r8 r6 0', 'RET']
+    lines += ['NOP'] * (APP_BACKING_BYTES // 4 - 1 - len(assemble('\n'.join(lines)).words))
+    lines += ['HLT']
+    program = assemble('\n'.join(lines) + '\n')
+    assert len(program.to_bytes()) == APP_BACKING_BYTES == 8192
+    assert program.labels['.EDGE'] == CACHE_BYTES // 4 - 1
+    fs = ShamaFS.deserialize(os_image.image)
+    fs.create_file('ZTAIL.BIN', program.to_bytes(), FileType.BIN)
+    executable = request.getfixturevalue(backend)
+    output = run_soc(executable, fs.serialize(), tmp_path, '+cache_tail_flow', timeout=1200)
+    assert 'SOC CACHE PREFIX RAM TAIL EXECUTION FLUSH CLEAR PASS' in output, output
+
+
 def test_real_memory_controllers_run_code_staged_inside_an_owned_heap_allocation(
     real_adapter_soc_executable, os_image, tmp_path,
 ):
@@ -165,7 +190,7 @@ def test_real_app_resource_faults_recover_and_protected_flash_rejects_cpu_stores
     programs = {
         "ram": f"LDI r1 {RAM_BYTES}\nLDB r2 r1 0\nHLT\n",
         "heap": f"LDI r1 {RAM_BYTES + 1}\nSYS SYS_ALLOC\nHLT\n",
-        "cache": f"LDI r1 {RUN_STAGING}\nLDI r2 {CACHE_BYTES + 4}\nSYS SYS_RUN_BUFFER\nHLT\n",
+        "cache": f"LDI r1 {RUN_STAGING}\nLDI r2 {APP_BACKING_BYTES + 4}\nSYS SYS_RUN_BUFFER\nHLT\n",
         # A one-pixel BLIT beyond the complete sprite payload must fail before
         # DMA, and the following fence must not strand its syscall caller.
         "vram": "LDI r1 9\nLDI r2 1024\nLDI r3 0\nLDI r4 0\n"

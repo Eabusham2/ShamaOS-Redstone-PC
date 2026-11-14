@@ -1,4 +1,4 @@
-"""Save the balanced full cache facade, real banks and exact interconnect.
+"""Save the balanced full cache facade, all installed banks and exact interconnect.
 
 The independent sort/merge union establishes the compound inventory. A second
 SQLite union must reproduce its exact states, coordinates and bounds before
@@ -53,6 +53,8 @@ def _write(path, value):
 def _source_hashes(facade_report):
     names = set(fixture.SOURCE_PATHS) | set(facade_report["source_hashes"])
     names.update(("experiments/memory_controller_runtime/interconnect.py",
+                  "experiments/memory_controller_runtime/current_fixture.py",
+                  "experiments/partition_planner/audit_cache_frames.py",
                   "experiments/memory_controller_runtime/save_connected.py",
                   "experiments/partition_placement/port_egress_interfaces.py",
                   "experiments/partition_placement/raised_exports/streamed_union.py",
@@ -88,7 +90,7 @@ def _accepted_facade(facade_report_path, plan_path, graph):
     return facade_report, record, manifest
 
 
-def _retain_inputs(destination, report, facade_report_path, manifest, plan_path):
+def _retain_inputs(destination, report, facade_report_path, manifest, plan_path, *, mapped_path=None, current_prepared=None):
     """Keep the exact reviewed sources and small immutable build inputs."""
     bundle = destination / "connected-source-inputs.zip"
     paths = {name: ROOT / name for name in report["source_hashes"]}
@@ -96,9 +98,15 @@ def _retain_inputs(destination, report, facade_report_path, manifest, plan_path)
         "inputs/facade-report.json": facade_report_path,
         "inputs/facade-balanced.json.gz": manifest,
         "inputs/plan.json": plan_path,
-        "inputs/mapped-controller.json.gz": fixture.HERE / "evidence/cache-controller-c331.json.gz",
+        ("inputs/mapped-controller.json" if mapped_path and mapped_path.suffix != ".gz"
+         else "inputs/mapped-controller.json.gz"): mapped_path or fixture.HERE / "evidence/cache-controller-c331.json.gz",
         "inputs/initial.bin": destination / "initial.bin",
     })
+    if current_prepared is not None:
+        from experiments.memory_controller_runtime.current_fixture import INPUTS
+        for name in ("prepared.json", "input-inventory.json", "mapped.json", "mapped-raw.json", "plan.json", "initial.bin"):
+            paths["inputs/current/" + name] = current_prepared / name
+        paths.update({"inputs/current/source/" + name: current_prepared / "source" / name for name in INPUTS})
     with zipfile.ZipFile(bundle, "x", compression=zipfile.ZIP_DEFLATED, compresslevel=6) as archive:
         for name, path in sorted(paths.items()):
             info = zipfile.ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0))
@@ -106,7 +114,7 @@ def _retain_inputs(destination, report, facade_report_path, manifest, plan_path)
             archive.writestr(info, path.read_bytes())
     return {"path": str(bundle.resolve()), "sha256": _sha(bundle),
             "bytes": bundle.stat().st_size, "files": len(paths),
-            "scope": "Complete source binding inventory and exact mapped, facade, plan and 8 KiB initial inputs; native world is separate"}
+            "scope": "Complete source binding inventory and exact mapped, facade, plan and full-capacity initial inputs; native world is separate"}
 
 
 def _validate_native_driver_pads(reader, inputs):
@@ -130,8 +138,8 @@ def _validate_native_driver_pads(reader, inputs):
             "scope": "All six block faces inspected in the saved world; complete route electrical behavior remains a native-runtime gate"}
 
 
-def _native_maps(graph, placed, connection, fabric):
-    _, outputs = geometry.interface_maps(graph, placed, connection.bank_origin, fabric)
+def _native_maps(graph, placed, connection, fabric, *, capacity_bytes=8192):
+    _, outputs = geometry.interface_maps(graph, placed, connection.bank_origin, fabric, capacity_bytes=capacity_bytes)
     # Public adapter observations belong at the true exported contacts. Keep
     # the original inner pins as separately named diagnostic observables.
     for (name, bit), point in connection.controller_ports.items():
@@ -141,17 +149,27 @@ def _native_maps(graph, placed, connection, fabric):
     inputs = {scenarios.host(name, bit): [point.x, point.y, point.z]
               for (name, bit), point in connection.controller_ports.items()
               if name in scenarios.HOST_WIDTHS and bit < scenarios.HOST_WIDTHS[name]}
-    if len(inputs) != 72 or sum(name.startswith("storage:") for name in outputs) != 65536:
+    if len(inputs) != 72 or sum(name.startswith("storage:") for name in outputs) != capacity_bytes * 8:
         raise ValueError("native interface map lost a host input or stored bit")
     return inputs, outputs
 
 
-def save_connected(facade_report_path: Path, plan_path: Path, destination: Path) -> dict:
+def save_connected(facade_report_path: Path, plan_path: Path, destination: Path, *, current_prepared=None) -> dict:
     if destination.exists():
         raise FileExistsError(destination)
     if resource is None:
         raise RuntimeError("large connected-cache emission requires POSIX process accounting and bounds")
-    graph, _, fabric, production_origin = fixture.graph_and_fabric()
+    prepared_record = None
+    if current_prepared is None:
+        graph, _, fabric, production_origin = fixture.graph_and_fabric()
+        capacity_bytes = 8192
+    else:
+        from experiments.memory_controller_runtime.current_fixture import load_prepared
+        prepared_record, graph, _, fabric, production_origin = load_prepared(current_prepared)
+        capacity_bytes = prepared_record["capacity_bytes"]
+        if _sha(plan_path) != prepared_record["plan_sha256"]:
+            raise ValueError("current cache placement plan differs from its exact prepared graph")
+    mapped_path = Path(graph.source["path"])
     facade_report, record, manifest = _accepted_facade(facade_report_path, plan_path, graph)
     plan = json.loads(plan_path.read_text())
     placed = read_egress_manifest(manifest, record["sha256"], graph, plan)
@@ -169,7 +187,10 @@ def save_connected(facade_report_path: Path, plan_path: Path, destination: Path)
                   "cpu_seconds": resource.getrlimit(resource.RLIMIT_CPU)[0],
                   "wall_alarm_remaining_seconds_at_start": signal.getitimer(signal.ITIMER_REAL)[0],
                   "pid": os.getpid()},
-              "scope": "Complete mapped cache facade plus both physical banks, decoder and all external routes; native runtime remains a separate gate"}
+              "scope": "Complete mapped cache facade plus all installed physical banks, decoder and all external routes; native runtime remains a separate gate"}
+    if current_prepared is not None:
+        report["current_preparation"] = {"path": str((current_prepared / "prepared.json").resolve()),
+                                         "sha256": _sha(current_prepared / "prepared.json")}
 
     def save():
         report["seconds"] = time.monotonic() - started
@@ -184,8 +205,12 @@ def save_connected(facade_report_path: Path, plan_path: Path, destination: Path)
             raise ValueError("accepted facade inputs changed during emission")
         if _sha(plan_path) != report["plan_sha256"]:
             raise ValueError("complete facade plan changed during emission")
-        if _sha(fixture.HERE / "evidence/cache-controller-c331.json.gz") != graph.source["container_sha256"]:
+        if _sha(mapped_path) != graph.source["container_sha256"]:
             raise ValueError("complete mapped controller container changed during emission")
+        if current_prepared is not None:
+            if _sha(current_prepared / "prepared.json") != report["current_preparation"]["sha256"]:
+                raise ValueError("current cache preparation changed during emission")
+            load_prepared(current_prepared)
 
     def observed(placements, phase):
         count = 0
@@ -205,13 +230,13 @@ def save_connected(facade_report_path: Path, plan_path: Path, destination: Path)
         report["facade_audit"] = audit_egress(graph, placed)
         report["structural_clock_matching"] = balance_partition_clocks(plan, placed)
         report["clock_scope"] = "Original input pin to all registers structurally matched; exterior facade delivery and connected data timing require native execution"
-        connection = interconnect.connect_cache(graph, placed, fabric, production_origin)
-        initial = b"".join(word.to_bytes(4, "little") for word in scenarios.initial_words())
-        if len(initial) != 8192:
-            raise ValueError("complete physical cache initial state must retain all 8192 bytes")
+        connection = interconnect.connect_cache(graph, placed, fabric, production_origin, capacity_bytes=capacity_bytes)
+        initial = b"".join(word.to_bytes(4, "little") for word in scenarios.initial_words(capacity_bytes=capacity_bytes))
+        if len(initial) != capacity_bytes:
+            raise ValueError("complete physical cache initial state must retain every installed byte")
         (destination / "initial.bin").write_bytes(initial)
-        report["physical_memory"] = {"capacity_bytes": 8192, "banks": 2, "rows_per_bank": 1024,
-            "word_bits": 32, "stored_bits": 65536, "binary_decoder_bits": 10,
+        report["physical_memory"] = {"capacity_bytes": capacity_bytes, "banks": fabric.bank_count, "rows_per_bank": 1024,
+            "word_bits": 32, "stored_bits": capacity_bytes * 8, "binary_decoder_bits": 10,
             "bank_origin": asdict(connection.bank_origin), "bounds": asdict(fabric.bounds(connection.bank_origin)),
             "initial_sha256": _sha(destination / "initial.bin"),
             "layer_pitch": fabric.layer_pitch, "decoder_x_offset": fabric.decoder_x_offset}
@@ -221,13 +246,14 @@ def save_connected(facade_report_path: Path, plan_path: Path, destination: Path)
         _write(destination / "external-nets.json", [asdict(net) for net in connection.nets])
         report["external_nets_sha256"] = _sha(destination / "external-nets.json")
         check_frozen()
-        report["source_input_bundle"] = _retain_inputs(destination, report, facade_report_path, manifest, plan_path)
+        report["source_input_bundle"] = _retain_inputs(destination, report, facade_report_path, manifest, plan_path,
+            mapped_path=mapped_path, current_prepared=current_prepared)
         check_frozen()
         save()
 
         report["stage"] = "independent-sort-merge-connected-union"
         save()
-        first = literal_union(observed(interconnect.iter_connected_blocks(placed, connection, fabric, initial), "sort-union"),
+        first = literal_union(observed(interconnect.iter_connected_blocks(placed, connection, fabric, initial, capacity_bytes=capacity_bytes), "sort-union"),
                               run_records=65536, temporary_parent=destination)
         report["independent_sort_union"] = first
         bounds = Box(Vec3(**first["bounds"]["min"]), Vec3(**first["bounds"]["max"]))
@@ -235,7 +261,7 @@ def save_connected(facade_report_path: Path, plan_path: Path, destination: Path)
         report["stage"] = "sqlite-connected-union"
         save()
         union = bounded_build._LiteralUnion(destination / "connected-union.sqlite3")
-        second = union.collect(observed(interconnect.iter_connected_blocks(placed, connection, fabric, initial), "sqlite-union"),
+        second = union.collect(observed(interconnect.iter_connected_blocks(placed, connection, fabric, initial, capacity_bytes=capacity_bytes), "sqlite-union"),
             surface_y=-61, maximum_y=319, bounds=bounds, expected_unique=first["literal_unique_blocks"])
         report["sqlite_union"] = second
         if (second["sorted_unique_record_sha256"] != first["sorted_unique_record_sha256"]
@@ -264,7 +290,7 @@ def save_connected(facade_report_path: Path, plan_path: Path, destination: Path)
             raise ValueError("native connected world differs from the complete emitted block union")
         report["native_readback"] = readback
         reader = NativeWorldReader(world)
-        inputs, outputs = _native_maps(graph, placed, connection, fabric)
+        inputs, outputs = _native_maps(graph, placed, connection, fabric, capacity_bytes=capacity_bytes)
         report["native_host_pad_validation"] = _validate_native_driver_pads(reader, inputs)
         for name, coords in outputs.items():
             if reader.get_block(Vec3(*coords)).name == "minecraft:air":
@@ -294,6 +320,7 @@ if __name__ == "__main__":
     parser.add_argument("facade_report", type=Path)
     parser.add_argument("plan", type=Path)
     parser.add_argument("output", type=Path)
+    parser.add_argument("--current-prepared", type=Path)
     parser.add_argument("--memory-limit-mib", type=int, default=2048)
     parser.add_argument("--wall-seconds", type=int, default=5400)
     args = parser.parse_args()
@@ -309,7 +336,7 @@ if __name__ == "__main__":
     signal.signal(signal.SIGALRM, timed_out)
     signal.alarm(args.wall_seconds)
     try:
-        result = save_connected(args.facade_report, args.plan, args.output)
+        result = save_connected(args.facade_report, args.plan, args.output, current_prepared=args.current_prepared)
     finally:
         signal.alarm(0)
     print(json.dumps({key: result[key] for key in ("status", "seconds", "peak_rss_kib",

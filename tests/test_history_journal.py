@@ -79,8 +79,16 @@ def expected_history(old, slot=63, count=128, sequence=0):
 
 def test_complete_installed_image_all_records_wrap_short_payloads_and_state_interleaving(history_runner, installed_image, tmp_path):
     before = ShamaFS.deserialize(installed_image.image)
-    assert before.used_bytes + 32768 > before.write_limit_bytes, "fixture must reproduce the old 32 KiB COW failure"
-    result = ShamaFS.deserialize(run_history(history_runner, installed_image.image, tmp_path, "+mode=bulk"))
+    # App compaction leaves more free flash. Keep this fixture under the write
+    # guard but too full for the old whole-history copy, without removing or
+    # replacing any installed file.
+    history_bytes = len(before.read_file(HISTORY))
+    pressure_blocks = max(0, (before.write_limit_bytes - before.used_bytes - history_bytes) // before.block_size + 1)
+    if pressure_blocks:
+        before.create_file("zz-history-pressure", bytes(pressure_blocks * before.block_size), FileType.DATA)
+    assert not before.write_protected
+    assert before.used_bytes + history_bytes > before.write_limit_bytes, "fixture must reproduce the old 32 KiB COW failure"
+    result = ShamaFS.deserialize(run_history(history_runner, before.serialize(), tmp_path, "+mode=bulk"))
     expected = b"".join(record(slot) for slot in range(256))
     for slot, count, sequence in ((0, 128, 5), (64, 17, 2), (128, 127, 3), (255, 128, 4)):
         expected = expected_history(expected, slot, count, sequence)
@@ -277,6 +285,7 @@ def test_actual_miner_firmware_saves_complete_history_and_state_in_the_full_imag
     from test_miner_firmware import BASE, TARGET, MinerMachine, configure
 
     initial = ShamaFS.deserialize(installed_image.image)
+    initial_used_bytes = initial.used_bytes
     machine = MinerMachine(initial)
     machine.settle()
     configure(machine, "T", b"\xff" * 32)
@@ -291,5 +300,5 @@ def test_actual_miner_firmware_saves_complete_history_and_state_in_the_full_imag
     assert state[48:80] == expected
     assert state[80:112] == bytes(machine.memory[TARGET:TARGET + 32])
     assert len(history) == 32768
-    assert machine.fs.used_bytes == 162304
+    assert machine.fs.used_bytes == initial_used_bytes
     assert ShamaFS.deserialize(machine.fs.serialize()).read_file(HISTORY) == history

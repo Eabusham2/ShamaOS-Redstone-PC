@@ -151,6 +151,7 @@ class BoundedPartition:
                 "native_modules": len(self.placed.all_modules()),
                 "facade_modules": len(self.placed.all_facade_modules()),
                 "original_port_bits": len(self.placed.ports),
+                "cache_layout_policy": self.placed.packing.get("cache_layout_policy"),
                 "planned_clock_matching_scope": "Exact original-input/generated-source-to-register matching is required; exterior facade prefix and runtime timing remain unverified",
                 "complete_machine_runtime_verified": False, "electrical_route_isolation_verified": False}
 
@@ -386,6 +387,7 @@ def prepare_from_artifacts(partition_artifacts, shell_mapped, *, shell_top="sham
 
     defaults = {"cell_budget": 64, "boundary_budget": 128, "domain_budget": 128,
                 "arity": 4, "maximum_partition_y": 285, "component_gap": 128,
+                "cache_compaction": 1,
                 "shell_branch_y": 300, "shell_trunk_y": 304,
                 "shell_front_clearance": 96, "shell_track_base_z": None}
     options = dict(options or {})
@@ -398,6 +400,8 @@ def prepare_from_artifacts(partition_artifacts, shell_mapped, *, shell_top="sham
             raise ValueError(f"bounded logic option {name} must be an exact integer")
     if settings["component_gap"] < 16 or settings["maximum_partition_y"] > 285:
         raise ValueError("bounded components need separation and reserved shell/global routing height")
+    if settings["cache_compaction"] not in (0, 1):
+        raise ValueError("bounded cache_compaction must be zero or one")
     if minimum_build_y < -63 or settings["maximum_partition_y"] <= minimum_build_y:
         raise ValueError("bounded logic has no above-grass placement envelope")
     artifacts = tuple(partition_artifacts)
@@ -410,10 +414,18 @@ def prepare_from_artifacts(partition_artifacts, shell_mapped, *, shell_top="sham
     front = base_origin.z - 1024
     for name, top, path in artifacts:
         graph = Graph.read(path, top)
-        plan = build_plan(graph, cell_budget=settings["cell_budget"], boundary_budget=settings["boundary_budget"],
-                          domain_budget=settings["domain_budget"], arity=settings["arity"])
-        placed = place_with_egress(graph, plan, surface_y=minimum_build_y-1,
-                                  maximum_y=settings["maximum_partition_y"])
+        from .hardware.cache_layout import cache_policy, place_compact_cache
+        policy = cache_policy(graph) if name == "u_cache" and settings["cache_compaction"] else None
+        if policy is not None:
+            if (settings["cell_budget"], settings["boundary_budget"], settings["arity"]) != (64, 128, 4):
+                raise ValueError("compact cache policy requires cell/boundary/arity 64/128/4; use cache_compaction=0 for a different unverified layout")
+            plan, placed = place_compact_cache(graph, surface_y=minimum_build_y-1,
+                                               maximum_y=settings["maximum_partition_y"])
+        else:
+            plan = build_plan(graph, cell_budget=settings["cell_budget"], boundary_budget=settings["boundary_budget"],
+                              domain_budget=settings["domain_budget"], arity=settings["arity"])
+            placed = place_with_egress(graph, plan, surface_y=minimum_build_y-1,
+                                      maximum_y=settings["maximum_partition_y"])
         offset = Vec3(right-placed.bounds.max.x, minimum_build_y-placed.bounds.min.y, front-placed.bounds.max.z)
         part = BoundedPartition(graph, plan, placed.translated(offset), minimum_build_y-1,
                                 settings["maximum_partition_y"])

@@ -1,0 +1,49 @@
+{
+  "scope": "Source compaction; exact executable bytes and model steps. Short-form sizes are projections only.",
+  "baseline_commit": "184faa9d28d871b77ff4de73c022b620d57536a7",
+  "source_path": "src/shamaos/firmware/miner.asm",
+  "results": {
+    "baseline": {
+      "source_sha256": "091dc204b645e26e5c4a2546ef8d26536060cf76bd92d5eb0098af4b373d2ce6",
+      "executable_sha256": "eb504a4047e6b90dd9b8d83f7f7ffedd438536ea389d0686365de2e790201f09",
+      "executable_bytes": 6904,
+      "control_and_render_prefix_bytes": 4960,
+      "legacy_control_transfers": 263,
+      "legacy_signed20_immediates": 29,
+      "projected_bytes_if_eligible_legacy_forms_shorten": 5736,
+      "reference_instruction_steps": {
+        "first_boot_to_idle": 12405,
+        "live_redraw": 6655,
+        "empty_history": 1651,
+        "compare_command": 17116,
+        "native_hash_measured": 2,
+        "software_hash_measured": 15394
+      }
+    },
+    "candidate": {
+      "source_sha256": "43d38bdcaf615a9eaafc3e7f19c8975582a05fac800e0ca33d47c996074ab1e0",
+      "executable_sha256": "c2603fe7bf20a502e59f5bdb5caaea6ad0ea1ba47d05c11d59d808352e59bfa7",
+      "executable_bytes": 5944,
+      "control_and_render_prefix_bytes": 4000,
+      "legacy_control_transfers": 204,
+      "legacy_signed20_immediates": 31,
+      "projected_bytes_if_eligible_legacy_forms_shorten": 5004,
+      "reference_instruction_steps": {
+        "first_boot_to_idle": 6498,
+        "live_redraw": 4707,
+        "empty_history": 633,
+        "compare_command": 15328,
+        "native_hash_measured": 2,
+        "software_hash_measured": 14626
+      }
+    }
+  },
+  "verification": {
+    "tests": 50,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "command": "PYTHONPATH=src:tests python -m pytest -q tests/test_miner_firmware.py tests/test_miner_rendering.py tests/test_cpu_rtl.py::test_shipped_software_double_sha_runs_on_cpu_rtl_and_matches_native --junitxml=build/miner-source-compaction-tests.xml",
+    "requires": "iverilog and vvp on PATH for CPU RTL verification."
+  }
+}

@@ -39,16 +39,20 @@ module shama_cpu (
 );
     localparam [7:0]
         OP_NOP=8'h00, OP_HLT=8'h01, OP_MOV=8'h02, OP_LDI=8'h03, OP_LUI=8'h04,
+        OP_LDIS=8'h05,
         OP_ADD=8'h10, OP_ADC=8'h11, OP_SUB=8'h12, OP_SBC=8'h13,
         OP_MUL=8'h14, OP_DIV=8'h15, OP_MOD=8'h16, OP_NEG=8'h17,
         OP_INC=8'h18, OP_DEC=8'h19, OP_ADDI=8'h1a, OP_SUBI=8'h1b,
+        OP_ADDIS=8'h1c, OP_SUBIS=8'h1d,
         OP_AND=8'h20, OP_OR=8'h21, OP_XOR=8'h22, OP_NOR=8'h23,
         OP_NAND=8'h24, OP_XNOR=8'h25, OP_NOT=8'h26,
         OP_SHL=8'h27, OP_SHR=8'h28, OP_SAR=8'h29, OP_ROL=8'h2a, OP_ROR=8'h2b,
         OP_ANDI=8'h2c, OP_ORI=8'h2d, OP_XORI=8'h2e, OP_RSH1=8'h2f,
         OP_CMP=8'h30, OP_TEST=8'h31,
+        OP_ANDIS=8'h32, OP_ORIS=8'h33, OP_XORIS=8'h34,
         OP_JMP=8'h40, OP_BR=8'h41, OP_CALL=8'h42, OP_RET=8'h43,
         OP_PUSH=8'h44, OP_POP=8'h45,
+        OP_JMPS=8'h46, OP_BRS=8'h47, OP_CALLS=8'h48,
         OP_LDB=8'h50, OP_LDH=8'h51, OP_LDW=8'h52,
         OP_STB=8'h53, OP_STH=8'h54, OP_STW=8'h55, OP_LEA=8'h56,
         OP_SYS=8'h60, OP_IRET=8'h61, OP_FENCE=8'h62, OP_CFLUSH=8'h63,
@@ -76,6 +80,7 @@ module shama_cpu (
 
     logic [31:0] pc;
     logic [31:0] ir, ext_word;
+    logic [31:0] immediate_value, branch_target;
     logic [7:0] opcode;
     logic [3:0] rd, ra, rb;
     logic signed [11:0] imm12;
@@ -231,6 +236,12 @@ module shama_cpu (
         ra = ir[19:16];
         rb = ir[15:12];
         imm12 = ir[11:0];
+        // Short instructions use the existing datapath and flag logic. They
+        // simply supply the operand from the instruction instead of fetching
+        // an extension word; old binary encodings remain unchanged.
+        immediate_value = needs_ext(opcode) ? ext_word : {{12{ir[19]}},ir[19:0]};
+        branch_target = (opcode==OP_JMPS || opcode==OP_CALLS) ? {8'd0,ir[23:0]} :
+                        (opcode==OP_BRS) ? {12'd0,ir[19:0]} : ext_word;
         ra_value = rreg(ra);
         rb_value = rreg(rb);
         rd_value = rreg(rd);
@@ -388,20 +399,20 @@ module shama_cpu (
                         OP_NOP: state <= S_FETCH;
                         OP_HLT: begin halted <= 1; state <= S_HALTED; end
                         OP_MOV: begin regs[rd] <= rreg(ra); state <= S_FETCH; end
-                        OP_LDI: begin regs[rd] <= ext_word; state <= S_FETCH; end
+                        OP_LDI, OP_LDIS: begin regs[rd] <= immediate_value; state <= S_FETCH; end
                         OP_LUI: begin regs[rd] <= ext_word << 12; state <= S_FETCH; end
-                        OP_ADDI: begin
-                            wide={1'b0,rd_value}+{1'b0,ext_word}; result=wide[31:0];
+                        OP_ADDI, OP_ADDIS: begin
+                            wide={1'b0,rd_value}+{1'b0,immediate_value}; result=wide[31:0];
                             regs[rd]<=result; flag_c<=wide[32]; set_zn(result);
-                            flag_v<=(~(rd_value[31]^ext_word[31]))&(rd_value[31]^result[31]); state<=S_FETCH;
+                            flag_v<=(~(rd_value[31]^immediate_value[31]))&(rd_value[31]^result[31]); state<=S_FETCH;
                         end
-                        OP_SUBI: begin
-                            result=rd_value-ext_word; regs[rd]<=result; flag_c<=(rd_value>=ext_word); set_zn(result);
-                            flag_v<=(rd_value[31]^ext_word[31])&(rd_value[31]^result[31]); state<=S_FETCH;
+                        OP_SUBI, OP_SUBIS: begin
+                            result=rd_value-immediate_value; regs[rd]<=result; flag_c<=(rd_value>=immediate_value); set_zn(result);
+                            flag_v<=(rd_value[31]^immediate_value[31])&(rd_value[31]^result[31]); state<=S_FETCH;
                         end
-                        OP_ANDI: begin result=rd_value&ext_word; regs[rd]<=result; set_zn(result); state<=S_FETCH; end
-                        OP_ORI: begin result=rd_value|ext_word; regs[rd]<=result; set_zn(result); state<=S_FETCH; end
-                        OP_XORI: begin result=rd_value^ext_word; regs[rd]<=result; set_zn(result); state<=S_FETCH; end
+                        OP_ANDI, OP_ANDIS: begin result=rd_value&immediate_value; regs[rd]<=result; set_zn(result); state<=S_FETCH; end
+                        OP_ORI, OP_ORIS: begin result=rd_value|immediate_value; regs[rd]<=result; set_zn(result); state<=S_FETCH; end
+                        OP_XORI, OP_XORIS: begin result=rd_value^immediate_value; regs[rd]<=result; set_zn(result); state<=S_FETCH; end
 
                         OP_ADD, OP_ADC: begin
                             wide = {1'b0,rreg(ra)} + {1'b0,rreg(rb)}
@@ -448,11 +459,11 @@ module shama_cpu (
                         end
                         OP_TEST: begin result=rreg(rd)&rreg(ra); set_zn(result); state<=S_FETCH; end
 
-                        OP_JMP: begin pc<=ext_word; state<=S_FETCH; end
-                        OP_BR: begin if(rd>11) fault(8'd2); else begin if(cond_true(rd)) pc<=ext_word; state<=S_FETCH; end end
-                        OP_CALL: begin
+                        OP_JMP, OP_JMPS: begin pc<=branch_target; state<=S_FETCH; end
+                        OP_BR, OP_BRS: begin if(rd>11) fault(8'd2); else begin if(cond_true(rd)) pc<=branch_target; state<=S_FETCH; end end
+                        OP_CALL, OP_CALLS: begin
                             if(call_sp==256) fault(8'd3);
-                            else begin call_stack[call_sp[7:0]]<=pc; call_sp<=call_sp+1'b1; pc<=ext_word; state<=S_FETCH; end
+                            else begin call_stack[call_sp[7:0]]<=pc; call_sp<=call_sp+1'b1; pc<=branch_target; state<=S_FETCH; end
                         end
                         OP_RET, OP_IRET: begin
                             if(call_sp==0) fault(8'd4);

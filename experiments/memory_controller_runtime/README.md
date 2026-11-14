@@ -1,11 +1,19 @@
-# Next complete controller and memory runtime target
+# Historical 8 KiB controller and memory runtime target
 
-The **8 KiB cache adapter** is the selected next integration target. Its
-complete current mapping is smaller than the current VRAM adapter, and its
-two full 4 KiB banks are the smallest installed memory fabric. Complete
+This experiment preserves the **8 KiB cache adapter from c3315eb**. Its
+complete mapping is smaller than that checkpoint's VRAM adapter, and its
+two full 4 KiB banks were the smallest installed memory fabric. Complete
 controller placement, native save/readback and physical register-clock delivery
 now pass as detailed below. The connected controller-plus-memory runtime
 remains unverified.
+
+Production cache capacity and the adapter RTL can now change independently.
+This fixture reads its exact original RTL, header, mapping script, lowering
+source and configuration from `evidence/cache-controller-c331-inputs.zip`.
+Every member is checked against the original recorded source hashes; the
+configuration is also pinned. The archive retains evidence for this historical
+8 KiB case. A new capacity requires a newly mapped controller and separate
+geometry and runtime proof.
 
 | Complete partition | Installed storage | Native cells | DFFs | Cell-template blocks | Scalar input/output pins | Nets with sinks |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -71,8 +79,8 @@ substitute for the binary-decoder or mapped-controller integration above.
 
 ## Reproducible preparation
 
-`fixture.py prepare` checks the pinned complete mapping against the current
-memory-adapter sources, reconstructs and audits the complete bounded plan, and
+`fixture.py prepare` checks the pinned complete mapping against its retained
+historical memory-adapter sources, reconstructs and audits the complete bounded plan, and
 records every source/artifact hash. The exact mapping is included as the
 deterministic 23,096-byte `evidence/cache-controller-c331.json.gz`; decompression
 must reproduce SHA-256

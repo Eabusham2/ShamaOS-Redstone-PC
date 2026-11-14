@@ -1,0 +1,206 @@
+{
+  "review": "Independent resumed-work app and executable-cache audit",
+  "reviewed_commit": "828dc9f2f47ccdfd949d1585aa05d47440a31e1f",
+  "scope": "Software, ISA and RTL services regression only; complete connected cache redstone execution is a separate gate.",
+  "findings": [],
+  "capacities_bytes": {
+    "ram": 98304,
+    "cache": 4096,
+    "vram": 16384,
+    "flash": 204800,
+    "execution_window": 8192
+  },
+  "app_measurements_reproduced": true,
+  "app_executables_before_bytes": 22588,
+  "app_executables_after_bytes": 16528,
+  "app_sizes_and_residency": {
+    "desktop": {
+      "before_bytes": 232,
+      "after_bytes": 184,
+      "cached_bytes": 184,
+      "ram_tail_bytes": 0
+    },
+    "editor": {
+      "before_bytes": 4696,
+      "after_bytes": 3476,
+      "cached_bytes": 3476,
+      "ram_tail_bytes": 0
+    },
+    "files": {
+      "before_bytes": 5320,
+      "after_bytes": 3584,
+      "cached_bytes": 3584,
+      "ram_tail_bytes": 0
+    },
+    "miner": {
+      "before_bytes": 6904,
+      "after_bytes": 5004,
+      "cached_bytes": 4096,
+      "ram_tail_bytes": 908
+    },
+    "monitor": {
+      "before_bytes": 52,
+      "after_bytes": 40,
+      "cached_bytes": 40,
+      "ram_tail_bytes": 0
+    },
+    "terminal": {
+      "before_bytes": 1920,
+      "after_bytes": 1488,
+      "cached_bytes": 1488,
+      "ram_tail_bytes": 0
+    },
+    "calculator": {
+      "before_bytes": 1824,
+      "after_bytes": 1448,
+      "cached_bytes": 1448,
+      "ram_tail_bytes": 0
+    },
+    "paint": {
+      "before_bytes": 868,
+      "after_bytes": 696,
+      "cached_bytes": 696,
+      "ram_tail_bytes": 0
+    },
+    "settings": {
+      "before_bytes": 772,
+      "after_bytes": 608,
+      "cached_bytes": 608,
+      "ram_tail_bytes": 0
+    }
+  },
+  "source_bound_prior_reviews": {
+    "compact-isa-independent-review": {
+      "references": 6,
+      "all_source_hashes_match": true
+    },
+    "cache-backing-independent-review": {
+      "references": 11,
+      "all_source_hashes_match": true
+    },
+    "combined-app-validation": {
+      "references": 29,
+      "all_source_hashes_match": true
+    },
+    "software-completion-audit": {
+      "references": 10,
+      "all_source_hashes_match": true
+    }
+  },
+  "current_source_sha256": {
+    "src/shamaos/isa.py": "8957d9b03343c3f0f800b95a09ffc63809e2bc7adc7bf0f6586506cda87338c6",
+    "src/shamaos/assembler.py": "85a6dff1424e1e3a348a81f63a076d88315e2caa9c49ec8df576f93295dec434",
+    "src/shamaos/simulator.py": "8cd89293a432c79b00e5e9a80c0ad250e7503d58f12fea87fc76bd51b944176c",
+    "rtl/shama_cpu.sv": "337927c852636cb69d54a1760fc36319f47cb9973a6c3ab385f044878420f8db",
+    "rtl/shama_asm_accel.sv": "c032045d6d8a79f9d87d3e3ed19fba35fc54c80953b4eceea4266aba1083ccbc",
+    "tests/test_compact_isa_audit.py": "642570104934b5c8eb7d1051cf9babef70e729f6ab84d4b8cc3d7dc202158175",
+    "rtl/shama_services.sv": "ffe1a290d8b8239def5622d7d12d6800904b6c80209914d11985d81c0fa79366",
+    "rtl/shama_soc.sv": "5387762f974450c8b33fd67c77b49ede0107c69ecd6930e07f8fdc30f9ed8c26",
+    "rtl/shama_boot_params.svh": "ce84216693c92a7c40edd053140535e3961ba5ea3605fa0e8fc3eaa96fd65b08",
+    "rtl/tb_services.sv": "8b147e4d4fdc40e9ca3d1c2ffe8ca49ed0e52fe11ac0524b2bc1662ec1d62266",
+    "src/shamaos/machine_spec.py": "99e1155524c39b0c1f6d30f07f77cb0b7b18a4a2303ded30df2f7392789157bd",
+    "src/shamaos/memory_map.py": "817c59f5ced00bb9faee09cc9ca2dc932bd9715c8055a4423dd9613f81b784a1",
+    "src/shamaos/os_image.py": "635533d52dd246580c0379e8c2c289623d2c9c68752aa56098c9ccdedce95e46",
+    "src/shamaos/software_resources.py": "32e3a5231dd0f2b63104e446a71199ae251dab47251bc8a1192faadc2ba36425",
+    "tests/test_software_resources.py": "ca9cb52e5be739f34cb59ad94793be01dcb56b2db7d383940b8b9c35eafc4a35",
+    "tests/test_boot_params.py": "f30263d8d1fcf0b8da4a6f6bddcc9726041835748fa23cac6494eb106c8b9b3a",
+    "src/shamaos/firmware/boot.asm": "f58711d6698347e09181ddc22b31e8b8eaa3c55cf53ce94a4c9c7ff446193230",
+    "src/shamaos/firmware/calculator.asm": "fe12c920ff7cb8772f53511c44eaf44d13e118eba96b59bf2a20ea457fcab2e9",
+    "src/shamaos/firmware/desktop.asm": "a5eb3b27667c53b47d0b3212c8d08033d9b8fc428b478c6c7dbbcf2bff101164",
+    "src/shamaos/firmware/editor.asm": "04ecc2815c4f8d89c13c6915be3fb2d5bd5dac09361d8fa070c5056c8aed1399",
+    "src/shamaos/firmware/files.asm": "52b743d81c889967601ad4b9bba4562dfeb4cea7111ac4a85b6defd9cad3c024",
+    "src/shamaos/firmware/kernel.asm": "8328a631059e6793428bdfad532d7415ca1ffc292ef7966300e745c516b34d94",
+    "src/shamaos/firmware/miner.asm": "5b3974b097bd2f932a7ee12ef7f4e7487c1fb401c2d082e2c7be8a7b3587cd6d",
+    "src/shamaos/firmware/monitor.asm": "4084b5ca3053a68a3e6e5d6f2c61e81428de017eed8485558441dd5cd428a03d",
+    "src/shamaos/firmware/paint.asm": "5fe4ee6db5d631f86fb45b1fa85af6e3aecd3d1c53e8696ff56b39e0a7a869ee",
+    "src/shamaos/firmware/settings.asm": "05146284f8a88a60e2dc82fd0e6e59b7d88b88b8ba5d5ffc1e5fe921e41f74bf",
+    "src/shamaos/firmware/terminal.asm": "0ae8be4ae2398989017515a5a854a7ad48a437c0343a85d5d9bc31fa1d69fbca",
+    "rtl/tb_cpu.sv": "f5a602b39a8a192cfa50c9933e147fc197c7ea515e9190698165bee7526da980",
+    "rtl/tb_asm_cases.sv": "3e9bf823e2e59f8478707acb884d02763c837c3396190f2cacd5efed40550c85",
+    "tests/firmware_machine.py": "6fd4537e559e2f5ac74c0d5930f21aff46256ebcc758a223a9f1607662870bf4",
+    "tests/test_firmware_execution.py": "5b18b08d641c1531f6a97ca67e6984bc3dbdbaed8b7326b326d8ddf5a0206d97",
+    "tests/test_firmware_cache_compaction.py": "142e28f03b78d32fdbc8f6653fd5e9fdd35b8254ec7bc5d50983ab1b4bcee2da",
+    "tests/test_calculator_firmware.py": "d509046366a96c7bc4d3f6892370ded7d6513caa5e9f3e74fd976bae228afc95",
+    "tests/test_miner_firmware.py": "0d86a91e20427f7668f00351a52d000773acc5ba3ab7f05cea6d3d74c5445662",
+    "tests/test_miner_rendering.py": "c222fbd6bd1934af2419983507b954ac480127773e1b12c4cecf9f0bbb257965",
+    "tests/test_cpu_rtl.py": "29b6532a7e88c1348965bab93da157edbb6a38f3f08154111b99708b477be13a",
+    "tests/test_hardware_assembler.py": "cc1b7de40a4314e79108b7acd7d32f182207a13461604270ab3af91e482c9197",
+    "rtl/shama_memory_adapter.sv": "8aac951cc7fd9a2914b289f2ee3c3673eb37aec7150c2c26f3b17086507cbd09",
+    "rtl/tb_kernel_ui.sv": "82b7a291054268d2c86cddfca2d714d5c0531a71a11e3f3cb9adf3e74941037d",
+    "configs/default.toml": "00a45a92c618c6df815a4f6f1f69c5e72d6c65a81857f11f560124800c43c594"
+  },
+  "installed_entries": 32,
+  "all_sources_individual_binaries_and_bundle_records_exact": true,
+  "installed_entry_names": [
+    "boot.asm",
+    "boot.bundle",
+    "boot.sys",
+    "calculator.asm",
+    "calculator.bin",
+    "config",
+    "desktop.asm",
+    "desktop.bin",
+    "documents",
+    "documents/welcome.txt",
+    "editor.asm",
+    "editor.bin",
+    "files.asm",
+    "files.bin",
+    "kernel.asm",
+    "kernel.sys",
+    "logs",
+    "miner-history.log",
+    "miner-state.cfg",
+    "miner.asm",
+    "miner.bin",
+    "monitor.asm",
+    "monitor.bin",
+    "paint.asm",
+    "paint.bin",
+    "programs",
+    "projects",
+    "settings.asm",
+    "settings.bin",
+    "terminal.asm",
+    "terminal.bin",
+    "welcome.txt"
+  ],
+  "generated_header_matches_current_image": true,
+  "miner_history_bytes": 32768,
+  "miner_state_bytes": 256,
+  "flash_used_bytes": 146688,
+  "all_app_startup": {
+    "desktop": "idle with balanced stacks",
+    "editor": "idle with balanced stacks",
+    "files": "idle with balanced stacks",
+    "miner": "idle with balanced stacks",
+    "monitor": "idle with balanced stacks",
+    "terminal": "idle with balanced stacks",
+    "calculator": "idle with balanced stacks",
+    "paint": "idle with balanced stacks",
+    "settings": "idle with balanced stacks"
+  },
+  "new_clean_worktree_regression": {
+    "tests": 99,
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0
+  },
+  "command": "PATH=<validation-tools>/bin:$PATH PYTHONPATH=src:tests python -m pytest tests/test_compact_isa_audit.py tests/test_firmware_cache_compaction.py tests/test_miner_rendering.py tests/test_software_resources.py tests/test_boot_params.py tests/test_hardware_assembler.py::test_compact_forms_ranges_conditions_and_mixed_layout tests/test_hardware_assembler.py::test_compact_forms_reject_overflow_and_bad_operands tests/test_hardware_assembler.py::test_shipped_source_emits_exact_host_binary tests/test_input_services_rtl.py::test_input_and_services_protocols[services-SERVICES\\ SAVE\\ CLOSE\\ OWNERSHIP\\ CLEAR\\ FLUSH\\ SNAPSHOT\\ SHUTDOWN\\ PASS] --junitxml=build/app-cache-independent-audit.xml",
+  "junit": "recovered-cache-independent-review.xml",
+  "invariants_reviewed": [
+    "All eight non-Miner apps fit entirely within 4096 cache bytes; Miner has 4096 cached bytes and 908 direct-RAM bytes.",
+    "The complete original 8192-byte RAM execution backing remains; no code/data workspace or additional RAM bank is allocated.",
+    "Every executable word is copied to RAM; only its cached prefix reaches cache. Staging survives until both copies are complete.",
+    "Flush copies only the cached prefix; direct-RAM tail writes survive. Exit clears 8192 RAM bytes and 4096 cache bytes without erasing kernel/context.",
+    "Legacy two-word encoding is preserved alongside signed 20-bit immediate, 20-bit conditional branch and 24-bit jump/call encodings.",
+    "Shared rendering helpers retain GPU fences, caller state, complete displayed Miner fields, and failed-save data."
+  ],
+  "remaining_physical_gate": "The 4 KiB controller, decoder, memory bank and connecting routes still require actual saved-world electrical transaction/persistence verification.",
+  "first_startup_writes": {
+    "settings_creates_default_config": true,
+    "after_all_app_startups_flash_used_bytes": 146944,
+    "after_all_app_startups_entry_count": 33,
+    "scope": "The installed image remains 32 entries and 146688 allocated bytes; Settings persists its default configuration on first launch."
+  }
+}

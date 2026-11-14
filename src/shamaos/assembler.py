@@ -193,6 +193,8 @@ def parse_source(source: str) -> tuple[list[SourceLine], dict[str, int]]:
             mnemonic, args = "BR." + args[0], (args[1],)
         elif mnemonic.upper() == "BR" and len(args) == 1:
             mnemonic = "JMP"
+        elif mnemonic.upper() == "BRS" and len(args) == 2:
+            mnemonic, args = "BRS." + args[0], (args[1],)
         elif mnemonic.upper() == "RSH" and len(args) == 3:
             mnemonic = "SHR"
         parsed.append(SourceLine(line_no, raw, label, mnemonic, args))
@@ -204,6 +206,8 @@ def _instruction_words(mnemonic: str) -> int:
     upper = mnemonic.upper()
     if upper.startswith("BR."):
         return 2
+    if upper.startswith("BRS."):
+        return 1
     return spec_for(upper).words
 
 
@@ -234,7 +238,8 @@ def _encode(line: SourceLine, symbols: dict[str, int]) -> list[int]:
     assert line.mnemonic is not None
     raw_mn = line.mnemonic.upper()
 
-    if raw_mn.startswith("BR."):
+    if raw_mn.startswith(("BR.", "BRS.")):
+        short = raw_mn.startswith("BRS.")
         cond_name = raw_mn.split(".", 1)[1]
         try:
             cond = int(CONDITION_ALIASES[cond_name])
@@ -242,9 +247,11 @@ def _encode(line: SourceLine, symbols: dict[str, int]) -> list[int]:
             raise AssemblyError(f"line {line.line_no}: unknown branch condition {cond_name}") from exc
         _expect(line.args, 1, line)
         target = _int(line.args[0], symbols)
-        if not 0 <= target <= 0xFFFFFFFF:
+        if not 0 <= target <= (0xFFFFF if short else 0xFFFFFFFF):
             raise AssemblyError(f"line {line.line_no}: branch target out of range")
-        spec = BY_NAME["BR"]
+        spec = BY_NAME["BRS" if short else "BR"]
+        if short:
+            return [encode_header(spec.opcode, rd=cond) | target]
         return [encode_header(spec.opcode, rd=cond), target]
 
     mn = canonical_mnemonic(raw_mn)
@@ -290,16 +297,29 @@ def _encode(line: SourceLine, symbols: dict[str, int]) -> list[int]:
         value &= 0xFFFFFFFF
         return [encode_header(spec.opcode, rd=_reg(a[0])), value]
 
-    if spec.fmt == Format.J32:
+    if spec.fmt == Format.RI20:
+        _expect(a, 2, line)
+        value = _int(a[1], symbols)
+        # Accept either signed spelling or its full 32-bit two's-complement
+        # representation, as with the existing immediate instructions.
+        if 0x80000000 <= value <= 0xFFFFFFFF:
+            value -= 1 << 32
+        if not -(1 << 19) <= value < (1 << 19):
+            raise AssemblyError(f"line {line.line_no}: immediate out of signed 20-bit range")
+        return [encode_header(spec.opcode, rd=_reg(a[0])) | (value & 0xFFFFF)]
+
+    if spec.fmt in (Format.J32, Format.J24):
         _expect(a, 1, line)
         target = _int(a[0], symbols)
-        if not 0 <= target <= 0xFFFFFFFF:
+        if not 0 <= target <= (0xFFFFFF if spec.fmt == Format.J24 else 0xFFFFFFFF):
             raise AssemblyError(f"line {line.line_no}: target out of range")
+        if spec.fmt == Format.J24:
+            return [encode_header(spec.opcode) | target]
         return [encode_header(spec.opcode), target]
 
-    if spec.fmt == Format.BR32:
+    if spec.fmt in (Format.BR32, Format.BR20):
         raise AssemblyError(
-            f"line {line.line_no}: use BR.<condition> target syntax"
+            f"line {line.line_no}: use {mn}.<condition> target syntax"
         )
 
     if spec.fmt == Format.MEM:

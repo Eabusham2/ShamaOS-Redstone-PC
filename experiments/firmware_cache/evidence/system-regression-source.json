@@ -1,0 +1,55 @@
+{
+  "scope": "Exact private compilation sources for the current 4 KiB-cache/8 KiB-execution-window full-SoC regressions. Storage cells remain modeled; this is not physical world acceptance.",
+  "flash_image_sha256": "02bb7459cd74356f02533b2d5446fec8ee44304242b9fad3a0efd207becc56bf",
+  "generated_header_sha256": "ce84216693c92a7c40edd053140535e3961ba5ea3605fa0e8fc3eaa96fd65b08",
+  "test_source_sha256": "92f66a36da0b3c602bd10bf8863374a34fe03ed0d9b67b734b98a81f536931ac",
+  "backends": {
+    "fast": {
+      "source_sha256": {
+        "rtl/bitcoin_dsha256.sv": "7c8c36ff57d51c63827039eb9302099129332778eaee74e1a62094d2f554fae5",
+        "rtl/sha256_compress.sv": "eb9b0df776d407b28e0e59b92559a1ba8ae00a888256141c9aa96f6ad91400e8",
+        "rtl/sha256_fixed64.sv": "5c36c329b2526ca8ff55fcd2009aa9e11cab52d2331e93003fed2eff89b54012",
+        "rtl/shama_asm_accel.sv": "c032045d6d8a79f9d87d3e3ed19fba35fc54c80953b4eceea4266aba1083ccbc",
+        "rtl/shama_cpu.sv": "337927c852636cb69d54a1760fc36319f47cb9973a6c3ab385f044878420f8db",
+        "rtl/shama_display_bridge.sv": "c5753e43857b62cb97f8ef6bd5c98e0f8fcf2f69a707450215453c6f282234bb",
+        "rtl/shama_font5x7.sv": "b04981885905696d604c8923dd2350ee6e2c5b56c3226597bdb42ee8ff2f1505",
+        "rtl/shama_fs_accel.sv": "f6022d374ed0197d9c61d41a2b742d70600aa135d4ec4861d83a80fabfd20671",
+        "rtl/shama_gpu.sv": "817ddbb03248bae2ba816f754eceb4c0a6d3b3fe4463fae550ad7b3a1ea1d4c2",
+        "rtl/shama_input.sv": "50c552be1af19dbc9da2b2d3e93fb9b94d3e420a4618cd2a21514a9c71c27b4e",
+        "rtl/shama_kernel_accel.sv": "56ba28e236f033824f3a3062897ceac3146c5513f8301a528bcf7450b54c95cd",
+        "rtl/shama_onehot_ring.sv": "4e5516e317d231f958d966f57d9002f3a9a36d01585fc70b55ef98b4ba6d80a2",
+        "rtl/shama_ring_memctl.sv": "a384b525d6709499bca0563498d8d956d80a5ccfeb23341a04b72afff2d64856",
+        "rtl/shama_services.sv": "ffe1a290d8b8239def5622d7d12d6800904b6c80209914d11985d81c0fa79366",
+        "rtl/shama_soc.sv": "5387762f974450c8b33fd67c77b49ede0107c69ecd6930e07f8fdc30f9ed8c26",
+        "rtl/tb_soc.sv": "ea04193a53fb58500de0837e0021546400d05909d4f79882a8b0f24fce2797e9",
+        "tests/rtl/fast_memory_models.sv": "1c328506067e3d65547009e8a6a82bf345dea346cd949e636c4c5ca2ec77b29f"
+      },
+      "generated_header_sha256": "ce84216693c92a7c40edd053140535e3961ba5ea3605fa0e8fc3eaa96fd65b08",
+      "all_compiled_sources_match_current_checkout": true
+    },
+    "real_controllers": {
+      "source_sha256": {
+        "rtl/bitcoin_dsha256.sv": "7c8c36ff57d51c63827039eb9302099129332778eaee74e1a62094d2f554fae5",
+        "rtl/sha256_compress.sv": "eb9b0df776d407b28e0e59b92559a1ba8ae00a888256141c9aa96f6ad91400e8",
+        "rtl/sha256_fixed64.sv": "5c36c329b2526ca8ff55fcd2009aa9e11cab52d2331e93003fed2eff89b54012",
+        "rtl/shama_asm_accel.sv": "c032045d6d8a79f9d87d3e3ed19fba35fc54c80953b4eceea4266aba1083ccbc",
+        "rtl/shama_cpu.sv": "337927c852636cb69d54a1760fc36319f47cb9973a6c3ab385f044878420f8db",
+        "rtl/shama_display_bridge.sv": "c5753e43857b62cb97f8ef6bd5c98e0f8fcf2f69a707450215453c6f282234bb",
+        "rtl/shama_font5x7.sv": "b04981885905696d604c8923dd2350ee6e2c5b56c3226597bdb42ee8ff2f1505",
+        "rtl/shama_fs_accel.sv": "f6022d374ed0197d9c61d41a2b742d70600aa135d4ec4861d83a80fabfd20671",
+        "rtl/shama_gpu.sv": "817ddbb03248bae2ba816f754eceb4c0a6d3b3fe4463fae550ad7b3a1ea1d4c2",
+        "rtl/shama_input.sv": "50c552be1af19dbc9da2b2d3e93fb9b94d3e420a4618cd2a21514a9c71c27b4e",
+        "rtl/shama_kernel_accel.sv": "56ba28e236f033824f3a3062897ceac3146c5513f8301a528bcf7450b54c95cd",
+        "rtl/shama_memory_adapter.sv": "8aac951cc7fd9a2914b289f2ee3c3673eb37aec7150c2c26f3b17086507cbd09",
+        "rtl/shama_onehot_ring.sv": "4e5516e317d231f958d966f57d9002f3a9a36d01585fc70b55ef98b4ba6d80a2",
+        "rtl/shama_ring_memctl.sv": "a384b525d6709499bca0563498d8d956d80a5ccfeb23341a04b72afff2d64856",
+        "rtl/shama_services.sv": "ffe1a290d8b8239def5622d7d12d6800904b6c80209914d11985d81c0fa79366",
+        "rtl/shama_soc.sv": "5387762f974450c8b33fd67c77b49ede0107c69ecd6930e07f8fdc30f9ed8c26",
+        "rtl/tb_soc.sv": "ea04193a53fb58500de0837e0021546400d05909d4f79882a8b0f24fce2797e9",
+        "tests/rtl/persistent_bank_models.sv": "81ecc844e104204ced1f3e3888a20e344c5e99a168d05301490fd6e3695171ea"
+      },
+      "generated_header_sha256": "ce84216693c92a7c40edd053140535e3961ba5ea3605fa0e8fc3eaa96fd65b08",
+      "all_compiled_sources_match_current_checkout": true
+    }
+  }
+}

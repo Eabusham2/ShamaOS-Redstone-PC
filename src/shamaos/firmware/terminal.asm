@@ -17,12 +17,12 @@ MOV r9 r0
 .redraw
 MOV r1 r9
 SYS SYS_UI_TERMINAL_VIEW
-CALL .draw_command
+CALLS .draw_command
 
 .loop
 SYS SYS_GET_EVENT
 CMP r1 r0
-BR.EQ .idle
+BRS.EQ .idle
 
 MOV r12 r1
 LEA r14 r0 10
@@ -38,319 +38,319 @@ AND r13 r13 r14
 
 LEA r14 r0 EVT_B
 CMP r12 r14
-BR.EQ .desktop
+BRS.EQ .desktop
 
 LEA r14 r0 EVT_KEY
 CMP r12 r14
-BR.NE .universal
+BRS.NE .universal
 
 LEA r14 r0 KEY_ENTER
 CMP r13 r14
-BR.EQ .execute
+BRS.EQ .execute
 LEA r14 r0 KEY_BACKSPACE
 CMP r13 r14
-BR.EQ .backspace
+BRS.EQ .backspace
 
 LEA r14 r0 0x20
 CMP r13 r14
-BR.LT .redraw
+BRS.LT .redraw
 LEA r14 r0 0x7e
 CMP r13 r14
-BR.GT .redraw
+BRS.GT .redraw
 LEA r14 r0 31
 CMP r8 r14
-BR.GE .redraw
+BRS.GE .redraw
 LEA r14 r0 97
 CMP r13 r14
-BR.LT .append_key
+BRS.LT .append_key
 LEA r14 r0 122
 CMP r13 r14
-BR.GT .append_key
+BRS.GT .append_key
 LEA r14 r0 32
 SUB r13 r13 r14
 .append_key
 MOV r9 r0
-LDI r14 TERM_BUF
+LDIS r14 TERM_BUF
 ADD r14 r14 r8
 STB r14 r13 0
 INC r8
-JMP .redraw
+JMPS .redraw
 
 .backspace
 CMP r8 r0
-BR.EQ .redraw
+BRS.EQ .redraw
 DEC r8
-JMP .redraw
+JMPS .redraw
 
 .execute
 LEA r14 r0 2
 CMP r8 r14
-BR.NE .command_next_0
-LDI r14 TERM_BUF
+BRS.NE .command_next_0
+LDIS r14 TERM_BUF
 LDB r1 r14 0
 LEA r2 r0 76
 CMP r1 r2
-BR.NE .command_next_0
+BRS.NE .command_next_0
 LDB r1 r14 1
 LEA r2 r0 83
 CMP r1 r2
-BR.NE .command_next_0
-JMP .files
+BRS.NE .command_next_0
+JMPS .files
 .command_next_0
 LEA r14 r0 2
 CMP r8 r14
-BR.NE .command_next_1
-LDI r14 TERM_BUF
+BRS.NE .command_next_1
+LDIS r14 TERM_BUF
 LDB r1 r14 0
 LEA r2 r0 82
 CMP r1 r2
-BR.NE .command_next_1
+BRS.NE .command_next_1
 LDB r1 r14 1
 LEA r2 r0 77
 CMP r1 r2
-BR.NE .command_next_1
-JMP .files
+BRS.NE .command_next_1
+JMPS .files
 .command_next_1
 LEA r14 r0 2
 CMP r8 r14
-BR.NE .command_next_2
-LDI r14 TERM_BUF
+BRS.NE .command_next_2
+LDIS r14 TERM_BUF
 LDB r1 r14 0
 LEA r2 r0 77
 CMP r1 r2
-BR.NE .command_next_2
+BRS.NE .command_next_2
 LDB r1 r14 1
 LEA r2 r0 86
 CMP r1 r2
-BR.NE .command_next_2
-JMP .files
+BRS.NE .command_next_2
+JMPS .files
 .command_next_2
 LEA r14 r0 4
 CMP r8 r14
-BR.NE .command_next_3
-LDI r14 TERM_BUF
+BRS.NE .command_next_3
+LDIS r14 TERM_BUF
 LDB r1 r14 0
 LEA r2 r0 69
 CMP r1 r2
-BR.NE .command_next_3
+BRS.NE .command_next_3
 LDB r1 r14 1
 LEA r2 r0 68
 CMP r1 r2
-BR.NE .command_next_3
+BRS.NE .command_next_3
 LDB r1 r14 2
 LEA r2 r0 73
 CMP r1 r2
-BR.NE .command_next_3
+BRS.NE .command_next_3
 LDB r1 r14 3
 LEA r2 r0 84
 CMP r1 r2
-BR.NE .command_next_3
-JMP .editor
+BRS.NE .command_next_3
+JMPS .editor
 .command_next_3
 LEA r14 r0 4
 CMP r8 r14
-BR.NE .command_next_4
-LDI r14 TERM_BUF
+BRS.NE .command_next_4
+LDIS r14 TERM_BUF
 LDB r1 r14 0
 LEA r2 r0 67
 CMP r1 r2
-BR.NE .command_next_4
+BRS.NE .command_next_4
 LDB r1 r14 1
 LEA r2 r0 65
 CMP r1 r2
-BR.NE .command_next_4
+BRS.NE .command_next_4
 LDB r1 r14 2
 LEA r2 r0 76
 CMP r1 r2
-BR.NE .command_next_4
+BRS.NE .command_next_4
 LDB r1 r14 3
 LEA r2 r0 67
 CMP r1 r2
-BR.NE .command_next_4
-JMP .calc
+BRS.NE .command_next_4
+JMPS .calc
 .command_next_4
 LEA r14 r0 3
 CMP r8 r14
-BR.NE .command_next_5
-LDI r14 TERM_BUF
+BRS.NE .command_next_5
+LDIS r14 TERM_BUF
 LDB r1 r14 0
 LEA r2 r0 77
 CMP r1 r2
-BR.NE .command_next_5
+BRS.NE .command_next_5
 LDB r1 r14 1
 LEA r2 r0 69
 CMP r1 r2
-BR.NE .command_next_5
+BRS.NE .command_next_5
 LDB r1 r14 2
 LEA r2 r0 77
 CMP r1 r2
-BR.NE .command_next_5
-JMP .monitor
+BRS.NE .command_next_5
+JMPS .monitor
 .command_next_5
 LEA r14 r0 3
 CMP r8 r14
-BR.NE .command_next_6
-LDI r14 TERM_BUF
+BRS.NE .command_next_6
+LDIS r14 TERM_BUF
 LDB r1 r14 0
 LEA r2 r0 71
 CMP r1 r2
-BR.NE .command_next_6
+BRS.NE .command_next_6
 LDB r1 r14 1
 LEA r2 r0 80
 CMP r1 r2
-BR.NE .command_next_6
+BRS.NE .command_next_6
 LDB r1 r14 2
 LEA r2 r0 85
 CMP r1 r2
-BR.NE .command_next_6
-JMP .monitor
+BRS.NE .command_next_6
+JMPS .monitor
 .command_next_6
 LEA r14 r0 3
 CMP r8 r14
-BR.NE .command_next_7
-LDI r14 TERM_BUF
+BRS.NE .command_next_7
+LDIS r14 TERM_BUF
 LDB r1 r14 0
 LEA r2 r0 82
 CMP r1 r2
-BR.NE .command_next_7
+BRS.NE .command_next_7
 LDB r1 r14 1
 LEA r2 r0 85
 CMP r1 r2
-BR.NE .command_next_7
+BRS.NE .command_next_7
 LDB r1 r14 2
 LEA r2 r0 78
 CMP r1 r2
-BR.NE .command_next_7
-JMP .files
+BRS.NE .command_next_7
+JMPS .files
 .command_next_7
 LEA r14 r0 3
 CMP r8 r14
-BR.NE .command_next_8
-LDI r14 TERM_BUF
+BRS.NE .command_next_8
+LDIS r14 TERM_BUF
 LDB r1 r14 0
 LEA r2 r0 67
 CMP r1 r2
-BR.NE .command_next_8
+BRS.NE .command_next_8
 LDB r1 r14 1
 LEA r2 r0 65
 CMP r1 r2
-BR.NE .command_next_8
+BRS.NE .command_next_8
 LDB r1 r14 2
 LEA r2 r0 84
 CMP r1 r2
-BR.NE .command_next_8
-JMP .files
+BRS.NE .command_next_8
+JMPS .files
 .command_next_8
 LEA r14 r0 5
 CMP r8 r14
-BR.NE .command_next_9
-LDI r14 TERM_BUF
+BRS.NE .command_next_9
+LDIS r14 TERM_BUF
 LDB r1 r14 0
 LEA r2 r0 70
 CMP r1 r2
-BR.NE .command_next_9
+BRS.NE .command_next_9
 LDB r1 r14 1
 LEA r2 r0 76
 CMP r1 r2
-BR.NE .command_next_9
+BRS.NE .command_next_9
 LDB r1 r14 2
 LEA r2 r0 65
 CMP r1 r2
-BR.NE .command_next_9
+BRS.NE .command_next_9
 LDB r1 r14 3
 LEA r2 r0 83
 CMP r1 r2
-BR.NE .command_next_9
+BRS.NE .command_next_9
 LDB r1 r14 4
 LEA r2 r0 72
 CMP r1 r2
-BR.NE .command_next_9
-JMP .monitor
+BRS.NE .command_next_9
+JMPS .monitor
 .command_next_9
 LEA r14 r0 5
 CMP r8 r14
-BR.NE .command_next_10
-LDI r14 TERM_BUF
+BRS.NE .command_next_10
+LDIS r14 TERM_BUF
 LDB r1 r14 0
 LEA r2 r0 77
 CMP r1 r2
-BR.NE .command_next_10
+BRS.NE .command_next_10
 LDB r1 r14 1
 LEA r2 r0 73
 CMP r1 r2
-BR.NE .command_next_10
+BRS.NE .command_next_10
 LDB r1 r14 2
 LEA r2 r0 78
 CMP r1 r2
-BR.NE .command_next_10
+BRS.NE .command_next_10
 LDB r1 r14 3
 LEA r2 r0 69
 CMP r1 r2
-BR.NE .command_next_10
+BRS.NE .command_next_10
 LDB r1 r14 4
 LEA r2 r0 82
 CMP r1 r2
-BR.NE .command_next_10
-JMP .miner
+BRS.NE .command_next_10
+JMPS .miner
 .command_next_10
 LEA r14 r0 5
 CMP r8 r14
-BR.NE .command_next_11
-LDI r14 TERM_BUF
+BRS.NE .command_next_11
+LDIS r14 TERM_BUF
 LDB r1 r14 0
 LEA r2 r0 80
 CMP r1 r2
-BR.NE .command_next_11
+BRS.NE .command_next_11
 LDB r1 r14 1
 LEA r2 r0 65
 CMP r1 r2
-BR.NE .command_next_11
+BRS.NE .command_next_11
 LDB r1 r14 2
 LEA r2 r0 73
 CMP r1 r2
-BR.NE .command_next_11
+BRS.NE .command_next_11
 LDB r1 r14 3
 LEA r2 r0 78
 CMP r1 r2
-BR.NE .command_next_11
+BRS.NE .command_next_11
 LDB r1 r14 4
 LEA r2 r0 84
 CMP r1 r2
-BR.NE .command_next_11
-JMP .paint
+BRS.NE .command_next_11
+JMPS .paint
 .command_next_11
 LEA r14 r0 5
 CMP r8 r14
-BR.NE .command_next_12
-LDI r14 TERM_BUF
+BRS.NE .command_next_12
+LDIS r14 TERM_BUF
 LDB r1 r14 0
 LEA r2 r0 67
 CMP r1 r2
-BR.NE .command_next_12
+BRS.NE .command_next_12
 LDB r1 r14 1
 LEA r2 r0 76
 CMP r1 r2
-BR.NE .command_next_12
+BRS.NE .command_next_12
 LDB r1 r14 2
 LEA r2 r0 69
 CMP r1 r2
-BR.NE .command_next_12
+BRS.NE .command_next_12
 LDB r1 r14 3
 LEA r2 r0 65
 CMP r1 r2
-BR.NE .command_next_12
+BRS.NE .command_next_12
 LDB r1 r14 4
 LEA r2 r0 82
 CMP r1 r2
-BR.NE .command_next_12
-JMP .clear_input
+BRS.NE .command_next_12
+JMPS .clear_input
 .command_next_12
 LEA r9 r0 1
-JMP .clear_input
+JMPS .clear_input
 
 .clear_input
 MOV r8 r0
-JMP .redraw
+JMPS .redraw
 
 .files
 LEA r1 r0 2
@@ -383,11 +383,11 @@ HLT
 
 .universal
 SYS SYS_APP_EVENT
-JMP .redraw
+JMPS .redraw
 
 .draw_command
 CMP r8 r0
-BR.EQ .draw_done
+BRS.EQ .draw_done
 LDI r12 GPU_BASE
 ; copy front to back
 LEA r14 r0 0x13
@@ -398,15 +398,15 @@ STW r12 r14 40
 MOV r1 r0
 .copy
 CMP r1 r8
-BR.GE .submit
-LDI r2 TERM_BUF
+BRS.GE .submit
+LDIS r2 TERM_BUF
 ADD r2 r2 r1
 LDB r3 r2 0
 LDI r4 GPU_TEXT
 ADD r4 r4 r1
 STB r4 r3 0
 INC r1
-JMP .copy
+JMPS .copy
 .submit
 MOV r14 r0
 STW r12 r14 8
@@ -429,4 +429,4 @@ RET
 
 .idle
 SYS SYS_YIELD
-JMP .loop
+JMPS .loop

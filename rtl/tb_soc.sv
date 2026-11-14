@@ -201,6 +201,36 @@ module tb_soc;
             $display("SOC ALLOCATED HEAP SELF REPLACEMENT PASS cycles=%0d",cycles);
         end
     endtask
+    task automatic execute_across_cache_boundary;
+        begin
+            control(9);wait(debug_app==2);settle();
+            key(3,1); // Z selects the only ZTAIL.BIN fixture.
+            if(`SOC_RAM_MEMORY[`SHAMA_EDIT_NAME>>2]!==32'h4941545a)
+                $fatal(1,"cache-tail fixture was not selected in Explorer");
+            raw_control(4);
+            wait(debug_app==15);
+            wait(halted);
+            repeat(12) @(negedge clk);
+            if(debug_fault!=0 || dut.u_cpu.regs[7]!==32'h5a17c0de ||
+               dut.u_cpu.regs[5]!==32'h01234567 || dut.u_cpu.regs[8]!==32'h89abcdef)
+                $fatal(1,"cache/RAM boundary fetch, call return or tail data failed");
+            if(dut.u_services.app_loaded_bytes!=`SHAMA_APP_BACKING_BYTES ||
+               dut.cache_used_bytes!=`SHAMA_CACHE_BYTES ||
+               dut.ram_used_bytes!=`SHAMA_KERNEL_BINARY_BYTES+`SHAMA_APP_BACKING_BYTES)
+                $fatal(1,"full executable/cache-prefix accounting mismatch");
+            if(`SOC_RAM_MEMORY[32]!==32'h89abcdef || `SOC_CACHE_MEMORY[32]!==32'h89abcdef ||
+               `SOC_RAM_MEMORY[(`SHAMA_CACHE_BYTES+64)>>2]!==32'h89abcdef ||
+               `SOC_RAM_MEMORY[(`SHAMA_APP_BACKING_BYTES-4)>>2]!==32'h01000000)
+                $fatal(1,"prefix flush replaced RAM tail or missed full executable endpoint");
+            raw_control(6);wait(debug_app==0);settle();
+            if(`SOC_RAM_MEMORY[(`SHAMA_APP_BACKING_BYTES-4)>>2]!==0 ||
+               `SOC_RAM_MEMORY[(`SHAMA_CACHE_BYTES+64)>>2]!==0 ||
+               `SOC_CACHE_MEMORY[`SHAMA_CACHE_BYTES/4-1]!==0)
+                $fatal(1,"app replacement retained cached or uncached code");
+            if(input_overflow) $fatal(1,"cache-tail execution lost physical input");
+            $display("SOC CACHE PREFIX RAM TAIL EXECUTION FLUSH CLEAR PASS cycles=%0d",cycles);
+        end
+    endtask
     task automatic recover_resource_fault;
         integer expected_notice,unused;
         logic [31:0] old_flash_word;
@@ -258,6 +288,10 @@ module tb_soc;
         if($test$plusargs("protected_flash")) dismiss_notice(1);
         settle();
         $display("SOC BOOT desktop PASS cycles=%0d",cycles);
+        if($test$plusargs("cache_tail_flow")) begin
+            execute_across_cache_boundary();
+            $finish;
+        end
         if($test$plusargs("heap_stage_flow")) begin
             replace_program_from_allocated_heap();
             $finish;

@@ -6,17 +6,17 @@
 ; r5 error (0/zero-divisor/overflow), r6 active sign, r7 has input digits.
 define GPU_BASE 0x02000000
 define GPU_TEXT 0x02000400
-CALL .clear_state
+CALLS .clear_state
 .redraw
 MOV r1 r11
 MOV r2 r10
 MOV r3 r5
 SYS SYS_UI_CALCULATOR_VIEW
-CALL .draw_value
+CALLS .draw_value
 .loop
 SYS SYS_GET_EVENT
 CMP r1 r0
-BR.EQ .idle
+BRS.EQ .idle
 MOV r12 r1
 LEA r14 r0 10
 SHR r12 r12 r14
@@ -24,10 +24,10 @@ LEA r14 r0 255
 AND r12 r12 r14
 LEA r14 r0 0x15
 CMP r12 r14
-BR.EQ .clear
+BRS.EQ .clear
 LEA r14 r0 1
 CMP r12 r14
-BR.NE .universal
+BRS.NE .universal
 MOV r13 r1
 LEA r14 r0 18
 SHR r13 r13 r14
@@ -35,225 +35,225 @@ LEA r14 r0 255
 AND r13 r13 r14
 LEA r14 r0 8
 CMP r13 r14
-BR.EQ .backspace
+BRS.EQ .backspace
 ; Errors remain visible until Backspace dismisses them or B clears everything.
 CMP r5 r0
-BR.NE .loop
+BRS.NE .loop
 LEA r14 r0 '0'
 CMP r13 r14
-BR.LT .operator
+BRS.LT .operator
 LEA r14 r0 '9'
 CMP r13 r14
-BR.GT .operator
+BRS.GT .operator
 ; A digit after a completed result starts a new calculation.
 LEA r14 r0 2
 CMP r11 r14
-BR.NE .digit
-CALL .clear_state
+BRS.NE .digit
+CALLS .clear_state
 .digit
 LEA r14 r0 '0'
 SUB r13 r13 r14
-CALL .get_active
+CALLS .get_active
 CMP r6 r0
-BR.EQ .digit_magnitude
+BRS.EQ .digit_magnitude
 NEG r3 r3
 .digit_magnitude
 ; Unsigned magnitude comparisons retain the special magnitude 0x80000000.
 LDI r14 214748364
 CMP r3 r14
-BR.NC .append_digit
-BR.NE .input_overflow
+BRS.NC .append_digit
+BRS.NE .input_overflow
 LEA r14 r0 7
 ADD r14 r14 r6
 CMP r14 r13
-BR.NC .input_overflow
+BRS.NC .input_overflow
 .append_digit
 LEA r14 r0 10
 MUL r3 r3 r14
 ADD r3 r3 r13
 CMP r6 r0
-BR.EQ .store_digit
+BRS.EQ .store_digit
 NEG r3 r3
 .store_digit
-CALL .put_active
+CALLS .put_active
 LEA r7 r0 1
-JMP .redraw
+JMPS .redraw
 .input_overflow
 LEA r5 r0 2
-JMP .redraw
+JMPS .redraw
 
 .operator
 LEA r14 r0 13
 CMP r13 r14
-BR.EQ .enter
+BRS.EQ .enter
 LEA r14 r0 '='
 CMP r13 r14
-BR.EQ .enter
+BRS.EQ .enter
 LEA r14 r0 '+'
 CMP r13 r14
-BR.EQ .operator_valid
+BRS.EQ .operator_valid
 LEA r14 r0 '-'
 CMP r13 r14
-BR.EQ .operator_valid
+BRS.EQ .operator_valid
 LEA r14 r0 '*'
 CMP r13 r14
-BR.EQ .operator_valid
+BRS.EQ .operator_valid
 LEA r14 r0 '/'
 CMP r13 r14
-BR.EQ .operator_valid
+BRS.EQ .operator_valid
 LEA r14 r0 '%'
 CMP r13 r14
-BR.NE .loop
+BRS.NE .loop
 .operator_valid
 CMP r7 r0
-BR.NE .operator_after_value
+BRS.NE .operator_after_value
 ; Before digits, + and - are unary signs; * / % may replace a pending operator.
 LEA r14 r0 '-'
 CMP r13 r14
-BR.EQ .toggle_sign
+BRS.EQ .toggle_sign
 LEA r14 r0 '+'
 CMP r13 r14
-BR.EQ .positive_sign
+BRS.EQ .positive_sign
 LEA r14 r0 1
 CMP r11 r14
-BR.NE .loop
-JMP .select_operator
+BRS.NE .loop
+JMPS .select_operator
 .toggle_sign
 LEA r14 r0 1
 XOR r6 r6 r14
-JMP .redraw
+JMPS .redraw
 .positive_sign
 MOV r6 r0
-JMP .redraw
+JMPS .redraw
 .operator_after_value
 LEA r14 r0 1
 CMP r11 r14
-BR.NE .select_operator
+BRS.NE .select_operator
 ; Immediate calculator chaining is left-to-right, with no hidden precedence.
 PUSH r13
-CALL .calculate
+CALLS .calculate
 POP r13
 CMP r5 r0
-BR.NE .redraw
+BRS.NE .redraw
 .select_operator
 MOV r10 r13
 MOV r9 r0
 LEA r11 r0 1
 MOV r6 r0
 MOV r7 r0
-JMP .redraw
+JMPS .redraw
 .enter
 CMP r7 r0
-BR.EQ .redraw
+BRS.EQ .redraw
 LEA r14 r0 1
 CMP r11 r14
-BR.NE .single_value
-CALL .calculate
-JMP .redraw
+BRS.NE .single_value
+CALLS .calculate
+JMPS .redraw
 .single_value
 LEA r11 r0 2
 MOV r6 r0
 CMP r8 r0
-BR.GE .redraw
+BRS.GE .redraw
 LEA r6 r0 1
-JMP .redraw
+JMPS .redraw
 
 .backspace
 CMP r5 r0
-BR.EQ .backspace_value
+BRS.EQ .backspace_value
 MOV r5 r0
-JMP .redraw
+JMPS .redraw
 .backspace_value
 LEA r14 r0 2
 CMP r11 r14
-BR.NE .backspace_digits
+BRS.NE .backspace_digits
 MOV r11 r0
 .backspace_digits
 CMP r7 r0
-BR.NE .remove_digit
+BRS.NE .remove_digit
 MOV r6 r0
-JMP .redraw
+JMPS .redraw
 .remove_digit
-CALL .get_active
+CALLS .get_active
 CMP r6 r0
-BR.EQ .remove_magnitude
+BRS.EQ .remove_magnitude
 NEG r3 r3
 .remove_magnitude
 LEA r14 r0 10
 DIV r3 r3 r14
 CMP r3 r0
-BR.NE .remove_sign
+BRS.NE .remove_sign
 MOV r7 r0
 .remove_sign
 CMP r6 r0
-BR.EQ .remove_store
+BRS.EQ .remove_store
 NEG r3 r3
 .remove_store
-CALL .put_active
-JMP .redraw
+CALLS .put_active
+JMPS .redraw
 
 ; Compute into r3 and commit r8 only after signed range validation.
 .calculate
 LEA r14 r0 '+'
 CMP r10 r14
-BR.EQ .calc_add
+BRS.EQ .calc_add
 LEA r14 r0 '-'
 CMP r10 r14
-BR.EQ .calc_sub
-CALL .magnitudes
+BRS.EQ .calc_sub
+CALLS .magnitudes
 LEA r14 r0 '*'
 CMP r10 r14
-BR.EQ .calc_mul
+BRS.EQ .calc_mul
 CMP r2 r0
-BR.EQ .zero_divisor
+BRS.EQ .zero_divisor
 LEA r14 r0 '%'
 CMP r10 r14
-BR.EQ .calc_mod
+BRS.EQ .calc_mod
 DIV r3 r1 r2
 CMP r4 r0
-BR.NE .negate_result
+BRS.NE .negate_result
 CMP r3 r0
-BR.NEG .arithmetic_overflow
-JMP .calculated
+BRS.NEG .arithmetic_overflow
+JMPS .calculated
 .calc_mod
 MOD r3 r1 r2
 CMP r8 r0
-BR.NEG .negate_result
-JMP .calculated
+BRS.NEG .negate_result
+JMPS .calculated
 .calc_mul
 MOV r3 r0
 CMP r1 r0
-BR.EQ .calculated
+BRS.EQ .calculated
 CMP r2 r0
-BR.EQ .calculated
+BRS.EQ .calculated
 LDI r12 0x7fffffff
 CMP r4 r0
-BR.EQ .mul_limit
+BRS.EQ .mul_limit
 LDI r12 0x80000000
 .mul_limit
 DIV r12 r12 r1
 CMP r12 r2
-BR.NC .arithmetic_overflow
+BRS.NC .arithmetic_overflow
 MUL r3 r1 r2
 CMP r4 r0
-BR.EQ .calculated
+BRS.EQ .calculated
 .negate_result
 NEG r3 r3
-JMP .calculated
+JMPS .calculated
 .calc_add
 ADD r3 r8 r9
 XOR r1 r8 r9
 NOT r1 r1
 XOR r2 r8 r3
 AND r1 r1 r2
-BR.NEG .arithmetic_overflow
-JMP .calculated
+BRS.NEG .arithmetic_overflow
+JMPS .calculated
 .calc_sub
 SUB r3 r8 r9
 XOR r1 r8 r9
 XOR r2 r8 r3
 AND r1 r1 r2
-BR.NEG .arithmetic_overflow
+BRS.NEG .arithmetic_overflow
 .calculated
 MOV r8 r3
 MOV r9 r0
@@ -263,7 +263,7 @@ MOV r5 r0
 MOV r6 r0
 LEA r7 r0 1
 CMP r8 r0
-BR.GE .calculation_return
+BRS.GE .calculation_return
 LEA r6 r0 1
 .calculation_return
 RET
@@ -278,12 +278,12 @@ MOV r1 r8
 MOV r2 r9
 MOV r4 r0
 CMP r1 r0
-BR.GE .magnitude_right
+BRS.GE .magnitude_right
 NEG r1 r1
 LEA r4 r0 1
 .magnitude_right
 CMP r2 r0
-BR.GE .magnitude_return
+BRS.GE .magnitude_return
 NEG r2 r2
 LEA r14 r0 1
 XOR r4 r4 r14
@@ -293,14 +293,14 @@ RET
 MOV r3 r8
 LEA r14 r0 1
 CMP r11 r14
-BR.NE .active_return
+BRS.NE .active_return
 MOV r3 r9
 .active_return
 RET
 .put_active
 LEA r14 r0 1
 CMP r11 r14
-BR.EQ .put_second
+BRS.EQ .put_second
 MOV r8 r3
 RET
 .put_second
@@ -316,11 +316,11 @@ MOV r10 r0
 MOV r11 r0
 RET
 .clear
-CALL .clear_state
-JMP .redraw
+CALLS .clear_state
+JMPS .redraw
 .universal
 SYS SYS_APP_EVENT
-JMP .loop
+JMPS .loop
 
 .draw_value
 ; Signed decimal operand/result, or an explicit arithmetic error. The current
@@ -332,18 +332,18 @@ LEA r2 r0 ' '
 STB r12 r2 0
 INC r12
 DEC r1
-BR.NE .clear_line
+BRS.NE .clear_line
 CMP r5 r0
-BR.EQ .draw_number
+BRS.EQ .draw_number
 LEA r14 r0 1
 CMP r5 r14
-BR.EQ .draw_zero_error
+BRS.EQ .draw_zero_error
 LDI r12 GPU_TEXT
 LDI r1 0x5245564f
 STW r12 r1 0
 LDI r1 0x574f4c46
 STW r12 r1 4
-JMP .submit
+JMPS .submit
 .draw_zero_error
 LDI r12 GPU_TEXT
 LDI r1 0x49564944
@@ -354,11 +354,11 @@ LDI r1 0x20594220
 STW r12 r1 8
 LDI r1 0x4f52455a
 STW r12 r1 12
-JMP .submit
+JMPS .submit
 .draw_number
-CALL .get_active
+CALLS .get_active
 CMP r6 r0
-BR.EQ .draw_magnitude
+BRS.EQ .draw_magnitude
 NEG r3 r3
 .draw_magnitude
 LEA r4 r0 15
@@ -373,9 +373,9 @@ ADD r12 r12 r4
 STB r12 r1 0
 DEC r4
 CMP r3 r0
-BR.NE .digit_loop
+BRS.NE .digit_loop
 CMP r6 r0
-BR.EQ .draw_operator
+BRS.EQ .draw_operator
 LDI r12 GPU_TEXT
 ADD r12 r12 r4
 LEA r1 r0 '-'
@@ -383,7 +383,7 @@ STB r12 r1 0
 .draw_operator
 LEA r14 r0 1
 CMP r11 r14
-BR.NE .submit
+BRS.NE .submit
 LDI r12 GPU_TEXT
 LEA r1 r0 '('
 STB r12 r1 18
@@ -415,4 +415,4 @@ SYS SYS_GPU_FENCE
 RET
 .idle
 SYS SYS_YIELD
-JMP .loop
+JMPS .loop

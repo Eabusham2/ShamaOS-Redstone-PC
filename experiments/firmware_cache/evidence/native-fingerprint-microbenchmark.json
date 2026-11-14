@@ -1,0 +1,166 @@
+{
+  "scope": "Synthetic canonical-fingerprint microbenchmark with all 24 height sections retained; the native reader omits unowned uniform-air sections, so these ratios do not establish real save/readback or whole-world speed",
+  "baseline_commit": "184faa9d28d871b77ff4de73c022b620d57536a7",
+  "baseline_source_sha256": "08e163497c981357b3aa4ce444709f38769001fb512700b0ffd2a8fc4ebda69c",
+  "current_source_sha256": "389e525bc0a3bb5a47b53d6dae1362177f7d865dbec4f63c9fd4c84bbfaf3bd0",
+  "repetitions_per_trial": 40,
+  "trials": 5,
+  "cases": {
+    "air": {
+      "fingerprint": [
+        "bac861d11b2c3eead872b083486a8199c64c7d4e749828e4b42b6494a59fd7df",
+        0
+      ],
+      "samples_seconds": {
+        "baseline": [
+          0.5838811859998714,
+          0.6413187779999134,
+          0.6904025209996689,
+          0.6691714220000904,
+          0.7056895579999036
+        ],
+        "current": [
+          0.02650454600006924,
+          0.026168709000103263,
+          0.03325646700022844,
+          0.029530759999943257,
+          0.02641222000011112
+        ]
+      },
+      "median_before_seconds": 0.6691714220000904,
+      "median_after_seconds": 0.02650454600006924,
+      "speedup": 25.247420649964813,
+      "all_digests_identical": true
+    },
+    "owned_air": {
+      "fingerprint": [
+        "0510738df4a836ecc9e31874e1db49b7ea90c8826d98919d167207a4e66d8c65",
+        2
+      ],
+      "samples_seconds": {
+        "baseline": [
+          0.7590624469999057,
+          0.7606633969999166,
+          0.6986931569999797,
+          0.6647560169999451,
+          0.7435869900000398
+        ],
+        "current": [
+          0.04428148000033616,
+          0.042398707999836915,
+          0.044263418999889836,
+          0.03694196899959934,
+          0.04651646399997844
+        ]
+      },
+      "median_before_seconds": 0.7435869900000398,
+      "median_after_seconds": 0.044263418999889836,
+      "speedup": 16.799131354988425,
+      "all_digests_identical": true
+    },
+    "terrain": {
+      "fingerprint": [
+        "bcbee12ea91ad3d94dd0bf74a65c16a95464ab7c80e89f9661d3167fef35d10c",
+        0
+      ],
+      "samples_seconds": {
+        "baseline": [
+          0.698943540000073,
+          0.6048157709997213,
+          0.5796280750000733,
+          0.649485003999871,
+          0.7441296449997026
+        ],
+        "current": [
+          0.03247912000006181,
+          0.0324429180000152,
+          0.03230988999985129,
+          0.03296584100007749,
+          0.040902347000155714
+        ]
+      },
+      "median_before_seconds": 0.649485003999871,
+      "median_after_seconds": 0.03247912000006181,
+      "speedup": 19.997001273391486,
+      "all_digests_identical": true
+    },
+    "sparse": {
+      "fingerprint": [
+        "5f6b3f1e0956c765b7a0f0eccd98a7ab32653af7107f50925f4cfde7fac62858",
+        111
+      ],
+      "samples_seconds": {
+        "baseline": [
+          0.7180844539998361,
+          0.6493151120002949,
+          0.6245491359995867,
+          0.7057001989996934,
+          0.6385624939998706
+        ],
+        "current": [
+          0.042719300000044313,
+          0.041693709999890416,
+          0.04868389900002512,
+          0.0468804629999795,
+          0.03936267700009921
+        ]
+      },
+      "median_before_seconds": 0.6493151120002949,
+      "median_after_seconds": 0.042719300000044313,
+      "speedup": 15.19957283943373,
+      "all_digests_identical": true
+    },
+    "dense": {
+      "fingerprint": [
+        "f115130f0b69ac4e247b0b589b439e1a7c2006f260f6779ca9ae2f3b252d872f",
+        4096
+      ],
+      "samples_seconds": {
+        "baseline": [
+          0.6108015720001276,
+          0.6704029749998881,
+          0.7007529009997597,
+          0.6815284519998386,
+          0.692246219000026
+        ],
+        "current": [
+          0.05346656099982283,
+          0.052044633999685175,
+          0.04139867799995045,
+          0.045337365999785106,
+          0.04620098999976108
+        ]
+      },
+      "median_before_seconds": 0.6815284519998386,
+      "median_after_seconds": 0.04620098999976108,
+      "speedup": 14.751381994268154,
+      "all_digests_identical": true
+    },
+    "permuted": {
+      "fingerprint": [
+        "5f6b3f1e0956c765b7a0f0eccd98a7ab32653af7107f50925f4cfde7fac62858",
+        111
+      ],
+      "samples_seconds": {
+        "baseline": [
+          0.7282743790001405,
+          0.7668119310001202,
+          0.6745404030002646,
+          0.7024819990001561,
+          0.6498253150002711
+        ],
+        "current": [
+          0.042540658000234544,
+          0.04119834199991601,
+          0.04767647900007432,
+          0.04922827300015342,
+          0.04037080699981743
+        ]
+      },
+      "median_before_seconds": 0.7024819990001561,
+      "median_after_seconds": 0.042540658000234544,
+      "speedup": 16.513190722068355,
+      "all_digests_identical": true
+    }
+  }
+}

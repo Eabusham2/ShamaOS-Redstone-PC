@@ -4,6 +4,19 @@
 **Project:** ShamaOS Redstone PC  
 **Repository:** `Eabusham2/ShamaOS-Redstone-PC`
 
+## Owner-authorized cache reduction — November 13, 2026 (America/Chicago)
+
+The owner reopened app/cache optimization and requested significantly smaller
+cache construction. The implementation now uses **4 KiB cache / fast scratch**
+(one complete 4 KiB bank), with **96 KiB main RAM**, **200 KiB flash** and
+**16 KiB VRAM** retained. All nine shipped apps and editable sources remain.
+Short instruction encodings and shared app routines reduce executable sizes;
+the physical cache holds only the prefix of the original 8 KiB executable
+window. Any tail executes directly from the existing RAM backing, so the
+8 KiB program limit, complete Miner software SHA, full editing/assembly limits,
+history and recovery remain intact. This supersedes the earlier acceptance of
+program sizes and the 8 KiB physical-cache setting below.
+
 ## Owner-approved capacity amendment — 2026-11-13 UTC
 
 The owner finalized **96 KiB main RAM**, **200 KiB flash**, **8 KiB cache /
@@ -203,7 +216,8 @@ The project makes no claim that a Minecraft redstone miner is competitive with r
 Agreed target:
 
 - **96 KiB main RAM** (98,304 bytes; 24 × 4 KiB banks).
-- **8 KiB cache / fast scratch** (8,192 bytes).
+- **4 KiB cache / fast scratch** (4,096 physical bytes), retaining the original
+  8,192-byte executable RAM window and its complete code backing.
 - **16 KiB VRAM** (16,384 bytes), sufficient for the 320×180 1-bit double-buffered display plus GPU working state.
 - **200 KiB flash** (204,800 bytes; 50 × 4 KiB banks).
 

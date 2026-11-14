@@ -1,0 +1,90 @@
+{
+  "scope": "Complete partition with actual original-I/O facade; connected memory and runtime remain separate gates",
+  "source_hashes": {
+    "src/shamaos/model.py": "1a0fd1f9eb9469989057e4486401e5161e7f0bb02eb69195b7a14a74e92f4b95",
+    "src/shamaos/synthesis.py": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274",
+    "src/shamaos/hardware/partition_planner.py": "5b7daafbd5eda35abb621fc6c64731c8fb3a6e56ab2422c8108812b1f26623fd",
+    "src/shamaos/hardware/partition_placement.py": "10c6a4b5aba6b5c4776326d0a863bf57cd1fc5b0d216115ca496d851d6a82e90",
+    "src/shamaos/hardware/local_router.py": "63054c806442499ba0aa27f65b1ec2b35c339c0c8595521dbc3097a334307bc6",
+    "src/shamaos/hardware/external_router.py": "96834193a37bb485ab225ea21dc1ae460afcc3ab9ac41a434e45660be2f7666d",
+    "src/shamaos/hardware/memory.py": "f44923cd4376d10fb2f62d5daf3bf752fe340e269355ac3564fd26ee2b5a8517",
+    "src/shamaos/hardware/routing.py": "d2b885f908a5942036269992c3fff7e3eb19ffe5a4753b97f5494aaf7120ccce",
+    "src/shamaos/hardware/logic.py": "84a4f2cc3c535628ccd4e16ae0480b3cc99310f1fb83fe28f98d98b621ab1dff",
+    "experiments/memory_controller_runtime/clock_reserve.py": "6a5bd0ba923dbb6aabf0046ad6a487905043373854e76bdec502432db815d8fb",
+    "experiments/partition_placement/port_egress.py": "9b9ca8e2209f4401d6c8a7783c72c4188ed9f9b018b8a57d63fb9aa1fc20c9f5",
+    "experiments/partition_placement/port_egress_manifest.py": "822e4d29bd605456a159e687411e829268b183a7962a09a128324ffe97e6ba1a",
+    "experiments/partition_placement/packed_parent_union.py": "a9982d5e230fb7fa4e8b4e666a42323fd59b55066564b1fbf1567d0d15281a50",
+    "experiments/partition_placement/targeted_clock_reserve.py": "02bf1a51c40e61910efb7fbda41480ec7ce1cc1bbb8369cd731988a5d90f46b0",
+    "experiments/partition_placement/raised_exports/replay_manifest.py": "308075b05664930ed457ca14054943bc7370e07ac45a86f54a9716ebf2c26ddb",
+    "experiments/partition_placement/raised_exports/streamed_union.py": "4732f29067e5d7aff013a9d2a5565e8e7037e4259b6cc1b74ffb0e45fd84281d",
+    "experiments/partition_placement/run_port_egress.py": "8ec6ea064afb4d519bccb9ba2158143fdb2a2db26818a9ab5532a6c73b1c91a5"
+  },
+  "clock_padding_blocks": 128,
+  "clock_domain_padding": {},
+  "memory_limit_mib": 2048,
+  "wall_limit_seconds": 1200,
+  "runtime_verified": false,
+  "whole_computer_verified": false,
+  "mapped_source": {
+    "path": "/workspace/scratch/b1e71409d064/ShamaOS-cache-physical/experiments/memory_controller_runtime/evidence/cache-controller-c331.json.gz",
+    "sha256": "d4989124e9dca8b5afa865d954ded3be680b99f0b1e2f472aed6b5ecc42dd468",
+    "container_sha256": "33016917c70829684a45758a1a2164791f514803394101a6bde3ea19cafca8c0",
+    "encoding": "gzip",
+    "top": "shama_cache_adapter",
+    "raw_cells": 1144,
+    "lowered_cells": 1144,
+    "lowering_source_sha256": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274"
+  },
+  "plan_sha256": "450ee68660d027214199a643ffd8e98b13a35604ef3a99f99d6dd27f0fccfde0",
+  "topology_sha256": "67752c691e46a22199f2280ec5066a016d32d8520c3c55c7204d36db661b75c3",
+  "clock_reservation_groups": [],
+  "graph_audit": {
+    "native_cells": 1144,
+    "original_port_bits": 183,
+    "shared_contacts": 1380,
+    "native_sink_uses": 2155,
+    "clock_leaf_uses": 115,
+    "constant_terminals": 0,
+    "status": "structural-contacts-passed",
+    "runtime_verified": false
+  },
+  "facade_audit": {
+    "status": "original-io-facade-structure-passed-runtime-unverified",
+    "original_port_bits": 183,
+    "facade_modules": 2,
+    "directed_handoffs": 183,
+    "runtime_verified": false,
+    "electrical_route_isolation_verified": false,
+    "scope": "Directed endpoint/contact conservation only; fresh placement isolation guards or replayed runtime remain separate evidence",
+    "base_clock_matching_scope": "Original mapped input pin to registers; facade input delivery adds an uncounted common prefix and requires exterior runtime timing"
+  },
+  "geometry_guards_passed": true,
+  "bounds": {
+    "min": {
+      "x": 0,
+      "y": -60,
+      "z": -1372
+    },
+    "max": {
+      "x": 6140,
+      "y": 283,
+      "z": 4294
+    }
+  },
+  "computed_unique_blocks": 16000328,
+  "unbalanced_manifest": {
+    "path": "build/cache-root-io/padding128/report-unbalanced.json.gz",
+    "sha256": "5f3d7ca86c1e954a6e1ee65703d9d9ffe24fcb9849ebb8cbf1af928549e5bc8e",
+    "uncompressed_sha256": "7eaf20da8f4a1be902445c5f605f3141997b89326c88eced3b0a7f124028a7e4",
+    "compressed_bytes": 267736,
+    "graph_modules": 32,
+    "facade_modules": 2,
+    "facade_handoffs": 183
+  },
+  "status": "failed",
+  "error_type": "ValueError",
+  "error": "clock leaf boundary:net2:cluster27>cluster25:out needs 62 additional delay ticks beyond its private branch capacity",
+  "traceback": "Traceback (most recent call last):\n  File \"/workspace/scratch/b1e71409d064/ShamaOS-cache-physical/experiments/partition_placement/run_port_egress.py\", line 113, in main\n    report[\"clock_matching\"] = balance_partition_clocks(plan, placed)\n                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/b1e71409d064/ShamaOS-cache-physical/src/shamaos/hardware/partition_placement.py\", line 499, in balance_partition_clocks\n    return _balance_partition_clocks(plan, placed)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/b1e71409d064/ShamaOS-cache-physical/src/shamaos/hardware/partition_placement.py\", line 546, in _balance_partition_clocks\n    total = tail((\"leaf\", source_leaf))\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/b1e71409d064/ShamaOS-cache-physical/src/shamaos/hardware/partition_placement.py\", line 532, in tail\n    delay = tail(key(links[sink.pin][\"sink\"]))\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/b1e71409d064/ShamaOS-cache-physical/src/shamaos/hardware/partition_placement.py\", line 532, in tail\n    delay = tail(key(links[sink.pin][\"sink\"]))\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/b1e71409d064/ShamaOS-cache-physical/src/shamaos/hardware/partition_placement.py\", line 538, in tail\n    tile.balance_net(bit, tails)\n  File \"/workspace/scratch/b1e71409d064/ShamaOS-cache-physical/src/shamaos/hardware/local_router.py\", line 133, in balance_net\n    raise ValueError(f\"clock leaf {sink.name} needs {remaining} additional delay ticks beyond its private branch capacity\")\nValueError: clock leaf boundary:net2:cluster27>cluster25:out needs 62 additional delay ticks beyond its private branch capacity\n",
+  "seconds": 316.57426233199993,
+  "peak_rss_kib": 857244
+}

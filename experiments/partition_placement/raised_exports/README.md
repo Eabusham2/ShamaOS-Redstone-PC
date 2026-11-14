@@ -119,6 +119,13 @@ parent 221 recovery remains a separate gate until its manifest exists.
 
 ### Resume the measured apron without accepting old geometry
 
+The saved hint below is historical and is bound to the planner sources named
+in its evidence. The current root-I/O policy changed the production planner,
+so this hint correctly rejects the current source tree. Replaying it requires
+the exact recorded sources; it cannot certify or accelerate a changed graph or
+planner. Guard tests separately cover accepting that recorded identity and
+rejecting the current identity. The evidence file remains unchanged.
+
 The separate `apron_recovery.py` helper can start the same parent and child
 packing at a previously measured apron. It requires the retained evidence's
 exact SHA-256, matching full graph/topology and every original source binding.
@@ -134,7 +141,7 @@ row-apron measurement and starts that row attempt at the measured 1,874 blocks:
 python experiments/partition_placement/raised_exports/run.py geometry --cluster 221 --literal-union --resume-apron-evidence experiments/partition_placement/raised_exports/evidence/parent221-interrupted.json --resume-apron-sha256 55dd207938220fae91cf1c759d35380a35e4a5954acd5b4efbcc5db746723afe --output build/raised-parent221-resumed.json
 ```
 
-This command has not established a new parent-221 result. The 20 focused
+This command has not established a new parent-221 result. The 21 focused
 recovery tests verify source binding, exact small-hierarchy geometry, finite
 monotonic retries and propagation of all actual route/export failures. The full
 cache controller and its real memory connection have priority over another

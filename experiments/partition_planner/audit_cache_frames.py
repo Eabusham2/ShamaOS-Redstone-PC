@@ -87,29 +87,34 @@ def group_bits(values, prefix):
 
 
 def write_bench(directory, frames):
+    capacity = frames[0].capacity_bytes
+    check(all(frame.capacity_bytes == capacity for frame in frames), "RTL frame review mixes cache capacities")
+    words = capacity // 4
+    banks = (capacity + 4095) // 4096
+    swap_mask = 1024 if banks > 1 else 1
     widths = dict(scenarios.HOST_WIDTHS)
-    widths.update(req_ready=1, req_rdata=32, bank_select=2, row_address=10,
+    widths.update(req_ready=1, req_rdata=32, bank_select=banks, row_address=10,
                   read_enable=1, write_commit=1, write_data=32, selected_word=32)
     boundaries = [frame.stored_words for frame in frames if frame.stored_words is not None]
     with (directory / "initial.hex").open("w") as stream:
-        stream.writelines(f"{word:08x}\n" for word in scenarios.initial_words())
+        stream.writelines(f"{word:08x}\n" for word in scenarios.initial_words(capacity_bytes=capacity))
     with (directory / "expected.hex").open("w") as stream:
         stream.writelines(f"{word:08x}\n" for words in boundaries for word in words)
     code = ["`timescale 1ns/1ps", "module cache_frames;",
         "parameter integer SWAP_READ_BANKS=0, SWAP_WRITE_BANKS=0;",
         "logic clk=0, rst=0, req_valid=0, req_we=0;",
         "logic [31:0] req_addr=0, req_wdata=0; logic [3:0] req_wstrb=0;",
-        "wire req_ready, read_enable, write_commit; wire [1:0] bank_select;",
+        f"wire req_ready, read_enable, write_commit; wire [{banks - 1}:0] bank_select;",
         "wire [9:0] row_address; wire [31:0] req_rdata, write_data, selected_word;",
         "shama_cache_adapter dut(.*);",
-        "logic [31:0] memory[0:2047];",
-        f"logic [31:0] expected[0:{len(boundaries) * 2048 - 1}];",
+        f"logic [31:0] memory[0:{words - 1}];",
+        f"logic [31:0] expected[0:{len(boundaries) * words - 1}];",
         "integer index, commits=0, rises=0, selected;",
-        "always @* selected = (bank_select[1] ? 1024 : 0) + row_address;",
-        "assign selected_word = read_enable ? memory[selected ^ (SWAP_READ_BANKS ? 1024 : 0)] : 32'd0;",
+        "always @* selected = " + ("(bank_select[1] ? 1024 : 0) + " if banks > 1 else "") + "row_address;",
+        f"assign selected_word = read_enable ? memory[selected ^ (SWAP_READ_BANKS ? {swap_mask} : 0)] : 32'd0;",
         "// A level-sensitive abstract store, deliberately not the posedge-only test array.",
         "// #1 samples settled RTL levels; it does not model physical propagation or reset races.",
-        "always #1 if (write_commit === 1'b1) memory[selected ^ (SWAP_WRITE_BANKS ? 1024 : 0)] = write_data;",
+        f"always #1 if (write_commit === 1'b1) memory[selected ^ (SWAP_WRITE_BANKS ? {swap_mask} : 0)] = write_data;",
         "always @(posedge write_commit) commits=commits+1;",
         "always @(posedge clk) rises=rises+1;",
         "initial begin",
@@ -129,27 +134,35 @@ def write_bench(directory, frames):
                         f"{width}'h{value:x}, {signal});")
             assertion_count += mask.bit_count()
         if frame.stored_words is not None:
-            code.append(f"for(index=0; index<2048; index=index+1) if(memory[index] !== expected[{boundary * 2048}+index]) "
+            code.append(f"for(index=0; index<{words}; index=index+1) if(memory[index] !== expected[{boundary * words}+index]) "
                         f'$fatal(1,"STORAGE {frame_index} {frame.label} word=%0d expected=%h actual=%h", '
-                        f"index,expected[{boundary * 2048}+index],memory[index]);")
+                        f"index,expected[{boundary * words}+index],memory[index]);")
             boundary += 1
     code += [f'$display("CACHE FRAME ORACLE PASS frames={len(frames)} boundaries={boundary} rises=%0d commits=%0d",rises,commits);',
              "$finish; end endmodule"]
     path = directory / "cache_frames.sv"
     path.write_text("\n".join(code) + "\n")
     return {"frames": len(frames), "boundaries": boundary,
-            "word_boundary_assertions": boundary * 2048,
-            "bit_boundary_assertions": boundary * 65536,
+            "word_boundary_assertions": boundary * words,
+            "bit_boundary_assertions": boundary * capacity * 8,
             "controller_bit_assertions": assertion_count,
             "testbench_sha256": sha(path)}
 
 
-def rtl_review(directory):
+def rtl_review(directory, *, source_root=None, capacity_bytes=8192):
     compiler, simulator = shutil.which("iverilog"), shutil.which("vvp")
     check(compiler and simulator, "Icarus Verilog and vvp are required; no skipped acceptance")
-    initial = list(scenarios.functional_frames())
+    scenarios.check_capacity(capacity_bytes)
+    if source_root is None:
+        check(capacity_bytes == 8192, "historical RTL can only prove its original 8 KiB capacity")
+        source_root = directory / "historical-inputs"
+        (source_root / "rtl").mkdir(parents=True, exist_ok=False)
+        historical = fixture.historical_inputs()
+        for name in ("rtl/shama_memory_adapter.sv", "rtl/shama_boot_params.svh"):
+            (source_root / name).write_bytes(historical[name])
+    initial = list(scenarios.functional_frames(capacity_bytes=capacity_bytes))
     final = next(frame.stored_words for frame in reversed(initial) if frame.stored_words is not None)
-    continuation = list(scenarios.functional_frames(final, resume=True))
+    continuation = list(scenarios.functional_frames(final, resume=True, capacity_bytes=capacity_bytes))
     frames = initial + continuation
     result = write_bench(directory, frames)
     outcomes = []
@@ -157,10 +170,10 @@ def rtl_review(directory):
             ("swapped-model-read-bank", "SWAP_READ_BANKS", False),
             ("swapped-model-write-bank", "SWAP_WRITE_BANKS", False)):
         binary = directory / f"{label}.vvp"
-        command = [compiler, "-g2012", "-I", str(ROOT / "rtl"), "-s", "cache_frames", "-o", str(binary)]
+        command = [compiler, "-g2012", "-I", str(source_root / "rtl"), "-s", "cache_frames", "-o", str(binary)]
         if parameter:
             command += [f"-Pcache_frames.{parameter}=1"]
-        command += [str(ROOT / "rtl/shama_memory_adapter.sv"), str(directory / "cache_frames.sv")]
+        command += [str(source_root / "rtl/shama_memory_adapter.sv"), str(directory / "cache_frames.sv")]
         compiled = subprocess.run(command, capture_output=True, text=True, timeout=30, cwd=directory)
         (directory / f"{label}-compile.log").write_text(compiled.stdout + compiled.stderr)
         check(compiled.returncode == 0, f"{label} did not compile: {compiled.stderr}")
@@ -174,7 +187,10 @@ def rtl_review(directory):
             expected_marker = "FRAME" if parameter == "SWAP_READ_BANKS" else "STORAGE"
             check(expected_marker in log, f"negative fixture failed for an unrelated reason: {log}")
         outcomes.append({"case": label, "exit_code": run.returncode, "output": log.strip()})
-    return result | {"initial_plan": {key: value for key, value in scenarios.summarize_frames(initial).items()
+    return result | {"capacity_bytes": capacity_bytes,
+                     "negative_storage_address_xor": 1024 if capacity_bytes > 4096 else 1,
+                     "rtl_source_hashes": {name: sha(source_root / name) for name in ("rtl/shama_memory_adapter.sv", "rtl/shama_boot_params.svh")},
+                     "initial_plan": {key: value for key, value in scenarios.summarize_frames(initial).items()
                                       if key not in ("final_words", "boundary_states")},
                      "continuation_frames": len(continuation), "outcomes": outcomes}
 

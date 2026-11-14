@@ -1,0 +1,198 @@
+...sssssssssssssssssssF.............................................ssss [  4%]
+ssssssssssssssssss...............ssssssss....s.......................... [  8%]
+............ss.......................................................... [ 12%]
+........................................................................ [ 17%]
+....................................................ss..s............... [ 21%]
+.....sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss...... [ 25%]
+..s..................................................................... [ 29%]
+............ss....................ssssssssssssssssssssssssssssssssssssss [ 34%]
+ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss [ 38%]
+ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss [ 42%]
+sssssssssssssssssssssssssssssssss.sssssssssss..ssss.......ssss.......... [ 46%]
+.sssssss.......sssssssssssssssssssssssssssssssssssssssssssssssssssssssss [ 51%]
+sssssssss.ssssssssssssssssssssssssss...sssssssssssssssssssssssssssssssss [ 55%]
+ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss...... [ 59%]
+...................................s.................................... [ 63%]
+...ssss.........................................................ssss.... [ 68%]
+........................................................................ [ 72%]
+.........................sss.ssssss..............ss..............sssss.. [ 76%]
+........................................................................ [ 80%]
+........s................................ssss........................... [ 85%]
+......................................................ssss........ss.... [ 89%]
+.........................................................sssssssssssssss [ 93%]
+sssss........sssssss......s.ss.........ss................ss.......ssssss [ 97%]
+ssssssssssssssssss.....s..............                                   [100%]
+=================================== FAILURES ===================================
+__ test_retained_hint_requires_current_sources_and_preserves_incomplete_scope __
+
+retained = (PosixPath('/workspace/scratch/1dadfdc07e05/ShamaOS-app-audit/experiments/partition_placement/raised_exports/evidence/... {221: {'children': [177], 'parent': None}, 177: {'children': [0], 'parent': 221}, 0: {'children': [], 'parent': 177}})
+
+    def test_retained_hint_requires_current_sources_and_preserves_incomplete_scope(retained):
+        path, evidence, report, clusters = retained
+>       result = RECOVERY.load_recovery_hint(path, hashlib.sha256(path.read_bytes()).hexdigest(), report, clusters)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_apron_recovery.py:35: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/workspace/scratch/1dadfdc07e05/ShamaOS-app-audit/experiments/partition_placement/raised_exports/evidence/parent221-interrupted.json')
+expected_sha256 = '55dd207938220fae91cf1c759d35380a35e4a5954acd5b4efbcc5db746723afe'
+report = {'topology_sha256': 'd6ddfd1b1b332d2e56c9d5dcc76d857442373a9ff1cd53ce77330a6bbbc3c24a', 'mapped_source': {'path': '/wo...rc/shamaos/hardware/external_router.py': '96834193a37bb485ab225ea21dc1ae460afcc3ab9ac41a434e45660be2f7666d', ...}, ...}
+clusters = {221: {'children': [177], 'parent': None}, 177: {'children': [0], 'parent': 221}, 0: {'children': [], 'parent': 177}}
+
+    def load_recovery_hint(path: Path, expected_sha256: str, report: dict, clusters: dict) -> dict:
+        """Require an exact retained measurement from the current graph and sources."""
+        raw = path.read_bytes()
+        actual = hashlib.sha256(raw).hexdigest()
+        if actual != expected_sha256:
+            raise ValueError("recovery evidence digest does not match the supplied SHA-256")
+        evidence = json.loads(raw, object_pairs_hook=_unique_object)
+        if evidence.get("status") != "incomplete-after-parent-emission":
+            raise ValueError("recovery requires a completed parent emission, not a partial route search")
+        if evidence.get("full_graph_topology_sha256") != report["topology_sha256"]:
+            raise ValueError("recovery graph topology binding changed")
+        old_mapped = evidence.get("mapped_source", {})
+        current_mapped = report["mapped_source"]
+        for key in ("sha256", "container_sha256", "top", "lowering_source_sha256"):
+            if not old_mapped.get(key) or old_mapped[key] != current_mapped.get(key):
+                raise ValueError(f"recovery mapped source binding changed: {key}")
+        if evidence.get("effective_candidate_sha256") != report["effective_partition_placement_sha256"]:
+            raise ValueError("recovery placement snapshot binding changed")
+        bindings = evidence.get("source_bindings", {})
+        if set(bindings) != set(report["source_hashes"]):
+            raise ValueError("recovery evidence lacks the exact source binding inventory")
+        for name, digest in report["source_hashes"].items():
+            if bindings[name].get("recorded_sha256") != digest or bindings[name].get("current_sha256") != digest:
+>               raise ValueError(f"recovery source binding changed: {name}")
+E               ValueError: recovery source binding changed: src/shamaos/hardware/partition_planner.py
+
+experiments/partition_placement/raised_exports/apron_recovery.py:46: ValueError
+=============================== warnings summary ===============================
+../../../../opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/anyio/pytest_plugin.py:14
+  /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/anyio/pytest_plugin.py:14: PytestRemovedIn10Warning: _pytest.python.CallSpec2 has been renamed to CallSpec.
+  The CallSpec2 alias will be removed in pytest 10.
+  Update imports to use CallSpec instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#callspec2-renamed
+    from _pytest.python import CallSpec2
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+SKIPPED [1] tests/test_world_blockstates.py:3: could not import 'amulet': No module named 'amulet'
+SKIPPED [114] tests/test_mchprs_runtime.py:45: actual MCHPRS runner not available; do not claim runtime validation
+SKIPPED [17] tests/test_assembler_definitions.py:36: Icarus Verilog is required for hardware behavior tests
+SKIPPED [2] tests/test_assembler_definitions.py:43: Icarus Verilog is required for hardware behavior tests
+SKIPPED [3] tests/test_assembler_definitions.py:71: Icarus Verilog is required for hardware behavior tests
+SKIPPED [1] tests/test_binary_row_decoder.py:104: actual MCHPRS runner not available; full binary row decoding is unverified
+SKIPPED [1] tests/test_binary_row_decoder.py:113: actual MCHPRS runner not available; partial decoding is unverified
+SKIPPED [1] tests/test_bounded_build.py:102: SHAMA_MCHPRS_TERRAIN_RUNNER unavailable; complete-partition runtime remains unverified
+SKIPPED [7] tests/test_mchprs_sparse_runtime.py:30: SHAMA_MCHPRS_TERRAIN_RUNNER unavailable; native all-loaded runtime is unverified
+SKIPPED [2] tests/test_compact_isa_audit.py:84: real CPU RTL execution requires Icarus Verilog
+SKIPPED [1] tests/test_compact_regular_layout.py:61: actual MCHPRS runner not available; saved console runtime is unverified
+SKIPPED [2] tests/test_console_input_integration.py:120: physical-trace/input integration requires Icarus Verilog
+SKIPPED [2] tests/test_console_input_integration.py:143: physical-trace/input integration requires Icarus Verilog
+SKIPPED [2] tests/test_cpu_rtl.py:61: real CPU RTL execution requires Icarus Verilog
+SKIPPED [2] tests/test_cpu_rtl.py:89: real CPU RTL execution requires Icarus Verilog
+SKIPPED [1] tests/test_cpu_rtl.py:113: real CPU RTL execution requires Icarus Verilog
+SKIPPED [6] tests/test_cpu_rtl.py:120: real CPU RTL execution requires Icarus Verilog
+SKIPPED [14] tests/test_cpu_rtl.py:135: real CPU RTL execution requires Icarus Verilog
+SKIPPED [8] tests/test_cpu_rtl.py:155: real CPU RTL execution requires Icarus Verilog
+SKIPPED [1] tests/test_cpu_rtl.py:187: real CPU RTL execution requires Icarus Verilog
+SKIPPED [1] tests/test_cpu_rtl.py:225: real CPU RTL execution requires Icarus Verilog
+SKIPPED [2] tests/test_cpu_rtl.py:243: real CPU RTL execution requires Icarus Verilog
+SKIPPED [1] tests/test_cpu_rtl.py:268: real CPU RTL execution requires Icarus Verilog
+SKIPPED [9] tests/test_cpu_rtl.py:274: real CPU RTL execution requires Icarus Verilog
+SKIPPED [1] tests/test_cpu_rtl.py:285: real CPU RTL execution requires Icarus Verilog
+SKIPPED [1] tests/test_cpu_rtl.py:298: real CPU RTL execution requires Icarus Verilog
+SKIPPED [1] tests/test_current_cache_fixture.py:45: current cache provenance requires actual synthesis and RTL simulation tools
+SKIPPED [1] tests/test_current_cache_fixture.py:62: current cache provenance requires actual synthesis and RTL simulation tools
+SKIPPED [6] tests/test_current_cache_fixture.py:81: current cache provenance requires actual synthesis and RTL simulation tools
+SKIPPED [1] tests/test_dense_display.py:19: actual MCHPRS runner unavailable; full dense display is unverified
+SKIPPED [1] tests/test_full_memory_bank_runtime.py:102: actual MCHPRS runner not available; full bank runtime is unverified
+SKIPPED [1] tests/test_full_memory_bank_runtime.py:111: actual MCHPRS runner not available; half bank runtime is unverified
+SKIPPED [1] tests/test_gpu_execution.py:133: Icarus Verilog required for GPU differential execution
+SKIPPED [1] tests/test_gpu_execution.py:152: Icarus Verilog required for GPU differential execution
+SKIPPED [1] tests/test_gpu_execution.py:164: Icarus Verilog required for GPU differential execution
+SKIPPED [1] tests/test_gpu_execution.py:179: Icarus Verilog required for GPU differential execution
+SKIPPED [7] tests/test_gpu_execution.py:192: Icarus Verilog required for GPU differential execution
+SKIPPED [18] tests/test_gpu_execution.py:201: Icarus Verilog required for GPU differential execution
+SKIPPED [1] tests/test_gpu_execution.py:225: Icarus Verilog required for GPU differential execution
+SKIPPED [9] tests/test_gpu_execution.py:240: Icarus Verilog required for GPU differential execution
+SKIPPED [1] tests/test_gpu_execution.py:267: Icarus Verilog required for GPU differential execution
+SKIPPED [1] tests/test_gpu_execution.py:281: Icarus Verilog required for GPU differential execution
+SKIPPED [2] tests/test_gpu_execution.py:301: Icarus Verilog required for GPU differential execution
+SKIPPED [1] tests/test_gpu_execution.py:316: Icarus Verilog required for GPU differential execution
+SKIPPED [13] tests/test_gpu_execution.py:327: Icarus Verilog required for GPU differential execution
+SKIPPED [1] tests/test_gpu_execution.py:346: Icarus Verilog required for GPU differential execution
+SKIPPED [1] tests/test_hardware_assembler.py:20: Icarus Verilog is required for hardware behavior tests
+SKIPPED [1] tests/test_hardware_assembler.py:42: Icarus Verilog is required for hardware behavior tests
+SKIPPED [16] tests/test_hardware_assembler.py:55: Icarus Verilog is required for hardware behavior tests
+SKIPPED [9] tests/test_hardware_assembler.py:66: Icarus Verilog is required for hardware behavior tests
+SKIPPED [1] tests/test_hardware_assembler.py:71: Icarus Verilog is required for hardware behavior tests
+SKIPPED [3] tests/test_hardware_assembler.py:94: Icarus Verilog is required for hardware behavior tests
+SKIPPED [1] tests/test_hardware_assembler.py:103: Icarus Verilog is required for hardware behavior tests
+SKIPPED [1] tests/test_hardware_assembler.py:109: Icarus Verilog is required for hardware behavior tests
+SKIPPED [16] tests/test_hardware_assembler.py:122: Icarus Verilog is required for hardware behavior tests
+SKIPPED [1] tests/test_hardware_numeric_literals.py:9: Icarus Verilog is required for hardware behavior tests
+SKIPPED [40] tests/test_hardware_numeric_literals.py:28: Icarus Verilog is required for hardware behavior tests
+SKIPPED [1] tests/test_hardware_numeric_literals.py:43: Icarus Verilog is required for hardware behavior tests
+SKIPPED [4] tests/test_hardware_numeric_literals.py:54: Icarus Verilog is required for hardware behavior tests
+SKIPPED [1] tests/test_hardware_numeric_literals.py:61: Icarus Verilog is required for hardware behavior tests
+SKIPPED [2] tests/test_hardware_numeric_literals.py:70: Icarus Verilog is required for hardware behavior tests
+SKIPPED [2] tests/test_hardware_numeric_literals.py:78: Icarus Verilog is required for hardware behavior tests
+SKIPPED [1] tests/test_hardware_numeric_literals.py:84: Icarus Verilog is required for hardware behavior tests
+SKIPPED [2] tests/test_hardware_operand_selection.py:21: Icarus Verilog is required for hardware behavior tests
+SKIPPED [24] tests/test_hardware_operand_selection.py:36: Icarus Verilog is required for hardware behavior tests
+SKIPPED [1] tests/test_history_journal.py:80: Icarus Verilog is required for actual history-journal recovery
+SKIPPED [1] tests/test_history_journal.py:104: Icarus Verilog is required for actual history-journal recovery
+SKIPPED [14] tests/test_history_journal.py:136: Icarus Verilog is required for actual history-journal recovery
+SKIPPED [7] tests/test_history_journal.py:144: Icarus Verilog is required for actual history-journal recovery
+SKIPPED [1] tests/test_history_journal.py:172: Icarus Verilog is required for actual history-journal recovery
+SKIPPED [5] tests/test_history_journal.py:183: Icarus Verilog is required for actual history-journal recovery
+SKIPPED [1] tests/test_history_journal.py:193: Icarus Verilog is required for actual history-journal recovery
+SKIPPED [5] tests/test_history_journal.py:230: Icarus Verilog is required for actual history-journal recovery
+SKIPPED [6] tests/test_history_journal.py:255: Icarus Verilog is required for actual history-journal recovery
+SKIPPED [3] tests/test_input_services_rtl.py:18: Icarus Verilog is required for input/services behavior
+SKIPPED [1] tests/test_input_services_rtl.py:34: Icarus Verilog is required for filesystem controller integration
+SKIPPED [1] tests/test_kernel_ui.py:9: Icarus Verilog required for kernel hardware behavior
+SKIPPED [1] tests/test_kernel_ui.py:19: Icarus Verilog required for kernel/GPU integration
+SKIPPED [1] tests/test_kernel_ui.py:31: Icarus Verilog required for real popup rendering
+SKIPPED [1] tests/test_kernel_ui.py:44: Icarus Verilog required for popup/resource-fault interleaving
+SKIPPED [1] tests/test_local_router.py:72: real Yosys is required for the mapped local routing proof
+SKIPPED [1] tests/test_local_router.py:95: real Yosys is required for the mapped local routing proof
+SKIPPED [4] tests/test_local_router.py:163: real Yosys is required for the mapped local routing proof
+SKIPPED [2] tests/test_mchprs_register_persistence.py:23: terrain-enabled actual MCHPRS runner unavailable; register persistence is unverified
+SKIPPED [2] tests/test_mchprs_runtime.py:494: actual MCHPRS runner not available; do not claim runtime validation
+SKIPPED [1] tests/test_mchprs_snapshot.py:34: terrain-enabled actual MCHPRS runner unavailable; native persistence is unverified
+SKIPPED [26] tests/test_mchprs_snapshot.py:57: terrain-enabled actual MCHPRS runner unavailable; native persistence is unverified
+SKIPPED [1] tests/test_mchprs_snapshot.py:135: terrain-enabled actual MCHPRS runner unavailable; native persistence is unverified
+SKIPPED [2] tests/test_mchprs_snapshot.py:144: terrain-enabled actual MCHPRS runner unavailable; native persistence is unverified
+SKIPPED [1] tests/test_mchprs_snapshot.py:173: terrain-enabled actual MCHPRS runner unavailable; native persistence is unverified
+SKIPPED [3] tests/test_mchprs_snapshot.py:207: terrain-enabled actual MCHPRS runner unavailable; native persistence is unverified
+SKIPPED [1] tests/test_mchprs_snapshot.py:223: terrain-enabled actual MCHPRS runner unavailable; native persistence is unverified
+SKIPPED [1] tests/test_mchprs_snapshot.py:235: terrain-enabled actual MCHPRS runner unavailable; native persistence is unverified
+SKIPPED [15] tests/test_mchprs_snapshot.py:256: terrain-enabled actual MCHPRS runner unavailable; native persistence is unverified
+SKIPPED [6] tests/test_mchprs_snapshot.py:264: terrain-enabled actual MCHPRS runner unavailable; native persistence is unverified
+SKIPPED [53] tests/test_mchprs_sparse_runtime.py:30: SHAMA_MCHPRS_SPARSE_RUNNER unavailable; native all-loaded runtime is unverified
+SKIPPED [32] tests/test_memory_adapter_rtl.py:18: Icarus Verilog is required for memory adapter behavior
+SKIPPED [1] tests/test_memory_adapter_rtl.py:36: Icarus Verilog is required for memory adapter behavior
+SKIPPED [12] tests/test_memory_adapter_rtl.py:58: Icarus Verilog is required for memory adapter behavior
+SKIPPED [1] tests/test_mixed_memory_stack.py:151: actual MCHPRS runner not available; saved mixed binary memory is unverified
+SKIPPED [1] tests/test_partial_memory.py:141: actual MCHPRS runner unavailable; partial bank return is unverified
+SKIPPED [1] tests/test_partition_generated_clock.py:69: real Yosys is required for the generated-clock proof
+SKIPPED [3] tests/test_partition_generated_clock.py:244: real Yosys is required for the generated-clock proof
+SKIPPED [1] tests/test_partition_generated_clock.py:274: real Yosys is required for the generated-clock proof
+SKIPPED [8] tests/test_soc_integration.py:89: Icarus Verilog is required for full-system behavioral integration
+SKIPPED [1] tests/test_soc_integration.py:120: Icarus Verilog is required for full-system behavioral integration
+SKIPPED [1] tests/test_soc_integration.py:125: Icarus Verilog is required for full-system behavioral integration
+SKIPPED [1] tests/test_soc_integration.py:133: Icarus Verilog is required for full-system behavioral integration
+SKIPPED [2] tests/test_soc_integration.py:140: Icarus Verilog is required for full-system behavioral integration
+SKIPPED [1] tests/test_soc_integration.py:165: Icarus Verilog is required for full-system behavioral integration
+SKIPPED [1] tests/test_soc_integration.py:179: Icarus Verilog is required for full-system behavioral integration
+SKIPPED [5] tests/test_soc_integration.py:184: Icarus Verilog is required for full-system behavioral integration
+SKIPPED [2] tests/test_stacked_return_runtime.py:100: actual MCHPRS runner unavailable; stacked read-return timing is unverified
+SKIPPED [2] tests/test_synthesis_integration.py:66: real Yosys, Icarus and vvp are required; bounded semantic tests run separately
+SKIPPED [1] tests/test_upright_display.py:116: Icarus Verilog required for GPU differential execution
+SKIPPED [1] tests/test_upright_display.py:134: Icarus Verilog required for GPU differential execution
+SKIPPED [1] tests/test_world_generation.py:68: actual MCHPRS runner unavailable; saved-world runtime gate remains unexecuted
+FAILED tests/test_apron_recovery.py::test_retained_hint_requires_current_sources_and_preserves_incomplete_scope
+1 failed, 1047 passed, 647 skipped, 1 warning in 449.40s (0:07:29)

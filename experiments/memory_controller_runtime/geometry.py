@@ -14,22 +14,22 @@ from shamaos.hardware.memory_backbone import (
 from shamaos.model import Vec3
 
 
-def original_ports(graph, placed) -> dict[tuple[str, int], Vec3]:
+def original_ports(graph, placed, *, bank_count=2) -> dict[tuple[str, int], Vec3]:
     result = {(entity["port_name"], entity["port_index"]): placed.ports[entity["id"]]
               for entity in graph.entities if entity["kind"] == "port"}
-    if len(result) != 183 or len(placed.ports) != 183:
-        raise ValueError("complete cache interface must retain all 183 original pins")
+    if len(result) != 181 + bank_count or len(placed.ports) != 181 + bank_count:
+        raise ValueError("complete cache interface must retain every original pin")
     return result
 
 
-def memory_nets(ports: dict[tuple[str, int], Vec3], fabric_ports) -> tuple[ExternalNet, ...]:
+def memory_nets(ports: dict[tuple[str, int], Vec3], fabric_ports, *, bank_count=2) -> tuple[ExternalNet, ...]:
     """Production interconnect convention: read return is a wired-OR hub.
 
     For wired_or=True, ExternalNet.source is the receiving controller hub;
     sinks are the physically driving memory leaves. The router reverses the
     repeater directions accordingly. No memory response is supplied by Python.
     """
-    expected = {"bank_select": 2, "row_address": 10, "write_data": 32, "selected_word": 32}
+    expected = {"bank_select": bank_count, "row_address": 10, "write_data": 32, "selected_word": 32}
     for name, width in expected.items():
         if len(getattr(fabric_ports, name)) != width:
             raise ValueError(f"full cache fabric has an incorrect {name} width")
@@ -41,20 +41,22 @@ def memory_nets(ports: dict[tuple[str, int], Vec3], fabric_ports) -> tuple[Exter
         nets.append(ExternalNet(f"cache:{name}:0", ports[name, 0], (target,)))
     for bit, source in enumerate(fabric_ports.selected_word):
         nets.append(ExternalNet(f"cache:selected_word:{bit}", ports["selected_word", bit], (source,), wired_or=True))
-    if len(nets) != 78 or len({net.name for net in nets}) != 78:
-        raise ValueError("cache interconnect must preserve exactly 78 named nets")
+    if len(nets) != 76 + bank_count or len({net.name for net in nets}) != 76 + bank_count:
+        raise ValueError("cache interconnect must preserve every named net")
     return tuple(nets)
 
 
-def cache_route_contract(origin, fabric) -> RoutingInterfaces:
+def cache_route_contract(origin, fabric, *, capacity_bytes=8192) -> RoutingInterfaces:
     """Exact cache slice of system_routing_interfaces, without other fabrics.
 
     These conservative volumes and literal terminal keepouts are route
     obstacles only. They do not replace any emitted bank or decoder block.
     Controller obstacles must additionally be supplied for connected routing.
     """
-    if fabric.bank_count != 2 or fabric.group_count != 1 or not fabric.binary_rows:
-        raise ValueError("cache contract requires both full banks and the real binary decoder")
+    bank_count = (capacity_bytes + 4095) // 4096
+    if (fabric.total_bytes != capacity_bytes or fabric.bank_count != bank_count
+            or fabric.group_count != 1 or not fabric.binary_rows):
+        raise ValueError("cache contract requires the exact installed banks and the real binary decoder")
     pins = fabric_tile_ports(origin, fabric)[0]
     tile = fabric.tile_spec(0)
     bounds = stacked_tile_bounds(origin, tile)
@@ -70,14 +72,17 @@ def cache_route_contract(origin, fabric) -> RoutingInterfaces:
             access[pin], endpoint_bounds[pin] = (direction,), bounds
     obstacles = (*iter_stacked_tile_terminal_keepouts(origin, tile),
                  *iter_binary_row_terminal_keepouts(origin, tile, decoder_x=decoder_x))
-    if len(access) != 78:
+    if len(access) != 76 + bank_count:
         raise ValueError("cache routing contract lost a physical terminal")
     return RoutingInterfaces(access, obstacles, endpoint_bounds, (bounds, *decoder_boxes), -60)
 
 
-def interface_maps(graph, placed, origin, fabric):
+def interface_maps(graph, placed, origin, fabric, *, capacity_bytes=8192):
     """Drive original host pins; observe every original pin, cell and stored bit."""
-    ports = original_ports(graph, placed)
+    bank_count = (capacity_bytes + 4095) // 4096
+    if fabric.total_bytes != capacity_bytes or fabric.bank_count != bank_count:
+        raise ValueError("storage observable capacity differs from the physical cache")
+    ports = original_ports(graph, placed, bank_count=bank_count)
     inputs = {host(name, bit): ports[name, bit] for name, width in HOST_WIDTHS.items() for bit in range(width)}
     expected_driven = {(name, bit) for name, width in HOST_WIDTHS.items() for bit in range(width)}
     actual_driven = {(entity["port_name"], entity["port_index"]) for entity in graph.entities
@@ -97,17 +102,21 @@ def interface_maps(graph, placed, origin, fabric):
             dffs.add(name)
             for pin, offset in template.pins.items():
                 outputs[f"register:{name}:{pin}"] = origin_.offset(offset.x, offset.y, offset.z)
-    if len(dffs) != 115:
-        raise ValueError("all 115 original registers must remain observable")
+    expected_dffs = {entity["name"] for entity in graph.entities if entity["kind"] == "cell"
+                     and template_for(entity["cell_type"]).cell_type == "DFF"}
+    if dffs != expected_dffs:
+        raise ValueError("every original register must remain observable exactly once")
     outputs.update({f"contact:{name}": value["position"] for name, value in placed.shared_contacts.items()})
-    for bank in range(2):
+    for bank in range(bank_count):
         base, spec = fabric.bank_origin(origin, bank), fabric.bank_spec(bank)
-        if (spec.words, spec.word_bits) != (1024, 32):
-            raise ValueError("storage observables require every physical bit in both full banks")
+        if (spec.words, spec.word_bits) != (min(1024, (capacity_bytes - bank * 4096) // 4), 32):
+            raise ValueError("storage observables require every physical bit in all installed banks")
         for row in range(spec.words):
             for bit in range(spec.word_bits):
                 outputs[f"storage:{bank}:{row}:{bit}"] = base.offset(
                     bit * spec.bit_pitch + 2, spec.cell_y, 3 + row * spec.word_pitch)
+    if sum(name.startswith("storage:") for name in outputs) != capacity_bytes * 8:
+        raise ValueError("full storage observable inventory changed")
     pins = fabric_tile_ports(origin, fabric)[0]
     for name in ("bank_select", "row_address", "write_data", "selected_word"):
         outputs.update({f"fabric:{name}:{bit}": point for bit, point in enumerate(getattr(pins, name))})

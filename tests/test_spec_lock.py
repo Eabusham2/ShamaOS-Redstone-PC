@@ -12,7 +12,7 @@ def test_locked_machine_capacities_and_display():
     display = config["display"]
 
     assert memory["logical_ram_bytes"] == 96 << 10
-    assert memory["cache_bytes"] == 8 << 10
+    assert memory["cache_bytes"] == 4 << 10
     assert memory["flash_bytes"] == 200 << 10
     assert memory["logical_ram_bytes"] == 24 * 4096
     assert memory["flash_bytes"] == 50 * 4096
@@ -29,7 +29,8 @@ def test_canonical_document_matches_locked_spec():
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
 
     assert "**96 KiB main RAM**" in spec
-    assert "**8 KiB cache / fast scratch**" in spec
+    assert "**4 KiB cache / fast scratch**" in spec
+    assert "Owner-authorized cache reduction — 2026-11-14" in spec
     assert "**200 KiB flash**" in spec
     assert "Owner-approved capacity amendment — 2026-11-13" in spec
     assert "95%" in spec

@@ -1,0 +1,2 @@
+{"randomized": {"seed": 3394117670, "random_chunks": 256, "matched": {"original": 256, "palette_permutation_duplicates_unused": 256, "state_mutation": 256, "ownership_mutation": 256, "position_mutation": 256}, "malformed_or_negative_index_cases": {"exception:IndexError": 18, "value": 6, "wrong_length:error": 3}, "differences": []}}
+{"status": "passed", "native_speedup": {"write_save_seconds": 2.0059788664696074, "independent_readback_seconds": 1.9670053530855005, "write_and_readback_seconds": 1.894773579549875}, "decoded_fingerprint_speedup": 4.956938272714216}

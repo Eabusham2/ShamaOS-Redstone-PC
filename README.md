@@ -11,23 +11,37 @@ boot are separate checks. A verified complete ShamaOS Minecraft world has not ye
 been released. See [implementation status](docs/IMPLEMENTATION_STATUS.md) and the
 [requirements and release gates](docs/REQUIREMENTS.md).
 
-The latest fully green 200 KiB checkpoint is
+The retained 200 KiB checkpoint with all 20 CI jobs green is
 [`1c1b3a1`](https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/43364358101):
 all 20 CI jobs pass, including the required behavioral/redstone job, all twelve
 physical synthesis partitions and final reconnection. Newer work and the remaining complete-world gates are tracked separately
 in the implementation status document.
 
-The current program sizes are accepted; work is focused on complete physical routing,
-timing, saved-world execution and the final release. An explicit
-[bounded generation backend](docs/BOUNDED_BACKEND.md) now connects complete mapped
-partitions, exterior contacts, the mapped top shell and global routing to the
-existing world writer. Its complete small test system passes saved-world execution;
-placing and operating all twelve real partitions remains unfinished. The default
-backend is still `flat`, and the complete-world acceptance runner still needs
-implementation. The full cache controller's original development world has passed
-saved-world clock probes. Its larger exterior-contact layout now passes exact
-geometry and planned clock matching; connecting and operating it with both full
-physical memory banks is the next native-runtime gate.
+The owner reopened app/cache optimization on November 13, 2026 (America/Chicago). Shared app routines
+and explicit one-word instruction forms now reduce all nine executables. The
+physical cache is **4 KiB**, retaining the original **8 KiB execution window**
+through its existing RAM backing. See the [cache reduction record](docs/CACHE_REDUCTION.md)
+for exact byte savings, cache residency, tests and physical-routing scope.
+The complete one-bank cache fixture, including its controller, decoder and all
+connecting wires, now measures **22,805,546 blocks / 118,781 occupied chunks**,
+down **38.53% / 38.14%** from the earlier two-bank fixture. Both exact block-union
+checks agree; saved-world electrical operation remains pending. These fixture
+counts are separate from the whole-computer footprint.
+
+Native world creation/readback also has a reviewed fingerprint optimization.
+A separate 64-chunk fixture writes about twice as fast and validates about
+twice as fast with identical saved digests and decoded states. These local
+fixture timings do not predict the complete world's generation time; the
+[cache reduction record](docs/CACHE_REDUCTION.md#faster-native-creation-and-readback)
+retains the exact scope and measurements.
+
+Complete physical routing, timing, saved-world execution and the final release
+remain unfinished. The [bounded generation backend](docs/BOUNDED_BACKEND.md)
+connects mapped partitions, exterior contacts and global routing to the world
+writer; its complete small test system passes saved-world execution. The default
+backend remains `flat`. The earlier full 8 KiB cache geometry and controller
+clock proofs remain historical fixtures; the new one-bank cache needs its own
+connected saved-world execution proof.
 
 ## Agreed machine
 
@@ -36,7 +50,7 @@ physical memory banks is the next native-runtime gate.
 | CPU | 32-bit datapath, sixteen registers, full integer/logic/control-flow ISA, separate 256-entry call and data stacks |
 | SHA | Native SHA-256/double-SHA execution plus programmable primitives and an independent software implementation |
 | Main RAM | **96 KiB physical**, 24 × 4 KiB banks |
-| Fast/executable memory | **8 KiB physical**, 2 × 4 KiB banks |
+| Fast/executable memory | **4 KiB physical**, 1 × 4 KiB bank; original 8 KiB program window retained in RAM |
 | Flash | **200 KiB** physical persistent storage, 50 × 4 KiB banks |
 | VRAM | **16 KiB physical**, 4 × 4 KiB banks |
 | Display | **320×180** monochrome, double buffered, 57,600 lamps |
@@ -44,22 +58,23 @@ physical memory banks is the next native-runtime gate.
 | OS | Resident kernel, one foreground app, persistent files, in-world assembler/editor |
 | Diagnostics | PC, instruction, registers, flags, CPU/stall state, native SHA state/round, faults and usage counters |
 
-The owner finalized **96 KiB RAM, 200 KiB flash, 8 KiB cache and 16 KiB
-VRAM**. History updates now stage a **128-byte record** in existing reserved
-metadata, below the requested 8 KiB temporary-copy budget, while retaining all
-256 complete records and interrupted-save recovery. Editor uses **72.05% normally and 88.71%
-at its largest assembly peak**; Explorer uses **72.68%**. Shared workspaces and
-compact executable backing preserve the complete 65,535-byte source and
-16,380-byte assembly/save limits. Miner now uses **8.44% RAM and 84.28% cache**.
-The initial flash allocates **158.5 KiB (79.25%)**. All complete editable source
-files, binaries and persistent records remain. Two full screen buffers plus
-text/sprites fit in **15,680 bytes**; scrolling reserves no third frame.
+The current implementation has **96 KiB RAM, 200 KiB flash, 4 KiB cache and
+16 KiB VRAM**. History updates stage a **128-byte record** in existing reserved
+metadata, retaining all 256 complete records and interrupted-save recovery.
+Editor uses **70.80% RAM normally and 87.47% at its largest assembly peak**;
+Explorer uses **70.91%**. The complete 65,535-byte source and 16,380-byte
+assembly/save limits remain. Miner uses **6.50% RAM**, including its full
+software-SHA workspace and 5,004-byte code backing. Its first 4,096 code bytes
+occupy cache and the remaining 908 execute from RAM. Its ordinary native-mining
+and UI code is entirely within the cached prefix.
 
-CPU, SHA, screen, controls, in-world assembly and OS features remain required.
-All shipped programs fit the new 8 KiB executable cache. Oversized user programs
-can still be assembled/saved and must trigger graceful recovery on execution.
-[Memory design and efficiency](docs/MEMORY.md) distinguishes software usage,
-placed blocks, horizontal footprint, occupied chunks and world file size.
+The initial flash allocates **143.25 KiB (71.625%)**, including all editable
+sources, binaries and persistent records. Two full screen buffers plus
+text/sprites fit in **15,680 bytes**; scrolling reserves no third frame.
+All shipped programs fit the unchanged 8 KiB execution limit. Larger user
+programs can still be assembled/saved and trigger visible recovery on execution.
+[Memory design and efficiency](docs/MEMORY.md) separates software allocation,
+physical storage, placed blocks, occupied chunks and world file size.
 
 ### Per-app software occupancy
 
@@ -69,25 +84,28 @@ same shared **15,680-byte VRAM reservation (95.70% of 16 KiB)**. Flash shares
 include complete editable source, separate executable, packed loader record and
 installed persistent data; shared metadata and documents are counted separately.
 
-| App | RAM bytes | RAM | Cache bytes | Cache | Attributed flash |
-|---|---:|---:|---:|---:|---:|
-| Desktop | 244 | 0.25% | 232 | 2.83% | 0.87% |
-| Editor | 70,824 | 72.05%; peak 88.71% | 4,696 | 57.32% | 12.04% |
-| File Explorer | 71,448 | 72.68% | 5,320 | 64.94% | 14.10% |
-| Bitcoin Miner | 8,292 | 8.44% | 6,904 | 84.28% | 33.87% |
-| System Monitor | 64 | 0.07% | 52 | 0.63% | 0.40% |
-| Terminal | 2,956 | 3.01% | 1,920 | 23.44% | 4.94% |
-| Calculator | 1,836 | 1.87% | 1,824 | 22.27% | 5.14% |
-| Paint | 1,152 | 1.17% | 868 | 10.60% | 2.30% |
-| Settings | 1,056 | 1.07% | 772 | 9.42% | 2.13% |
+| App | Code bytes | RAM bytes | RAM | Cache bytes | Of 4 KiB cache | Attributed flash |
+|---|---:|---:|---:|---:|---:|---:|
+| Desktop | 184 | 196 | 0.20% | 184 | 4.49% | 0.84% |
+| Editor | 3,476 | 69,604 | 70.80%; peak 87.47% | 3,476 | 84.86% | 10.82% |
+| File Explorer | 3,584 | 69,712 | 70.91% | 3,584 | 87.50% | 11.50% |
+| Bitcoin Miner | 5,004 | 6,392 | 6.50% | 4,096 | 100.00% | 31.32% |
+| System Monitor | 40 | 52 | 0.05% | 40 | 0.98% | 0.40% |
+| Terminal | 1,488 | 2,524 | 2.57% | 1,488 | 36.33% | 4.48% |
+| Calculator | 1,448 | 1,460 | 1.49% | 1,448 | 35.35% | 4.83% |
+| Paint | 696 | 980 | 1.00% | 696 | 16.99% | 2.09% |
+| Settings | 608 | 892 | 0.91% | 608 | 14.84% | 1.92% |
+
+Code length and cache residency differ for Miner: the RAM counter already
+includes its complete executable, so the 908-byte tail adds no new allocation.
 
 Editor additionally has 4 KiB of allocatable heap, Explorer 20 KiB and Miner
 80 KiB. Other apps have 80–84 KiB depending on their workspace. The allocator
 protects overlapping workspaces; free bytes are not all interchangeable heap.
 
-Flash's 158.5 KiB consists of **74.75 KiB sources, 23.75 KiB separate executables,
-22.25 KiB packed loader, 32 KiB Miner history, 0.25 KiB Miner state, 1 KiB welcome
-documents and 4.5 KiB metadata**. It leaves **41.5 KiB free**, with **31.5 KiB**
+Flash's 143.25 KiB consists of **71.75 KiB sources, 17.5 KiB separate executables,
+16.25 KiB packed loader, 32 KiB Miner history, 0.25 KiB Miner state, 1 KiB welcome
+documents and 4.5 KiB metadata**. It leaves **56.75 KiB free**, with **46.75 KiB**
 of allocation headroom before the **190 KiB / 95% write guard**. Copy-on-write
 saves also need their temporary replacement extent to fit. Miner history uses
 its bounded record journal and needs no replacement extent. At this capacity,
@@ -100,19 +118,19 @@ the actual image.
 ### Current measured footprint
 
 The default superflat layout starts one block above grass. A shared column
-stacks cache's 2 banks, VRAM's 4 and RAM's 24; flash uses two more columns.
-The top support/control geometry reaches Y=307 in the grass-at-Y=-61 world.
+stacks cache's 1 bank, VRAM's 4 and RAM's 24; flash uses two more columns.
+The top regular-component geometry reaches Y=304 in the grass-at-Y=-61 world.
 All local bank selectors, binary row decoders and read-return wiring are counted.
 
 | Component | Physical capacity | Bank modules | Occupied X/Z chunks |
 |---|---:|---:|---:|
-| Shared cache + RAM + VRAM column and local wiring | 8 + 96 + 16 KiB | 30 | 8,102 |
+| Shared cache + RAM + VRAM column and local wiring | 4 + 96 + 16 KiB | 29 | 8,102 |
 | Flash and local wiring | 200 KiB | 50 | 15,045 |
 | Screen | 320×180 pixels | — | 108 |
 | Keyboard / controller circuitry | — | — | 47 |
 | Debug panel | — | — | 9 |
 | Clock | — | — | 17 |
-| **Measured regular-component subtotal** | **320 KiB memory** | **80** | **23,328** |
+| **Measured regular-component subtotal** | **316 KiB memory** | **79** | **23,328** |
 | Synthesized CPU/GPU/assembler/OS logic and connecting routes | — | — | **Not yet established** |
 
 The regular-component envelope is **3,425×6,388 blocks**, or
@@ -121,11 +139,16 @@ The regular-component envelope is **3,425×6,388 blocks**, or
 and the envelope **26.30%**. The upright screen retains all 57,600 pixels in
 108 occupied chunks; upward memory-return columns remove the long descending
 tails. These counts include local decoders and count shared X/Z chunks once.
-Placement emits **202,522,304 regular-component operations**;
+Removing one vertically stacked cache bank saves **2,456,014 emission operations**
+but leaves this horizontal subtotal unchanged. Placement emits
+**200,066,290 regular-component operations**;
 complete-world logic and routing remain additional.
 
-The [retained geometry report](docs/evidence/capacity-200-upright-return.json)
-includes exact source hashes and the excluded full-machine costs.
+The [current geometry report](docs/evidence/regular-geometry-cache4-2026-11-14.json)
+and [preflight](docs/evidence/cache4-preflight-2026-11-14.json) retain the current
+capacities and excluded full-machine costs. The earlier
+[two-bank geometry](docs/evidence/capacity-200-upright-return.json) remains the
+comparison checkpoint.
 
 All 79 input actuators fit a connected, walkable **16×16 activation area**;
 47 chunks is the separate backend circuitry. A nearby walking lip provides the
@@ -195,22 +218,24 @@ buttons/keyboard/clock/debug lamps, synthesized technology cells, and their
 interconnect. Primitive mapping includes enabled and synchronous-reset flip-flop
 forms; ABC options are detected for the installed Yosys version.
 
-The assembler now accumulates numbers during its existing byte reads, sharing
+Before the compact instructions were added, the assembler was changed to
+accumulate numbers during its existing byte reads, sharing
 one arithmetic path and retaining only the short character prefix needed for
-registers and quoted bytes. Its matched AIG mapping drops from **738,790 to
+registers and quoted bytes. Its matched AIG mapping dropped from **738,790 to
 559,593 physical logic cells (24.26%)** while preserving complete symbols,
 numeric limits and the exact assembly cycle counts of all nine shipped apps.
-The focused assembler regression passes 84 cases without skips. This is a logic
+That focused assembler regression passed 84 cases without skips. This is a logic
 size reduction; complete routing, chunk savings and world timing still need
 measurement in the full build.
 
-A second [shared operand lookup](experiments/assembler_operand_sharing/README.md)
-reduces the current assembler mapping from **559,453 to 481,945 native cells
-(13.85%)** and removes **2,767,590 cell-template blocks (12.02%)**. All 17,486
-registers and the cycle counts in 232 differential runs are preserved. Maximum
-data fanout falls 26.93%, while maximum unit-gate depth rises 3.97%; this is a
+A second historical [shared operand lookup](experiments/assembler_operand_sharing/README.md)
+measurement reduced the assembler mapping from **559,453 to 481,945 native cells
+(13.85%)** and removed **2,767,590 cell-template blocks (12.02%)**. All 17,486
+registers and the cycle counts in 232 differential runs were preserved. Maximum
+data fanout fell 26.93%, while maximum unit-gate depth rose 3.97%; this is a
 size improvement with an unverified physical timing tradeoff. Those counts bind
-the isolated optimization before the declaration correction below. Fresh full
+the isolated optimization before the declaration correction below and the new
+compact-instruction decoder. Fresh full
 synthesis is required for the combined source, and wiring/chunks are excluded.
 
 The [assembly declaration rules](docs/ISA.md#assembly-language-and-compatibility)

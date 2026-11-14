@@ -1,0 +1,136 @@
+{
+  "status": "passed",
+  "identity": {
+    "baseline_commit": "184faa9d28d871b77ff4de73c022b620d57536a7",
+    "baseline_worldio_sha256": "08e163497c981357b3aa4ce444709f38769001fb512700b0ffd2a8fc4ebda69c",
+    "candidate_worldio_sha256": "389e525bc0a3bb5a47b53d6dae1362177f7d865dbec4f63c9fd4c84bbfaf3bd0",
+    "entire_remaining_module_ast_identical": true
+  },
+  "randomized": {
+    "seed": 3394117670,
+    "random_chunks": 256,
+    "matched": {
+      "original": 256,
+      "palette_permutation_duplicates_unused": 256,
+      "state_mutation": 256,
+      "ownership_mutation": 256,
+      "position_mutation": 256
+    },
+    "malformed_or_negative_index_cases": {
+      "exception:IndexError": 18,
+      "value": 6,
+      "wrong_length:error": 3
+    },
+    "differences": []
+  },
+  "native_fixture": {
+    "scope": "64 saved terrain chunks with sparse hardware and owned air; actual create, insert, encode, save and independent disk readback. No whole-cache time claim.",
+    "trials_per_method": 3,
+    "order_alternates": true,
+    "chunks": 64,
+    "assigned_placements": 15936,
+    "surface_y": -61,
+    "writer_cache_chunks": 8,
+    "samples_seconds": {
+      "baseline": [
+        {
+          "write_save_seconds": 0.9163831200003187,
+          "independent_readback_seconds": 0.7630999490002068,
+          "write_and_readback_seconds": 1.6794830690005256
+        },
+        {
+          "write_save_seconds": 0.8666713399998116,
+          "independent_readback_seconds": 0.7638875860002372,
+          "write_and_readback_seconds": 1.6305589260000488
+        },
+        {
+          "write_save_seconds": 0.8530448200008323,
+          "independent_readback_seconds": 0.64393363399995,
+          "write_and_readback_seconds": 1.4969784540007822
+        }
+      ],
+      "candidate": [
+        {
+          "write_save_seconds": 0.43204410299949814,
+          "independent_readback_seconds": 0.3528403600003003,
+          "write_and_readback_seconds": 0.7848844629997984
+        },
+        {
+          "write_save_seconds": 0.4800047270000505,
+          "independent_readback_seconds": 0.3879501129995333,
+          "write_and_readback_seconds": 0.8679548399995838
+        },
+        {
+          "write_save_seconds": 0.4303537369996775,
+          "independent_readback_seconds": 0.4302023440004632,
+          "write_and_readback_seconds": 0.8605560810001407
+        }
+      ]
+    },
+    "medians_seconds": {
+      "baseline": {
+        "write_save_seconds": 0.8666713399998116,
+        "independent_readback_seconds": 0.7630999490002068,
+        "write_and_readback_seconds": 1.6305589260000488
+      },
+      "candidate": {
+        "write_save_seconds": 0.43204410299949814,
+        "independent_readback_seconds": 0.3879501129995333,
+        "write_and_readback_seconds": 0.8605560810001407
+      }
+    },
+    "median_speedup": {
+      "write_save_seconds": 2.0059788664696074,
+      "independent_readback_seconds": 1.9670053530855005,
+      "write_and_readback_seconds": 1.894773579549875
+    },
+    "all_saved_ledgers_exactly_equal": true,
+    "canonical_ledger_sha256": "7dde1533e24ff7d0d7363c1ad6573e8604b087628a32c44fea68adfbe371e837",
+    "exact_decoded_states": {
+      "ordered_state_and_ownership_sha256": "c4e204a08aade46ca61ec252b8a2cfb263134cc014762d74214f949958fd85b1",
+      "observed_cells": 81472,
+      "exact_owned_positions_and_states": 15936,
+      "exact_terrain_cells": 65536
+    },
+    "decoded_chunk_fingerprint": {
+      "decoded_sections": 6,
+      "stored_palette_indices": 24576,
+      "assigned_blocks": 249,
+      "canonical_fingerprint": "9d5a1686424b72974d98a5e9ae21ae848a84049ff2b2e1e55654315d37f07439",
+      "per_fingerprint_seconds": {
+        "baseline": [
+          0.005790159656243077,
+          0.006278958062495121,
+          0.0058301870624859475
+        ],
+        "candidate": [
+          0.001814178124988075,
+          0.0011761669687473386,
+          0.0011263644687460328
+        ]
+      },
+      "median_speedup": 4.956938272714216
+    },
+    "saved_world_corruption_controls": {
+      "block_state": {
+        "both_rejected": true,
+        "error": "saved block-state readback mismatch in chunk (-4, -4)"
+      },
+      "ownership": {
+        "both_rejected": true,
+        "error": "saved block-state readback mismatch in chunk (-4, -4)"
+      },
+      "protected_terrain": {
+        "both_rejected": true,
+        "error": "generated blocks touch protected grass/ground in chunk (-4, -4)"
+      },
+      "palette_index": {
+        "both_rejected": true,
+        "error": "block-state palette index out of range"
+      }
+    }
+  },
+  "findings": [],
+  "whole_cache_native_run": false,
+  "audit_source_sha256": "326a78dcd465c1133e14505423ab80c59a844dc724fa3362fad67c7a8bdf846c"
+}

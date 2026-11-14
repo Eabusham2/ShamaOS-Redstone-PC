@@ -71,6 +71,7 @@ module shama_services #(
     localparam [31:0] EDIT_CTX=`SHAMA_EDIT_CTX,EDIT_BUF=`SHAMA_EDIT_BUF,MINER_RECORD=`SHAMA_MINER_RECORD;
     localparam [31:0] RUN_STAGING=`SHAMA_RUN_STAGING;
     localparam integer FAST_BYTES=(APP_SLOT_BYTES<`SHAMA_CACHE_BYTES)?APP_SLOT_BYTES:`SHAMA_CACHE_BYTES;
+    localparam integer EXEC_BYTES=(APP_SLOT_BYTES<`SHAMA_APP_BACKING_BYTES)?APP_SLOT_BYTES:`SHAMA_APP_BACKING_BYTES;
     typedef enum logic [5:0] {
         ST_IDLE,ST_SLOT_LENGTH,ST_COPY_READ,ST_COPY_RAM_WRITE,ST_COPY_CACHE_WRITE,
         ST_APP_CLEAR_RAM,ST_APP_CLEAR_CACHE,ST_EXT,ST_RESP,
@@ -287,6 +288,19 @@ module shama_services #(
             else begin response<=copy_bytes;response_jump<=1;response_pc<=`SHAMA_PC_APP;state<=ST_RESP;end
         end
     endtask
+    task automatic advance_app_copy;
+        begin
+            if(copy_offset+4>=copy_bytes) begin
+                if(run_staged) begin
+                    // Keep the source live until every word is in RAM and
+                    // the cached prefix is complete; only then release it.
+                    clear_base<=staged_from_text?EDIT_BUF:RUN_STAGING;
+                    clear_bytes<=staged_from_text?65536:APP_SLOT_BYTES;
+                    copy_offset<=0;state<=ST_RUN_CLEAR;
+                end else finish_app_copy();
+            end else begin copy_offset<=copy_offset+4;state<=ST_COPY_READ;end
+        end
+    endtask
     task automatic begin_recovery(input logic [7:0] reason,input logic writer_stopped);
         begin
             recovering_app<=1;recovery_reason<=reason;recovery_writer_stopped<=writer_stopped;
@@ -338,7 +352,7 @@ module shama_services #(
         fs_cleanup_owner=foreground_app;
         ram_used_bytes=kernel_loaded_bytes+app_loaded_bytes+heap_used_bytes+
                        (os_loaded?workspace_bytes(foreground_app):0);
-        cache_used_bytes=app_loaded_bytes;
+        cache_used_bytes=(app_loaded_bytes<FAST_BYTES)?app_loaded_bytes:FAST_BYTES;
         dma_valid=0;dma_we=0;dma_flash=0;dma_cache=0;
         dma_addr=0;dma_wdata=copy_word;dma_wstrb=4'b1111;
         case(state)
@@ -440,7 +454,7 @@ module shama_services #(
                                 else begin response<=64'hffffffffffffffff;state<=ST_RESP;end
                             end
                             SYS_RUN_BUFFER:begin
-                                if(sys_args[63:32]>FAST_BYTES) begin_recovery(8'd3,1);
+                                if(sys_args[63:32]>EXEC_BYTES) begin_recovery(8'd3,1);
                                 else if(sys_args[31:0]>=`SHAMA_RAM_BYTES || sys_args[63:32]>`SHAMA_RAM_BYTES-sys_args[31:0]) begin_recovery(8'd2,1);
                                 else if(sys_args[63:32]==0 ||
                                    !((sys_args[31:0]>=RUN_STAGING && sys_args[31:0]<=RUN_STAGING+APP_SLOT_BYTES-sys_args[63:32]) ||
@@ -585,10 +599,10 @@ module shama_services #(
                     else copy_offset<=copy_offset+4;
                 end
                 ST_APP_CLEAR_RAM:if(dma_ready) begin
-                    // Backing occupies the RAM underneath the CPU's cache
-                    // alias. Clearing the assembly slot size here would erase
+                    // Backing includes the cached prefix and direct RAM tail.
+                    // Clearing the assembly slot size here would erase
                     // the resident kernel and Editor name/context metadata.
-                    if(copy_offset+4>=FAST_BYTES) begin copy_offset<=0;state<=ST_APP_CLEAR_CACHE;end
+                    if(copy_offset+4>=EXEC_BYTES) begin copy_offset<=0;state<=ST_APP_CLEAR_CACHE;end
                     else copy_offset<=copy_offset+4;
                 end
                 ST_APP_CLEAR_CACHE:if(dma_ready) begin
@@ -605,7 +619,7 @@ module shama_services #(
                     end else copy_offset<=copy_offset+4;
                 end
                 ST_SLOT_LENGTH:if(dma_ready) begin
-                    if(dma_rdata==0 || dma_rdata>APP_SLOT_BYTES-4 || (copy_to_cache && dma_rdata>FAST_BYTES) ||
+                    if(dma_rdata==0 || dma_rdata>APP_SLOT_BYTES-4 || (copy_to_cache && dma_rdata>EXEC_BYTES) ||
                        (copy_is_kernel && dma_rdata>`SHAMA_KERNEL_SLOT_BYTES) || dma_rdata[1:0]!=0 ||
                        dma_rdata>(copy_is_kernel?`SHAMA_KERNEL_BINARY_BYTES:app_binary_limit(target_app))) begin
                         response<=64'hfffffffffffffff9;lifecycle_error<=32'hfffffff9;
@@ -617,7 +631,10 @@ module shama_services #(
                 end
                 ST_COPY_READ:if(dma_ready) begin copy_word<=dma_rdata;state<=ST_COPY_RAM_WRITE;end
                 ST_COPY_RAM_WRITE:if(dma_ready) begin
-                    if(copy_to_cache) state<=ST_COPY_CACHE_WRITE;
+                    if(copy_to_cache) begin
+                        if(copy_offset<FAST_BYTES) state<=ST_COPY_CACHE_WRITE;
+                        else advance_app_copy();
+                    end
                     else if(copy_offset+4>=copy_bytes) begin
                         kernel_loaded_bytes<=copy_bytes;
                         if(copy_is_kernel && boot_after_kernel) begin
@@ -626,15 +643,7 @@ module shama_services #(
                     end else begin copy_offset<=copy_offset+4;state<=ST_COPY_READ;end
                 end
                 ST_COPY_CACHE_WRITE:if(dma_ready) begin
-                    if(copy_offset+4>=copy_bytes) begin
-                        if(run_staged) begin
-                            // Source remains live until every executable word
-                            // has reached both RAM backing and fast memory.
-                            clear_base<=staged_from_text?EDIT_BUF:RUN_STAGING;
-                            clear_bytes<=staged_from_text?65536:APP_SLOT_BYTES;
-                            copy_offset<=0;state<=ST_RUN_CLEAR;
-                        end else finish_app_copy();
-                    end else begin copy_offset<=copy_offset+4;state<=ST_COPY_READ;end
+                    advance_app_copy();
                 end
                 ST_RUN_CLEAR:if(dma_ready) begin
                     if(copy_offset+4>=clear_bytes) finish_app_copy();
@@ -642,7 +651,7 @@ module shama_services #(
                 end
                 ST_FLUSH_READ:if(dma_ready) begin copy_word<=dma_rdata;state<=ST_FLUSH_WRITE;end
                 ST_FLUSH_WRITE:if(dma_ready) begin
-                    if(copy_offset+4>=app_loaded_bytes) begin response<=app_loaded_bytes;state<=ST_RESP;end
+                    if(copy_offset+4>=cache_used_bytes) begin response<=cache_used_bytes;state<=ST_RESP;end
                     else begin copy_offset<=copy_offset+4;state<=ST_FLUSH_READ;end
                 end
                 ST_EXT:if(ext_ready) begin

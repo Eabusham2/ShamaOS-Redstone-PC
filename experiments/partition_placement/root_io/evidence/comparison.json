@@ -1,0 +1,24 @@
+{
+  "scope": "Complete unchanged 8 KiB mapped controller and all original I/O; physical banks and external memory connections excluded, native runtime pending",
+  "baseline": {
+    "native_cells": 1144,
+    "original_port_bits": 183,
+    "unique_blocks": 27156924,
+    "occupied_chunks": 136764
+  },
+  "candidate": {
+    "native_cells": 1144,
+    "original_port_bits": 183,
+    "unique_blocks": 16025544,
+    "occupied_chunks": 70081
+  },
+  "block_reduction_percent": 40.98910465706646,
+  "occupied_chunk_reduction_percent": 48.7577140183089,
+  "source_inputs_bundle": {
+    "path": "experiments/partition_placement/root_io/evidence/root-io-source-inputs.zip",
+    "sha256": "0e0c5738cb6370a1d376d8b0e44b810e976177a524f720c4d1dbce39852bcb6c",
+    "bytes": 692185
+  },
+  "runtime_verified": false,
+  "whole_machine_verified": false
+}

@@ -1,0 +1,143 @@
+{
+  "review": "Fresh platform CI-equivalent suite after recovered 4 KiB cache integration",
+  "scope": "Linux/Python 3.12 platform regression without HDL, native-redstone or Amulet tools; this is not all-platform CI or physical runtime acceptance.",
+  "tested_revision": "74d50d6abf69489c339f16696f06f29fe0333797",
+  "source_files_changed_during_corrected_run": false,
+  "environment": {
+    "python": "3.12.14",
+    "system": "Linux",
+    "architecture": "x86_64",
+    "pytest": "9.2.0",
+    "nbtlib": "2.0.4",
+    "iverilog": null,
+    "vvp": null,
+    "yosys": null,
+    "SHAMA_runner_overrides": {}
+  },
+  "corrected_run": {
+    "tests": 1696,
+    "errors": 0,
+    "failures": 0,
+    "skipped": 647,
+    "passed": 1049,
+    "seconds": 392.003,
+    "command": "pytest -ra --junitxml=build/platform-cache4-corrected-full.xml",
+    "junit": "platform-cache4-corrected-full.xml",
+    "log": "platform-cache4-corrected-full.txt"
+  },
+  "source_inventory": {
+    "path": "platform-cache4-corrected-source.json",
+    "files": 320,
+    "sha256": "b8dfc8e4b804d5243712633a96f41c29653c47e2d939cb72864646674a406cec"
+  },
+  "skips_by_dependency": {
+    "Amulet_module_collection_skip": 1,
+    "actual_native_redstone_runner_unavailable": 247,
+    "HDL_or_synthesis_tools_unavailable": 399
+  },
+  "skips_by_reason": {
+    "collection skipped": 1,
+    "actual MCHPRS runner not available; do not claim runtime validation": 116,
+    "Icarus Verilog is required for hardware behavior tests": 149,
+    "actual MCHPRS runner not available; full binary row decoding is unverified": 1,
+    "actual MCHPRS runner not available; partial decoding is unverified": 1,
+    "SHAMA_MCHPRS_TERRAIN_RUNNER unavailable; complete-partition runtime remains unverified": 1,
+    "SHAMA_MCHPRS_TERRAIN_RUNNER unavailable; native all-loaded runtime is unverified": 7,
+    "real CPU RTL execution requires Icarus Verilog": 51,
+    "actual MCHPRS runner not available; saved console runtime is unverified": 1,
+    "physical-trace/input integration requires Icarus Verilog": 4,
+    "current cache provenance requires actual synthesis and RTL simulation tools": 8,
+    "actual MCHPRS runner unavailable; full dense display is unverified": 1,
+    "actual MCHPRS runner not available; full bank runtime is unverified": 1,
+    "actual MCHPRS runner not available; half bank runtime is unverified": 1,
+    "Icarus Verilog required for GPU differential execution": 60,
+    "Icarus Verilog is required for actual history-journal recovery": 41,
+    "Icarus Verilog is required for input/services behavior": 3,
+    "Icarus Verilog is required for filesystem controller integration": 1,
+    "Icarus Verilog required for kernel hardware behavior": 1,
+    "Icarus Verilog required for kernel/GPU integration": 1,
+    "Icarus Verilog required for real popup rendering": 1,
+    "Icarus Verilog required for popup/resource-fault interleaving": 1,
+    "real Yosys is required for the mapped local routing proof": 6,
+    "terrain-enabled actual MCHPRS runner unavailable; register persistence is unverified": 2,
+    "terrain-enabled actual MCHPRS runner unavailable; native persistence is unverified": 57,
+    "SHAMA_MCHPRS_SPARSE_RUNNER unavailable; native all-loaded runtime is unverified": 53,
+    "Icarus Verilog is required for memory adapter behavior": 45,
+    "actual MCHPRS runner not available; saved mixed binary memory is unverified": 1,
+    "actual MCHPRS runner unavailable; partial bank return is unverified": 1,
+    "real Yosys is required for the generated-clock proof": 5,
+    "Icarus Verilog is required for full-system behavioral integration": 20,
+    "actual MCHPRS runner unavailable; stacked read-return timing is unverified": 2,
+    "real Yosys, Icarus and vvp are required; bounded semantic tests run separately": 2,
+    "actual MCHPRS runner unavailable; saved-world runtime gate remains unexecuted": 1
+  },
+  "original_resumed_run_preserved": {
+    "tests": 1695,
+    "errors": 0,
+    "failures": 1,
+    "skipped": 647,
+    "passed": 1047,
+    "seconds": 449.353,
+    "junit": "platform-cache4-resumed-before.xml",
+    "log": "platform-cache4-resumed-before.txt",
+    "failure": "Historical recovery-hint fixture incorrectly paired recorded evidence with the changed current planner source. The actual loader correctly rejected it."
+  },
+  "correction": {
+    "commit": "74d50d6",
+    "changed": "Test fixture now models the recorded identity; a separate test requires current-source rejection. Original historical evidence and recovery implementation are unchanged.",
+    "focused_tests_passed": 21,
+    "actual_new_current_hint_or_parent221_geometry_claimed": false
+  },
+  "cli_smoke": {
+    "equivalent_invocation": "PYTHONPATH=src python -m shamaos.cli",
+    "commands": [
+      "plan --config configs/default.toml --manifest build/platform-clean-plan.json",
+      "asm examples/bitcoin_miner.asm -o build/platform-clean-miner.bin --listing build/platform-clean-miner.lst",
+      "flash-image -o build/platform-clean-shamaos-flash.img",
+      "software-usage --report build/platform-clean-software-usage.json"
+    ],
+    "all_completed": true,
+    "example_binary_exact": true,
+    "flash_bytes_exact": true,
+    "software_usage_exact": true,
+    "physical_cache_bytes": 4096,
+    "physical_flash_bytes": 204800,
+    "artifact_sha256": {
+      "build/platform-clean-plan.json": "7b5d08d90590a227d04963c678a82d380d9863f791b840f013b6755021495619",
+      "build/platform-clean-miner.bin": "6804a14da6cf90443a6ebd724f3335d4efe3b392e2515756963d29a635f7108d",
+      "build/platform-clean-miner.lst": "f6048e940eff247837cff699a17a451abf926df917a248cdbf8b78f3c02e8aac",
+      "build/platform-clean-shamaos-flash.img": "02bb7459cd74356f02533b2d5446fec8ee44304242b9fad3a0efd207becc56bf",
+      "build/platform-clean-software-usage.json": "97c09f7dda2131cb182e3ba23a06a6f3bd9fe0ed25115ceb3049ed027f6b61d5"
+    }
+  },
+  "workflow_review": {
+    "platform_test_command": "pytest",
+    "matrix": [
+      "Ubuntu 24.04 Python 3.11",
+      "Ubuntu 24.04 Python 3.12",
+      "Windows latest Python 3.11",
+      "Windows latest Python 3.12"
+    ],
+    "local_matrix_member_scope": "Linux x86_64 Python 3.12.14 only",
+    "behavioral_timeout_minutes": 75,
+    "behavioral_skips_forbidden": true,
+    "world_blockstates_separate_job": true,
+    "full_physical_partition_trigger": "head commit message containing [full-synth] or a pull request",
+    "required_full_synthesis_for_changed_RTL": true,
+    "new_complete_SoC_tail_pair_measured_seconds": 304.761,
+    "runtime_budget_conclusion": "No budget change proposed. The new pair adds about five minutes locally; actual CI must establish final duration and all required checks without skips."
+  },
+  "subsequent_metadata_changes_reviewed_read_only": {
+    "production_commit": "b7369d5",
+    "evidence_bridge_commit": "e4fd4f6",
+    "included_in_this_full_run": false,
+    "production_difference": "Add cache_layout.py to generator source-provenance file inventory; no app/ISA/memory-transfer behavior or physical block generation changes.",
+    "bridge_review": "Normalizes exactly the added metadata binding and then compares the entire remaining generator AST. A real capacity-contract mutation is rejected.",
+    "direct_regression": "Root separately ran the affected provenance/recovery cases after integration; their result is separate from this full-run inventory."
+  },
+  "remaining_gates": [
+    "Dedicated hardware and native-redstone job must run without its local tool-dependent skips.",
+    "Windows and Python 3.11 platform results require actual CI.",
+    "Complete connected-cache saved-world electrical and persistence verification remains separate."
+  ]
+}

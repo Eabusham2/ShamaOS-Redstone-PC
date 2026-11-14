@@ -190,7 +190,7 @@ def bounded_cells(graph: Graph, cell_budget: int, boundary_budget: int):
     return groups
 
 
-def make_tree(groups, cell_count, entity_count, *, arity, port_budget):
+def make_tree(groups, cell_count, entity_count, *, arity, port_budget, ports_at_root=False):
     clusters, entity_leaf = [], [-1] * entity_count
     groups = [*groups, *(list(range(start, min(entity_count, start + port_budget)))
                         for start in range(cell_count, entity_count, port_budget))]
@@ -205,10 +205,10 @@ def make_tree(groups, cell_count, entity_count, *, arity, port_budget):
                          "port_ids": [entity for entity in members if entity >= cell_count]})
     if any(leaf < 0 for leaf in entity_leaf):
         raise PlanningError("partition omitted a native cell or original port bit")
-    active = list(range(len(clusters)))
-    if not active:
+    if not clusters:
         raise PlanningError("empty graph has no placeable entity")
-    while len(active) > 1:
+
+    def reduce_level(active):
         parents = []
         for start in range(0, len(active), arity):
             children = active[start:start + arity]
@@ -222,7 +222,25 @@ def make_tree(groups, cell_count, entity_count, *, arity, port_budget):
             for child in children:
                 clusters[child]["parent"] = cid
             parents.append(cid)
-        active = parents
+        return parents
+
+    if ports_at_root:
+        # Original pins are genuine interface leaves, but need not descend
+        # through the logic hierarchy before their wires can leave the chip.
+        # Keep their complete groups at the shallowest bounded level. This
+        # changes only topology: all directed paths are reconstructed below.
+        cells = [c["id"] for c in clusters if c["cell_ids"]]
+        ports = [c["id"] for c in clusters if c["port_ids"]]
+        while len(cells) > 1:
+            cells = reduce_level(cells)
+        slots = arity - bool(cells)
+        while len(ports) > slots:
+            ports = reduce_level(ports)
+        active = cells + ports
+    else:
+        active = list(range(len(clusters)))
+    while len(active) > 1:
+        active = reduce_level(active)
     return clusters, entity_leaf, active[0]
 
 
@@ -262,14 +280,17 @@ def signal_links(source_leaf, sink_leaves, clusters):
 
 
 def build_plan(graph: Graph, *, cell_budget=64, boundary_budget=128,
-               domain_budget=256, arity=4, retain_signals=True):
+               domain_budget=256, arity=4, retain_signals=True, ports_at_root=False):
     if any(type(value) is not int for value in (cell_budget, boundary_budget, domain_budget, arity)):
         raise PlanningError("partition budgets must be finite integers")
     if cell_budget < 1 or boundary_budget < 1 or arity < 2 or domain_budget < arity + 1:
         raise PlanningError("budgets cannot represent a complete bounded routing branch")
+    if type(ports_at_root) is not bool:
+        raise PlanningError("ports_at_root must be an explicit boolean")
     groups = bounded_cells(graph, cell_budget, boundary_budget)
     clusters, entity_leaf, root = make_tree(groups, graph.cell_count, len(graph.entities),
-                                           arity=arity, port_budget=min(boundary_budget, cell_budget))
+                                           arity=arity, port_budget=min(boundary_budget, cell_budget),
+                                           ports_at_root=ports_at_root)
     incoming, outgoing = defaultdict(set), defaultdict(set)
     domains, domain_lists = [], defaultdict(list)
     signal_records, topology_hash, endpoint_hash = [], hashlib.sha256(), hashlib.sha256()

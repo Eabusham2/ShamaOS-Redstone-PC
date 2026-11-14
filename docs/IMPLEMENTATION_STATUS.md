@@ -7,28 +7,39 @@ feature contract; [VALIDATION.md](VALIDATION.md) defines the evidence required.
 
 ## Owner request tracking
 
-The last fully green implementation checkpoint is
+The retained checkpoint with all 20 CI jobs green, including full synthesis, is
 [`1c1b3a1`](https://github.com/Eabusham2/ShamaOS-Redstone-PC/commit/1c1b3a150ec0a5abbc7cd697da35e0298298e197).
 Its [exact-commit CI run](https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/43364358101)
 has completed with all 20 jobs passing, including all twelve physical synthesis
-partitions and final reconnection. The owner accepts the current shipped-program sizes.
-The active priority is connecting and operating the complete physical machine,
-then producing the requested release downloads.
+partitions and final reconnection. The newer `4637405` checkpoint completed its
+seven executed platform/RTL/backend/behavior jobs; full synthesis was skipped
+for that non-RTL revision. Neither result is evidence for the new cache changes.
+
+On November 13, 2026 (America/Chicago), the owner reopened app/cache optimization
+and requested much smaller cache construction. The implementation now uses **4 KiB cache** with the
+original **8 KiB executable RAM window**, and reduces all nine shipped binaries.
+Editor is 3,476 bytes, Files 3,584 and Miner 5,004; Miner uses a 908-byte RAM tail.
+The current installed image uses 143.25 KiB / 71.625% of the unchanged 200 KiB
+flash. [CACHE_REDUCTION.md](CACHE_REDUCTION.md) records the measured savings,
+source identities, instruction semantics, tests and remaining physical proof.
+Full CI for this new revision remains required. Completing physical routing,
+saved-world operation and the release is still the overall objective.
 The table distinguishes completed code/component work from the remaining
 complete-world deliverable; it is not a percentage-complete estimate.
 
 | Requested work | Verified progress | Remaining acceptance |
 |---|---|---|
-| Reduced RCC and 200 KiB flash | 96 KiB RAM, 8 KiB cache, 16 KiB VRAM and 200 KiB flash; all nine shipped apps and full editable sources retained | Exercise the same capacities in the completed physical computer |
+| Reduced RCC and 200 KiB flash | 96 KiB RAM, 4 KiB cache, 16 KiB VRAM and 200 KiB flash; all nine shipped apps and full editable sources retained | Exercise the same capacities in the completed physical computer |
 | History save copy at most 8 KiB | 128-byte record journal plus 24-byte descriptor in reserved metadata; all 256 records and interrupted-save recovery retained | Full-world persistence across actual shutdown/reopen |
 | Compact above-grass build | Memory stacks stay above preserved grass; screen uses 108 occupied chunks; all 79 actuators fit a walkable 16×16 area | Finish the logic and connecting wires, then report their actual complete union |
 | Editor/Files/Miner and capacity protections | Full-source editing, folders/handoff, assembly, both hashing paths, resource cleanup, graceful fault recovery and 95% flash warning/protection exercised in software/RTL | Repeat the complete user flows on the saved full world |
 | Faster and smaller circuits | Shared assembler arithmetic, compact software/workspaces, binary row addressing and upward memory returns implemented; timing tradeoffs documented | Scale bounded routing and close complete clock/data timing |
 | Component colors | Colors replace existing supports without adding blocks or enlarging the build; actual-engine fixtures pass | Inspect the final complete build and screen in the client |
 | World ZIP, schematic, installer and simple guide | Packaging/workflow and copied-world installer implemented and tested; README includes acceleration and viewing guidance | Generate and validate the full world before publishing these complete-machine assets |
-| Agents implement, audit, then redistribute | Separate placement, native persistence and clock/conservation reviews are active; root independently reviews results | Continue through full routing, loading, runtime and release acceptance |
+| Agents implement, audit, then redistribute | App reductions and ISA/backing reviews complete; physical cache routing, independent conservation audit and native runner restoration active; root independently reviews results | Continue through full routing, loading, runtime and release acceptance |
 
-The current regular-component union is **23,328 occupied X/Z chunks**. It
+The current regular-component union remains **23,328 occupied X/Z chunks**; the
+removed cache bank saves vertical storage rather than horizontal chunks. It
 excludes synthesized CPU/GPU/assembler/OS logic and their connecting routes.
 **No verified complete-computer chunk total or complete-world download exists
 at this checkpoint.**
@@ -43,14 +54,20 @@ These are remaining engineering tasks, not merely pending test executions:
    Its small complete test top passes native save/reopen and actual global-input
    execution. All twelve real production partitions still need accepted
    placement, interconnection and runtime; the default backend remains `flat`.
-2. The full cache controller now has accessible exterior contacts and checked
-   corridors for all 183 original pins, with planned clock matching and an exact
-   complete block union. Its exterior clock/data timing and those interfaces on
-   the remaining production partitions still require native-runtime proof.
-3. The full cache controller is the next complete hardware integration target.
-   Its prepared request traces are RTL evidence; the physical controller,
-   decoder, two 4 KiB banks and external routes must execute together before
-   claiming a complete-cache result.
+2. The current 4 KiB controller and its exterior wires retain all 1,178 mapped
+   cells, 182 original port bits and 115 register clocks. Clock matching and the
+   independent exact block union pass: 15,645,176 unique blocks across 67,206
+   occupied chunks, before physical storage and external memory links. Its
+   exterior clock/data timing and those interfaces on the remaining production
+   partitions still require native-runtime proof.
+3. The current one-bank 4 KiB cache is the next complete hardware runtime
+   target. Its fresh mapping and request traces are bound to the current sources.
+   Two independent complete block unions agree on 22,805,546 unique blocks and
+   118,781 occupied chunks for the controller, decoder, bank and all external
+   routes. Native writing/readback and actual execution are still required.
+   Earlier two-bank controller and world measurements below remain historical
+   evidence; [the current receipt](../experiments/memory_controller_runtime/current_four_kib/evidence/connected-union-checkpoint.json)
+   preserves the new geometry and its explicit runtime limits.
 4. Complete clock/data timing and a loaded/ticking-chunk arrangement remain
    unproved. The existing conservative core divider is not a measured usable
    clock rate; the raw input domain also needs its own physical timing proof.
@@ -88,7 +105,13 @@ builder integration and small-system proofs, not full ShamaOS execution; the
 [independent review](evidence/bounded-backend-root-review-2026-11-13.json)
 records the exact scope and sources.
 
-The complete 1,144-cell cache controller now has a retained placement with all
+### Retained two-bank physical-cache evidence
+
+The following measurements use the historical 8 KiB mapping and its frozen
+sources. They are comparison and method-validation evidence; they do not certify
+the current 4 KiB cache or its newly mapped controller.
+
+The complete 1,144-cell cache controller has a retained placement with all
 183 original port bits and 115 register clocks. Its exact block union contains
 **10,607,088 unique blocks across 44,370 occupied chunks**, before either 4 KiB
 memory bank or their connecting routes. This standalone controller measurement
@@ -146,9 +169,9 @@ controller, exterior wiring, both full banks, decoder and all external routes,
 two independent union methods now agree on **37,102,012 unique blocks and
 192,026 occupied chunks**. The
 [retained geometry checkpoint](../experiments/memory_controller_runtime/evidence/connected-cache-union-checkpoint.json)
-binds both collectors and their frozen sources. Native writing and readback are
-underway in that immutable checkout; connected cache transactions and
-persistence have not yet passed. This is a cache-fixture measurement, not the
+binds both collectors and their frozen sources. Native writing and readback were
+underway when that checkout was interrupted; their completion was not recovered.
+Connected cache transactions and persistence have not yet passed. This is a cache-fixture measurement, not the
 complete computer's footprint.
 
 The [pinned server/client loading audit](../experiments/world_loading_audit/README.md)
@@ -160,11 +183,11 @@ viewing lip also needs a lamp tracking radius of 39, beyond vanilla's server
 limit of 32. A closer viewing position is under review; no actual client viewing
 or playable-server acceptance is claimed.
 
-## Current 200 KiB integration checkpoint
+## Historical 200 KiB / 8 KiB-cache integration checkpoint
 
-The execution workspace has been restored and the owner's latest capacity
-amendment is implemented: **96 KiB RAM, 8 KiB cache, 16 KiB VRAM and 200 KiB
-flash**. The full installed image is 162,304 bytes / 158.5 KiB / 79.25%, with
+The restored checkpoint implemented the earlier capacity
+amendment: **96 KiB RAM, 8 KiB cache, 16 KiB VRAM and 200 KiB
+flash**. Its full installed image is 162,304 bytes / 158.5 KiB / 79.25%, with
 all 32 entries and their contents preserved. The flash guard is 190 KiB.
 
 Miner history now uses a 128-byte record journal in reserved metadata, below
@@ -632,7 +655,7 @@ above; it does not have a fully green CI result.
 | Item | Contract |
 |---|---|
 | Main RAM | 96 KiB, 24 banks |
-| Fast memory | 8 KiB, 2 banks |
+| Fast memory | 4 KiB, 1 bank; original 8 KiB executable RAM window retained |
 | Persistent flash | 200 KiB, 50 full 4 KiB banks |
 | VRAM | 16 KiB, 4 banks |
 | Screen | 320×180 monochrome lamps, upright 3×2 physical pixel pitch |

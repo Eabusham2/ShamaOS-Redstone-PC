@@ -1,0 +1,27 @@
+{
+  "scope": "Current 4 KiB physical cache, retained 8 KiB executable RAM window, current versus historical evidence claims",
+  "source_sha256": {
+    "README.md": "6ee42256d39bff05bf46acc40163a593a4146b8c3742d459bb7d976221eb5db3",
+    "docs/CACHE_REDUCTION.md": "13ccec430b8bf81322b3278e4757ddbf29344d1503ae4d2d468dc5f18f9e1ec9",
+    "docs/MEMORY.md": "bb9190a26d98c98c523dab6824ffdaf7959d73204baa8cd91a1201f87a45d746",
+    "docs/SYSCALLS.md": "3d18ceed96102a06c90210b93dd94e795be869a794cf85e8812b56974aa4b6ad",
+    "docs/REQUIREMENTS.md": "3d8bd3e0ce7ebabb7fe2c84e2ef3c944147e5a5ff04746eb5ba6374dea77a9bf",
+    "docs/INITIAL_SPEC_AND_TRANSCRIPTS.md": "467f633b73e61bf22abdbeff04a6a19b5b23f6a3d50854c346219449548cd9e4",
+    "docs/IMPLEMENTATION_STATUS.md": "8a46407a6848ea33d25cc5120769f495e469a7a5c27eb42abd80925275f28a1b"
+  },
+  "local_link_count": 93,
+  "missing_local_links": [],
+  "findings_fixed": [
+    "REQUIREMENTS opening bullet and date now identify the renewed cache optimization as the latest request",
+    "README isolates earlier assembler cell-count measurements before declaration corrections and the new compact-instruction decoder"
+  ],
+  "confirmed_scope": [
+    "All nine reduced executable sizes and Miner 908-byte RAM tail are stated separately from 4 KiB physical cache",
+    "8 KiB execution, 65,535-byte editing and 16,380-byte assembly/save limits remain stated",
+    "Complete physical routing, connected one-bank cache saved-world proof and final full-world acceptance remain unfinished",
+    "Earlier 8 KiB cache fixtures and published green CI are explicitly historical, not current cache acceptance"
+  ],
+  "unresolved_documentation_findings": [],
+  "local_anchor_checks": 2,
+  "missing_local_anchors": []
+}

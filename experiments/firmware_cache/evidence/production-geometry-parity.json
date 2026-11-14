@@ -1,0 +1,168 @@
+{
+  "accepted_manifest_sha256": "50135a293a9f0c5addae5e23f0b9818dba584ac53aa3e466b1898fce306644cc",
+  "all_route_defining_fields_equal": true,
+  "bounds": {
+    "max": {
+      "x": 7254,
+      "y": 265,
+      "z": 4532
+    },
+    "min": {
+      "x": 0,
+      "y": -60,
+      "z": -1280
+    }
+  },
+  "capacity_bytes": 4096,
+  "elapsed_seconds": 227.03362284800005,
+  "facade_audit": {
+    "base_clock_matching_scope": "Original mapped input pin to registers; facade input delivery adds an uncounted common prefix and requires exterior runtime timing",
+    "directed_handoffs": 182,
+    "electrical_route_isolation_verified": false,
+    "facade_modules": 2,
+    "original_port_bits": 182,
+    "runtime_verified": false,
+    "scope": "Directed endpoint/contact conservation only; fresh placement isolation guards or replayed runtime remain separate evidence",
+    "status": "original-io-facade-structure-passed-runtime-unverified"
+  },
+  "fresh_full_block_union": false,
+  "full_block_union_inference": "Identical native/route emitter sources and every module, route, override, contact, port and hierarchy field reproduce the retained exact block union; this run compares definitions, not 15.6 million emitted blocks",
+  "graph_audit": {
+    "clock_leaf_uses": 115,
+    "constant_terminals": 0,
+    "native_cells": 1178,
+    "native_sink_uses": 2208,
+    "original_port_bits": 182,
+    "runtime_verified": false,
+    "shared_contacts": 1428,
+    "status": "structural-contacts-passed"
+  },
+  "matched": {
+    "clusters": 30,
+    "facade_modules": 2,
+    "graph_modules": 33
+  },
+  "native_cells": 1178,
+  "native_runtime_verified": false,
+  "original_port_bits": 182,
+  "peak_rss_kib": 874204,
+  "policy": {
+    "boundary_terminals_per_leaf": 128,
+    "children_per_cluster": 4,
+    "clock_domain_padding_blocks": {
+      "6": 160
+    },
+    "clock_padding_blocks": 128,
+    "clock_reservation_groups": [
+      {
+        "absolute_padding_blocks": 128,
+        "sibling_modules": [
+          "domain-0"
+        ],
+        "targeted_domains": []
+      },
+      {
+        "absolute_padding_blocks": 128,
+        "sibling_modules": [
+          "domain-1"
+        ],
+        "targeted_domains": []
+      },
+      {
+        "absolute_padding_blocks": 128,
+        "sibling_modules": [
+          "domain-2"
+        ],
+        "targeted_domains": []
+      },
+      {
+        "absolute_padding_blocks": 128,
+        "sibling_modules": [
+          "domain-3"
+        ],
+        "targeted_domains": []
+      },
+      {
+        "absolute_padding_blocks": 128,
+        "sibling_modules": [
+          "domain-5",
+          "domain-10"
+        ],
+        "targeted_domains": []
+      },
+      {
+        "absolute_padding_blocks": 128,
+        "sibling_modules": [
+          "domain-4"
+        ],
+        "targeted_domains": []
+      },
+      {
+        "absolute_padding_blocks": 160,
+        "sibling_modules": [
+          "domain-6",
+          "domain-8"
+        ],
+        "targeted_domains": [
+          6
+        ]
+      },
+      {
+        "absolute_padding_blocks": 128,
+        "sibling_modules": [
+          "domain-7",
+          "domain-9",
+          "original-io-29-0",
+          "original-io-29-1"
+        ],
+        "targeted_domains": []
+      }
+    ],
+    "name": "one-bank-cache-root-io-v1",
+    "native_cells_per_leaf": 64,
+    "native_runtime_verified": false,
+    "ports_at_root": true,
+    "routing_terminals_per_domain": 256
+  },
+  "production_placement_seconds": 226.07328139899982,
+  "receipt_sha256": "17960e7f590742fa6b3ae6949a97edb90af4c059734c9e3b03c8487834b273ae",
+  "retained_exact_union_occupied_chunks": 67206,
+  "retained_exact_union_sha256": "33187750771708f4e831d4d1a0ea3528559c6bc4c7e6fc62827ae73ee9be6247",
+  "schema": "current-cache-production-geometry-parity-v1",
+  "scope": "Full fresh production controller placement compared field-for-field with retained exact-union geometry; native execution is a separate gate",
+  "source_bundle_sha256": "43677867f2fe11518a17c0db5f0f6774870aaf38020b0211f9101d54ab36980d",
+  "source_hashes": {
+    "experiments/firmware_cache/audit_production_geometry.py": "30de6be8fe9f43dc9f97449d1858fd6f327af3937b9e49e2fa31e9775006a5c1",
+    "experiments/memory_controller_runtime/clock_reserve.py": "6a5bd0ba923dbb6aabf0046ad6a487905043373854e76bdec502432db815d8fb",
+    "experiments/memory_controller_runtime/current_fixture.py": "6287e84c92f26bf0245d7609e46d50ede78b2bbe9be77862b4f175e95b8fa37e",
+    "experiments/memory_controller_runtime/geometry.py": "941cfc86bc670980da3b850a89268af02653b214a6393ffcb6c981b7eedd9343",
+    "experiments/memory_controller_runtime/scenarios.py": "2e9c26c904752cd633d85fc9dde9fd8171be723288fecb418f5dcf5932762e4c",
+    "experiments/partition_placement/packed_parent_union.py": "a9982d5e230fb7fa4e8b4e666a42323fd59b55066564b1fbf1567d0d15281a50",
+    "experiments/partition_placement/port_egress.py": "9b9ca8e2209f4401d6c8a7783c72c4188ed9f9b018b8a57d63fb9aa1fc20c9f5",
+    "experiments/partition_placement/port_egress_manifest.py": "822e4d29bd605456a159e687411e829268b183a7962a09a128324ffe97e6ba1a",
+    "experiments/partition_placement/raised_exports/replay_manifest.py": "308075b05664930ed457ca14054943bc7370e07ac45a86f54a9716ebf2c26ddb",
+    "experiments/partition_placement/raised_exports/streamed_union.py": "4732f29067e5d7aff013a9d2a5565e8e7037e4259b6cc1b74ffb0e45fd84281d",
+    "experiments/partition_placement/run_port_egress.py": "8ec6ea064afb4d519bccb9ba2158143fdb2a2db26818a9ab5532a6c73b1c91a5",
+    "experiments/partition_placement/targeted_clock_reserve.py": "02bf1a51c40e61910efb7fbda41480ec7ce1cc1bbb8369cd731988a5d90f46b0",
+    "experiments/partition_planner/audit_cache_frames.py": "c0dc8c45e8fb89d47be78b8af31c864eb4e4a8ed7460f7afc16cea0cd0a27c44",
+    "src/shamaos/bounded_system.py": "76f632427b8539af8b0fda0d78323916f24bbb6c5fcce9be76b8090372333287",
+    "src/shamaos/hardware/bounded_facade.py": "31f898503e19d9c7e6716b2578fda107326b0fe71b37d516dc65c41616027f45",
+    "src/shamaos/hardware/cache_layout.py": "25c7a51a4de354e0eae9b13a64ffd75bfd6e7de65c12f78ea811f25ca3a60974",
+    "src/shamaos/hardware/external_router.py": "96834193a37bb485ab225ea21dc1ae460afcc3ab9ac41a434e45660be2f7666d",
+    "src/shamaos/hardware/local_router.py": "63054c806442499ba0aa27f65b1ec2b35c339c0c8595521dbc3097a334307bc6",
+    "src/shamaos/hardware/logic.py": "84a4f2cc3c535628ccd4e16ae0480b3cc99310f1fb83fe28f98d98b621ab1dff",
+    "src/shamaos/hardware/memory.py": "f44923cd4376d10fb2f62d5daf3bf752fe340e269355ac3564fd26ee2b5a8517",
+    "src/shamaos/hardware/memory_backbone.py": "8a6c22218be1e0a32189817318f72aad8bd31bd365141da556578c3b4398075d",
+    "src/shamaos/hardware/packed_parent_union.py": "a9982d5e230fb7fa4e8b4e666a42323fd59b55066564b1fbf1567d0d15281a50",
+    "src/shamaos/hardware/partition_placement.py": "10c6a4b5aba6b5c4776326d0a863bf57cd1fc5b0d216115ca496d851d6a82e90",
+    "src/shamaos/hardware/partition_planner.py": "5b7daafbd5eda35abb621fc6c64731c8fb3a6e56ab2422c8108812b1f26623fd",
+    "src/shamaos/hardware/routing.py": "d2b885f908a5942036269992c3fff7e3eb19ffe5a4753b97f5494aaf7120ccce",
+    "src/shamaos/layout.py": "e6db5143f7b2d9c0ae477e649cfc4421e476f14038fd861e8a65b1ebec946eaa",
+    "src/shamaos/model.py": "1a0fd1f9eb9469989057e4486401e5161e7f0bb02eb69195b7a14a74e92f4b95",
+    "src/shamaos/synthesis.py": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274",
+    "src/shamaos/system_build.py": "26ff06d346ae30699108b823b62efe5aaa58d3e4bd6d0ada1d6bbf07b85418d5"
+  },
+  "status": "full-production-controller-geometry-exactly-matches",
+  "unique_blocks": 15645176,
+  "whole_machine_verified": false
+}

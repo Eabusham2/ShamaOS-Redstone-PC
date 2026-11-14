@@ -1,0 +1,380 @@
+...sssssssssssssssssss..............................................ssss [  4%]
+ssssssssssssssssss...............ssssssssF...s.......................... [  8%]
+............ss.......................................................... [ 13%]
+........................................................................ [ 17%]
+...............................ss..s....................ssssssssssssssss [ 21%]
+ssssssssssssssssssssssssssssssssssssss.................................. [ 26%]
+...............................................ss....................sss [ 30%]
+ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss [ 35%]
+ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss [ 39%]
+ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss.sss [ 43%]
+ssssssssFFssss.......ssss........FFFsssssss.......ssssssssssssssssssssss [ 48%]
+ssssssssssssssssssssssssssssssssssssssssssss.ssssssssssssssssssssssssss. [ 52%]
+..ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss [ 57%]
+sssssssssssssssssssssssssssss.........................................s. [ 61%]
+......................................ssss.............................. [ 65%]
+...........................ssss......................................... [ 70%]
+............................................................sss.ssssss.. [ 74%]
+............ss..............sssss....................................... [ 79%]
+...........................................s............................ [ 83%]
+....ssss................................................................ [ 87%]
+............ss.......................................................... [ 92%]
+...ssssssssssssssssssss........sssssss......s.ss.........ss............. [ 96%]
+...ss.......ssssssssssssssssssssssss.....s...F.F........                 [100%]
+=================================== FAILURES ===================================
+___ test_full_1024_row_mixed_fabric_external_access_clears_neighboring_tile ____
+
+    def test_full_1024_row_mixed_fabric_external_access_clears_neighboring_tile():
+        from shamaos.generator import geometry_from_config, load_config
+        from shamaos.hardware.external_router import _plan_escapes
+        from shamaos.layout import default_origins, memory_specs, vram_spec
+    
+        geometry = geometry_from_config(load_config("configs/default.toml"))
+        origins = default_origins(geometry)
+        cache, ram, _ = memory_specs(geometry)
+        vram = vram_spec(geometry)
+        origin, bank = origins.cache, cache.bank
+        assert bank.words == 1024
+        assert origins.cache.x == origins.vram.x == origins.ram.x
+        cases = tuple((base, fabric.bank_count, base.x + fabric.decoder_x_offset)
+                      for base, fabric in ((origins.cache, cache), (origins.vram, vram), (origins.ram, ram)))
+        points, access, endpoint_bounds, boxes, obstacles = [], {}, {}, [], []
+        for base, count, decoder_x in cases:
+            tile = StackedMemoryTileSpec(bank, count, 12)
+            pins = stacked_tile_ports(base, tile)
+            box = stacked_tile_bounds(base, tile)
+            boxes.append(box)
+            obstacles.extend(iter_stacked_tile_terminal_keepouts(base, tile))
+            obstacles.extend(iter_binary_row_terminal_keepouts(base, tile, decoder_x=decoder_x))
+            decoder_boxes = binary_row_obstacle_bounds(base, tile, decoder_x=decoder_x)
+            boxes.extend(decoder_boxes)
+            groups = ((pins.bank_select, "north"), ((pins.write_enable,), "north"),
+                      ((pins.read_enable,), "west"), (pins.write_data, "north"), (pins.selected_word, "south"))
+            for group, direction in groups:
+                for point in group:
+                    points.append(point)
+                    access[point] = (direction,)
+                    endpoint_bounds[point] = box
+            for point, bus_box in zip(binary_row_address_ports(base, tile, decoder_x=decoder_x), decoder_boxes[1:]):
+                points.append(point)
+                access[point] = ("north",)
+                endpoint_bounds[point] = bus_box
+        boxes.append(stacked_tile_bounds(origin.offset(dx=-360), StackedMemoryTileSpec(bank, 30, 12)))
+        routes = _plan_escapes(points, 314, obstacles, access=access, endpoint_bounds=endpoint_bounds,
+                               obstacle_bounds=boxes, minimum_y=-60)
+>       assert len(routes) == len(points) == 258
+E       assert 257 == 258
+E        +  where 257 = len([Vec3(x=2449, y=-56, z=-16), Vec3(x=2459, y=-56, z=-10), Vec3(x=2459, y=-52, z=-4), Vec3(x=2570, y=-59, z=-4), Vec3(x=2575, y=-59, z=-4), Vec3(x=2580, y=-59, z=-4), ...])
+
+tests/test_binary_row_decoder.py:235: AssertionError
+_ test_actual_miner_firmware_saves_complete_history_and_state_in_the_full_image[native] _
+
+installed_image = OSImage(image=b'SHAMAFS1\x01\x00\x00\x00\x00\x01\x00\x00 \x03\x00\x00\x01\x00\x00\x00\x02\x00\x00\x00\x12\x00\x00\x00!...25, 'projects': 26, 'settings.asm': 27, 'settings.bin': 28, 'terminal.asm': 29, 'terminal.bin': 30, 'welcome.txt': 31})
+mode = 'native'
+
+    @pytest.mark.parametrize("mode", ["native", "software"])
+    def test_actual_miner_firmware_saves_complete_history_and_state_in_the_full_image(installed_image, mode):
+        import hashlib
+        from test_miner_firmware import BASE, TARGET, MinerMachine, configure
+    
+        initial = ShamaFS.deserialize(installed_image.image)
+        machine = MinerMachine(initial)
+        machine.settle()
+        configure(machine, "T", b"\xff" * 32)
+        if mode == "software":
+            machine.type("M")
+        machine.event(0x14)
+        expected = hashlib.sha256(hashlib.sha256(bytes(80)).digest()).digest()
+        assert machine.word(BASE + 24) == 2
+        state = machine.fs.read_file("miner-state.cfg")
+        history = machine.fs.read_file(HISTORY)
+        assert state[:128] == history[:128]
+        assert state[48:80] == expected
+        assert state[80:112] == bytes(machine.memory[TARGET:TARGET + 32])
+        assert len(history) == 32768
+>       assert machine.fs.used_bytes == 162304
+E       assert 146688 == 162304
+E        +  where 146688 = <shamaos.flashfs.ShamaFS object at 0x7f518b0d4bc0>.used_bytes
+E        +    where <shamaos.flashfs.ShamaFS object at 0x7f518b0d4bc0> = MinerMachine(memory_size=98304, regs=[0, 0, 0, 495, 1, 0, 255, 0, 16672, 30, 0, 16560, 48, 10, 33555493, 16560], pc=64...34, time_counter=6842656, cache_flushes=0, sha_round=0, cycle_snapshot_hi=0, retired_snapshot_hi=0, time_snapshot_hi=0).fs
+
+tests/test_history_journal.py:294: AssertionError
+_ test_actual_miner_firmware_saves_complete_history_and_state_in_the_full_image[software] _
+
+installed_image = OSImage(image=b'SHAMAFS1\x01\x00\x00\x00\x00\x01\x00\x00 \x03\x00\x00\x01\x00\x00\x00\x02\x00\x00\x00\x12\x00\x00\x00!...25, 'projects': 26, 'settings.asm': 27, 'settings.bin': 28, 'terminal.asm': 29, 'terminal.bin': 30, 'welcome.txt': 31})
+mode = 'software'
+
+    @pytest.mark.parametrize("mode", ["native", "software"])
+    def test_actual_miner_firmware_saves_complete_history_and_state_in_the_full_image(installed_image, mode):
+        import hashlib
+        from test_miner_firmware import BASE, TARGET, MinerMachine, configure
+    
+        initial = ShamaFS.deserialize(installed_image.image)
+        machine = MinerMachine(initial)
+        machine.settle()
+        configure(machine, "T", b"\xff" * 32)
+        if mode == "software":
+            machine.type("M")
+        machine.event(0x14)
+        expected = hashlib.sha256(hashlib.sha256(bytes(80)).digest()).digest()
+        assert machine.word(BASE + 24) == 2
+        state = machine.fs.read_file("miner-state.cfg")
+        history = machine.fs.read_file(HISTORY)
+        assert state[:128] == history[:128]
+        assert state[48:80] == expected
+        assert state[80:112] == bytes(machine.memory[TARGET:TARGET + 32])
+        assert len(history) == 32768
+>       assert machine.fs.used_bytes == 162304
+E       assert 146688 == 162304
+E        +  where 146688 = <shamaos.flashfs.ShamaFS object at 0x7f518a26db50>.used_bytes
+E        +    where <shamaos.flashfs.ShamaFS object at 0x7f518a26db50> = MinerMachine(memory_size=98304, regs=[0, 0, 0, 505, 1, 0, 255, 0, 16672, 30, 0, 16560, 48, 10, 33555493, 16560], pc=64...86, time_counter=7471520, cache_flushes=0, sha_round=0, cycle_snapshot_hi=0, retired_snapshot_hi=0, time_snapshot_hi=0).fs
+
+tests/test_history_journal.py:294: AssertionError
+_ test_production_sections_manifest_and_capacity_match_shared_placement[-61-auto-True] _
+
+surface = -61, layers = 'auto', shared = True
+
+    @pytest.mark.parametrize("surface,layers,shared", [(-61, "auto", True), (-61, 24, False), (63, "auto", False)])
+    def test_production_sections_manifest_and_capacity_match_shared_placement(surface, layers, shared):
+        from shamaos.generator import geometry_from_config, load_config, manifest, physical_sections, _storage_layout_cost
+    
+        config = load_config("configs/default.toml")
+        config["world"]["surface_y"] = surface
+        config["world"]["origin_y"] = surface + 5
+        config["memory"]["stack_layers"] = layers
+        if surface == 63:
+            # This case checks independent memory tiles on a higher grass
+            # surface; the full upright display has its own height rejection.
+            config["display"].update(orientation="horizontal", pixel_pitch_x=5, pixel_pitch_y=4)
+        geometry = geometry_from_config(config)
+        origins = default_origins(geometry)
+        exported = manifest(config, plan_machine(geometry))
+        packing = exported["memory_packing"]
+        assert bool(packing["shared_fabrics"]) is shared
+        assert packing["horizontal_tiles"] == _storage_layout_cost(geometry)["horizontal_memory_tiles"]
+        sections = [section for section in physical_sections(config) if section.metadata.get("kind") == "stacked-memory-tile"]
+>       assert sum(section.metadata["banks"] for section in sections) == 80
+E       assert 79 == 80
+E        +  where 79 = sum(<generator object test_production_sections_manifest_and_capacity_match_shared_placement.<locals>.<genexpr> at 0x7f518bde4a00>)
+
+tests/test_layout.py:110: AssertionError
+_ test_production_sections_manifest_and_capacity_match_shared_placement[-61-24-False] _
+
+surface = -61, layers = 24, shared = False
+
+    @pytest.mark.parametrize("surface,layers,shared", [(-61, "auto", True), (-61, 24, False), (63, "auto", False)])
+    def test_production_sections_manifest_and_capacity_match_shared_placement(surface, layers, shared):
+        from shamaos.generator import geometry_from_config, load_config, manifest, physical_sections, _storage_layout_cost
+    
+        config = load_config("configs/default.toml")
+        config["world"]["surface_y"] = surface
+        config["world"]["origin_y"] = surface + 5
+        config["memory"]["stack_layers"] = layers
+        if surface == 63:
+            # This case checks independent memory tiles on a higher grass
+            # surface; the full upright display has its own height rejection.
+            config["display"].update(orientation="horizontal", pixel_pitch_x=5, pixel_pitch_y=4)
+        geometry = geometry_from_config(config)
+        origins = default_origins(geometry)
+        exported = manifest(config, plan_machine(geometry))
+        packing = exported["memory_packing"]
+        assert bool(packing["shared_fabrics"]) is shared
+        assert packing["horizontal_tiles"] == _storage_layout_cost(geometry)["horizontal_memory_tiles"]
+        sections = [section for section in physical_sections(config) if section.metadata.get("kind") == "stacked-memory-tile"]
+>       assert sum(section.metadata["banks"] for section in sections) == 80
+E       assert 79 == 80
+E        +  where 79 = sum(<generator object test_production_sections_manifest_and_capacity_match_shared_placement.<locals>.<genexpr> at 0x7f518b9a79f0>)
+
+tests/test_layout.py:110: AssertionError
+_ test_production_sections_manifest_and_capacity_match_shared_placement[63-auto-False] _
+
+surface = 63, layers = 'auto', shared = False
+
+    @pytest.mark.parametrize("surface,layers,shared", [(-61, "auto", True), (-61, 24, False), (63, "auto", False)])
+    def test_production_sections_manifest_and_capacity_match_shared_placement(surface, layers, shared):
+        from shamaos.generator import geometry_from_config, load_config, manifest, physical_sections, _storage_layout_cost
+    
+        config = load_config("configs/default.toml")
+        config["world"]["surface_y"] = surface
+        config["world"]["origin_y"] = surface + 5
+        config["memory"]["stack_layers"] = layers
+        if surface == 63:
+            # This case checks independent memory tiles on a higher grass
+            # surface; the full upright display has its own height rejection.
+            config["display"].update(orientation="horizontal", pixel_pitch_x=5, pixel_pitch_y=4)
+        geometry = geometry_from_config(config)
+        origins = default_origins(geometry)
+        exported = manifest(config, plan_machine(geometry))
+        packing = exported["memory_packing"]
+        assert bool(packing["shared_fabrics"]) is shared
+        assert packing["horizontal_tiles"] == _storage_layout_cost(geometry)["horizontal_memory_tiles"]
+        sections = [section for section in physical_sections(config) if section.metadata.get("kind") == "stacked-memory-tile"]
+>       assert sum(section.metadata["banks"] for section in sections) == 80
+E       assert 79 == 80
+E        +  where 79 = sum(<generator object test_production_sections_manifest_and_capacity_match_shared_placement.<locals>.<genexpr> at 0x7f518b854110>)
+
+tests/test_layout.py:110: AssertionError
+___ test_full_storage_cost_is_reported_without_generating_billions_of_blocks ___
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-23/test_full_storage_cost_is_repo0')
+
+    def test_full_storage_cost_is_reported_without_generating_billions_of_blocks(tmp_path):
+        report = generation_preflight(load_config("configs/default.toml"), world_path=tmp_path)
+        assert report["capacity_contract"]["status"] == "passed"
+>       assert report["storage_bits"] == 2_588_672
+E       assert 2588672 == 2621440
+
+tests/test_world_resources.py:47: AssertionError
+_ test_preflight_uses_existing_world_grass_and_reduces_layers_without_capacity_loss _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-23/test_preflight_uses_existing_w0')
+
+    def test_preflight_uses_existing_world_grass_and_reduces_layers_without_capacity_loss(tmp_path):
+        world = tmp_path / "high-grass"
+        with NativeWorldWriter(world, surface_y=63, spawn=Vec3(-16, 65, -16)):
+            pass
+        config = load_config("configs/default.toml")
+        # This exercises memory-layer adaptation in a high-grass world. The
+        # full upright display has a separate, intentional build-height guard.
+        config["display"].update(orientation="horizontal", pixel_pitch_x=5, pixel_pitch_y=4)
+        report = generation_preflight(config, world_path=world)
+        assert report["production_packing"]["surface_y"] == 63
+        assert report["production_packing"]["minimum_build_y"] == 64
+        assert report["production_packing"]["storage_base_y"] == 68
+        assert report["production_packing"]["actual_max_layers"] == 20
+>       assert report["storage_bits"] == 2_588_672
+E       assert 2588672 == 2621440
+
+tests/test_world_resources.py:111: AssertionError
+=============================== warnings summary ===============================
+../../../../opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/anyio/pytest_plugin.py:14
+  /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/anyio/pytest_plugin.py:14: PytestRemovedIn10Warning: _pytest.python.CallSpec2 has been renamed to CallSpec.
+  The CallSpec2 alias will be removed in pytest 10.
+  Update imports to use CallSpec instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#callspec2-renamed
+    from _pytest.python import CallSpec2
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+SKIPPED [1] tests/test_world_blockstates.py:3: could not import 'amulet': No module named 'amulet'
+SKIPPED [112] tests/test_mchprs_runtime.py:45: actual MCHPRS runner not available; do not claim runtime validation
+SKIPPED [17] tests/test_assembler_definitions.py:36: Icarus Verilog is required for hardware behavior tests
+SKIPPED [2] tests/test_assembler_definitions.py:43: Icarus Verilog is required for hardware behavior tests
+SKIPPED [3] tests/test_assembler_definitions.py:71: Icarus Verilog is required for hardware behavior tests
+SKIPPED [1] tests/test_binary_row_decoder.py:104: actual MCHPRS runner not available; full binary row decoding is unverified
+SKIPPED [1] tests/test_binary_row_decoder.py:113: actual MCHPRS runner not available; partial decoding is unverified
+SKIPPED [1] tests/test_bounded_build.py:102: SHAMA_MCHPRS_TERRAIN_RUNNER unavailable; complete-partition runtime remains unverified
+SKIPPED [5] tests/test_mchprs_sparse_runtime.py:30: SHAMA_MCHPRS_TERRAIN_RUNNER unavailable; native all-loaded runtime is unverified
+SKIPPED [2] tests/test_compact_isa_audit.py:84: real CPU RTL execution requires Icarus Verilog
+SKIPPED [1] tests/test_compact_regular_layout.py:61: actual MCHPRS runner not available; saved console runtime is unverified
+SKIPPED [2] tests/test_console_input_integration.py:120: physical-trace/input integration requires Icarus Verilog
+SKIPPED [2] tests/test_console_input_integration.py:143: physical-trace/input integration requires Icarus Verilog
+SKIPPED [2] tests/test_cpu_rtl.py:61: real CPU RTL execution requires Icarus Verilog
+SKIPPED [2] tests/test_cpu_rtl.py:89: real CPU RTL execution requires Icarus Verilog
+SKIPPED [1] tests/test_cpu_rtl.py:113: real CPU RTL execution requires Icarus Verilog
+SKIPPED [6] tests/test_cpu_rtl.py:120: real CPU RTL execution requires Icarus Verilog
+SKIPPED [14] tests/test_cpu_rtl.py:135: real CPU RTL execution requires Icarus Verilog
+SKIPPED [8] tests/test_cpu_rtl.py:155: real CPU RTL execution requires Icarus Verilog
+SKIPPED [1] tests/test_cpu_rtl.py:187: real CPU RTL execution requires Icarus Verilog
+SKIPPED [1] tests/test_cpu_rtl.py:225: real CPU RTL execution requires Icarus Verilog
+SKIPPED [2] tests/test_cpu_rtl.py:243: real CPU RTL execution requires Icarus Verilog
+SKIPPED [1] tests/test_cpu_rtl.py:268: real CPU RTL execution requires Icarus Verilog
+SKIPPED [9] tests/test_cpu_rtl.py:274: real CPU RTL execution requires Icarus Verilog
+SKIPPED [1] tests/test_cpu_rtl.py:285: real CPU RTL execution requires Icarus Verilog
+SKIPPED [1] tests/test_cpu_rtl.py:298: real CPU RTL execution requires Icarus Verilog
+SKIPPED [1] tests/test_dense_display.py:19: actual MCHPRS runner unavailable; full dense display is unverified
+SKIPPED [1] tests/test_full_memory_bank_runtime.py:102: actual MCHPRS runner not available; full bank runtime is unverified
+SKIPPED [1] tests/test_full_memory_bank_runtime.py:111: actual MCHPRS runner not available; half bank runtime is unverified
+SKIPPED [1] tests/test_gpu_execution.py:133: Icarus Verilog required for GPU differential execution
+SKIPPED [1] tests/test_gpu_execution.py:152: Icarus Verilog required for GPU differential execution
+SKIPPED [1] tests/test_gpu_execution.py:164: Icarus Verilog required for GPU differential execution
+SKIPPED [1] tests/test_gpu_execution.py:179: Icarus Verilog required for GPU differential execution
+SKIPPED [7] tests/test_gpu_execution.py:192: Icarus Verilog required for GPU differential execution
+SKIPPED [18] tests/test_gpu_execution.py:201: Icarus Verilog required for GPU differential execution
+SKIPPED [1] tests/test_gpu_execution.py:225: Icarus Verilog required for GPU differential execution
+SKIPPED [9] tests/test_gpu_execution.py:240: Icarus Verilog required for GPU differential execution
+SKIPPED [1] tests/test_gpu_execution.py:267: Icarus Verilog required for GPU differential execution
+SKIPPED [1] tests/test_gpu_execution.py:281: Icarus Verilog required for GPU differential execution
+SKIPPED [2] tests/test_gpu_execution.py:301: Icarus Verilog required for GPU differential execution
+SKIPPED [1] tests/test_gpu_execution.py:316: Icarus Verilog required for GPU differential execution
+SKIPPED [13] tests/test_gpu_execution.py:327: Icarus Verilog required for GPU differential execution
+SKIPPED [1] tests/test_gpu_execution.py:346: Icarus Verilog required for GPU differential execution
+SKIPPED [1] tests/test_hardware_assembler.py:20: Icarus Verilog is required for hardware behavior tests
+SKIPPED [1] tests/test_hardware_assembler.py:42: Icarus Verilog is required for hardware behavior tests
+SKIPPED [16] tests/test_hardware_assembler.py:55: Icarus Verilog is required for hardware behavior tests
+SKIPPED [9] tests/test_hardware_assembler.py:66: Icarus Verilog is required for hardware behavior tests
+SKIPPED [1] tests/test_hardware_assembler.py:71: Icarus Verilog is required for hardware behavior tests
+SKIPPED [3] tests/test_hardware_assembler.py:94: Icarus Verilog is required for hardware behavior tests
+SKIPPED [1] tests/test_hardware_assembler.py:103: Icarus Verilog is required for hardware behavior tests
+SKIPPED [1] tests/test_hardware_assembler.py:109: Icarus Verilog is required for hardware behavior tests
+SKIPPED [16] tests/test_hardware_assembler.py:122: Icarus Verilog is required for hardware behavior tests
+SKIPPED [1] tests/test_hardware_numeric_literals.py:9: Icarus Verilog is required for hardware behavior tests
+SKIPPED [40] tests/test_hardware_numeric_literals.py:28: Icarus Verilog is required for hardware behavior tests
+SKIPPED [1] tests/test_hardware_numeric_literals.py:43: Icarus Verilog is required for hardware behavior tests
+SKIPPED [4] tests/test_hardware_numeric_literals.py:54: Icarus Verilog is required for hardware behavior tests
+SKIPPED [1] tests/test_hardware_numeric_literals.py:61: Icarus Verilog is required for hardware behavior tests
+SKIPPED [2] tests/test_hardware_numeric_literals.py:70: Icarus Verilog is required for hardware behavior tests
+SKIPPED [2] tests/test_hardware_numeric_literals.py:78: Icarus Verilog is required for hardware behavior tests
+SKIPPED [1] tests/test_hardware_numeric_literals.py:84: Icarus Verilog is required for hardware behavior tests
+SKIPPED [2] tests/test_hardware_operand_selection.py:21: Icarus Verilog is required for hardware behavior tests
+SKIPPED [24] tests/test_hardware_operand_selection.py:36: Icarus Verilog is required for hardware behavior tests
+SKIPPED [1] tests/test_history_journal.py:80: Icarus Verilog is required for actual history-journal recovery
+SKIPPED [1] tests/test_history_journal.py:96: Icarus Verilog is required for actual history-journal recovery
+SKIPPED [14] tests/test_history_journal.py:128: Icarus Verilog is required for actual history-journal recovery
+SKIPPED [7] tests/test_history_journal.py:136: Icarus Verilog is required for actual history-journal recovery
+SKIPPED [1] tests/test_history_journal.py:164: Icarus Verilog is required for actual history-journal recovery
+SKIPPED [5] tests/test_history_journal.py:175: Icarus Verilog is required for actual history-journal recovery
+SKIPPED [1] tests/test_history_journal.py:185: Icarus Verilog is required for actual history-journal recovery
+SKIPPED [5] tests/test_history_journal.py:222: Icarus Verilog is required for actual history-journal recovery
+SKIPPED [6] tests/test_history_journal.py:247: Icarus Verilog is required for actual history-journal recovery
+SKIPPED [3] tests/test_input_services_rtl.py:18: Icarus Verilog is required for input/services behavior
+SKIPPED [1] tests/test_input_services_rtl.py:34: Icarus Verilog is required for filesystem controller integration
+SKIPPED [1] tests/test_kernel_ui.py:9: Icarus Verilog required for kernel hardware behavior
+SKIPPED [1] tests/test_kernel_ui.py:19: Icarus Verilog required for kernel/GPU integration
+SKIPPED [1] tests/test_kernel_ui.py:31: Icarus Verilog required for real popup rendering
+SKIPPED [1] tests/test_kernel_ui.py:44: Icarus Verilog required for popup/resource-fault interleaving
+SKIPPED [1] tests/test_local_router.py:72: real Yosys is required for the mapped local routing proof
+SKIPPED [1] tests/test_local_router.py:95: real Yosys is required for the mapped local routing proof
+SKIPPED [4] tests/test_local_router.py:163: real Yosys is required for the mapped local routing proof
+SKIPPED [2] tests/test_mchprs_register_persistence.py:23: terrain-enabled actual MCHPRS runner unavailable; register persistence is unverified
+SKIPPED [2] tests/test_mchprs_runtime.py:494: actual MCHPRS runner not available; do not claim runtime validation
+SKIPPED [1] tests/test_mchprs_snapshot.py:34: terrain-enabled actual MCHPRS runner unavailable; native persistence is unverified
+SKIPPED [26] tests/test_mchprs_snapshot.py:57: terrain-enabled actual MCHPRS runner unavailable; native persistence is unverified
+SKIPPED [1] tests/test_mchprs_snapshot.py:135: terrain-enabled actual MCHPRS runner unavailable; native persistence is unverified
+SKIPPED [2] tests/test_mchprs_snapshot.py:144: terrain-enabled actual MCHPRS runner unavailable; native persistence is unverified
+SKIPPED [1] tests/test_mchprs_snapshot.py:173: terrain-enabled actual MCHPRS runner unavailable; native persistence is unverified
+SKIPPED [3] tests/test_mchprs_snapshot.py:207: terrain-enabled actual MCHPRS runner unavailable; native persistence is unverified
+SKIPPED [1] tests/test_mchprs_snapshot.py:223: terrain-enabled actual MCHPRS runner unavailable; native persistence is unverified
+SKIPPED [1] tests/test_mchprs_snapshot.py:235: terrain-enabled actual MCHPRS runner unavailable; native persistence is unverified
+SKIPPED [15] tests/test_mchprs_snapshot.py:256: terrain-enabled actual MCHPRS runner unavailable; native persistence is unverified
+SKIPPED [6] tests/test_mchprs_snapshot.py:264: terrain-enabled actual MCHPRS runner unavailable; native persistence is unverified
+SKIPPED [53] tests/test_mchprs_sparse_runtime.py:30: SHAMA_MCHPRS_SPARSE_RUNNER unavailable; native all-loaded runtime is unverified
+SKIPPED [32] tests/test_memory_adapter_rtl.py:18: Icarus Verilog is required for memory adapter behavior
+SKIPPED [1] tests/test_memory_adapter_rtl.py:36: Icarus Verilog is required for memory adapter behavior
+SKIPPED [12] tests/test_memory_adapter_rtl.py:58: Icarus Verilog is required for memory adapter behavior
+SKIPPED [1] tests/test_mixed_memory_stack.py:151: actual MCHPRS runner not available; saved mixed binary memory is unverified
+SKIPPED [1] tests/test_partial_memory.py:141: actual MCHPRS runner unavailable; partial bank return is unverified
+SKIPPED [1] tests/test_partition_generated_clock.py:69: real Yosys is required for the generated-clock proof
+SKIPPED [3] tests/test_partition_generated_clock.py:244: real Yosys is required for the generated-clock proof
+SKIPPED [1] tests/test_partition_generated_clock.py:274: real Yosys is required for the generated-clock proof
+SKIPPED [8] tests/test_soc_integration.py:89: Icarus Verilog is required for full-system behavioral integration
+SKIPPED [1] tests/test_soc_integration.py:120: Icarus Verilog is required for full-system behavioral integration
+SKIPPED [1] tests/test_soc_integration.py:125: Icarus Verilog is required for full-system behavioral integration
+SKIPPED [1] tests/test_soc_integration.py:133: Icarus Verilog is required for full-system behavioral integration
+SKIPPED [2] tests/test_soc_integration.py:140: Icarus Verilog is required for full-system behavioral integration
+SKIPPED [1] tests/test_soc_integration.py:165: Icarus Verilog is required for full-system behavioral integration
+SKIPPED [1] tests/test_soc_integration.py:179: Icarus Verilog is required for full-system behavioral integration
+SKIPPED [5] tests/test_soc_integration.py:184: Icarus Verilog is required for full-system behavioral integration
+SKIPPED [2] tests/test_stacked_return_runtime.py:100: actual MCHPRS runner unavailable; stacked read-return timing is unverified
+SKIPPED [2] tests/test_synthesis_integration.py:66: real Yosys, Icarus and vvp are required; bounded semantic tests run separately
+SKIPPED [1] tests/test_upright_display.py:116: Icarus Verilog required for GPU differential execution
+SKIPPED [1] tests/test_upright_display.py:134: Icarus Verilog required for GPU differential execution
+SKIPPED [1] tests/test_world_generation.py:68: actual MCHPRS runner unavailable; saved-world runtime gate remains unexecuted
+FAILED tests/test_binary_row_decoder.py::test_full_1024_row_mixed_fabric_external_access_clears_neighboring_tile
+FAILED tests/test_history_journal.py::test_actual_miner_firmware_saves_complete_history_and_state_in_the_full_image[native]
+FAILED tests/test_history_journal.py::test_actual_miner_firmware_saves_complete_history_and_state_in_the_full_image[software]
+FAILED tests/test_layout.py::test_production_sections_manifest_and_capacity_match_shared_placement[-61-auto-True]
+FAILED tests/test_layout.py::test_production_sections_manifest_and_capacity_match_shared_placement[-61-24-False]
+FAILED tests/test_layout.py::test_production_sections_manifest_and_capacity_match_shared_placement[63-auto-False]
+FAILED tests/test_world_resources.py::test_full_storage_cost_is_reported_without_generating_billions_of_blocks
+FAILED tests/test_world_resources.py::test_preflight_uses_existing_world_grass_and_reduces_layers_without_capacity_loss
+8 failed, 998 passed, 635 skipped, 1 warning in 460.16s (0:07:40)

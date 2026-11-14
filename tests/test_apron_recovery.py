@@ -21,8 +21,10 @@ def retained():
     report = {"topology_sha256": evidence["full_graph_topology_sha256"],
               "mapped_source": evidence["mapped_source"],
               "effective_partition_placement_sha256": evidence["effective_candidate_sha256"],
-              "source_hashes": {name: hashlib.sha256((DIRECTORY.parents[2] / name).read_bytes()).hexdigest()
-                                for name in evidence["source_bindings"]},
+              # This positive unit fixture represents the historical source identity.
+              # Current source bytes are tested separately and must not inherit it.
+              "source_hashes": {name: binding["recorded_sha256"]
+                                for name, binding in evidence["source_bindings"].items()},
               "cluster_id": 221}
     clusters = {221: {"children": [177], "parent": None},
                 177: {"children": [0], "parent": 221},
@@ -30,7 +32,7 @@ def retained():
     return path, evidence, report, clusters
 
 
-def test_retained_hint_requires_current_sources_and_preserves_incomplete_scope(retained):
+def test_retained_hint_accepts_recorded_sources_and_preserves_incomplete_scope(retained):
     path, evidence, report, clusters = retained
     result = RECOVERY.load_recovery_hint(path, hashlib.sha256(path.read_bytes()).hexdigest(), report, clusters)
     assert result["cluster_id"] == 221
@@ -38,6 +40,21 @@ def test_retained_hint_requires_current_sources_and_preserves_incomplete_scope(r
     assert result["initial_apron"] == 1874
     assert "final union must run again" in result["scope"]
     assert evidence["literal_union_verified"] is False
+
+
+def test_historical_hint_rejects_the_changed_production_sources(retained):
+    path, evidence, report, clusters = retained
+    report = deepcopy(report)
+    report["source_hashes"] = {
+        name: hashlib.sha256((DIRECTORY.parents[2] / name).read_bytes()).hexdigest()
+        for name in evidence["source_bindings"]
+    }
+    # The new root-port policy changed this measured input. Do not relabel the
+    # incomplete historical experiment as evidence for today's planner.
+    planner = "src/shamaos/hardware/partition_planner.py"
+    assert report["source_hashes"][planner] != evidence["source_bindings"][planner]["recorded_sha256"]
+    with pytest.raises(ValueError, match="recovery source binding changed"):
+        RECOVERY.load_recovery_hint(path, hashlib.sha256(path.read_bytes()).hexdigest(), report, clusters)
 
 
 @pytest.mark.parametrize("fault", ["status", "topology", "mapped", "candidate", "source-inventory",

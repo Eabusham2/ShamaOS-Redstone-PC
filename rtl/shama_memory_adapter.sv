@@ -99,7 +99,9 @@ module shama_cache_adapter(
     output logic [31:0] write_data,
     input  logic [31:0] selected_word
 );
-    shama_memory_adapter #(.BANK_BITS($clog2(`SHAMA_CACHE_BANKS)),.ROW_BITS(10),.BANK_COUNT(`SHAMA_CACHE_BANKS),.CAPACITY_BYTES(`SHAMA_CACHE_BYTES)) u(
+    // Keep the bank field legal for a single physical bank. Capacity checking
+    // guarantees its selected value is zero; synthesis can fold it away.
+    shama_memory_adapter #(.BANK_BITS((`SHAMA_CACHE_BANKS > 1) ? $clog2(`SHAMA_CACHE_BANKS) : 1),.ROW_BITS(10),.BANK_COUNT(`SHAMA_CACHE_BANKS),.CAPACITY_BYTES(`SHAMA_CACHE_BYTES)) u(
         .clk,.rst,.req_valid,.req_we,.req_addr,.req_wdata,.req_wstrb,
         .req_ready,.req_rdata,.bank_select,.row_address,.read_enable,
         .write_commit,.write_data,.selected_word
@@ -120,7 +122,7 @@ module shama_ram_adapter(
     output logic [31:0] write_data,
     input  logic [31:0] selected_word
 );
-    shama_memory_adapter #(.BANK_BITS($clog2(`SHAMA_RAM_BANKS)),.ROW_BITS(10),.BANK_COUNT(`SHAMA_RAM_BANKS),.CAPACITY_BYTES(`SHAMA_RAM_BYTES)) u(
+    shama_memory_adapter #(.BANK_BITS((`SHAMA_RAM_BANKS > 1) ? $clog2(`SHAMA_RAM_BANKS) : 1),.ROW_BITS(10),.BANK_COUNT(`SHAMA_RAM_BANKS),.CAPACITY_BYTES(`SHAMA_RAM_BYTES)) u(
         .clk,.rst,.req_valid,.req_we,.req_addr,.req_wdata,.req_wstrb,
         .req_ready,.req_rdata,.bank_select,.row_address,.read_enable,
         .write_commit,.write_data,.selected_word
@@ -141,7 +143,7 @@ module shama_flash_adapter(
     output logic [31:0] write_data,
     input  logic [31:0] selected_word
 );
-    shama_memory_adapter #(.BANK_BITS($clog2(`SHAMA_FLASH_BANKS)),.ROW_BITS(10),.BANK_COUNT(`SHAMA_FLASH_BANKS),.CAPACITY_BYTES(`SHAMA_FLASH_BYTES)) u(
+    shama_memory_adapter #(.BANK_BITS((`SHAMA_FLASH_BANKS > 1) ? $clog2(`SHAMA_FLASH_BANKS) : 1),.ROW_BITS(10),.BANK_COUNT(`SHAMA_FLASH_BANKS),.CAPACITY_BYTES(`SHAMA_FLASH_BYTES)) u(
         .clk,.rst,.req_valid,.req_we,.req_addr,.req_wdata,.req_wstrb,
         .req_ready,.req_rdata,.bank_select,.row_address,.read_enable,
         .write_commit,.write_data,.selected_word
@@ -162,7 +164,7 @@ module shama_vram_adapter(
     output logic [31:0] write_data,
     input  logic [31:0] selected_word
 );
-    shama_memory_adapter #(.BANK_BITS($clog2(`SHAMA_VRAM_BANKS)),.ROW_BITS(10),.BANK_COUNT(`SHAMA_VRAM_BANKS),.CAPACITY_BYTES(`SHAMA_VRAM_BYTES)) u(
+    shama_memory_adapter #(.BANK_BITS((`SHAMA_VRAM_BANKS > 1) ? $clog2(`SHAMA_VRAM_BANKS) : 1),.ROW_BITS(10),.BANK_COUNT(`SHAMA_VRAM_BANKS),.CAPACITY_BYTES(`SHAMA_VRAM_BYTES)) u(
         .clk,.rst,.req_valid,.req_we,.req_addr,.req_wdata,.req_wstrb,
         .req_ready,.req_rdata,.bank_select,.row_address,.read_enable,
         .write_commit,.write_data,.selected_word

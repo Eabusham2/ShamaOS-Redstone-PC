@@ -1,7 +1,7 @@
 # ShamaOS complete requirements and acceptance contract
 
 Reconciled with the planning conversation and owner instructions; latest
-capacity amendment recorded on 2026-11-13 UTC.
+capacity amendment recorded on November 13, 2026 (America/Chicago).
 
 This is the implementation checklist for the complete promised Minecraft computer.
 It supplements `INITIAL_SPEC_AND_TRANSCRIPTS.md`; implementation shortcuts and
@@ -11,10 +11,10 @@ successful compile, a manifest capacity, or an opcode name is not behavioral pro
 
 ## Deliverable and architectural rules
 
-- The latest continuation accepts the current shipped-program sizes. Preserve
-  the measured capacities and all functionality, and prioritize completing the
-  physical interconnection, timing, saved-world operation and release. Further
-  optional program-size experiments are not a prerequisite for finishing.
+- The earlier continuation accepted the shipped-program sizes, but the
+  November 13 request below reopens application and cache optimization. Complete
+  those reductions while preserving all functionality and continuing physical
+  interconnection, timing, saved-world operation and release work.
 - One complete, disposable Minecraft Java world that can be opened in the game,
   together with the modular generator, assembler, firmware source, documentation,
   tutorial, version tags, and release artifacts. The default repository branch is
@@ -31,11 +31,20 @@ successful compile, a manifest capacity, or an opcode name is not behavioral pro
   physical redstone. Python/Yosys construct and verify the machine; they do not
   secretly perform its runtime computation. Command blocks must not compute the
   program or hashes on behalf of decorative circuits.
-- Preserve the owner-amended default capacities (2026-11-13 UTC): 32-bit CPU, 16
-  architectural registers, 96 KiB RAM, 8 KiB cache/fast scratch,
+- Preserve the owner-amended default capacities, including the renewed cache
+  reduction request (November 13, 2026): 32-bit CPU, 16
+  architectural registers, 96 KiB RAM, 4 KiB physical cache/fast scratch,
   200 KiB flash, 16 KiB VRAM, and a readable
   320x180 one-bit lamp display. Banked layout is allowed; document physical
   capacity, access latency, and the actual cache/scratchpad semantics accurately.
+- The latest request reopens application optimization and requires a materially
+  smaller cache construction. Reduce duplicate app routines and instruction
+  storage while retaining every feature. The 4 KiB cache holds the executable
+  prefix; the existing 8 KiB RAM backing retains the complete program and its
+  directly executable tail. This preserves the 8 KiB execution limit without
+  another RAM allocation. Report code length, actual cached bytes and uncached
+  tail separately. Physical routing savings require complete geometry and
+  timing checks, independently of software byte savings.
 - This explicit amendment replaces the earlier 1 MiB RAM / 4 MiB flash target.
   RAM uses 24 full 4 KiB banks; flash uses 50 full 4 KiB banks, with no
   padded or inaccessible substitute cells. The latest owner instruction replaces

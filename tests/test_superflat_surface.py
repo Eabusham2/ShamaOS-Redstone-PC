@@ -68,7 +68,7 @@ def test_existing_higher_flat_preset_rejects_upright_screen_before_placement(tmp
     g = geometry_from_config(resolved)
     cache, ram, flash = memory_specs(g)
     assert (cache.total_bytes, ram.total_bytes, flash.total_bytes) == (CACHE_BYTES, RAM_BYTES, FLASH_BYTES)
-    assert (cache.layers, ram.layers, flash.layers) == (2, 20, 20)
+    assert (cache.layers, ram.layers, flash.layers) == (1, 20, 20)
     assert g.storage_origin_y == 68
 
 

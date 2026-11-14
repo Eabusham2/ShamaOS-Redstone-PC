@@ -1,0 +1,774 @@
+{
+  "scope": "assembled initial image and hardware fixed-workspace accounting; one foreground app, no extra heap allocations; shared VRAM reservations, not live GPU load",
+  "capacity_bytes": {
+    "ram": 98304,
+    "flash": 204800,
+    "fast": 4096,
+    "vram": 16384,
+    "combined": 323584
+  },
+  "flash": {
+    "used_bytes": 146688,
+    "free_bytes": 58112,
+    "used_percent": 71.625,
+    "write_limit_bytes": 194560,
+    "write_limit_percent": 95.0,
+    "remaining_before_write_limit_bytes": 47872,
+    "bundle_bytes": 16580,
+    "bundle_padding_removed_bytes": 147260,
+    "metadata_bytes": 4608,
+    "entries": 32,
+    "files": 27,
+    "directories": 5,
+    "maximum_entries": 64
+  },
+  "vram": {
+    "frame_bytes": 7200,
+    "two_frames_bytes": 14400,
+    "two_frames_percent": 87.890625,
+    "scroll_scratch_bytes": 0,
+    "framebuffer_offsets": [
+      0,
+      7200
+    ],
+    "text_staging_offset": 14400,
+    "sprite_staging_offset": 14656,
+    "text_staging_bytes": 256,
+    "sprite_staging_bytes": 1024,
+    "total_reserved_bytes": 15680,
+    "reserved_percent": 95.703125,
+    "unused_bytes": 704
+  },
+  "heap": {
+    "base": 12288,
+    "end_exclusive": 98304,
+    "bytes": 86016,
+    "ram_percent": 87.5,
+    "page_bytes": 4096,
+    "pages": 21,
+    "maximum_allocations": 16,
+    "availability_note": "This is the page arena before per-app workspace exclusions. Use each app's available_heap_bytes and heap_spans; Editor staging remains excluded even before assembly begins."
+  },
+  "kernel_bytes": 12,
+  "flash_details": {
+    "categories": [
+      {
+        "category": "metadata",
+        "description": "Filesystem metadata and journal",
+        "allocated_bytes": 4608,
+        "logical_file_bytes": 0,
+        "files": 0,
+        "capacity_percent": 2.25
+      },
+      {
+        "category": "sources",
+        "description": "Complete editable program sources",
+        "allocated_bytes": 73472,
+        "logical_file_bytes": 71887,
+        "files": 11,
+        "capacity_percent": 35.875
+      },
+      {
+        "category": "executables",
+        "description": "Separate program executable files",
+        "allocated_bytes": 17920,
+        "logical_file_bytes": 16612,
+        "files": 11,
+        "capacity_percent": 8.75
+      },
+      {
+        "category": "boot_bundle",
+        "description": "Packed boot and application loader bundle",
+        "allocated_bytes": 16640,
+        "logical_file_bytes": 16580,
+        "files": 1,
+        "capacity_percent": 8.125
+      },
+      {
+        "category": "miner_history",
+        "description": "Miner history: 256 complete records",
+        "allocated_bytes": 32768,
+        "logical_file_bytes": 32768,
+        "files": 1,
+        "capacity_percent": 16.0
+      },
+      {
+        "category": "miner_state",
+        "description": "Miner saved state",
+        "allocated_bytes": 256,
+        "logical_file_bytes": 256,
+        "files": 1,
+        "capacity_percent": 0.125
+      },
+      {
+        "category": "documents",
+        "description": "Welcome documents",
+        "allocated_bytes": 1024,
+        "logical_file_bytes": 752,
+        "files": 2,
+        "capacity_percent": 0.5
+      }
+    ],
+    "files": [
+      {
+        "name": "boot.asm",
+        "type": "ASM",
+        "logical_bytes": 427,
+        "allocated_bytes": 512,
+        "capacity_percent": 0.25
+      },
+      {
+        "name": "boot.bundle",
+        "type": "SYS",
+        "logical_bytes": 16580,
+        "allocated_bytes": 16640,
+        "capacity_percent": 8.125
+      },
+      {
+        "name": "boot.sys",
+        "type": "SYS",
+        "logical_bytes": 72,
+        "allocated_bytes": 256,
+        "capacity_percent": 0.125
+      },
+      {
+        "name": "calculator.asm",
+        "type": "ASM",
+        "logical_bytes": 6667,
+        "allocated_bytes": 6912,
+        "capacity_percent": 3.375
+      },
+      {
+        "name": "calculator.bin",
+        "type": "BIN",
+        "logical_bytes": 1448,
+        "allocated_bytes": 1536,
+        "capacity_percent": 0.75
+      },
+      {
+        "name": "config",
+        "type": "DIR",
+        "logical_bytes": 0,
+        "allocated_bytes": 0,
+        "capacity_percent": 0.0
+      },
+      {
+        "name": "desktop.asm",
+        "type": "ASM",
+        "logical_bytes": 1089,
+        "allocated_bytes": 1280,
+        "capacity_percent": 0.625
+      },
+      {
+        "name": "desktop.bin",
+        "type": "BIN",
+        "logical_bytes": 184,
+        "allocated_bytes": 256,
+        "capacity_percent": 0.125
+      },
+      {
+        "name": "documents",
+        "type": "DIR",
+        "logical_bytes": 0,
+        "allocated_bytes": 0,
+        "capacity_percent": 0.0
+      },
+      {
+        "name": "documents/welcome.txt",
+        "type": "TXT",
+        "logical_bytes": 376,
+        "allocated_bytes": 512,
+        "capacity_percent": 0.25
+      },
+      {
+        "name": "editor.asm",
+        "type": "ASM",
+        "logical_bytes": 15046,
+        "allocated_bytes": 15104,
+        "capacity_percent": 7.375
+      },
+      {
+        "name": "editor.bin",
+        "type": "BIN",
+        "logical_bytes": 3476,
+        "allocated_bytes": 3584,
+        "capacity_percent": 1.75
+      },
+      {
+        "name": "files.asm",
+        "type": "ASM",
+        "logical_bytes": 16189,
+        "allocated_bytes": 16384,
+        "capacity_percent": 8.0
+      },
+      {
+        "name": "files.bin",
+        "type": "BIN",
+        "logical_bytes": 3584,
+        "allocated_bytes": 3584,
+        "capacity_percent": 1.75
+      },
+      {
+        "name": "kernel.asm",
+        "type": "ASM",
+        "logical_bytes": 146,
+        "allocated_bytes": 256,
+        "capacity_percent": 0.125
+      },
+      {
+        "name": "kernel.sys",
+        "type": "SYS",
+        "logical_bytes": 12,
+        "allocated_bytes": 256,
+        "capacity_percent": 0.125
+      },
+      {
+        "name": "logs",
+        "type": "DIR",
+        "logical_bytes": 0,
+        "allocated_bytes": 0,
+        "capacity_percent": 0.0
+      },
+      {
+        "name": "miner-history.log",
+        "type": "LOG",
+        "logical_bytes": 32768,
+        "allocated_bytes": 32768,
+        "capacity_percent": 16.0
+      },
+      {
+        "name": "miner-state.cfg",
+        "type": "CFG",
+        "logical_bytes": 256,
+        "allocated_bytes": 256,
+        "capacity_percent": 0.125
+      },
+      {
+        "name": "miner.asm",
+        "type": "ASM",
+        "logical_bytes": 20785,
+        "allocated_bytes": 20992,
+        "capacity_percent": 10.25
+      },
+      {
+        "name": "miner.bin",
+        "type": "BIN",
+        "logical_bytes": 5004,
+        "allocated_bytes": 5120,
+        "capacity_percent": 2.5
+      },
+      {
+        "name": "monitor.asm",
+        "type": "ASM",
+        "logical_bytes": 262,
+        "allocated_bytes": 512,
+        "capacity_percent": 0.25
+      },
+      {
+        "name": "monitor.bin",
+        "type": "BIN",
+        "logical_bytes": 40,
+        "allocated_bytes": 256,
+        "capacity_percent": 0.125
+      },
+      {
+        "name": "paint.asm",
+        "type": "ASM",
+        "logical_bytes": 2653,
+        "allocated_bytes": 2816,
+        "capacity_percent": 1.375
+      },
+      {
+        "name": "paint.bin",
+        "type": "BIN",
+        "logical_bytes": 696,
+        "allocated_bytes": 768,
+        "capacity_percent": 0.375
+      },
+      {
+        "name": "programs",
+        "type": "DIR",
+        "logical_bytes": 0,
+        "allocated_bytes": 0,
+        "capacity_percent": 0.0
+      },
+      {
+        "name": "projects",
+        "type": "DIR",
+        "logical_bytes": 0,
+        "allocated_bytes": 0,
+        "capacity_percent": 0.0
+      },
+      {
+        "name": "settings.asm",
+        "type": "ASM",
+        "logical_bytes": 2484,
+        "allocated_bytes": 2560,
+        "capacity_percent": 1.25
+      },
+      {
+        "name": "settings.bin",
+        "type": "BIN",
+        "logical_bytes": 608,
+        "allocated_bytes": 768,
+        "capacity_percent": 0.375
+      },
+      {
+        "name": "terminal.asm",
+        "type": "ASM",
+        "logical_bytes": 6139,
+        "allocated_bytes": 6144,
+        "capacity_percent": 3.0
+      },
+      {
+        "name": "terminal.bin",
+        "type": "BIN",
+        "logical_bytes": 1488,
+        "allocated_bytes": 1536,
+        "capacity_percent": 0.75
+      },
+      {
+        "name": "welcome.txt",
+        "type": "TXT",
+        "logical_bytes": 376,
+        "allocated_bytes": 512,
+        "capacity_percent": 0.25
+      }
+    ],
+    "programs": {
+      "boot": {
+        "source_logical_bytes": 427,
+        "source_allocated_bytes": 512,
+        "executable_logical_bytes": 72,
+        "executable_allocated_bytes": 256,
+        "packed_loader_record_bytes": 0,
+        "persistent_allocated_bytes": 0,
+        "attributed_bytes": 768,
+        "capacity_percent": 0.375
+      },
+      "kernel": {
+        "source_logical_bytes": 146,
+        "source_allocated_bytes": 256,
+        "executable_logical_bytes": 12,
+        "executable_allocated_bytes": 256,
+        "packed_loader_record_bytes": 16,
+        "persistent_allocated_bytes": 0,
+        "attributed_bytes": 528,
+        "capacity_percent": 0.2578125
+      },
+      "desktop": {
+        "source_logical_bytes": 1089,
+        "source_allocated_bytes": 1280,
+        "executable_logical_bytes": 184,
+        "executable_allocated_bytes": 256,
+        "packed_loader_record_bytes": 188,
+        "persistent_allocated_bytes": 0,
+        "attributed_bytes": 1724,
+        "capacity_percent": 0.841796875
+      },
+      "editor": {
+        "source_logical_bytes": 15046,
+        "source_allocated_bytes": 15104,
+        "executable_logical_bytes": 3476,
+        "executable_allocated_bytes": 3584,
+        "packed_loader_record_bytes": 3480,
+        "persistent_allocated_bytes": 0,
+        "attributed_bytes": 22168,
+        "capacity_percent": 10.82421875
+      },
+      "files": {
+        "source_logical_bytes": 16189,
+        "source_allocated_bytes": 16384,
+        "executable_logical_bytes": 3584,
+        "executable_allocated_bytes": 3584,
+        "packed_loader_record_bytes": 3588,
+        "persistent_allocated_bytes": 0,
+        "attributed_bytes": 23556,
+        "capacity_percent": 11.501953125
+      },
+      "miner": {
+        "source_logical_bytes": 20785,
+        "source_allocated_bytes": 20992,
+        "executable_logical_bytes": 5004,
+        "executable_allocated_bytes": 5120,
+        "packed_loader_record_bytes": 5008,
+        "persistent_allocated_bytes": 33024,
+        "attributed_bytes": 64144,
+        "capacity_percent": 31.3203125
+      },
+      "monitor": {
+        "source_logical_bytes": 262,
+        "source_allocated_bytes": 512,
+        "executable_logical_bytes": 40,
+        "executable_allocated_bytes": 256,
+        "packed_loader_record_bytes": 44,
+        "persistent_allocated_bytes": 0,
+        "attributed_bytes": 812,
+        "capacity_percent": 0.396484375
+      },
+      "terminal": {
+        "source_logical_bytes": 6139,
+        "source_allocated_bytes": 6144,
+        "executable_logical_bytes": 1488,
+        "executable_allocated_bytes": 1536,
+        "packed_loader_record_bytes": 1492,
+        "persistent_allocated_bytes": 0,
+        "attributed_bytes": 9172,
+        "capacity_percent": 4.478515625
+      },
+      "calculator": {
+        "source_logical_bytes": 6667,
+        "source_allocated_bytes": 6912,
+        "executable_logical_bytes": 1448,
+        "executable_allocated_bytes": 1536,
+        "packed_loader_record_bytes": 1452,
+        "persistent_allocated_bytes": 0,
+        "attributed_bytes": 9900,
+        "capacity_percent": 4.833984375
+      },
+      "paint": {
+        "source_logical_bytes": 2653,
+        "source_allocated_bytes": 2816,
+        "executable_logical_bytes": 696,
+        "executable_allocated_bytes": 768,
+        "packed_loader_record_bytes": 700,
+        "persistent_allocated_bytes": 0,
+        "attributed_bytes": 4284,
+        "capacity_percent": 2.091796875
+      },
+      "settings": {
+        "source_logical_bytes": 2484,
+        "source_allocated_bytes": 2560,
+        "executable_logical_bytes": 608,
+        "executable_allocated_bytes": 768,
+        "packed_loader_record_bytes": 612,
+        "persistent_allocated_bytes": 0,
+        "attributed_bytes": 3940,
+        "capacity_percent": 1.923828125
+      }
+    },
+    "program_attributed_bytes": 140996,
+    "shared_and_other_bytes": 5692,
+    "bundle_allocation_padding_bytes": 60,
+    "attribution_note": "Program shares include their complete editable source, separate executable, exact packed loader record and installed persistent data. Shared metadata, documents and final bundle block padding are counted once separately."
+  },
+  "apps": [
+    {
+      "app": "desktop",
+      "ram_bytes": 196,
+      "ram_kib": 0.19140625,
+      "ram_percent": 0.19938151041666666,
+      "workspace_bytes": 0,
+      "conditional_assembly_staging_bytes": 0,
+      "peak_ram_bytes_without_heap": 196,
+      "peak_ram_percent_without_heap": 0.19938151041666666,
+      "available_heap_bytes": 86016,
+      "largest_initial_heap_allocation_bytes": 86016,
+      "heap_spans": [
+        {
+          "base": 12288,
+          "bytes": 86016
+        }
+      ],
+      "peak_ram_bytes_with_all_available_heap": 86212,
+      "peak_ram_percent_with_all_available_heap": 87.69938151041667,
+      "executable_bytes": 184,
+      "uncached_code_bytes": 0,
+      "fast_bytes": 184,
+      "fast_kib": 0.1796875,
+      "fast_percent": 4.4921875,
+      "vram_shared_reserved_bytes": 15680,
+      "vram_shared_reserved_percent": 95.703125,
+      "all_memory_pools_used_bytes": 162748,
+      "all_memory_pools_used_percent": 50.295441060126585,
+      "peak_all_memory_pools_used_bytes_without_heap": 162748,
+      "peak_all_memory_pools_used_percent_without_heap": 50.295441060126585,
+      "installed_flash_attributed_bytes": 1724,
+      "installed_flash_capacity_percent": 0.841796875
+    },
+    {
+      "app": "editor",
+      "ram_bytes": 69604,
+      "ram_kib": 67.97265625,
+      "ram_percent": 70.80485026041667,
+      "workspace_bytes": 66116,
+      "conditional_assembly_staging_bytes": 16384,
+      "peak_ram_bytes_without_heap": 85988,
+      "peak_ram_percent_without_heap": 87.47151692708333,
+      "available_heap_bytes": 4096,
+      "largest_initial_heap_allocation_bytes": 4096,
+      "heap_spans": [
+        {
+          "base": 12288,
+          "bytes": 4096
+        }
+      ],
+      "peak_ram_bytes_with_all_available_heap": 90084,
+      "peak_ram_percent_with_all_available_heap": 91.63818359375,
+      "executable_bytes": 3476,
+      "uncached_code_bytes": 0,
+      "fast_bytes": 3476,
+      "fast_kib": 3.39453125,
+      "fast_percent": 84.86328125,
+      "vram_shared_reserved_bytes": 15680,
+      "vram_shared_reserved_percent": 95.703125,
+      "all_memory_pools_used_bytes": 235448,
+      "all_memory_pools_used_percent": 72.76255933544304,
+      "peak_all_memory_pools_used_bytes_without_heap": 251832,
+      "peak_all_memory_pools_used_percent_without_heap": 77.82585047468355,
+      "installed_flash_attributed_bytes": 22168,
+      "installed_flash_capacity_percent": 10.82421875
+    },
+    {
+      "app": "files",
+      "ram_bytes": 69712,
+      "ram_kib": 68.078125,
+      "ram_percent": 70.91471354166667,
+      "workspace_bytes": 66116,
+      "conditional_assembly_staging_bytes": 0,
+      "peak_ram_bytes_without_heap": 69712,
+      "peak_ram_percent_without_heap": 70.91471354166667,
+      "available_heap_bytes": 20480,
+      "largest_initial_heap_allocation_bytes": 16384,
+      "heap_spans": [
+        {
+          "base": 12288,
+          "bytes": 4096
+        },
+        {
+          "base": 81920,
+          "bytes": 16384
+        }
+      ],
+      "peak_ram_bytes_with_all_available_heap": 90192,
+      "peak_ram_percent_with_all_available_heap": 91.748046875,
+      "executable_bytes": 3584,
+      "uncached_code_bytes": 0,
+      "fast_bytes": 3584,
+      "fast_kib": 3.5,
+      "fast_percent": 87.5,
+      "vram_shared_reserved_bytes": 15680,
+      "vram_shared_reserved_percent": 95.703125,
+      "all_memory_pools_used_bytes": 235664,
+      "all_memory_pools_used_percent": 72.82931170886076,
+      "peak_all_memory_pools_used_bytes_without_heap": 235664,
+      "peak_all_memory_pools_used_percent_without_heap": 72.82931170886076,
+      "installed_flash_attributed_bytes": 23556,
+      "installed_flash_capacity_percent": 11.501953125
+    },
+    {
+      "app": "miner",
+      "ram_bytes": 6392,
+      "ram_kib": 6.2421875,
+      "ram_percent": 6.502278645833333,
+      "workspace_bytes": 1376,
+      "conditional_assembly_staging_bytes": 0,
+      "peak_ram_bytes_without_heap": 6392,
+      "peak_ram_percent_without_heap": 6.502278645833333,
+      "available_heap_bytes": 81920,
+      "largest_initial_heap_allocation_bytes": 77824,
+      "heap_spans": [
+        {
+          "base": 12288,
+          "bytes": 4096
+        },
+        {
+          "base": 20480,
+          "bytes": 77824
+        }
+      ],
+      "peak_ram_bytes_with_all_available_heap": 88312,
+      "peak_ram_percent_with_all_available_heap": 89.83561197916667,
+      "executable_bytes": 5004,
+      "uncached_code_bytes": 908,
+      "fast_bytes": 4096,
+      "fast_kib": 4.0,
+      "fast_percent": 100.0,
+      "vram_shared_reserved_bytes": 15680,
+      "vram_shared_reserved_percent": 95.703125,
+      "all_memory_pools_used_bytes": 172856,
+      "all_memory_pools_used_percent": 53.41920490506329,
+      "peak_all_memory_pools_used_bytes_without_heap": 172856,
+      "peak_all_memory_pools_used_percent_without_heap": 53.41920490506329,
+      "installed_flash_attributed_bytes": 64144,
+      "installed_flash_capacity_percent": 31.3203125
+    },
+    {
+      "app": "monitor",
+      "ram_bytes": 52,
+      "ram_kib": 0.05078125,
+      "ram_percent": 0.052897135416666664,
+      "workspace_bytes": 0,
+      "conditional_assembly_staging_bytes": 0,
+      "peak_ram_bytes_without_heap": 52,
+      "peak_ram_percent_without_heap": 0.052897135416666664,
+      "available_heap_bytes": 86016,
+      "largest_initial_heap_allocation_bytes": 86016,
+      "heap_spans": [
+        {
+          "base": 12288,
+          "bytes": 86016
+        }
+      ],
+      "peak_ram_bytes_with_all_available_heap": 86068,
+      "peak_ram_percent_with_all_available_heap": 87.55289713541667,
+      "executable_bytes": 40,
+      "uncached_code_bytes": 0,
+      "fast_bytes": 40,
+      "fast_kib": 0.0390625,
+      "fast_percent": 0.9765625,
+      "vram_shared_reserved_bytes": 15680,
+      "vram_shared_reserved_percent": 95.703125,
+      "all_memory_pools_used_bytes": 162460,
+      "all_memory_pools_used_percent": 50.20643789556962,
+      "peak_all_memory_pools_used_bytes_without_heap": 162460,
+      "peak_all_memory_pools_used_percent_without_heap": 50.20643789556962,
+      "installed_flash_attributed_bytes": 812,
+      "installed_flash_capacity_percent": 0.396484375
+    },
+    {
+      "app": "terminal",
+      "ram_bytes": 2524,
+      "ram_kib": 2.46484375,
+      "ram_percent": 2.5675455729166665,
+      "workspace_bytes": 1024,
+      "conditional_assembly_staging_bytes": 0,
+      "peak_ram_bytes_without_heap": 2524,
+      "peak_ram_percent_without_heap": 2.5675455729166665,
+      "available_heap_bytes": 81920,
+      "largest_initial_heap_allocation_bytes": 73728,
+      "heap_spans": [
+        {
+          "base": 12288,
+          "bytes": 8192
+        },
+        {
+          "base": 24576,
+          "bytes": 73728
+        }
+      ],
+      "peak_ram_bytes_with_all_available_heap": 84444,
+      "peak_ram_percent_with_all_available_heap": 85.90087890625,
+      "executable_bytes": 1488,
+      "uncached_code_bytes": 0,
+      "fast_bytes": 1488,
+      "fast_kib": 1.453125,
+      "fast_percent": 36.328125,
+      "vram_shared_reserved_bytes": 15680,
+      "vram_shared_reserved_percent": 95.703125,
+      "all_memory_pools_used_bytes": 166380,
+      "all_memory_pools_used_percent": 51.41786985759494,
+      "peak_all_memory_pools_used_bytes_without_heap": 166380,
+      "peak_all_memory_pools_used_percent_without_heap": 51.41786985759494,
+      "installed_flash_attributed_bytes": 9172,
+      "installed_flash_capacity_percent": 4.478515625
+    },
+    {
+      "app": "calculator",
+      "ram_bytes": 1460,
+      "ram_kib": 1.42578125,
+      "ram_percent": 1.4851888020833333,
+      "workspace_bytes": 0,
+      "conditional_assembly_staging_bytes": 0,
+      "peak_ram_bytes_without_heap": 1460,
+      "peak_ram_percent_without_heap": 1.4851888020833333,
+      "available_heap_bytes": 86016,
+      "largest_initial_heap_allocation_bytes": 86016,
+      "heap_spans": [
+        {
+          "base": 12288,
+          "bytes": 86016
+        }
+      ],
+      "peak_ram_bytes_with_all_available_heap": 87476,
+      "peak_ram_percent_with_all_available_heap": 88.98518880208333,
+      "executable_bytes": 1448,
+      "uncached_code_bytes": 0,
+      "fast_bytes": 1448,
+      "fast_kib": 1.4140625,
+      "fast_percent": 35.3515625,
+      "vram_shared_reserved_bytes": 15680,
+      "vram_shared_reserved_percent": 95.703125,
+      "all_memory_pools_used_bytes": 165276,
+      "all_memory_pools_used_percent": 51.076691060126585,
+      "peak_all_memory_pools_used_bytes_without_heap": 165276,
+      "peak_all_memory_pools_used_percent_without_heap": 51.076691060126585,
+      "installed_flash_attributed_bytes": 9900,
+      "installed_flash_capacity_percent": 4.833984375
+    },
+    {
+      "app": "paint",
+      "ram_bytes": 980,
+      "ram_kib": 0.95703125,
+      "ram_percent": 0.9969075520833334,
+      "workspace_bytes": 272,
+      "conditional_assembly_staging_bytes": 0,
+      "peak_ram_bytes_without_heap": 980,
+      "peak_ram_percent_without_heap": 0.9969075520833334,
+      "available_heap_bytes": 81920,
+      "largest_initial_heap_allocation_bytes": 77824,
+      "heap_spans": [
+        {
+          "base": 12288,
+          "bytes": 4096
+        },
+        {
+          "base": 20480,
+          "bytes": 77824
+        }
+      ],
+      "peak_ram_bytes_with_all_available_heap": 82900,
+      "peak_ram_percent_with_all_available_heap": 84.33024088541667,
+      "executable_bytes": 696,
+      "uncached_code_bytes": 0,
+      "fast_bytes": 696,
+      "fast_kib": 0.6796875,
+      "fast_percent": 16.9921875,
+      "vram_shared_reserved_bytes": 15680,
+      "vram_shared_reserved_percent": 95.703125,
+      "all_memory_pools_used_bytes": 164044,
+      "all_memory_pools_used_percent": 50.69595530063291,
+      "peak_all_memory_pools_used_bytes_without_heap": 164044,
+      "peak_all_memory_pools_used_percent_without_heap": 50.69595530063291,
+      "installed_flash_attributed_bytes": 4284,
+      "installed_flash_capacity_percent": 2.091796875
+    },
+    {
+      "app": "settings",
+      "ram_bytes": 892,
+      "ram_kib": 0.87109375,
+      "ram_percent": 0.9073893229166666,
+      "workspace_bytes": 272,
+      "conditional_assembly_staging_bytes": 0,
+      "peak_ram_bytes_without_heap": 892,
+      "peak_ram_percent_without_heap": 0.9073893229166666,
+      "available_heap_bytes": 81920,
+      "largest_initial_heap_allocation_bytes": 77824,
+      "heap_spans": [
+        {
+          "base": 12288,
+          "bytes": 4096
+        },
+        {
+          "base": 20480,
+          "bytes": 77824
+        }
+      ],
+      "peak_ram_bytes_with_all_available_heap": 82812,
+      "peak_ram_percent_with_all_available_heap": 84.24072265625,
+      "executable_bytes": 608,
+      "uncached_code_bytes": 0,
+      "fast_bytes": 608,
+      "fast_kib": 0.59375,
+      "fast_percent": 14.84375,
+      "vram_shared_reserved_bytes": 15680,
+      "vram_shared_reserved_percent": 95.703125,
+      "all_memory_pools_used_bytes": 163868,
+      "all_memory_pools_used_percent": 50.6415644778481,
+      "peak_all_memory_pools_used_bytes_without_heap": 163868,
+      "peak_all_memory_pools_used_percent_without_heap": 50.6415644778481,
+      "installed_flash_attributed_bytes": 3940,
+      "installed_flash_capacity_percent": 1.923828125
+    }
+  ]
+}

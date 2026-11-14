@@ -1,0 +1,227 @@
+{
+  "schema": "independent-current-cache-review-v1",
+  "status": "source-graph-plan-manifest-clock-and-rtl-review-passed",
+  "scope": "Independent source-bound inventory and metadata replay plus focused RTL/guard tests. Retained full geometry union was not regenerated; physical connected-cache runtime and whole-world acceptance remain pending.",
+  "receipt_sha256": "17960e7f590742fa6b3ae6949a97edb90af4c059734c9e3b03c8487834b273ae",
+  "bundle_sha256": "43677867f2fe11518a17c0db5f0f6774870aaf38020b0211f9101d54ab36980d",
+  "bundle_files_verified": 51,
+  "root_elaboration_inputs_exact": {
+    "configs/default.toml": "00a45a92c618c6df815a4f6f1f69c5e72d6c65a81857f11f560124800c43c594",
+    "rtl/shama_memory_adapter.sv": "8aac951cc7fd9a2914b289f2ee3c3673eb37aec7150c2c26f3b17086507cbd09",
+    "rtl/shama_boot_params.svh": "ce84216693c92a7c40edd053140535e3961ba5ea3605fa0e8fc3eaa96fd65b08",
+    "synth/redstone.ys": "47e9b12996019e8d08b34fb0ecb3561528bf4e74e73a3146e328ed99caf8df42",
+    "synth/redstone.lib": "04d704e7ccad8c0be9d794b3a7fe95b6e99e753a359b1144211b7aca97cf29bd"
+  },
+  "reviewed_production_and_test_sha256": {
+    "src/shamaos/hardware/cache_layout.py": "25c7a51a4de354e0eae9b13a64ffd75bfd6e7de65c12f78ea811f25ca3a60974",
+    "src/shamaos/bounded_system.py": "76f632427b8539af8b0fda0d78323916f24bbb6c5fcce9be76b8090372333287",
+    "src/shamaos/hardware/bounded_facade.py": "31f898503e19d9c7e6716b2578fda107326b0fe71b37d516dc65c41616027f45",
+    "src/shamaos/hardware/packed_parent_union.py": "a9982d5e230fb7fa4e8b4e666a42323fd59b55066564b1fbf1567d0d15281a50",
+    "tests/test_cache_layout_policy.py": "b2d1ec90fc3d709139453fe56bdf27fe46175ef5b14e03f23ce0d9a12034eeb4",
+    "tests/test_current_cache_fixture.py": "7df86d10afad4b08f878d6943c9335d9516777a47f3fe9bcffac1e9ccfe108d7",
+    "tests/test_bounded_system_backend.py": "db556be198f8149d9a6848034ba6912ff9589e8996e80be63ef45c574003dcc2"
+  },
+  "root_production_and_test_sources_exact": true,
+  "all_raw_native_cells_ports_and_named_nets_retained": true,
+  "pinless_scope_records_removed": 1,
+  "native_pin_direction_annotations_verified": 115,
+  "raw_inventory": {
+    "cells": 1178,
+    "port_bits": 182,
+    "signals": 1282,
+    "sink_uses": 2208,
+    "constant_terminals": 0,
+    "port_alias_groups": 0,
+    "unused_driver_bits": 0
+  },
+  "complete_saved_plan_reproduced_by_production_policy": true,
+  "plan_sha256": "8c39078054d977e6f6e1049d595ffb179bc81e7375064a07802c8661f6f9ad9b",
+  "policy": {
+    "name": "one-bank-cache-root-io-v1",
+    "ports_at_root": true,
+    "native_cells_per_leaf": 64,
+    "boundary_terminals_per_leaf": 128,
+    "routing_terminals_per_domain": 256,
+    "children_per_cluster": 4,
+    "clock_padding_blocks": 128,
+    "clock_domain_padding_blocks": {
+      "6": 160
+    },
+    "native_runtime_verified": false
+  },
+  "accepted_clock_reservation_groups": [
+    {
+      "sibling_modules": [
+        "domain-0"
+      ],
+      "absolute_padding_blocks": 128,
+      "targeted_domains": []
+    },
+    {
+      "sibling_modules": [
+        "domain-1"
+      ],
+      "absolute_padding_blocks": 128,
+      "targeted_domains": []
+    },
+    {
+      "sibling_modules": [
+        "domain-2"
+      ],
+      "absolute_padding_blocks": 128,
+      "targeted_domains": []
+    },
+    {
+      "sibling_modules": [
+        "domain-3"
+      ],
+      "absolute_padding_blocks": 128,
+      "targeted_domains": []
+    },
+    {
+      "sibling_modules": [
+        "domain-5",
+        "domain-10"
+      ],
+      "absolute_padding_blocks": 128,
+      "targeted_domains": []
+    },
+    {
+      "sibling_modules": [
+        "domain-4"
+      ],
+      "absolute_padding_blocks": 128,
+      "targeted_domains": []
+    },
+    {
+      "sibling_modules": [
+        "domain-6",
+        "domain-8"
+      ],
+      "absolute_padding_blocks": 160,
+      "targeted_domains": [
+        6
+      ]
+    },
+    {
+      "sibling_modules": [
+        "domain-7",
+        "domain-9",
+        "original-io-29-0",
+        "original-io-29-1"
+      ],
+      "absolute_padding_blocks": 128,
+      "targeted_domains": []
+    }
+  ],
+  "graph_audit": {
+    "native_cells": 1178,
+    "original_port_bits": 182,
+    "shared_contacts": 1428,
+    "native_sink_uses": 2208,
+    "clock_leaf_uses": 115,
+    "constant_terminals": 0,
+    "status": "structural-contacts-passed",
+    "runtime_verified": false
+  },
+  "facade_audit": {
+    "status": "original-io-facade-structure-passed-runtime-unverified",
+    "original_port_bits": 182,
+    "facade_modules": 2,
+    "directed_handoffs": 182,
+    "runtime_verified": false,
+    "electrical_route_isolation_verified": false,
+    "scope": "Directed endpoint/contact conservation only; fresh placement isolation guards or replayed runtime remain separate evidence",
+    "base_clock_matching_scope": "Original mapped input pin to registers; facade input delivery adds an uncounted common prefix and requires exterior runtime timing"
+  },
+  "balanced_manifest_sha256": "50135a293a9f0c5addae5e23f0b9818dba584ac53aa3e466b1898fce306644cc",
+  "unbalanced_manifest_sha256": "ccf0169b757f333d477ed4236f59a171d9237989aa91c3adc9576ace472a8672",
+  "saved_unbalanced_rematches_to_exact_saved_balanced_modules": true,
+  "production_matcher_replay_matches_without_mutation": true,
+  "production_facade_audit_accepts_exact_fields_after_class_conversion": true,
+  "physical_clock_arrivals": {
+    "2": {
+      "clock_leaves": 115,
+      "all_original_pin_arrivals": 2324,
+      "facade_common_prefix": 868,
+      "all_exterior_arrivals": 3192,
+      "clock_facade_handoffs": 1,
+      "runtime_verified": false
+    }
+  },
+  "promoted_facade_exact_except_import": true,
+  "promoted_parent_union_byte_identical": true,
+  "independently_replayed_rtl_oracle": {
+    "frames": 601,
+    "boundaries": 49,
+    "word_boundary_assertions": 50176,
+    "bit_boundary_assertions": 1605632,
+    "controller_bit_assertions": 13660,
+    "testbench_sha256": "1e15af977e236ce5493a31357c0c280940ede2ee6b14aa4be6bf7bec3490c65e",
+    "capacity_bytes": 4096,
+    "negative_storage_address_xor": 1,
+    "rtl_source_hashes": {
+      "rtl/shama_memory_adapter.sv": "8aac951cc7fd9a2914b289f2ee3c3673eb37aec7150c2c26f3b17086507cbd09",
+      "rtl/shama_boot_params.svh": "ce84216693c92a7c40edd053140535e3961ba5ea3605fa0e8fc3eaa96fd65b08"
+    },
+    "initial_plan": {
+      "frames": 547,
+      "clock_rising_edges": 228,
+      "half_period_units": 511,
+      "storage_boundaries": 43,
+      "storage_bits_per_boundary": 32768,
+      "full_storage_assertions": 1409024
+    },
+    "continuation_frames": 54,
+    "outcomes": [
+      {
+        "case": "positive",
+        "exit_code": 0,
+        "output": "CACHE FRAME ORACLE PASS frames=601 boundaries=49 rises=250 commits=24\n/tmp/current-cache-review-79ot1a3g/independent-rtl/cache_frames.sv:4277: $finish called at 11340000 (1ps)"
+      },
+      {
+        "case": "swapped-model-read-bank",
+        "exit_code": 1,
+        "output": "FATAL: /tmp/current-cache-review-79ot1a3g/independent-rtl/cache_frames.sv:149: FRAME 20 initial-0000:response:rise req_rdata expected=3b0bef49 actual=99526582\n       Time: 460000  Scope: cache_frames"
+      },
+      {
+        "case": "swapped-model-write-bank",
+        "exit_code": 1,
+        "output": "FATAL: /tmp/current-cache-review-79ot1a3g/independent-rtl/cache_frames.sv:364: STORAGE 50 all-zero-low-bank:storage word=510 expected=75876eb7 actual=00000000\n       Time: 1000000  Scope: cache_frames"
+      }
+    ]
+  },
+  "retained_literal_union": {
+    "emitted_blocks": 15672016,
+    "merged_records": 15672016,
+    "literal_unique_blocks": 15645176,
+    "identical_duplicate_blocks": 26840,
+    "occupied_chunks": 67206,
+    "bounds": {
+      "min": {
+        "x": 0,
+        "y": -60,
+        "z": -1280
+      },
+      "max": {
+        "x": 7254,
+        "y": 265,
+        "z": 4532
+      }
+    },
+    "sorted_unique_record_sha256": "33187750771708f4e831d4d1a0ea3528559c6bc4c7e6fc62827ae73ee9be6247"
+  },
+  "large_geometry_reemitted": false,
+  "concrete_findings": [],
+  "connected_cache_runtime_verified": false,
+  "whole_machine_verified": false,
+  "elapsed_seconds": 5.070015106000028,
+  "peak_rss_kib": 109452,
+  "focused_tests": {
+    "tests": 27,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "focused_tests_junit_sha256": "734b8d9c1dad0abe7c4a4a81342f6d354f4375f0bd6b2a48b363870ebffa92ae"
+}

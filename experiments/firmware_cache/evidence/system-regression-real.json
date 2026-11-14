@@ -1,0 +1,36 @@
+{
+  "source_commit": "828dc9f2f47ccdfd949d1585aa05d47440a31e1f",
+  "scope": "Final shortened app image with 4 KiB physical cache and preserved 8 KiB execution window through production memory-controller RTL. Physical storage cells remain modeled; not native-world acceptance.",
+  "source_receipt": "system-regression-source.json",
+  "all_compiled_sources_match_current_checkout": true,
+  "flash_image_sha256": "02bb7459cd74356f02533b2d5446fec8ee44304242b9fad3a0efd207becc56bf",
+  "test_source_sha256": "92f66a36da0b3c602bd10bf8863374a34fe03ed0d9b67b734b98a81f536931ac",
+  "results": {
+    "passed": 4,
+    "failed": 0,
+    "skipped": 0,
+    "time_seconds": 1063.739
+  },
+  "cases": [
+    {
+      "name": "test_real_memory_controllers_boot_save_reboot_and_explorer_handoff",
+      "seconds": 326.422
+    },
+    {
+      "name": "test_real_memory_controllers_assemble_typed_source_and_run_saved_binary",
+      "seconds": 374.757
+    },
+    {
+      "name": "test_full_execution_window_crosses_smaller_cache_and_retains_writeback[real_adapter_soc_executable]",
+      "seconds": 164.059
+    },
+    {
+      "name": "test_real_memory_controllers_run_code_staged_inside_an_owned_heap_allocation",
+      "seconds": 198.423
+    }
+  ],
+  "outputs": {
+    "system-regression-real.txt": "84a951beacaf2b489ebe23f4139c3c6be7378430487b918f651568c5bdfdf7b4",
+    "system-regression-real.xml": "ef32c5292d5eb7ec9a106f7871f114d4b58d338e8080223c6b8efe5431f71fca"
+  }
+}

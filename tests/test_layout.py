@@ -107,9 +107,9 @@ def test_production_sections_manifest_and_capacity_match_shared_placement(surfac
     assert bool(packing["shared_fabrics"]) is shared
     assert packing["horizontal_tiles"] == _storage_layout_cost(geometry)["horizontal_memory_tiles"]
     sections = [section for section in physical_sections(config) if section.metadata.get("kind") == "stacked-memory-tile"]
-    assert sum(section.metadata["banks"] for section in sections) == 80
+    assert sum(section.metadata["banks"] for section in sections) == 79
     ram_sections = [section for section in sections if section.name.startswith("ram-")]
     assert sum(section.metadata["bytes"] for section in ram_sections) == RAM_BYTES
     assert ram_sections[0].metadata["origin"] == vars(origins.ram)
-    assert exported["memory_banks"] == {"cache": 2, "ram": 24, "flash": 50, "vram": 4, "bytes_per_bank": 4096,
+    assert exported["memory_banks"] == {"cache": 1, "ram": 24, "flash": 50, "vram": 4, "bytes_per_bank": 4096,
                                         "final_bank_bytes": {"cache": 4096, "ram": 4096, "flash": 4096, "vram": 4096}}

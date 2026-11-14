@@ -21,10 +21,33 @@ from byte address 16. An instruction with an extension occupies two words.
 | 15..12 | Second source/store-data register |
 | 11..0 | Signed memory offset, syscall/counter ID, or auxiliary field |
 
-The fourth source register of `CH` and `MAJ` occupies bits 3..0. `LDI`, `LUI`,
-the five immediate arithmetic/logic instructions, jumps, calls, and conditional
-branches always have one full 32-bit extension word. The exact opcode table is
+The fourth source register of `CH` and `MAJ` occupies bits 3..0. The original
+`LDI`, `LUI`, `ADDI`, `SUBI`, `ANDI`, `ORI`, `XORI`, `JMP`, `CALL` and `BR`
+encodings retain their full 32-bit extension word. The exact opcode table is
 in `src/shamaos/isa.py`; the assembler listing shows every emitted word.
+
+### One-word forms
+
+The explicit short forms reduce installed executable bytes and avoid an
+extension-word fetch. Existing source and binary encodings retain their original
+meaning; the assembler does not silently relax instructions or change labels.
+
+| Instructions | Opcode | Bits below the opcode | Range |
+|---|---|---|---|
+| `LDIS rd, value` | `05` | rd in 23..20; signed immediate in 19..0 | −524,288 through 524,287 |
+| `ADDIS`, `SUBIS` | `1C`, `1D` | Same register/immediate layout | Same signed range |
+| `ANDIS`, `ORIS`, `XORIS` | `32`, `33`, `34` | Same register/immediate layout | Same signed range |
+| `JMPS target`, `CALLS target` | `46`, `48` | Unsigned word address in 23..0 | 0 through 16,777,215 |
+| `BRS.condition target` | `47` | Condition in 23..20; unsigned word address in 19..0 | 0 through 1,048,575 |
+
+Short immediate operands sign-extend to 32 bits before using the existing ALU
+and flag behavior. A full 32-bit two's-complement spelling is also accepted:
+`ANDIS r1, 0xfffffffe` is equivalent to `ANDIS r1, -2`. Values that cannot be
+represented are errors, never truncated. Short branches accept every condition
+alias below and the equivalent `BRS condition, target` syntax. `CALLS` pushes
+the next one-word PC; it can nest freely with `CALL` and uses the same `RET`.
+The advertised target range is the encoding range, not additional installed
+memory. Programs still obey the execution and physical-address limits.
 
 ## Integer and logic operations
 
@@ -105,8 +128,10 @@ Installed CPU data regions are RAM `0x00000000..0x00017fff`, flash
 `0x01000000..0x0103e7ff`, and the device window
 `0x02000000..0x0200ffff`. Individual devices define their registers within that
 window. A transfer must fit entirely inside its region. CPU accesses below
-`0x2000` use the separate executable cache; service DMA reaches the physical RAM
-at those addresses for the application's executable backing. The SoC supplies
+`0x1000` use the separate 4 KiB executable cache; service DMA reaches the physical RAM
+at those addresses for the application's executable backing. The remainder of
+the original 8 KiB program window, `0x1000..0x1fff`, executes directly from its
+existing RAM backing. The SoC supplies
 immutable boot instructions when the OS has not yet loaded.
 
 There are no `MEMCPY` or `MEMSET` opcodes. Programs implement loops or use the

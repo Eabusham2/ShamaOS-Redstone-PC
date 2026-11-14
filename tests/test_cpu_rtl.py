@@ -58,6 +58,65 @@ def reference(source,initial=None):
     return cpu
 
 
+@pytest.mark.parametrize('stall', [0, 3])
+def test_short_immediates_reuse_long_arithmetic_flags_with_stalled_fetches(rtl, stall):
+    def program(short):
+        lines = [f'LDI r15 {RESULT_BASE}']
+        for op in ('LDI', 'ADDI', 'SUBI', 'ANDI', 'ORI', 'XORI'):
+            for initial in (0, 1, 0x7fffffff, 0x80000000, 0xffffffff):
+                for value in (-524288, -1, 0, 1, 524287, 0xfffffffe):
+                    instruction = op + ('S' if short else '')
+                    lines += [f'LDI r1 {initial}', 'CMP r0 r1',
+                              f'{instruction} r1 {value}', 'RDPMC r2 34',
+                              'STW r15 r1 0', 'STW r15 r2 4', 'ADDI r15 8']
+        lines += ['LDIS r0 -1' if short else 'LDI r0 -1', 'HLT']
+        return '\n'.join(lines)
+    baseline = reference(program(False))
+    source = program(True)
+    candidate = reference(source)
+    assert candidate.regs == baseline.regs
+    assert candidate.flags == baseline.flags
+    assert candidate.memory == baseline.memory
+    regs, memory, flags, fault = rtl(source, dump_words=360, stall=stall)
+    assert fault == 0
+    assert [regs[i] for i in range(16)] == baseline.regs
+    assert [memory[RESULT_BASE+4*i] for i in range(360)] == [
+        int.from_bytes(baseline.memory[RESULT_BASE+4*i:RESULT_BASE+4*i+4], 'little')
+        for i in range(360)
+    ]
+
+
+@pytest.mark.parametrize('stall', [0, 3])
+def test_short_branch_conditions_and_mixed_call_return_addresses(rtl, stall):
+    lines = [f'LDI r15 {RESULT_BASE}']
+    cases = 0
+    for left, right in ((0, 0), (0, 1), (1, 0), (0x80000000, 1), (0x7fffffff, 0xffffffff)):
+        for cond in ('EQ', 'NE', 'C', 'NC', 'LT', 'LE', 'GT', 'GE', 'NEG', 'POS', 'VALID', 'NVALID'):
+            lines += [f'LDI r1 {left}', f'LDI r2 {right}', 'CMP r1 r2',
+                      f'BRS.{cond} .taken{cases}', 'LDIS r3 0', f'JMPS .store{cases}',
+                      f'.taken{cases} LDIS r3 1', f'.store{cases} STW r15 r3 0', 'ADDIS r15 4']
+            cases += 1
+    lines += ['LDIS r4 3', '.outer_loop CALLS .short_sub', 'DEC r4', 'BRS.NE .outer_loop',
+              'JMPS .finished', '.short_sub CALL .long_sub', 'RET',
+              '.long_sub ADDIS r5 11', 'RET', '.finished HLT']
+    source = '\n'.join(lines)
+    expected = reference(source)
+    regs, memory, _, fault = rtl(source, dump_words=cases, stall=stall)
+    assert fault == 0 and regs[5] == 33
+    assert [regs[i] for i in range(16)] == expected.regs
+    assert [memory[RESULT_BASE+4*i] for i in range(cases)] == [
+        int.from_bytes(expected.memory[RESULT_BASE+4*i:RESULT_BASE+4*i+4], 'little')
+        for i in range(cases)
+    ]
+
+
+def test_short_branch_invalid_condition_and_call_overflow_fault(rtl):
+    _, _, _, fault = rtl([0x47C00000, 0x01000000], stall=1)
+    assert fault == 2
+    _, _, _, fault = rtl('.again CALLS .again', stall=1)
+    assert fault == 3
+
+
 @pytest.mark.parametrize('source,expected_fault', [
     (f'LDI r1 {RAM_BYTES-1}\nLDI r2 42\nSTB r1 r2 0\nLDB r3 r1 0\nHLT', 0),
     (f'LDI r1 {RAM_BYTES}\nLDB r2 r1 0\nHLT', 8),

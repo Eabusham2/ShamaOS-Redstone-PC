@@ -1,0 +1,47 @@
+{
+  "bounds": {
+    "max": {
+      "x": 9204,
+      "y": 318,
+      "z": 4876
+    },
+    "min": {
+      "x": 0,
+      "y": -60,
+      "z": -6016
+    }
+  },
+  "capacity_bytes": 4096,
+  "complete_machine_runtime_verified": false,
+  "connected_cache_runtime_verified": false,
+  "connected_external_nets": 77,
+  "historical_comparison": {
+    "capacity_bytes": 8192,
+    "occupied_chunks": 192026,
+    "occupied_chunks_reduction_percent": 38.14327226521409,
+    "receipt": "experiments/memory_controller_runtime/evidence/connected-cache-union-checkpoint.json",
+    "receipt_sha256": "6fff7ce05eaab95e7de68c04ffe34b1b8281fedaa789e0cd185fe6055d213fa5",
+    "scope": "Capacity and layout changes combined; both include the complete mapped controller, original I/O, all installed storage, decoder and external routes. This is not a whole-computer total.",
+    "unique_blocks": 37102012,
+    "unique_blocks_reduction_percent": 38.532859080526414
+  },
+  "native_controller_cells": 1178,
+  "native_world_readback_verified": false,
+  "observed_build_report_file": "connected-build-union-observed.json",
+  "observed_build_report_sha256": "6b407f25040782b032998f0a5dc014e163d4af9c4349186c88313bc75a1ee0d1",
+  "occupied_chunks": 118781,
+  "original_io_terminals": 182,
+  "physical_banks": 1,
+  "physical_return_nets": 32,
+  "physical_storage_bits": 32768,
+  "register_clocks": 115,
+  "schema": "current-complete-connected-cache-union-checkpoint-v1",
+  "scope": "Complete current 1178-cell controller, every original-I/O facade wire, one full 4 KiB bank, real decoder and all 77 external routes. Independent exact geometry only; native writing and readback continue.",
+  "sorted_unique_record_sha256": "b070e0c2ac33a53cc32e24e2232fc2a765b18ea6ae7be3fc69ad4813e728836e",
+  "source_input_archive": "connected-source-inputs.zip",
+  "source_input_archive_bytes": 684878,
+  "source_input_archive_files": 55,
+  "source_input_archive_sha256": "ca82fcb66941595814d2a1bdd78ccfc6c7bc70aea901e311c0de25e09a3e416d",
+  "status": "two-exact-unions-agree-native-write-in-progress",
+  "unique_blocks": 22805546
+}
