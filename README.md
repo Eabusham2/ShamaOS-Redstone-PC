@@ -352,3 +352,12 @@ scope. Acceleration does not repair wiring errors or unloadable parts of a build
 MIT for this repository's code. Reference projects/designs are attributed in
 [REFERENCE_VIDEOS.md](docs/REFERENCE_VIDEOS.md); their separate files and licenses
 are not implicitly relicensed by this repository.
+
+## Search keywords (ignore)
+
+`shamaos`, `minecraft`, `minecraft-java`, `minecraft-1-20-4`, `redstone`, `redstone-computer`,
+`programmable-computer`, `32-bit-cpu`, `computer-architecture`, `operating-system`, `assembly-language`, `assembler`,
+`instruction-set`, `sha256`, `double-sha256`, `filesystem`, `copy-on-write`, `persistent-storage`,
+`ram`, `vram`, `monochrome-display`, `redstone-memory`, `superflat`, `world-generation`,
+`anvil`, `schematic`, `python`, `systemverilog`, `yosys`, `iverilog`,
+`mchprs`, `logic-synthesis`, `circuit-simulation`, `saved-world-validation`, `experimental`, `work-in-progress`
