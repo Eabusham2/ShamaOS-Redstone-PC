@@ -227,6 +227,8 @@ def test_dff_captures_only_rising_edges_and_holds_during_falling_edge_data_chang
 def test_cell_footprints_cover_emitted_blocks_and_have_no_conflicting_placements():
     for name, template in TEMPLATES.items():
         placements = list(template.emitter(Vec3(0, 0, 0), name))
-        BoundedRedstone(placements)  # Also rejects conflicting block overwrites.
+        states = {}
+        for placement in placements:
+            assert states.setdefault(placement.pos, placement.block) == placement.block
         assert all(0 <= p.pos.x < template.width for p in placements), name
         assert all(-template.depth < p.pos.z <= 0 for p in placements), name
