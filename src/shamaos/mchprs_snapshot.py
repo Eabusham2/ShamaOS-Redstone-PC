@@ -103,21 +103,28 @@ def _cleanup_owned_directory(path: Path, identity: tuple[int, int]) -> None:
 
 
 def _publish_no_replace(source: Path, destination: Path) -> None:
-    """Atomically publish a directory without ever replacing another entry.
-
-    Linux renameat2(RENAME_NOREPLACE) is the actual publication gate. There is
-    deliberately no exists()+rename fallback when the OS/filesystem lacks it.
-    """
-    if not sys.platform.startswith("linux"):
-        raise WorldWriteError("atomic native snapshot publication requires Linux renameat2(RENAME_NOREPLACE)")
+    """Atomically publish a directory without ever replacing another entry."""
     libc = ctypes.CDLL(None, use_errno=True)
-    rename = getattr(libc, "renameat2", None)
-    if rename is None:
-        raise WorldWriteError("atomic no-replace rename is unavailable; refusing unsafe publication")
-    rename.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
-    rename.restype = ctypes.c_int
-    # Linux UAPI: AT_FDCWD=-100; RENAME_NOREPLACE=(1 << 0).
-    if rename(-100, os.fsencode(source), -100, os.fsencode(destination), 1) != 0:
+    old, new = os.fsencode(source), os.fsencode(destination)
+    if sys.platform.startswith("linux"):
+        rename = getattr(libc, "renameat2", None)
+        if rename is None:
+            raise WorldWriteError("atomic no-replace rename is unavailable; refusing unsafe publication")
+        rename.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
+        rename.restype = ctypes.c_int
+        # Linux UAPI: AT_FDCWD=-100; RENAME_NOREPLACE=1.
+        result = rename(-100, old, -100, new, 1)
+    elif sys.platform == "darwin":
+        rename = getattr(libc, "renamex_np", None)
+        if rename is None:
+            raise WorldWriteError("atomic no-replace rename is unavailable; refusing unsafe publication")
+        rename.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_uint]
+        rename.restype = ctypes.c_int
+        # Darwin sys/stdio.h: RENAME_EXCL=0x00000004.
+        result = rename(old, new, 4)
+    else:
+        raise WorldWriteError("atomic native snapshot publication requires Linux renameat2 or macOS renamex_np")
+    if result != 0:
         error = ctypes.get_errno()
         if error in (errno.EEXIST, errno.ENOTEMPTY):
             raise WorldWriteError("snapshot destination appeared during restore; refusing to replace it")

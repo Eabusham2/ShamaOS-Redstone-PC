@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Callable, Iterator
 
 from ..model import BlockState, Placement, Vec3
-from .memory import DUST, SUPPORT, repeater
+from .memory import DUST, SUPPORT, comparator, repeater
 
 
 WALL_TORCH_E = BlockState.of("minecraft:redstone_wall_torch", facing="east", lit="true")
@@ -95,6 +95,33 @@ def emit_and(origin: Vec3, component: str) -> Iterator[Placement]:
     yield from emit_not(origin.offset(17, 0, 0), component)
 
 
+def emit_write_guard(origin: Vec3, component: str) -> Iterator[Placement]:
+    """Pass a registered write only while reset is low.
+
+    Both inputs reach the subtract comparator through repeaters at strength
+    15. The comparator and its drive path start unpowered.
+    """
+    yield from _dust(origin, 0, 0, component)
+    for x in range(1, 6):
+        yield from _dust(origin, x, 0, component)
+    yield from _repeater(origin, 5, -1, "north", component)
+    yield _place(origin, 5, 0, -2, SUPPORT, component)
+    yield _place(origin, 5, 1, -2, comparator("north"), component)
+    for x in range(9, 7, -1):
+        yield from _dust(origin, x, 0, component)
+    for z in (-1, -2):
+        yield from _dust(origin, 9, z, component)
+    yield from _dust(origin, 8, -2, component)
+    yield from _dust(origin, 7, -2, component)
+    yield from _repeater(origin, 6, -2, "west", component)
+    for z in (-3, -4):
+        yield from _dust(origin, 5, z, component)
+    for x in range(6, 15):
+        yield from _dust(origin, x, -4, component)
+    for z in range(-3, 1):
+        yield from _dust(origin, 14, z, component)
+
+
 def emit_dff(origin: Vec3, component: str) -> Iterator[Placement]:
     """Positive-edge master/slave storage with isolated, refreshed Q.
 
@@ -149,6 +176,8 @@ TEMPLATES: dict[str, LogicTemplate] = {
     "NAND": LogicTemplate("NAND", 17, 6, {"A": Vec3(0, 1, 0), "B": Vec3(8, 1, 0), "Y": Vec3(16, 1, 0)}, emit_nand),
     "NOR": LogicTemplate("NOR", 17, 4, {"A": Vec3(0, 1, 0), "B": Vec3(8, 1, 0), "Y": Vec3(16, 1, 0)}, emit_nor),
     "AND": LogicTemplate("AND", 22, 6, {"A": Vec3(0, 1, 0), "B": Vec3(8, 1, 0), "Y": Vec3(21, 1, 0)}, emit_and),
+    "WRITE_GUARD": LogicTemplate("WRITE_GUARD", 15, 6,
+        {"A": Vec3(0, 1, 0), "B": Vec3(8, 1, 0), "Y": Vec3(14, 1, 0)}, emit_write_guard),
     "DFF": LogicTemplate(
         "DFF", 17, 12, {"D": Vec3(0, 1, 0), "C": Vec3(6, 1, 0), "Q": Vec3(16, 1, 0)}, emit_dff,
         minimum_clock_half_period=12, setup_ticks=8, hold_ticks=2,

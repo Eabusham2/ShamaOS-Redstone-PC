@@ -1,5 +1,20 @@
 # Current 4 KiB cache: exact sources and compact controller
 
+The cache adapter now registers write commit and drives the physical write
+line through an initially unpowered subtract comparator. Reset inhibits the
+gate. A saved two-row fixture checks that a delayed reset leaves preloaded
+bits intact, that a deliberate write changes only the selected row, and that
+both rows retain the result after reopening. This focused fixture does not
+establish electrical behavior for the complete one-bank controller.
+
+The guarded controller has 116 registers rather than the 115 in the retained
+evidence below. Its graph no longer uses the old numbered clock domain for
+extra padding. The guarded layout reserves tracks for every clock-bearing
+group and can spread children in a row if the compact layout blocks an
+original port's escape. The native audit derives the expected clock inventory
+from the exact mapped graph and requires the original ready signal. The
+historical counts and archives below describe the unguarded controller.
+
 The current cache uses one complete 4 KiB physical bank. This checkpoint binds
 the current RTL, generated header and configuration to a fresh controller
 mapping, a complete logical plan, the retained RTL transaction oracle, and all

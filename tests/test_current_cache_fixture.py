@@ -49,6 +49,12 @@ def test_fresh_single_bank_mapping_and_actual_rtl_frames_retain_all_storage(four
     assert (fabric.total_bytes, fabric.bank_count) == (4096, 1)
     assert report["interface"]["original_port_bits"] == 182
     assert report["interface"]["memory_nets"] == 77
+    commit = next(entity for entity in graph.entities if entity.get("port_name") == "write_commit")
+    reset = next(entity for entity in graph.entities if entity.get("port_name") == "rst")
+    source = graph.signals[commit["bit"]].source
+    assert source.pin == "Y" and graph.entities[source.entity]["cell_type"] == "WRITE_GUARD"
+    assert any(sink.entity == source.entity and sink.pin == "B"
+               for sink in graph.signals[reset["bit"]].sinks)
     assert report["plan_audit"]["status"] == "passed"
     assert report["metadata_removal"]["all_native_cells_ports_nets_unchanged"]
     assert report["rtl_oracle"]["frames"] == 601

@@ -67,20 +67,20 @@ These are remaining engineering tasks, not merely pending test executions:
    Its small complete test top passes native save/reopen and actual global-input
    execution. All twelve real production partitions still need accepted
    placement, interconnection and runtime; the default backend remains `flat`.
-2. The current 4 KiB controller and its exterior wires retain all 1,178 mapped
-   cells, 182 original port bits and 115 register clocks. Clock matching and the
-   independent exact block union pass: 15,645,176 unique blocks across 67,206
-   occupied chunks, before physical storage and external memory links. Its
-   exterior clock/data timing and those interfaces on the remaining production
-   partitions still require native-runtime proof.
-3. The current one-bank 4 KiB cache is the next complete hardware runtime
-   target. Its fresh mapping and request traces are bound to the current sources.
-   Two independent complete block unions agree on 22,805,546 unique blocks and
-   118,781 occupied chunks for the controller, decoder, bank and all external
-   routes. Native writing/readback and actual execution are still required.
-   Earlier two-bank controller and world measurements below remain historical
-   evidence; [the current receipt](../experiments/memory_controller_runtime/current_four_kib/evidence/connected-union-checkpoint.json)
-   preserves the new geometry and its explicit runtime limits.
+2. The rebuilt 4 KiB cache controller has a registered write commit and a
+   physical gate that starts unpowered. A saved two-row fixture retained its
+   preloaded bits during delayed reset, accepted a deliberate write, and
+   retained the result after reopening. The full controller retains all 182
+   original port bits and matches all 116 clock paths structurally. The
+   full controller and exterior wires occupy 12,288,636 unique blocks in
+   this run with Yosys 0.71+post.
+3. Two independent block collectors agreed on 19,129,302 unique blocks
+   across 108,977 occupied chunks for the guarded controller, decoder, full
+   physical bank and all 77 external routes. Full native readback, exterior
+   clock delivery, transactions and save/reopen remain the acceptance gates
+   for this fixture. The [retained receipt](../experiments/memory_controller_runtime/current_four_kib/evidence/connected-union-checkpoint.json)
+   describes the earlier unguarded 4 KiB geometry. Neither set of cache
+   measurements is a whole-computer footprint.
 4. Complete clock/data timing and a loaded/ticking-chunk arrangement remain
    unproved. The existing conservative core divider is not a measured usable
    clock rate; the raw input domain also needs its own physical timing proof.

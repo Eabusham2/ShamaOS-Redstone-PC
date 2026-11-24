@@ -49,6 +49,7 @@ def test_execute_deadline_preserves_real_status_and_accounting(
         return (0, 0, None) if exit_code is None else (pid, exit_code, usage)
 
     monkeypatch.setattr(runtime, "resource", object())
+    monkeypatch.setattr(runtime.sys, "platform", "linux")
     monkeypatch.setattr(runtime.subprocess, "Popen", popen)
     monkeypatch.setattr(runtime.signal, "SIGKILL", 9, raising=False)
     monkeypatch.setattr(runtime.os, "WNOHANG", 1, raising=False)

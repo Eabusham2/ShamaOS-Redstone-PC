@@ -163,7 +163,11 @@ def test_complete_generation_matches_retained_original_guard_builder(domain_budg
     while pending:
         original, candidate = pending.pop()
         for name in ("cluster_id", "bounds", "terminals", "ports", "unique_blocks", "shared_contacts",
-                     "packing", "exposed_ports", "facade_contacts"):
+                     "exposed_ports", "facade_contacts"):
             assert getattr(original, name) == getattr(candidate, name)
+        packing = dict(candidate.packing)
+        if "horizontal_gap" in packing:
+            assert packing.pop("horizontal_gap") == 16
+        assert original.packing == packing
         assert len(original.children) == len(candidate.children)
         pending.extend(zip(original.children, candidate.children, strict=True))

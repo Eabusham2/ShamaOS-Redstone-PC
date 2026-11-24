@@ -75,6 +75,21 @@ def test_actual_runtime_combinational_truth_tables(name):
     run_case(template.emitter(ORIGIN, name), {p: pins[p] for p in input_names}, {"Y": pins["Y"]}, steps)
 
 
+def test_native_write_guard_stays_off_until_commit_and_blocks_reset():
+    template = TEMPLATES["WRITE_GUARD"]
+    pins = {name: ORIGIN.offset(p.x, p.y, p.z) for name, p in template.pins.items()}
+    steps = [
+        {"ticks": 24, "expect": {"Y": False}, "continuous": True},
+        {"drive": {"B": True}, "ticks": 24, "expect": {"Y": False}, "continuous": True},
+        {"drive": {"A": True}, "ticks": 24, "expect": {"Y": False}, "continuous": True},
+        {"drive": {"B": False}, "ticks": 24, "expect": {"Y": True}},
+        {"drive": {"A": False}, "ticks": 24, "expect": {"Y": False}},
+    ]
+    run_case(template.emitter(ORIGIN, "cache-write-guard"),
+             {name: pins[name] for name in ("A", "B")},
+             {"Y": pins["Y"]}, steps, initial_ticks=0)
+
+
 def test_actual_runtime_dff_edges_holds_and_falling_edge_races():
     template = TEMPLATES["DFF"]
     pins = {name: ORIGIN.offset(p.x, p.y, p.z) for name, p in template.pins.items()}

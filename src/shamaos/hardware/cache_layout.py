@@ -35,10 +35,15 @@ def cache_policy(graph):
     expected = {(name, bit): direction for name, (direction, width) in widths.items() for bit in range(width)}
     if pins != expected:
         raise ValueError("compact cache policy requires the complete one-bank controller interface")
-    return {"name": "one-bank-cache-root-io-v1", "ports_at_root": True,
+    guarded = any(entity.get("cell_type") == "WRITE_GUARD" for entity in graph.entities)
+    # The guarded controller is a new graph. A targeted padding entry from
+    # the frozen unguarded graph cannot identify a clock domain in this one.
+    return {"name": "one-bank-cache-root-io-guarded-v2" if guarded else "one-bank-cache-root-io-v1",
+            "ports_at_root": True,
             "native_cells_per_leaf": 64, "boundary_terminals_per_leaf": 128,
             "routing_terminals_per_domain": 256, "children_per_cluster": 4,
-            "clock_padding_blocks": 128, "clock_domain_padding_blocks": {6: 160},
+            "clock_padding_blocks": 160 if guarded else 128,
+            "clock_domain_padding_blocks": {} if guarded else {6: 160},
             "native_runtime_verified": False}
 
 

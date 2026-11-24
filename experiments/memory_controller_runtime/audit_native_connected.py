@@ -276,7 +276,11 @@ def bound_physical_inputs(build):
     require(inputs == expected_inputs and outputs == expected_outputs, "saved maps do not match all physical graph/bank terminals")
     require(len({tuple(outputs[name]) for name in STORED_NAMES}) == 32768, "stored-bit observations alias")
     clocks = {name for name in outputs if name.startswith("register:") and name.endswith(":C")}
-    require(len(clocks) == 115 and len({tuple(outputs[name]) for name in clocks}) == 115, "original register clock inventory changed")
+    register_count = current_fixture.validate_interface(graph, 4096)["registers"]
+    require(register_count > 0 and report["controller_graph_audit"]["clock_leaf_uses"] == register_count
+            and len(clocks) == len({tuple(outputs[name]) for name in clocks}) == register_count,
+            "original register clock inventory changed")
+    require("port:req_ready:0" in outputs, "native cache lost its ready output")
     reader = NativeWorldReader(build / "world", max_cached_chunks=4)
     offsets = ((1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1))
     for point in inputs.values():

@@ -69,9 +69,16 @@ class _Context(base._Context):
 
 def _parent(context, cluster_id, children, maximum_y):
     attempts, seen = [], set()
-    for layout in ("compact", "row"):
+    # Facades may need a clear corridor from every child's south face.
+    # Fall back to one row with no vertical stacking when the dense options
+    # leave a face buried behind another child.
+    for layout, horizontal_gap, vertical_gap in (
+        ("compact", 16, 4), ("row", 16, 4), ("row", 64, 384),
+    ):
         packed, packing = base._pack_children(children, minimum_y=context.minimum_y,
-            maximum_y=maximum_y - context.route_height(cluster_id), horizontal_layout=layout)
+            maximum_y=maximum_y - context.route_height(cluster_id), horizontal_layout=layout,
+            horizontal_gap=horizontal_gap, vertical_gap=vertical_gap)
+        packing["horizontal_gap"] = horizontal_gap
         signature = tuple((child.cluster_id, child.bounds) for child in packed)
         if signature in seen:
             continue

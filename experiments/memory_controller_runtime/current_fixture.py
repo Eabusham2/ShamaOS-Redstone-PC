@@ -101,10 +101,19 @@ def retain_native_mapping(raw_path: Path, mapped_path: Path, *, yosys, liberty):
     are rejected there.
     """
     raw = json.loads(raw_path.read_text())
-    if set(raw["modules"]) != {TOP}:
+    modules = raw["modules"]
+    if "WRITE_GUARD" in modules:
+        guard = modules["WRITE_GUARD"]
+        ports = guard.get("ports", {})
+        if (int(guard.get("attributes", {}).get("blackbox", "0"), 2) != 1
+                or guard.get("cells")
+                or {name: (port["direction"], len(port["bits"])) for name, port in ports.items()}
+                != {"A": ("input", 1), "B": ("input", 1), "Y": ("output", 1)}):
+            raise ValueError("unexpected native write-guard definition")
+    if set(modules) - {"WRITE_GUARD"} != {TOP}:
         raise ValueError("current cache must flatten to its single complete mapped top")
     metadata = {module: [name for name, cell in value.get("cells", {}).items()
-                        if cell["type"] == "$scopeinfo"] for module, value in raw["modules"].items()}
+                        if cell["type"] == "$scopeinfo"] for module, value in raw["modules"].items() if module == TOP}
     for module, names in metadata.items():
         for name in names:
             cell = raw["modules"][module]["cells"][name]
@@ -120,9 +129,9 @@ def retain_native_mapping(raw_path: Path, mapped_path: Path, *, yosys, liberty):
         if result.returncode:
             raise ValueError("Yosys could not remove validated pinless scope metadata: " + result.stdout + result.stderr)
         actual = json.loads(mapped_path.read_text())
-        if set(actual["modules"]) != set(raw["modules"]):
+        if set(actual["modules"]) != {TOP}:
             raise ValueError("scope cleanup changed the module inventory")
-        for module, before in raw["modules"].items():
+        for module, before in ((TOP, modules[TOP]),):
             expected = {name: cell for name, cell in before.get("cells", {}).items() if name not in metadata[module]}
             after = actual["modules"][module]
             if set(expected) != set(after.get("cells", {})) or any(before.get(key, {}) != after.get(key, {}) for key in ("ports", "netnames")):

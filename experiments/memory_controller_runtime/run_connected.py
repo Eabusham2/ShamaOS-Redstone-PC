@@ -15,6 +15,7 @@ from pathlib import Path
 import shutil
 import signal
 import subprocess
+import sys
 import time
 
 try:
@@ -197,17 +198,25 @@ def execute(runner, stream, scenario, destination, name, maximum_chunks, *,
             raise FileExistsError(snapshot_path)
         command += ["--snapshot", str(snapshot_path)]
     limit = memory_limit_mib << 20
+    macos = sys.platform == "darwin"
+    memory_limits = {"address_space_limit_bytes": None if macos else limit}
+    if macos:
+        # Darwin refuses a finite RLIMIT_AS. Bound the resident memory of the
+        # single native runner process instead and record the type of limit.
+        memory_limits["polled_resident_memory_limit_bytes"] = limit
 
     def limits():
-        resource.setrlimit(resource.RLIMIT_AS, (limit, limit))
+        if not macos:
+            resource.setrlimit(resource.RLIMIT_AS, (limit, limit))
         resource.setrlimit(resource.RLIMIT_CPU, (wall_seconds, wall_seconds))
 
-    started, timed_out = time.monotonic(), False
+    started = time.monotonic()
+    timed_out, memory_exceeded = False, False
     with stdout_path.open("x") as stdout, stderr_path.open("x") as stderr:
         process = subprocess.Popen(command, stdout=stdout, stderr=stderr, preexec_fn=limits,
                                    env=dict(os.environ, SHAMA_NATIVE_PROGRESS="1"))
         _write(destination / f"{name}-process.json", {"pid": process.pid, "command": command,
-            "address_space_limit_bytes": limit, "cpu_limit_seconds": wall_seconds,
+            **memory_limits, "cpu_limit_seconds": wall_seconds,
             "wall_limit_seconds": wall_seconds, "status": "running"})
         while True:
             pid, status, usage = os.wait4(process.pid, os.WNOHANG)
@@ -216,7 +225,12 @@ def execute(runner, stream, scenario, destination, name, maximum_chunks, *,
             if pid:
                 process.returncode = os.waitstatus_to_exitcode(status)
                 break
-            if timed_out:
+            if macos and not timed_out:
+                sampled = subprocess.run(["/bin/ps", "-o", "rss=", "-p", str(process.pid)],
+                                         capture_output=True, text=True, check=False)
+                rss = sampled.stdout.strip()
+                memory_exceeded = rss.isdecimal() and int(rss) * 1024 > limit
+            if timed_out or memory_exceeded:
                 # Popen.send_signal may reap a child that exits between polls.
                 # Keep wait4 authoritative for its real status and accounting.
                 try:
@@ -229,8 +243,9 @@ def execute(runner, stream, scenario, destination, name, maximum_chunks, *,
                 break
             time.sleep(min(0.5, wall_seconds - elapsed))
     result = {"exit_code": process.returncode, "wall_seconds": elapsed,
-              "peak_rss_kib": usage.ru_maxrss, "user_cpu_seconds": usage.ru_utime,
-              "system_cpu_seconds": usage.ru_stime, "address_space_limit_bytes": limit,
+              "peak_rss_kib": usage.ru_maxrss // 1024 if macos else usage.ru_maxrss,
+              "user_cpu_seconds": usage.ru_utime, "system_cpu_seconds": usage.ru_stime, **memory_limits,
+              "polled_memory_limit_exceeded": memory_exceeded,
               "cpu_limit_seconds": wall_seconds, "wall_limit_seconds": wall_seconds,
               "explicit_wall_timeout_reached": timed_out,
               "termination_signal": -process.returncode if process.returncode < 0 else None,
@@ -349,6 +364,9 @@ def clocks(prepared_directory, runner, destination, *, half_period, settle_ticks
             _write(path, report)
             case.update(execute(runner, Path(prepared["stream"]["path"]), scenario_path, destination,
                                 name, imported["chunks"] + 128, **limits))
+            if case.get("polled_memory_limit_exceeded"):
+                case["status"] = "execution-incomplete"
+                raise MemoryError("complete connected run exceeded its monitored resident memory limit")
             if not _completed_before_wall_deadline(case):
                 case["status"] = "execution-incomplete"
                 raise TimeoutError(f"complete connected {name} clock execution exceeded its wall deadline")
@@ -451,6 +469,9 @@ def transactions(prepared_directory, runner, clock_report_path, destination, *,
             _write(path, report)
             case.update(execute(runner, stream, scenario_path, destination, name,
                                 imported_case["chunks"] + 128, snapshot=snapshot, **limits))
+            if case.get("polled_memory_limit_exceeded"):
+                case["status"] = "execution-incomplete"
+                raise MemoryError("complete connected run exceeded its monitored resident memory limit")
             if not _completed_before_wall_deadline(case):
                 case["status"] = "execution-incomplete"
                 raise TimeoutError(f"actual connected {name} transaction execution exceeded its wall deadline")

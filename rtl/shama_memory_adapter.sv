@@ -8,7 +8,8 @@ module shama_memory_adapter #(
     parameter integer BANK_COUNT = (1 << BANK_BITS),
     // The final physical bank may be shorter than the row-address envelope.
     // Address validity must follow installed bytes, not the rounded bank count.
-    parameter integer CAPACITY_BYTES = BANK_COUNT*(1 << ROW_BITS)*4
+    parameter integer CAPACITY_BYTES = BANK_COUNT*(1 << ROW_BITS)*4,
+    parameter integer GUARDED_WRITE = 0
 )(
     input logic clk,rst,req_valid,req_we,
     input logic [31:0] req_addr,req_wdata,
@@ -50,7 +51,16 @@ module shama_memory_adapter #(
     assign req_ready=!rst && state==RESP;
     assign req_rdata=response;
     assign read_enable=!rst && (state==READ_SETTLE || state==ACCESS || state==COMMIT || state==POST_COMMIT);
-    assign write_commit=!rst && state==COMMIT;
+    if (GUARDED_WRITE) begin : guarded_write
+        // Stage the commit alongside merged data. The native guard has no
+        // torch that can energize its output while the controller settles.
+        logic commit_pending = 1'b0;
+        always_ff @(posedge clk)
+            commit_pending <= !rst && state == ACCESS && latched_we;
+        WRITE_GUARD gate(.A(commit_pending), .B(rst), .Y(write_commit));
+    end else begin : direct_write
+        assign write_commit=!rst && state==COMMIT;
+    end
     assign write_data=merged;
 
     always_ff @(posedge clk) begin
@@ -101,7 +111,7 @@ module shama_cache_adapter(
 );
     // Keep the bank field legal for a single physical bank. Capacity checking
     // guarantees its selected value is zero; synthesis can fold it away.
-    shama_memory_adapter #(.BANK_BITS((`SHAMA_CACHE_BANKS > 1) ? $clog2(`SHAMA_CACHE_BANKS) : 1),.ROW_BITS(10),.BANK_COUNT(`SHAMA_CACHE_BANKS),.CAPACITY_BYTES(`SHAMA_CACHE_BYTES)) u(
+    shama_memory_adapter #(.BANK_BITS((`SHAMA_CACHE_BANKS > 1) ? $clog2(`SHAMA_CACHE_BANKS) : 1),.ROW_BITS(10),.BANK_COUNT(`SHAMA_CACHE_BANKS),.CAPACITY_BYTES(`SHAMA_CACHE_BYTES),.GUARDED_WRITE(1)) u(
         .clk,.rst,.req_valid,.req_we,.req_addr,.req_wdata,.req_wstrb,
         .req_ready,.req_rdata,.bank_select,.row_address,.read_enable,
         .write_commit,.write_data,.selected_word
@@ -169,4 +179,15 @@ module shama_vram_adapter(
         .req_ready,.req_rdata,.bank_select,.row_address,.read_enable,
         .write_commit,.write_data,.selected_word
     );
+endmodule
+
+// Yosys retains this cell so the generator can use a passive subtract
+// comparator for the final write gate. RTL simulation uses the same truth table.
+`ifdef SYNTHESIS
+(* blackbox *)
+`endif
+module WRITE_GUARD(input wire A, B, output wire Y);
+`ifndef SYNTHESIS
+    assign Y = A && !B;
+`endif
 endmodule
