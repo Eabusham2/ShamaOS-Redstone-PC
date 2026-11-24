@@ -1,0 +1,17 @@
+{
+  "complete_machine_runtime_verified": false,
+  "junit_sha256": "822ea370b8ff80d23aa698f539a7f21cc4220192818e8196515145b5ccaeb65c",
+  "result": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "tests": 105
+  },
+  "scope": "Focused CI partition, aggregate/release admission and rerun artifact tests; not full CI or a full-world run.",
+  "source_files": {
+    ".github/workflows/ci.yml": "2ad2984d808450703f013f0825b7fa55741d86d8f599068966f62c0aa81c794f",
+    "src/shamaos/release.py": "989612ad503df90a02a9a7ff966a09df03850eeed5054fb9757aad1bbc85c3fc",
+    "tools/release_ci.py": "0a79e68c6501a048b28c64c29e087259201f83800bd3c1d56514da934966328d",
+    "tools/required_regressions.py": "dd89593cb251b7760ceee4e9a113fc9c61fe300ed4c183d25db7b1694a1fcb6e"
+  }
+}

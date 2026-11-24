@@ -253,14 +253,29 @@ repair a hold-time failure.
   CMake for its native dependency build.
 - HDL benches for SHA, memory controllers, input, GPU, services, filesystem,
   assembler and integrated compile.
-- Complete behavioral and MCHPRS regression, with JUnit evidence and a native
-  saved-world mechanism fixture reconstructed and run in the engine.
+- Two required regression jobs collect the same complete suite: `components`
+  runs circuit/host tests and reconstructs the saved-world fixtures; `system`
+  runs every test in `tests/test_soc_integration.py`, including real memory
+  adapters, editing, assembly, execution, persistence and resource failures.
+  The split avoids the measured 75-minute timeout of the combined job.
+- The required `behavioral-and-redstone` aggregate checks both source commits,
+  identical complete collections, disjoint selections and exactly one passing
+  setup/call/teardown for every collected test. Missing reports, skips,
+  collection failures and interrupted runs fail the gate. It also reconciles
+  both JUnit files against the exact selected test identities and retains the
+  combined `behavioral-results.xml` in `shamaos-tested-fixture-<commit>`.
 - On `[full-synth]` commits and pull requests: every physical SoC partition,
   a reconnected shell, exact port widths and canonical capacities.
 
 Artifacts include the exact commit in their names and source hashes in world
 reports. A report from a modified working tree explicitly says so. Never attach
 a previous commit's green run as evidence for a later release.
+
+Each partition retains a small progress file identifying its last completed
+test even when execution is interrupted. Native engine build and runtime tests
+run in `components`; the `system` job installs the HDL tools its simulations
+use. Default host test runs may still skip unavailable optional dependencies;
+neither required regression partition may do so.
 
 ## Full physical synthesis
 

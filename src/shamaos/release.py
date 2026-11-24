@@ -38,7 +38,8 @@ def validate_ci(report: dict, commit: str) -> None:
     jobs = report.get("jobs", [])
     _require(bool(jobs) and all(job.get("conclusion") == "success" for job in jobs), "Every required CI job must pass.")
     names = [job["name"] for job in jobs]
-    for name in ("world-backend", "rtl", "behavioral-and-redstone", "full-physical-synthesis"):
+    for name in ("world-backend", "rtl", "behavioral-and-redstone",
+                 "behavioral-partitions (components)", "behavioral-partitions (system)", "full-physical-synthesis"):
         _require(names.count(name) == 1, f"Missing required CI job: {name}")
     _require(sum(name.startswith("test (") for name in names) == 4, "All four Linux/Windows/Python matrix jobs must pass.")
     _require(sum(name.startswith("full-physical-partitions (") for name in names) == 12,

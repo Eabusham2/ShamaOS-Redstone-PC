@@ -26,7 +26,8 @@ COMMIT = "a" * 40
 
 
 def ci_report():
-    names = ["world-backend", "rtl", "behavioral-and-redstone", "full-physical-synthesis"]
+    names = ["world-backend", "rtl", "behavioral-and-redstone",
+             "behavioral-partitions (components)", "behavioral-partitions (system)", "full-physical-synthesis"]
     names += [f"test ({os}, {python})" for os in ("ubuntu", "windows") for python in ("3.11", "3.12")]
     names += [f"full-physical-partitions ({i})" for i in range(12)]
     return {"head_sha": COMMIT, "conclusion": "success", "status": "completed",

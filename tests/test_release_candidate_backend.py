@@ -22,7 +22,8 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def _ci_report():
-    names = ["world-backend", "rtl", "behavioral-and-redstone", "full-physical-synthesis"]
+    names = ["world-backend", "rtl", "behavioral-and-redstone",
+             "behavioral-partitions (components)", "behavioral-partitions (system)", "full-physical-synthesis"]
     names += [f"test ({system}, {python})" for system in ("ubuntu", "windows")
               for python in ("3.11", "3.12")]
     names += [f"full-physical-partitions ({index})" for index in range(12)]

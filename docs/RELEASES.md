@@ -20,8 +20,13 @@ into a verified playable computer.
 1. Check out the release's exact tag commit and find its successful repository
    CI run. All four OS/Python jobs, twelve physical partitions, behavioral and
    actual-redstone tests, world backend, RTL and full synthesis must be green.
-2. Download **all** original CI artifacts, retaining their names. Expired or
-   missing required artifacts block release instead of silently disappearing.
+   Both regression partitions and their exhaustive-coverage aggregate are
+   required; the aggregate preserves the original combined JUnit artifact.
+2. Download **all** original CI artifacts. Ordinary unique names are retained.
+   Reruns with the same logical name use stable GitHub artifact-ID suffixes, so
+   every original ZIP remains available without overwriting another attempt.
+   Required-artifact checks use the original logical names. Expired or missing
+   required artifacts block release instead of silently disappearing.
 3. If a successful same-repository, same-commit run provides
    `shamaos-full-world-candidate-<40-character-commit>`, download it. Pull-request
    artifacts and artifacts from another source commit are rejected. Otherwise

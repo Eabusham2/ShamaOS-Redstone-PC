@@ -1,0 +1,182 @@
+{
+  "scope": "Saved 16-by-32 passive bank and row-select clock, 30 data bits driven at bank terminals.",
+  "source_base_git": "f747dba089f0b750ab07d7f2c70a7992d7e04747",
+  "runner_sha256": "c8032089622501cb57f9edbb0ea7e3be24e3a23fd0b2b80653b0ed4f07045610",
+  "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+  "registry_patch_sha256": "8ebd0e097d07e93a6b2b158e08ad19c2660b0b7e2521c6b6d34a4583a10bfbdc",
+  "recorder_sha256": "ac17542855c3853dd894d6aea5224476e1774d4af1be255c51aa8f9706fc4a8d",
+  "physical_probe_and_measurement_source_sha256": "57bb7a1809f2b0bef4e85d7fc2e85c826f6c5f20f44e5dcd73e3908ec4bdd521",
+  "combined_recording_sha256": "1df7ab65a213d5eec2a4342e0173d4a13fd9aefd3af4fc58e56e345e2a581dfd",
+  "combined_recording_bytes": 1096208,
+  "initial_region_sha256": "298d3ef8e781d6271e773318c3ea3fa76d48f4ec5bd9fcaa19bc7286626942ed",
+  "assigned_blocks": 60239,
+  "saved_chunks": 293,
+  "native_comparator_entities": 528,
+  "clock_period_rt": 70,
+  "raw_high_rt": 35,
+  "registered_endpoint_columns": [
+    0,
+    31
+  ],
+  "directly_driven_columns": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30
+  ],
+  "profiles_by_interior_launch_rt": {
+    "33": {
+      "timing_passed": false,
+      "native_report_sha256": "784040501192256a5a81032390cb3b9c78285e00a424cbaa9cd977e31d6ecfa2",
+      "source_sha256_inventory_digest": "adad09f79d4896b2add503172de37b7f2f9b78204f3d39e047c04e8d2795044a",
+      "imported_stream_sha256": "1fc300bf3e5650c355f529223dfe76036c50849f5e3c9376ed04dbbbfc34dbfa",
+      "quiescent_snapshot_sha256": "6525ca5c3c01aad0e87f60f27c907691acca00c3899577b366aff148bb646175",
+      "saved_pending_ticks": 0,
+      "stored_words": [
+        2590363094,
+        1717320471,
+        1600827094,
+        3786280831,
+        2659104566,
+        2315447817,
+        2513796373,
+        2899001421,
+        2458220642,
+        3652604410,
+        3995470344,
+        92969805,
+        3784262637,
+        3621396577,
+        2908542179,
+        1956023545
+      ],
+      "all_512_reopened_bits_match": true,
+      "epochs": 91,
+      "guard_and_terminal_selected_strobes": 500,
+      "selected_cell_writes": 8000,
+      "inhibited_cell_observations": 38592,
+      "q_rises": 2515,
+      "q_falls": 2249,
+      "native_pair_pattern_assertions": 6144,
+      "native_final_assertions": 512,
+      "minimum_rt": {
+        "setup": 52,
+        "hold": 1,
+        "aperture": 35
+      },
+      "faults": [
+        {
+          "unstable/incorrect data during aperture": {
+            "count": 13,
+            "examples": [
+              [
+                1,
+                13,
+                30
+              ],
+              [
+                29,
+                13,
+                30
+              ],
+              [
+                51,
+                13,
+                30
+              ],
+              [
+                52,
+                13,
+                30
+              ],
+              [
+                56,
+                13,
+                30
+              ]
+            ]
+          }
+        }
+      ],
+      "interior_phase_intersection_from_measured_transitions_rt": [
+        34,
+        49
+      ]
+    },
+    "41": {
+      "timing_passed": true,
+      "native_report_sha256": "499a714527b522137d4669cfac73c2cfbc700901b61c53eac8c77a9330fca32c",
+      "source_sha256_inventory_digest": "adad09f79d4896b2add503172de37b7f2f9b78204f3d39e047c04e8d2795044a",
+      "imported_stream_sha256": "f9e4b7e9dc03cb91b9fb1254c19e9c839c2021968f39201e95a3c842c16cd593",
+      "quiescent_snapshot_sha256": "d940a0f98bb488ad0ac85190ca77ded9604e311675fa768136c1c86d849211b5",
+      "saved_pending_ticks": 0,
+      "stored_words": [
+        2590363094,
+        1717320471,
+        1600827094,
+        3786280831,
+        2659104566,
+        2315447817,
+        2513796373,
+        2899001421,
+        2458220642,
+        3652604410,
+        3995470344,
+        92969805,
+        3784262637,
+        3621396577,
+        2908542179,
+        1956023545
+      ],
+      "all_512_reopened_bits_match": true,
+      "epochs": 91,
+      "guard_and_terminal_selected_strobes": 500,
+      "selected_cell_writes": 8000,
+      "inhibited_cell_observations": 38592,
+      "q_rises": 2515,
+      "q_falls": 2249,
+      "native_pair_pattern_assertions": 6144,
+      "native_final_assertions": 512,
+      "minimum_rt": {
+        "setup": 44,
+        "hold": 2,
+        "aperture": 35
+      },
+      "faults": [],
+      "interior_phase_intersection_from_measured_transitions_rt": [
+        34,
+        49
+      ]
+    }
+  },
+  "classifier_fanout_verified": false,
+  "external_register_tree_for_30_interior_bits_verified": false,
+  "cdc_verified": false,
+  "complete_machine_runtime_verified": false
+}

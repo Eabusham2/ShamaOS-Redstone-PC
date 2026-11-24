@@ -20,6 +20,13 @@ a physical clock-route shortage. The reviewed fix is in `6785ca9`; a
 and new CI validate the subsequent source separately. Compilation and fixture
 success do not establish complete-world boot.
 
+The latest saved-world timing evidence covers all 512 bits of a
+[physical input-store fixture](experiments/input_storage_bus/README.md) and
+[repeated startup after saving and reopening](experiments/soc_startup_timing/level_power/README.md).
+The full input launch wiring and the production shell's local clock paths are
+still being integrated. Required CI now separates long processor/OS simulations
+from component tests and verifies their exhaustive combined coverage.
+
 The owner reopened app/cache optimization on November 13, 2026 (America/Chicago). Shared app routines
 and explicit one-word instruction forms now reduce all nine executables. The
 physical cache is **4 KiB**, retaining the original **8 KiB execution window**

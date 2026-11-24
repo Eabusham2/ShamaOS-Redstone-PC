@@ -1,0 +1,302 @@
+{
+  "schema": "root-level-power-timing-replay-v1",
+  "source_rtl_sha256": "1469fc1fde66b9722c4e0add68276da325296d964d51d57bef219fb9e1b5eb4c",
+  "cases": [
+    {
+      "case": "power-cycle",
+      "report_sha256": "7576e6b54263afb3138803a9af095ae954b9343f85c77a88cd1433fbbf4649b3",
+      "ticks": 26812,
+      "native_status": "passed",
+      "assertions": 69680,
+      "registers": {
+        "bank": {
+          "edges": 136,
+          "setup": 4519,
+          "hold": 1963
+        },
+        "pending": {
+          "edges": 136,
+          "setup": 4823,
+          "hold": 1627
+        },
+        "state_0": {
+          "edges": 136,
+          "setup": 4551,
+          "hold": 1708
+        },
+        "state_1": {
+          "edges": 136,
+          "setup": 4511,
+          "hold": 1610
+        },
+        "state_2": {
+          "edges": 136,
+          "setup": 4517,
+          "hold": 1763
+        },
+        "write_enable": {
+          "edges": 136,
+          "setup": 4753,
+          "hold": 1653
+        },
+        "clock_hold": {
+          "edges": 261,
+          "setup": 8,
+          "hold": 27
+        },
+        "divided_clock_active": {
+          "edges": 259,
+          "setup": 13,
+          "hold": 2
+        },
+        "reset_pulse_received": {
+          "edges": 136,
+          "setup": 38,
+          "hold": 32
+        },
+        "reset_pulse_request": {
+          "edges": 266,
+          "setup": 39,
+          "hold": 12
+        }
+      }
+    },
+    {
+      "case": "lead-12",
+      "report_sha256": "cde3966d05be5de9006bfbbf5cb3c26b8918e101f5495d310fdd9b09f3f603d2",
+      "ticks": 13830,
+      "native_status": "passed",
+      "assertions": 648,
+      "registers": {
+        "bank": {
+          "edges": 18,
+          "setup": 2483,
+          "hold": 3999
+        },
+        "pending": {
+          "edges": 18,
+          "setup": 2787,
+          "hold": 3663
+        },
+        "state_0": {
+          "edges": 18,
+          "setup": 2515,
+          "hold": 188
+        },
+        "state_1": {
+          "edges": 18,
+          "setup": 2475,
+          "hold": 441
+        },
+        "state_2": {
+          "edges": 18,
+          "setup": 2481,
+          "hold": 3799
+        },
+        "write_enable": {
+          "edges": 18,
+          "setup": 2717,
+          "hold": 179
+        },
+        "clock_hold": {
+          "edges": 95,
+          "setup": 324,
+          "hold": 4797
+        },
+        "divided_clock_active": {
+          "edges": 95,
+          "setup": 21,
+          "hold": 49
+        },
+        "reset_pulse_received": {
+          "edges": 18,
+          "setup": 38,
+          "hold": 32
+        },
+        "reset_pulse_request": {
+          "edges": 95,
+          "setup": 54,
+          "hold": 16
+        }
+      }
+    },
+    {
+      "case": "lead-55",
+      "report_sha256": "5bcb8101032fd67bd47fcec13dc1645521459a1edb49fba3938b5475b77ee035",
+      "ticks": 13873,
+      "native_status": "passed",
+      "assertions": 648,
+      "registers": {
+        "bank": {
+          "edges": 18,
+          "setup": 2526,
+          "hold": 3999
+        },
+        "pending": {
+          "edges": 18,
+          "setup": 2830,
+          "hold": 3663
+        },
+        "state_0": {
+          "edges": 18,
+          "setup": 2558,
+          "hold": 188
+        },
+        "state_1": {
+          "edges": 18,
+          "setup": 2518,
+          "hold": 441
+        },
+        "state_2": {
+          "edges": 18,
+          "setup": 2524,
+          "hold": 3799
+        },
+        "write_enable": {
+          "edges": 18,
+          "setup": 2760,
+          "hold": 179
+        },
+        "clock_hold": {
+          "edges": 95,
+          "setup": 367,
+          "hold": 4797
+        },
+        "divided_clock_active": {
+          "edges": 95,
+          "setup": 21,
+          "hold": 49
+        },
+        "reset_pulse_received": {
+          "edges": 18,
+          "setup": 38,
+          "hold": 32
+        },
+        "reset_pulse_request": {
+          "edges": 95,
+          "setup": 54,
+          "hold": 16
+        }
+      }
+    },
+    {
+      "case": "lead-95",
+      "report_sha256": "a187e70fd56209eccf08a9021e973cb9e33e359e7256215e2bdde6d3ec0ff595",
+      "ticks": 13913,
+      "native_status": "passed",
+      "assertions": 648,
+      "registers": {
+        "bank": {
+          "edges": 18,
+          "setup": 2566,
+          "hold": 3999
+        },
+        "pending": {
+          "edges": 18,
+          "setup": 2870,
+          "hold": 3663
+        },
+        "state_0": {
+          "edges": 18,
+          "setup": 2598,
+          "hold": 3744
+        },
+        "state_1": {
+          "edges": 18,
+          "setup": 2558,
+          "hold": 194
+        },
+        "state_2": {
+          "edges": 18,
+          "setup": 2564,
+          "hold": 166
+        },
+        "write_enable": {
+          "edges": 18,
+          "setup": 2800,
+          "hold": 3689
+        },
+        "clock_hold": {
+          "edges": 95,
+          "setup": 407,
+          "hold": 4797
+        },
+        "divided_clock_active": {
+          "edges": 95,
+          "setup": 21,
+          "hold": 49
+        },
+        "reset_pulse_received": {
+          "edges": 18,
+          "setup": 38,
+          "hold": 32
+        },
+        "reset_pulse_request": {
+          "edges": 95,
+          "setup": 54,
+          "hold": 16
+        }
+      }
+    },
+    {
+      "case": "lead-157",
+      "report_sha256": "956f5a9b831eb46ab461b613aa1243d20d71776367c56834aa17860e8eda875f",
+      "ticks": 13975,
+      "native_status": "passed",
+      "assertions": 648,
+      "registers": {
+        "bank": {
+          "edges": 18,
+          "setup": 2628,
+          "hold": 3999
+        },
+        "pending": {
+          "edges": 18,
+          "setup": 2932,
+          "hold": 3663
+        },
+        "state_0": {
+          "edges": 18,
+          "setup": 2660,
+          "hold": 188
+        },
+        "state_1": {
+          "edges": 18,
+          "setup": 2620,
+          "hold": 441
+        },
+        "state_2": {
+          "edges": 18,
+          "setup": 2626,
+          "hold": 3799
+        },
+        "write_enable": {
+          "edges": 18,
+          "setup": 2862,
+          "hold": 179
+        },
+        "clock_hold": {
+          "edges": 95,
+          "setup": 469,
+          "hold": 4797
+        },
+        "divided_clock_active": {
+          "edges": 95,
+          "setup": 21,
+          "hold": 49
+        },
+        "reset_pulse_received": {
+          "edges": 18,
+          "setup": 38,
+          "hold": 32
+        },
+        "reset_pulse_request": {
+          "edges": 95,
+          "setup": 54,
+          "hold": 16
+        }
+      }
+    }
+  ],
+  "scope": "Independent arithmetic over retained per-tick native C/D samples; no new engine invocation. Native shutdown/reopen separately pending."
+}

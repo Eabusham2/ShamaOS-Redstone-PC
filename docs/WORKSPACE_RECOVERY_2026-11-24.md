@@ -24,8 +24,10 @@ These proofs do not constitute a full-machine boot.
 
 The standard CI on `f7f2755`, run
 [45352217215](https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/45352217215),
-had 19 successful jobs and its behavioral job still running at the recovery
-check. Its twelve mapped partitions and reconnection succeeded. The separate
+finished with 19 successful jobs; the behavioral job reached its 75-minute
+limit and the overall run was cancelled. Its twelve mapped partitions and
+reconnection succeeded. The next required CI uses two exhaustive regression
+partitions and preserves the aggregate gate and original JUnit artifact. The separate
 [complete-cache run 45351382058](https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/45351382058)
 is bound to production `6785ca9`; its combined generation/readback/runtime
 step was still running. Check both live runs before assigning a final result.
@@ -40,8 +42,8 @@ freshly repeated results and measurements whose raw files were not recovered.
 | Archive | What it preserves | Remaining proof |
 | --- | --- | --- |
 | [Input protocol](../experiments/input_receiver_timing/recovery/input-protocol-recovery.tar.gz) | Four RTL files matched their pre-interruption SHA-256 values. Separate Git bundles reconstruct the receiver, CPU/service observation interface and background reader. Fresh source and actual Yosys/ABC comparisons pass for both versions; the actual CPU passed ten MMIO loads, ten coincident service observations and two exact ACKs. | Passive-store settling, all data lanes, physical capture/clock distribution and complete-system execution. The prior long Editor/assemble/run result is historical; the reconstructed version needs its own full flow. |
-| [Power startup](../experiments/soc_startup_timing/level_power/recovery.zip) | Exact three-file level-request source patch, original private C+7 selection, preparation and persistence drivers. The recovered RTL matches its original SHA-256. | Source-only level startup still has a 1 RT setup failure at tick 15,333. The private C+7 run and actual shutdown/snapshot/reopen must finish before promotion. |
-| [Full-width passive input store](../experiments/input_storage_bus/recovery/source-recovery-v1.tgz) | Exact prior +33 and +41 phase producers, a detailed historical manifest, replay code and tests. | The +33 run retained all 512 bits but found 13 one-tick hold violations at row 13 / bit 30. +41 had only partial completed traces before interruption; repeat it fully. |
+| [Power startup](../experiments/soc_startup_timing/level_power/recovery.zip) | Exact three-file level-request source patch, original private C+7 selection, preparation and persistence drivers. The recovered RTL matches its original SHA-256. | Source-only level startup still has a 1 RT setup failure at tick 15,333. The private C+7 profiles and actual shutdown/snapshot/reopen now pass in the separately retained measured archives. Production shell/counter routing still needs a local-domain implementation and verification. |
+| [Full-width passive input store](../experiments/input_storage_bus/recovery/source-recovery-v1.tgz) | Exact prior +33 and +41 phase producers, a detailed historical manifest, replay code and tests. | Fresh complete recordings now retain both cases: +33 reproduces 13 one-tick hold violations; +41 passes all 512 timing/state checks and Anvil reopening. The 30 externally launched interior bits still require actual registered feeds. |
 
 The input Git bundles require published `f747dba`. The source-level startup
 patch requires research commit `370c24df4db7de1d9d34dec6272f40bb90e49a34`,
@@ -96,3 +98,18 @@ passed. Keep trace and snapshot stages separate when needed.
 
 The full-world acceptance registry remains empty. There is no accepted
 complete Minecraft computer or final whole-machine chunk total yet.
+
+## Recovered local execution and reviewed follow-up
+
+The local execution environment subsequently returned. Published commits
+`f747dba` and `9470204` were reconstructed locally with exact file/tree/commit
+hashes. Original research Git objects also survived; missing temporary traces
+remain replaced only by the explicitly recorded fresh measurements.
+
+The follow-up checkpoint retains the full-width input-bank archives, an
+independent direct D/lock/Q and packed-Anvil review, and the level-request
+startup study with its actual saved-lever continuation. These remain scoped
+physical fixtures. Root passed 105 focused CI/release tests with no failures
+or skips. Same-name CI rerun artifacts now retain each original by its stable
+GitHub ID. The full production cache run and complete-world acceptance remain
+separate, unfinished gates.

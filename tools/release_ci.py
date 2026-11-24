@@ -6,6 +6,7 @@ archives, command arguments, manifests or logs.
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 import json
 import os
 from pathlib import Path
@@ -46,6 +47,37 @@ def download_artifact(repo: str, artifact: dict, destination: Path):
         raise WorldWriteError(f"Downloaded CI artifact {artifact['name']} failed its GitHub digest check.")
 
 
+def retained_artifact_names(artifacts: list[dict]) -> dict[int, str]:
+    """Preserve normal ZIP names and retain every rerun archive under its original ID."""
+    # Leave room for .zip and the .001 suffix used when packaging large assets.
+    max_stem = 255 - len(".zip.001")
+    names = {}
+    for artifact in artifacts:
+        artifact_id = artifact.get("id")
+        name = artifact.get("name")
+        if type(artifact_id) is not int or artifact_id <= 0 or artifact_id in names:
+            raise WorldWriteError("A CI artifact has an invalid or duplicate GitHub artifact ID.")
+        if (not isinstance(name, str) or not re.fullmatch(r"[A-Za-z0-9_.-]+", name)
+                or name.startswith(".") or re.match(r"(?i)^(?:CON|PRN|AUX|NUL|(?:COM|LPT)[1-9])(?:\.|$)", name)):
+            raise WorldWriteError("A CI artifact has an unsafe file name.")
+        names[artifact_id] = name
+
+    counts = Counter(name.casefold() for name in names.values())
+    retained = {}
+    for artifact_id, name in names.items():
+        # Reserve the generated suffix. A real artifact already named
+        # "log--artifact-11" gets its own ID too. Thus a subsequent rerun
+        # introducing that name cannot displace the older archive with ID 11.
+        if counts[name.casefold()] > 1 or re.search(r"(?i)--artifact-[0-9]+$", name) or len(name) > max_stem:
+            suffix = f"--artifact-{artifact_id}"
+            stem_limit = max_stem - len(suffix)
+            if stem_limit <= 0:
+                raise WorldWriteError("A GitHub artifact ID cannot fit in a release filename.")
+            name = name[:stem_limit] + suffix
+        retained[artifact_id] = name + ".zip"
+    return retained
+
+
 def acquire(repo: str, commit: str, destination: Path, candidate_run: int | None = None):
     if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repo) or not re.fullmatch(r"[0-9a-f]{40}", commit):
         raise WorldWriteError("Invalid repository or source commit")
@@ -65,6 +97,7 @@ def acquire(repo: str, commit: str, destination: Path, candidate_run: int | None
         raise WorldWriteError("No green exact-commit CI run includes all twelve full-synthesis partitions and all other gates.")
     (destination / "ci.json").write_text(json.dumps(ci_run, indent=2) + "\n", encoding="utf-8")
     artifacts = list(paginated(f"repos/{repo}/actions/runs/{ci_run['id']}/artifacts", "artifacts"))
+    file_names = retained_artifact_names(artifacts)
     required = {f"full-soc-{name}" for name in ("u_cpu", "u_input", "u_gpu", "u_display_bridge", "u_vram", "u_services",
                 "u_kernel", "u_fs", "u_asm", "u_cache", "u_ram", "u_flash")}
     required |= {f"full-soc-report-{commit}", f"shamaos-tested-fixture-{commit}"}
@@ -73,10 +106,7 @@ def acquire(repo: str, commit: str, destination: Path, candidate_run: int | None
     archive_dir = destination / "ci-artifacts"
     archive_dir.mkdir()
     for artifact in artifacts:
-        name = artifact["name"]
-        if not re.fullmatch(r"[A-Za-z0-9_.-]+", name):
-            raise WorldWriteError("A CI artifact has an unsafe file name.")
-        download_artifact(repo, artifact, archive_dir / (name + ".zip"))
+        download_artifact(repo, artifact, archive_dir / file_names[artifact["id"]])
     runs = ([api(f"repos/{repo}/actions/runs/{candidate_run}")] if candidate_run else
             paginated(f"repos/{repo}/actions/runs?head_sha={commit}&status=success", "workflow_runs"))
     for run in runs:

@@ -217,11 +217,15 @@ jobs:
             rtl/shama_asm_accel.sv rtl/shama_soc.sv
 
 
-  behavioral-and-redstone:
+  behavioral-partitions:
     runs-on: ubuntu-24.04
-    # Full-size source boundaries and production-controller SoC persistence
-    # flows extend the previous ~35-minute behavioral/redstone workload.
+    # The combined job exceeded its 75-minute limit. Both jobs collect the
+    # same suite; the aggregate gate proves disjoint, exhaustive execution.
     timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      matrix:
+        partition: [components, system]
     env:
       PYTHONPATH: src:tests
       SHAMA_MCHPRS_RUNNER: ${{ github.workspace }}/tests/mchprs_runtime/target/release/shama-redstone-check
@@ -235,7 +239,9 @@ jobs:
         with:
           python-version: "3.12"
       - uses: dtolnay/rust-toolchain@stable
+        if: matrix.partition == 'components'
       - uses: actions/cache@v4
+        if: matrix.partition == 'components'
         with:
           path: |
             ~/.cargo/registry
@@ -252,8 +258,10 @@ jobs:
           command -v vvp
           command -v yosys
       - name: Build pinned actual redstone engine
+        if: matrix.partition == 'components'
         run: cargo build --locked --release --manifest-path tests/mchprs_runtime/Cargo.toml
       - name: Build streamed and dense native-world terrain engines
+        if: matrix.partition == 'components'
         env:
           CARGO_TARGET_DIR: ${{ github.workspace }}/tests/mchprs_sparse_runtime/target
         run: |
@@ -275,30 +283,25 @@ jobs:
               '--source', str(source), '--output', 'build/mchprs-terrain', '--build',
           ], check=True)
           PY
-      - name: Run complete behavioral and placed-block regression
-        run: |
-          mkdir -p build
-          pytest -ra --ignore=tests/test_world_blockstates.py --junitxml=build/behavioral-results.xml
-          python - <<'PY'
-          from xml.etree import ElementTree as ET
-          root = ET.parse('build/behavioral-results.xml').getroot()
-          assert not root.findall('.//skipped'), 'Required behavior tests must not be skipped'
-          assert not root.findall('.//failure')
-          assert not root.findall('.//error')
-          PY
+      - name: Run every assigned required regression
+        run: >-
+          python tools/required_regressions.py run
+          --partition "${{ matrix.partition }}"
+          --output "build/required/${{ matrix.partition }}"
       - name: Generate and independently validate saved-world fixture
+        if: matrix.partition == 'components'
         run: |
           shamaos fixture-world --world build/native-runtime-fixture --runtime-runner "$SHAMA_MCHPRS_RUNNER"
           shamaos validate-world --world build/native-runtime-fixture
           shamaos stacked-fixture-world --world build/stacked-native-runtime-fixture --runtime-runner "$SHAMA_MCHPRS_RUNNER"
           shamaos validate-world --world build/stacked-native-runtime-fixture
-      - name: Archive measured fixture and exact-source validation evidence
-        if: always()
+      - name: Archive circuit results and saved-world fixtures
+        if: always() && matrix.partition == 'components'
         uses: actions/upload-artifact@v4
         with:
-          name: shamaos-tested-fixture-${{ github.sha }}
+          name: shamaos-behavior-components-${{ github.sha }}
           path: |
-            build/behavioral-results.xml
+            build/required/components
             build/native-runtime-fixture
             build/stacked-native-runtime-fixture
             build/validation
@@ -306,6 +309,51 @@ jobs:
             build/mchprs-terrain/native-terrain-registry.patch
             build/mchprs-terrain/dense-terrain-runner/Cargo.toml
             build/mchprs-terrain/dense-terrain-runner/Cargo.lock
+          retention-days: 14
+          if-no-files-found: error
+      - name: Archive processor and OS integration results
+        if: always() && matrix.partition == 'system'
+        uses: actions/upload-artifact@v4
+        with:
+          name: shamaos-behavior-system-${{ github.sha }}
+          path: build/required/system
+          retention-days: 14
+          if-no-files-found: error
+
+  behavioral-and-redstone:
+    runs-on: ubuntu-24.04
+    needs: behavioral-partitions
+    if: always()
+    timeout-minutes: 10
+    steps:
+      - name: Require both measured partitions to finish successfully
+        env:
+          PARTITION_RESULT: ${{ needs.behavioral-partitions.result }}
+        run: test "$PARTITION_RESULT" = success
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/download-artifact@v4
+        with:
+          name: shamaos-behavior-components-${{ github.sha }}
+          path: build/combined
+      - uses: actions/download-artifact@v4
+        with:
+          name: shamaos-behavior-system-${{ github.sha }}
+          path: build/combined/required/system
+      - name: Require exact-source exhaustive test coverage and zero skips
+        run: >-
+          python tools/required_regressions.py verify
+          --reports build/combined/required
+          --source-commit "${{ github.sha }}"
+          --output build/combined/required/aggregate.json
+          --junit-output build/combined/behavioral-results.xml
+      - name: Preserve the complete original fixture artifact for releases
+        uses: actions/upload-artifact@v4
+        with:
+          name: shamaos-tested-fixture-${{ github.sha }}
+          path: build/combined
           retention-days: 14
           if-no-files-found: error
 

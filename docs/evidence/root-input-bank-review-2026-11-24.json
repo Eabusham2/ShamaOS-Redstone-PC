@@ -1,0 +1,127 @@
+{
+  "archive_sha256": "1df7ab65a213d5eec2a4342e0173d4a13fd9aefd3af4fc58e56e345e2a581dfd",
+  "complete_machine_runtime_verified": false,
+  "profiles": [
+    {
+      "launch_window_rt": [
+        34,
+        49
+      ],
+      "measurements": {
+        "inhibited": 38592,
+        "q_falls": 2249,
+        "q_rises": 2515,
+        "reopened_bits": 512,
+        "writes": 8000
+      },
+      "minimum_rt": {
+        "aperture": 35,
+        "hold": 1,
+        "setup": 52
+      },
+      "phase_rt": 33,
+      "timing_violations": [
+        {
+          "bit": 30,
+          "epoch": 1,
+          "hold": 1,
+          "row": 13
+        },
+        {
+          "bit": 30,
+          "epoch": 29,
+          "hold": 1,
+          "row": 13
+        },
+        {
+          "bit": 30,
+          "epoch": 51,
+          "hold": 1,
+          "row": 13
+        },
+        {
+          "bit": 30,
+          "epoch": 52,
+          "hold": 1,
+          "row": 13
+        },
+        {
+          "bit": 30,
+          "epoch": 56,
+          "hold": 1,
+          "row": 13
+        },
+        {
+          "bit": 30,
+          "epoch": 57,
+          "hold": 1,
+          "row": 13
+        },
+        {
+          "bit": 30,
+          "epoch": 60,
+          "hold": 1,
+          "row": 13
+        },
+        {
+          "bit": 30,
+          "epoch": 61,
+          "hold": 1,
+          "row": 13
+        },
+        {
+          "bit": 30,
+          "epoch": 64,
+          "hold": 1,
+          "row": 13
+        },
+        {
+          "bit": 30,
+          "epoch": 65,
+          "hold": 1,
+          "row": 13
+        },
+        {
+          "bit": 30,
+          "epoch": 67,
+          "hold": 1,
+          "row": 13
+        },
+        {
+          "bit": 30,
+          "epoch": 68,
+          "hold": 1,
+          "row": 13
+        },
+        {
+          "bit": 30,
+          "epoch": 84,
+          "hold": 1,
+          "row": 13
+        }
+      ]
+    },
+    {
+      "launch_window_rt": [
+        34,
+        49
+      ],
+      "measurements": {
+        "inhibited": 38592,
+        "q_falls": 2249,
+        "q_rises": 2515,
+        "reopened_bits": 512,
+        "writes": 8000
+      },
+      "minimum_rt": {
+        "aperture": 35,
+        "hold": 2,
+        "setup": 44
+      },
+      "phase_rt": 41,
+      "timing_violations": []
+    }
+  ],
+  "reviewer_sha256": "66a9669405f0453bdd0639c608279a97c05fa1e267ee428c0794d7ce6b498d96",
+  "scope": "Independent raw D/lock/Q and direct packed-Anvil readback; 30 terminal sources remain external."
+}

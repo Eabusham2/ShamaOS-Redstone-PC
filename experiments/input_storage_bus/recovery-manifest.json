@@ -1,0 +1,133 @@
+{
+  "scope": "Bounded native passive receiver only",
+  "base_git": "2fa640aac321517f35df069a53a1675172b63ea8",
+  "active_reviewed_git": "f747dba089f0b750ab07d7f2c70a7992d7e04747",
+  "old_workspace_unavailable": true,
+  "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+  "engine_sha256": "c8032089622501cb57f9edbb0ea7e3be24e3a23fd0b2b80653b0ed4f07045610",
+  "terrain_patch_sha256": "8ebd0e097d07e93a6b2b158e08ad19c2660b0b7e2521c6b6d34a4583a10bfbdc",
+  "old_run_33": {
+    "original_producer_sha256": "56ca7084ec819ea5a46e3dd0afd3ac6188978af54b3c0dd03f777f4961608a54",
+    "producer": "historical/phase33.py",
+    "directory": "/tmp/shama-input512-final33",
+    "scope": "first complete 16-row x 32-column bank at +33 raw terminal stimulus for the 30 interior columns; 2 genuine registered endpoints retained",
+    "saved_world": {
+      "assigned_blocks": 60239,
+      "chunks": 293,
+      "sections": 7032,
+      "decoded_nonair": 360271,
+      "comparators": 528,
+      "stream_bytes": 1962562,
+      "stream_sha256": "891fc1df85a8600515fdaa8588e12bf705545c78de265247392fb094fea36710",
+      "region_sha256": "298d3ef8e781d6271e773318c3ea3fa76d48f4ec5bd9fcaa19bc7286626942ed",
+      "level_dat_sha256": "aab8d1711180d21a7d05217c0235fe3ade65d0cf9119b643397fa4706f232452"
+    },
+    "native": {
+      "epochs": 91,
+      "selected_cell_writes": 8000,
+      "inhibited_cell_observations": 38592,
+      "all_column_pair_assertions": 6144,
+      "all_column_pair_scenario_sha256": "96f673092e09c2573a63c845b0879ee641ba37b431dce68a875246e0c9e7604e",
+      "all_Q_observations_correct": true,
+      "minimum_hold_rt": 1,
+      "minimum_setup_before_lock_rt": 52,
+      "minimum_aperture_rt": 35,
+      "timing_verdict": "failed",
+      "timing_failure": {
+        "row": 13,
+        "bit": 30,
+        "occurrences": 13,
+        "five_recorded_examples_zero_indexed_epoch": [
+          1,
+          29,
+          51,
+          52,
+          56
+        ]
+      },
+      "last_pair_native_output_sha256": "54fafb400a723ae1e0ede2704a0772e0468ecb7bd15cee0fdaa5cbba28560a8a",
+      "last_pair_scenario_sha256": "513e68d766a369acf531af870cc581ce768f8b65961729e435428a109fec766b"
+    },
+    "snapshot": {
+      "sha256": "57e97bee910d1268e9bb5b1c4a10e4cfd0ce75b0c528e75e11c943f9012af633",
+      "bytes": 3222635,
+      "quiescent": true,
+      "restored_bits": 512,
+      "read_words": [
+        2590363094,
+        1717320471,
+        1600827094,
+        3786280831,
+        2659104566,
+        2315447817,
+        2513796373,
+        2899001421,
+        2458220642,
+        3652604410,
+        3995470344,
+        92969805,
+        3784262637,
+        3621396577,
+        2908542179,
+        1956023545
+      ]
+    },
+    "estimated_window_rt": [
+      34,
+      49
+    ],
+    "window_basis": "Translate actual D edge times across all selected cells of the 30 interior columns relative to fixed local lock openings/closures, ≥1 tick before open, next edge ≥2 after close. The two genuine registered endpoints remain at their measured launch times."
+  },
+  "old_run_41": {
+    "producer": "historical/phase41.py",
+    "original_producer_sha256": "57bb7a1809f2b0bef4e85d7fc2e85c826f6c5f20f44e5dcd73e3908ec4bdd521",
+    "directory": "/tmp/shama-fixture-bus41",
+    "complete_two_column_shards_start": [
+      0,
+      2,
+      4,
+      6,
+      8,
+      10,
+      12,
+      14,
+      16,
+      18,
+      20,
+      22
+    ],
+    "incomplete_shard_start": 24,
+    "last_native_step": 121,
+    "stdout_bytes": 0,
+    "last_reported_peak_kib": 7448,
+    "exit": 137,
+    "cause": "Unidentified external signal. The empty partial result supplies no physical verdict.",
+    "pending": [
+      "columns 24–31",
+      "all-pairs assertions",
+      "quiescent snapshot",
+      "reopen all 512 bits",
+      "final verdict"
+    ],
+    "recovery_attempt": "/tmp/shama-bus-frozen41 on unavailable original workspace, progress unconfirmed",
+    "complete": false
+  },
+  "native_evidence_scope": {
+    "interior_stimulus": "physical conductive blocks at native bank inputs 1 through 30",
+    "real_clocked_data_inputs": [
+      0,
+      31
+    ],
+    "tested_registered_row_selects": 16,
+    "production_classifier_verified": false,
+    "cdc_verified": false,
+    "whole_machine_verified": false
+  },
+  "prior_control": {
+    "source": "experiments/input_receiver_timing/evidence/receiver-comparison.json",
+    "control": "4-row, 32-bit geometry, observe 2 registered endpoint columns, add 6 ticks to write strobe",
+    "incorrect_storage_samples": 200,
+    "reported_16x32_registered_endpoint_minimum_hold_rt": 2
+  },
+  "recovery_notice": "Historical raw files are not present in the fallback sandbox. The historical producer files were recovered and checked byte-for-byte against their published digests. Reproductions must keep independent world/snapshot digests and reports."
+}

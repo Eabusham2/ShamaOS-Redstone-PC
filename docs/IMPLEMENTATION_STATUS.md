@@ -13,7 +13,11 @@ cover the subsequent input repairs or certify complete-cache execution.
 The reviewed production follow-up is `6785ca9`, with archive-only startup
 research in `f7f2755`. A [new complete-cache run](https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/45351382058)
 is bound to `6785ca9`; the [new CI run](https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/45352217215)
-is bound to `f7f2755`. Both require their own completed results.
+is bound to `f7f2755`. That CI run passed 19 jobs, then its behavioral job
+reached the 75-minute limit; the run is cancelled, not green. Required CI now
+executes the component and complete-SoC tests in separate jobs, with an
+aggregate that rejects omitted tests, skips and interrupted reports. The
+complete-cache run still requires its own completed electrical results.
 
 The `99ee940` full-cache workflow stopped during physical geometry: one clock
 branch needed 36 ticks more delay than its private route could provide. The
@@ -48,6 +52,21 @@ Separately, the 70-tick raw input clock has not closed timing against the full
 mapped FIFO. Its shorter RTL now preserves simultaneous urgent events, but
 gate propagation and front-end pulse retention still require physical proof.
 Neither the unit clock tests nor the console-to-RTL trace closes those gates.
+
+The retained [level-request startup study](../experiments/soc_startup_timing/level_power/README.md)
+now passes its four-word physical timing and repeated saved-world restart
+cases, including a genuine saved acknowledgment lever. Its tested three-delay
+network is a private local layout; production shell routing remains unclosed
+and is being replaced with a named local startup component.
+
+The [16-by-32 input store](../experiments/input_storage_bus/README.md) passes
+all 512 cells and save/reopen at a 41-tick interior launch phase. An independently
+written review reads the raw D/lock/Q arrays and directly decodes Minecraft's
+packed block states. It reproduces 8,000 selected writes, 38,592 inhibited
+observations, all 512 reopened bits and the 34–49-tick common terminal window.
+The earlier 33-tick launch still produces 13 one-tick hold violations despite
+correct final values. Thirty interior launch routes remain external boundaries;
+their physical registered feeds and the complete input component remain open.
 
 The input regression now also replays the production-mapped JSON, rather than
 only the source RTL. It found that Yosys 0.33 widened an event-code expression
