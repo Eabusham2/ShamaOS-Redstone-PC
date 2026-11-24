@@ -331,6 +331,11 @@ module tb_services;
         editor_context(7,5,1,3); // write in progress, odd sequence
         universal(8'h16);
         repeat(25) begin @(negedge clk);if(cpu_hold) $fatal(1,"odd snapshot froze its writer");end
+        // The writer issues an external request after Home was acknowledged.
+        // It must get a real reply before it can finish the snapshot.
+        call2(12'h060,EDIT_BUF,5);
+        if(seen_ext_id!=12'h060 || cpu_hold || foreground_app!=1)
+            $fatal(1,"pending close stranded the odd Editor writer");
         ram[(EDIT_CTX+36)>>2]=4;
         await_force();
         if(foreground_app!=0 || save_count!=2) $fatal(1,"snapshot close failed");
@@ -389,8 +394,8 @@ module tb_services;
         // Foreground ownership, including partial pages, protects all present
         // and future workspaces. Each complete available heap is cleared when
         // replacing its owner, even where the next app uses the same addresses.
-        check_foreground_heap(1,1,0,0,EDIT_BUF,65536,STAGE,16384);
-        check_foreground_heap(2,1,STAGE,4,EDIT_BUF,65536,0,0);
+        check_foreground_heap(1,1,STAGE,4,EDIT_BUF,65536,0,0);
+        check_foreground_heap(2,1,EDIT_BUF+TEST_EXEC,18,EDIT_BUF,TEST_EXEC,0,0);
         check_foreground_heap(3,1,32'h5000,19,`SHAMA_MINER_BASE,`SHAMA_MINER_WORKSPACE_BYTES,0,0);
         check_foreground_heap(4,21,0,0,0,0,0,0);
         check_foreground_heap(5,2,32'h6000,18,`SHAMA_TERMINAL_BUF,1024,0,0);
@@ -399,6 +404,7 @@ module tb_services;
         check_foreground_heap(8,1,32'h5000,19,`SHAMA_SETTINGS_BASE,272,0,0);
         call2(12'h006,1,0);editor_context(0,0,0,2);
         call2(12'h010,4096,0);
+        call2(12'h010,4*4096,0);
         recovering_call(12'h010,1,0,2);
         if(ram[EDIT_BUF>>2]!=0 || ram_used_bytes!=8 || foreground_app!=0)
             $fatal(1,"Editor heap exhaustion failed to recover without aliasing its workspace");
@@ -421,7 +427,7 @@ module tb_services;
         // Files borrows its text buffer for binaries. Editor can assemble in
         // its unused source tail; both must copy before clearing the64KiB span.
         call2(12'h006,2,0);
-        if(ram_used_bytes!=66124) $fatal(1,"Files still reserves duplicate run workspace");
+        if(ram_used_bytes!=580+TEST_EXEC+8) $fatal(1,"Files still reserves duplicate run workspace");
         ram[EDIT_BUF>>2]=32'haaaa1234;ram[(EDIT_BUF+65532)>>2]=32'hdeadbeef;
         call2(12'h061,EDIT_BUF,4);
         if(cache_mem[0]!=32'haaaa1234 || ram[EDIT_BUF>>2]!=0 || ram[(EDIT_BUF+65532)>>2]!=0 || ram_used_bytes!=8)

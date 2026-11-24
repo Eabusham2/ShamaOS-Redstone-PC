@@ -66,9 +66,12 @@ The source workspace is 64 KiB at `0x4000`, with **65,535 editable bytes** and a
 reserved guard byte. All shipped app sources fit and are editable in full.
 Oversized files are refused explicitly; saving never replaces a complete file
 with a truncated display prefix. Binaries must fit **16,380 bytes**, the executable
-slot payload after its length word; large-source assembly staging is at `0x14000`.
-Sources up to 49,152 bytes reuse the source buffer's aligned unused tail for
-output. Executing a result requires it to fit the 8 KiB RAM-backed program window.
+slot payload after its length word. Sources up to 49,152 bytes use the aligned
+tail of the source buffer for output. For a longer document Editor saves the
+source, assembles directly from its current flash extent, and uses the start
+of its existing buffer for output. Before editing resumes it restores that
+prefix from the committed source, including after a failed assembly or BIN
+save. Executing a result requires it to fit the 8 KiB RAM-backed program window.
 
 Keyboard input inserts at the visible cursor. Left/Right moves by byte;
 Up/Down moves between logical lines while preserving the column where possible.
@@ -96,6 +99,10 @@ is appended. A BIN-name/type collision, including an ASM file itself named
 Returning from a diagnostic goes back to the operation that produced it.
 
 ## File Explorer
+
+Files renders text from the open file's flash extent. Opening a document for
+editing transfers the handle and filename to Editor, which reads the writable
+copy into its own workspace. Files reserves 8 KiB to launch binaries.
 
 Explorer navigates real directories. Its selected entry shows the complete path,
 type and exact size in labelled hexadecimal bytes. Up/Down selects another

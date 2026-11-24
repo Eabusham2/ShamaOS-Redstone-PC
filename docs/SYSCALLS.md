@@ -42,14 +42,13 @@ Calculator 6, Paint 7, and Settings 8. Staged user code runs as app 15.
 
 The foreground heap arena is `0x3000..0x17FFF`: 21 candidate pages of 4 KiB,
 with up to 16 live allocation records. Pages intersecting the active app's
-workspace are excluded, including Editor's potential assembly staging before
-it is needed. Allocation rounds up to pages, initializes them to zero, and
+workspace are excluded. Allocation rounds up to pages, initializes them to zero, and
 reports reserved pages in usage. Free/exit clears them before reuse.
 
 | App | Initially allocatable heap | Largest contiguous allocation |
 |---|---:|---:|
-| Editor | 4 KiB | 4 KiB |
-| File Explorer | 20 KiB | 16 KiB |
+| Editor | 20 KiB | 16 KiB |
+| File Explorer | 76 KiB | 72 KiB |
 | Miner | 80 KiB | 76 KiB |
 | Terminal | 80 KiB | 72 KiB |
 | Paint / Settings | 80 KiB | 76 KiB |
@@ -73,8 +72,8 @@ adds 4.1667 percentage points to RAM use.
 
 | Foreground app | Assigned workspace bytes | RAM ranges |
 | --- | ---: | --- |
-| Editor / Files | 66,116 | `0x2400..0x25FF`, `0x2600..0x2643`, `0x4000..0x13FFF` |
-| Editor external assembly staging, when needed | +16,384 | `0x14000..0x17FFF` |
+| Editor | 66,116 | `0x2400..0x25FF`, `0x2600..0x2643`, `0x4000..0x13FFF` |
+| File Explorer | 8,772 | `0x2400..0x25FF`, `0x2600..0x2643`, `0x4000..0x5FFF` |
 | Miner | 1,376 | `0x4000..0x455F` |
 | Terminal | 1,024 | `0x5000..0x53FF` |
 | Settings | 272 | `0x4000..0x410F` |
@@ -85,11 +84,13 @@ Fast-memory usage counts the loaded foreground executable bytes. CPU register
 stacks, filesystem metadata copies, assembler symbol tables and GPU command/text
 state are separate hardware state and are not charged to either usage counter.
 
-Files loads executable content into its text buffer. Editor assembles source of
-at most 49,152 bytes into the aligned unused tail of that same 64 KiB buffer;
-longer source uses the separate 16 KiB assembly region. Full 65,535-byte editing
-remains available. A staged launch copies code before clearing its borrowed
-workspace, and the launched app does not retain an unnecessary staging reservation.
+Files reads text directly from its flash extent. Editor receives the open handle
+and loads its own editable copy. Sources up to 49,152 bytes share Editor's
+64 KiB buffer with aligned assembly output. Longer sources use the committed
+flash file as input and the start of the same RAM buffer as output. On return
+Editor restores the overwritten words, including after an assembly or save error.
+A close requested during an edit lets the writer finish its external calls
+before the services controller saves or clears its workspace.
 
 Allocation exhaustion, an excessive executable length, CPU address/stack faults,
 or a GPU resource-range fault trigger cleanup and a fresh Desktop execution.
@@ -202,9 +203,11 @@ commands, presentation/clip/color/cursor semantics, bounds, and queue status.
 
 ## Assembly and execution
 
-`SYS_ASSEMBLE` (`060`) takes r1 source RAM pointer, r2 source byte length,
-r3 output RAM pointer, and r4 output capacity. Source is at most 65,536 bytes.
-Buffers must be valid, nonoverlapping RAM ranges; output is word aligned.
+`SYS_ASSEMBLE` (`060`) takes a source pointer in r1, source length in r2,
+output RAM pointer in r3 and output capacity in r4. The complete source must
+fit in RAM or in mapped flash (`0x01000000..0x01031FFF`) and span 1 through
+65,536 bytes. Output must fit in word-aligned RAM. When both buffers are in RAM,
+their ranges must be disjoint.
 The implementation has 128 label slots, 128 definition slots, up to eight tokens
 per source line, and at most 48 bytes per token.
 

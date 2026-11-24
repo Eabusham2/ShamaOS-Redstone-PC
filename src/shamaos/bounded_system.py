@@ -510,7 +510,7 @@ def prepare_from_artifacts(partition_artifacts, shell_mapped, *, shell_top="sham
 
     defaults = {"cell_budget": 64, "boundary_budget": 128, "domain_budget": 128,
                 "arity": 4, "maximum_partition_y": 285, "component_gap": 128,
-                "cache_compaction": 1,
+                "cache_compaction": 1, "local_data_tracks": 1,
                 "shell_branch_y": 300, "shell_trunk_y": 304,
                 "shell_front_clearance": 96, "shell_track_base_z": None}
     options = dict(options or {})
@@ -525,6 +525,8 @@ def prepare_from_artifacts(partition_artifacts, shell_mapped, *, shell_top="sham
         raise ValueError("bounded components need separation and reserved shell/global routing height")
     if settings["cache_compaction"] not in (0, 1):
         raise ValueError("bounded cache_compaction must be zero or one")
+    if settings["local_data_tracks"] not in (0, 1):
+        raise ValueError("bounded local_data_tracks must be zero or one")
     if minimum_build_y < -63 or settings["maximum_partition_y"] <= minimum_build_y:
         raise ValueError("bounded logic has no above-grass placement envelope")
     artifacts = tuple(partition_artifacts)
@@ -552,7 +554,7 @@ def prepare_from_artifacts(partition_artifacts, shell_mapped, *, shell_top="sham
             plan = build_plan(graph, cell_budget=settings["cell_budget"], boundary_budget=settings["boundary_budget"],
                               domain_budget=settings["domain_budget"], arity=settings["arity"])
             placed = place_with_egress(graph, plan, surface_y=minimum_build_y-1,
-                                      maximum_y=settings["maximum_partition_y"])
+                maximum_y=settings["maximum_partition_y"], local_data_tracks=bool(settings["local_data_tracks"]))
         offset = Vec3(right-placed.bounds.max.x, minimum_build_y-placed.bounds.min.y, front-placed.bounds.max.z)
         implementation = StartupPartition if name == "u_startup" and top == "shama_startup_control" else BoundedPartition
         part = implementation(graph, plan, placed.translated(offset), minimum_build_y-1,

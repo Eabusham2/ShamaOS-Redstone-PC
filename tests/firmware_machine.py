@@ -10,9 +10,11 @@ from pathlib import Path
 from shamaos.assembler import AssemblyError, assemble
 from shamaos.flashfs import FileType, ShamaFS
 from shamaos.isa import SYSCALLS
+from shamaos.memory_map import APP_BACKING_BYTES
 from shamaos.simulator import CPUReference
 
 ROOT = Path(__file__).resolve().parents[1]
+FLASH = 0x01000000
 GPU = 0x02000000
 
 
@@ -20,6 +22,7 @@ class FirmwareMachine(CPUReference):
     def __init__(self, app, fs=None):
         super().__init__()
         self.fs = fs or ShamaFS()
+        self.flash_image = b""
         self.events = deque()
         self.idle_count = 0
         self.gpu = bytearray(4096)
@@ -45,6 +48,9 @@ class FirmwareMachine(CPUReference):
         self.pending_app = None
 
     def read_memory(self, addr, size):
+        if FLASH <= addr < FLASH + self.fs.flash_bytes:
+            off = addr - FLASH
+            return int.from_bytes(self.flash_image[off:off+size], 'little')
         if GPU <= addr < GPU+4096:
             return int.from_bytes(self.gpu[addr-GPU:addr-GPU+size], 'little')
         return super().read_memory(addr, size)
@@ -78,8 +84,15 @@ class FirmwareMachine(CPUReference):
                 self.pending_app=0 if sid==SYSCALLS['SYS_EXIT'] else a
                 self.halted=True
             elif sid==SYSCALLS['SYS_RUN_BUFFER']:
-                self._memory_range(a,b)
-                self.pending_binary=bytes(self.memory[a:a+b]);self.halted=True
+                if b > APP_BACKING_BYTES:
+                    self.pending_app = 0
+                    self.halted = True
+                elif b == 0 or (a | b) & 3:
+                    r1 = 0xfffffffa
+                    r2 = 0xffffffff
+                else:
+                    self._memory_range(a,b)
+                    self.pending_binary=bytes(self.memory[a:a+b]);self.halted=True
             elif sid==SYSCALLS['SYS_APP_EVENT']:
                 pass
             elif sid==SYSCALLS['SYS_FILE_CREATE']:
@@ -107,23 +120,29 @@ class FirmwareMachine(CPUReference):
             elif sid==SYSCALLS['SYS_FILE_DELETE']:
                 self.fs.delete(self.fs._handle_name(a,self.owner))
             elif sid==SYSCALLS['SYS_FILE_STAT']:
+                self.flash_image=self.fs.serialize()
                 ent=self.fs.stat(self.fs._handle_name(a,self.owner))
                 r1=int(ent.file_type)|(len(ent.name.encode())<<8)|(ent.start_block<<16)
                 r2=len(ent.data)
             elif sid==SYSCALLS['SYS_FILE_LIST']:
                 entries=self.fs.list_files()
                 if a<len(entries):
+                    self.flash_image=self.fs.serialize()
                     ent=entries[a];name=ent.name.encode()
                     self._memory_range(b,len(name))
                     self.memory[b:b+len(name)]=name
                     r1=int(ent.file_type)|(len(name)<<8)|(ent.start_block<<16)
                     r2=len(ent.data)
             elif sid==SYSCALLS['SYS_ASSEMBLE']:
-                self._memory_range(a,b)
+                if FLASH <= a <= FLASH + self.fs.flash_bytes - b:
+                    source = self.flash_image[a-FLASH:a-FLASH+b]
+                else:
+                    self._memory_range(a,b)
+                    source = self.memory[a:a+b]
                 self._memory_range(c,d)
                 self.assembly_requests.append((a,b,c,d))
                 try:
-                    code=assemble(bytes(self.memory[a:a+b]).decode('ascii')).to_bytes()
+                    code=assemble(bytes(source).decode('ascii')).to_bytes()
                     if len(code)>d: raise AssemblyError('output full')
                     self.memory[c:c+len(code)]=code;r1=len(code)
                 except AssemblyError:

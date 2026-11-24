@@ -168,7 +168,7 @@ def write_controller_facade(graph, plan, placed, prepared_directory: Path,
 def guarded_graph(prepared_directory: Path):
     report, graph, shape, _, _ = current_fixture.load_prepared(prepared_directory)
     policy = cache_policy(graph)
-    if policy is None or policy["name"] != "one-bank-cache-root-io-guarded-v2":
+    if policy is None or policy["name"] != "one-bank-cache-front-io-guarded-v3":
         raise ValueError("validation requires the complete guarded production cache policy")
     oracle = report["rtl_oracle"]
     if (oracle["frames"], oracle["boundaries"], oracle["bit_boundary_assertions"]) != (601, 49, 1_605_632):

@@ -39,8 +39,8 @@ def cache_policy(graph):
     # Each graph has its own measured reservation. The guarded graph needs
     # 176 blocks at domain 6: the 160-block baseline left a private clock
     # branch short of 36 redstone ticks. Keep the real matcher authoritative.
-    return {"name": "one-bank-cache-root-io-guarded-v2" if guarded else "one-bank-cache-root-io-v1",
-            "ports_at_root": True,
+    return {"name": "one-bank-cache-front-io-guarded-v3" if guarded else "one-bank-cache-root-io-v1",
+            "ports_at_root": True, "front_io_row": guarded, "local_data_tracks": guarded,
             "native_cells_per_leaf": 64, "boundary_terminals_per_leaf": 128,
             "routing_terminals_per_domain": 256, "children_per_cluster": 4,
             "clock_padding_blocks": 160 if guarded else 128,
@@ -130,7 +130,9 @@ def place_compact_cache(graph, *, surface_y=-61, maximum_y=285):
         if identity not in domains or not any(segment["net"] in clocks for segment in domains[identity]["segments"]):
             raise ValueError("compact-cache clock reservation is not a real clock-bearing domain of this complete graph")
     with reserve_clock_space(clocks, policy["clock_padding_blocks"], policy["clock_domain_padding_blocks"]) as applications:
-        placed = place_with_egress(graph, plan, surface_y=surface_y, maximum_y=maximum_y, balance_clocks=False)
+        placed = place_with_egress(graph, plan, surface_y=surface_y, maximum_y=maximum_y,
+                                   balance_clocks=False, front_io_row=policy["front_io_row"],
+                                   local_data_tracks=policy["local_data_tracks"])
     partition_placement.balance_partition_clocks(plan, placed)
     placed.packing["cache_layout_policy"] = dict(policy, clock_reservation_groups=list(applications.values()))
     return plan, placed

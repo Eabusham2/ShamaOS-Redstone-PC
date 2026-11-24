@@ -112,6 +112,45 @@ module tb_soc;
             repeat(6) @(negedge clk);
         end
     endtask
+    task automatic assemble_long_flash_source;
+        integer source_base,binary_base,entry,word_index,byte_index;
+        begin
+            if(!$value$plusargs("long_source_base=%d",source_base))
+                $fatal(1,"missing source file extent");
+            control(9);wait(debug_app==2);settle(); // Files
+            key(3,1);control(4);wait(debug_app==1);settle(); // Z.ASM -> Editor
+            if(`SOC_RAM_MEMORY[(`SHAMA_EDIT_CTX+8)>>2]!=65535)
+                $fatal(1,"maximum-length handoff failed");
+            control(5);repeat(4) control(1);control(4); // Assemble and Save
+            if(dut.u_cpu.regs[8]!=3 || `SOC_RAM_MEMORY[(`SHAMA_EDIT_CTX+48)>>2]!=16380 ||
+               `SOC_RAM_MEMORY[(`SHAMA_EDIT_CTX+64)>>2]!=`SHAMA_EDIT_BUF)
+                $fatal(1,"flash-backed assembly failed to return to its Editor document");
+            for(byte_index=0;byte_index<65535;byte_index=byte_index+1)
+                if(`SOC_RAM_MEMORY[(`SHAMA_EDIT_BUF+byte_index)>>2][(byte_index%4)*8+:8] !==
+                   `SOC_FLASH_MEMORY[(source_base+byte_index)>>2][(byte_index%4)*8+:8])
+                    $fatal(1,"editable source restoration mismatch at byte %d",byte_index);
+            binary_base=-1;
+            for(integer index=0;index<64;index=index+1) begin
+                entry=(`SHAMA_FS_TABLE_FLASH_OFFSET+index*64)>>2;
+                if(`SOC_FLASH_MEMORY[entry][15:0]==16'h0301 &&
+                   `SOC_FLASH_MEMORY[entry+5]==32'h422e5a05 &&
+                   `SOC_FLASH_MEMORY[entry+6][15:0]==16'h4e49) begin
+                    if(`SOC_FLASH_MEMORY[entry+1]!=16380) $fatal(1,"incorrect BIN length");
+                    binary_base=`SOC_FLASH_MEMORY[entry+2]*64;
+                end
+            end
+            if(binary_base<0) $fatal(1,"Z.BIN was not committed");
+            for(word_index=0;word_index<4095;word_index=word_index+1)
+                if(`SOC_FLASH_MEMORY[binary_base+word_index] !==
+                   (word_index==4094 ? 32'h01000000 : 32'd0))
+                    $fatal(1,"bad saved instruction %d",word_index);
+            control(6);wait(debug_app==0);settle();
+            for(word_index=0;word_index<16384;word_index=word_index+1)
+                if(`SOC_RAM_MEMORY[(`SHAMA_EDIT_BUF>>2)+word_index]!==0)
+                    $fatal(1,"source data retained after close at word %d",word_index);
+            $display("SOC FULL FLASH-BACKED ASSEMBLY RESTORE SAVE CLEANUP PASS cycles=%0d",cycles);
+        end
+    endtask
     task automatic create_assemble_run;
         integer source_entry,binary_entry,base,source_data,binary_data;
         begin
@@ -288,6 +327,10 @@ module tb_soc;
         if($test$plusargs("protected_flash")) dismiss_notice(1);
         settle();
         $display("SOC BOOT desktop PASS cycles=%0d",cycles);
+        if($test$plusargs("long_editor_flow")) begin
+            assemble_long_flash_source();
+            $finish;
+        end
         if($test$plusargs("cache_tail_flow")) begin
             execute_across_cache_boundary();
             $finish;

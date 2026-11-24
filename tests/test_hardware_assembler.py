@@ -28,13 +28,13 @@ def test_source_and_output_ranges_stop_at_last_physical_ram_byte(tmp_path):
     assert 'ASSEMBLER PHYSICAL RAM ENDPOINTS PASS' in result.stdout
 
 
-def run_case(binary,tmp_path,source,error=0,line=1):
+def run_case(binary,tmp_path,source,error=0,line=1,*,flash_source=False):
     encoded=source.encode()
     src=tmp_path/'source.hex';expected=tmp_path/'expected.hex'
     src.write_text('\n'.join(f'{b:02x}' for b in encoded)+'\n')
     words=() if error else assemble(source).words
     expected.write_text('\n'.join(f'{w:08x}' for w in words)+'\n')
-    result=subprocess.run(['vvp',str(binary),f'+SRC={src}',f'+EXPECT={expected}',f'+LEN={len(encoded)}',f'+OUT={len(words)*4}',f'+ERROR={error}',f'+LINE={line}'],capture_output=True,text=True,timeout=90)
+    result=subprocess.run(['vvp',str(binary),f'+SRC={src}',f'+EXPECT={expected}',f'+LEN={len(encoded)}',f'+OUT={len(words)*4}',f'+ERROR={error}',f'+LINE={line}',*(['+FLASH_SOURCE'] if flash_source else [])],capture_output=True,text=True,timeout=90)
     assert result.returncode==0,result.stdout+result.stderr
     assert 'ASSEMBLER CASE PASS' in result.stdout
 
@@ -97,7 +97,7 @@ def test_full_source_and_maximum_editor_output_fit_physical_ram(rtl_assembler,tm
     source = ';' + 'x' * (length - len(body) - 2) + '\n' + body
     assert len(source) == length
     assert len(assemble(source).to_bytes()) == 16380
-    run_case(rtl_assembler,tmp_path,source)
+    run_case(rtl_assembler,tmp_path,source,flash_source=length>49152)
 
 
 def test_first_output_word_beyond_editor_capacity_is_rejected(rtl_assembler,tmp_path):

@@ -11,7 +11,6 @@ define NAME_EDIT 0x00002480
 define BIN_NAME 0x00002500
 define TEXT 0x00004000
 define CAPACITY 65535
-define RUN 0x00014000
 define GPU 0x02000000
 define GPU_TEXT 0x020004a0
 define MAGIC 0x5348414d
@@ -34,8 +33,28 @@ LDW r7 r14 8
 LDW r6 r14 16
 LDW r15 r14 24
 STW r14 r0 12
+MOV r1 r10
+LDIS r2 TEXT
+MOV r3 r7
+SYS SYS_FILE_READ
+CMP r2 r0
+BRS.NE .handoff_error
+CMP r1 r7
+BRS.NE .handoff_short
 LEA r8 r0 3
 JMPS .redraw
+.handoff_short
+LEA r2 r0 9
+.handoff_error
+MOV r4 r2
+MOV r1 r10
+SYS SYS_FILE_CLOSE
+MOV r10 r0
+MOV r6 r0
+MOV r7 r0
+MOV r15 r0
+MOV r2 r4
+JMPS .error
 .fresh
 STW r14 r0 20
 STW r14 r0 32
@@ -492,39 +511,74 @@ BRS.NE .type_error
 CALLS .save
 CMP r2 r0
 BRS.NE .error
-; Reuse unused source-buffer tail for normal documents. Long source keeps the
-; separate staging fallback, preserving the full 65,535-byte editing capacity.
-LDIS r3 RUN
+; Short sources leave an aligned output buffer at the end of the text.
+; A long source has just been committed; assemble its flash extent directly.
+; Keep its address in r12 to restore overwritten words before resuming editing.
+LDIS r1 TEXT
+MOV r12 r0
 LDIS r14 49152
 CMP r7 r14
-BRS.GT .assembly_buffer_ready
-LDIS r3 TEXT
-ADD r3 r3 r7
+BRS.GT .assembly_from_file
+ADD r3 r1 r7
 LEA r3 r3 3
 ANDIS r3 0xfffffffc
+JMPS .assembly_buffer_ready
+.assembly_from_file
+MOV r1 r10
+SYS SYS_FILE_STAT
+CMP r2 r7
+BRS.NE .capacity_error
+LEA r3 r0 16
+SHR r1 r1 r3
+LEA r3 r0 8
+SHL r1 r1 r3
+LDI r3 0x01000000
+ADD r1 r1 r3
+MOV r12 r1
+LDIS r3 TEXT
 .assembly_buffer_ready
 LDIS r14 CTX
 STW r14 r3 64
-LDIS r1 TEXT
 MOV r2 r7
 LDIS r4 0x3ffc
+MOV r13 r4
 SYS SYS_ASSEMBLE
 CMP r2 r0
-BRS.NE .error
+BRS.NE .restore_assembly
+MOV r13 r1
 LDIS r14 CTX
 STW r14 r1 48
 CALLS .save_binary
 CMP r2 r0
-BRS.NE .error
+BRS.NE .restore_assembly
 LEA r14 r0 4
 CMP r9 r14
-BRS.EQ .back_edit
+BRS.EQ .restore_assembly
 LDIS r14 CTX
 LDW r2 r14 48
 LDW r1 r14 64
 CALLS .sync
 SYS SYS_RUN_BUFFER
-JMPS .loop
+.restore_assembly
+CMP r12 r0
+BRS.EQ .assembly_result
+; A failed second pass can have written any prefix of the output capacity.
+; Reads from the still-open committed source cannot fail due to flash pressure.
+CMP r13 r0
+BRS.EQ .assembly_result
+LDIS r3 TEXT
+.restore_word
+LDW r1 r12 0
+STW r3 r1 0
+LEA r12 r12 4
+LEA r3 r3 4
+LEA r13 r13 -4
+CMP r13 r0
+BRS.GT .restore_word
+.assembly_result
+CMP r2 r0
+BRS.NE .error
+JMPS .back_edit
 .confirm
 LEA r14 r0 0x15
 CMP r12 r14

@@ -8,10 +8,11 @@ not change production placement or assert runtime acceptance.
 from __future__ import annotations
 
 from dataclasses import dataclass, field, replace
+from functools import partial
 
 from .packed_parent_union import PackedParentUnion
 from shamaos.hardware import partition_placement as base
-from shamaos.hardware.local_router import LocalTile
+from shamaos.hardware.local_router import LocalTile, shorten_data_branches
 from shamaos.hardware.memory import DUST, SUPPORT
 from shamaos.hardware.partition_planner import Graph, audit_plan
 from shamaos.model import Vec3
@@ -54,6 +55,8 @@ class EgressCluster(base.PlacedCluster):
 class _Context(base._Context):
     def __init__(self, plan, surface_y, maximum_y):
         super().__init__(plan, surface_y, maximum_y)
+        self.front_io_row = False
+        self.finalize_tracks = None
         self.port_ancestors = set()
         for entity in plan["entities"]:
             if entity["kind"] != "port":
@@ -67,8 +70,41 @@ class _Context(base._Context):
         return 18 if self.domains[cluster_id] or cluster_id in self.port_ancestors else 0
 
 
+def _front_io_row(context, children):
+    """Arrange port-only leaves along the south face of the one logic child."""
+    ports = [child for child in children if not child.children and child.exposed_ports
+             and not any(tile.physical.cell_types for tile in child.modules.values())]
+    logic = [child for child in children if child not in ports]
+    if len(logic) != 1 or not ports:
+        return None
+    core = logic[0].translated(Vec3(-logic[0].bounds.min.x,
+        context.minimum_y - logic[0].bounds.min.y, -logic[0].bounds.min.z))
+    # Each child has its own clear south stair corridor. All final north-facing
+    # exports sit beyond this row, at the same X span as the core's bus pins.
+    front = core.bounds.max.z + 64 + max(child.bounds.size.z for child in ports)
+    # Keep the I/O leaves outside the exit columns of the core's boundary
+    # bus. Lower pins may need many more southward lanes than the initial
+    # clearance while their neighbors rise through the branch plane.
+    x = max((point.x for point in core.terminals.values()
+             if point.z == core.bounds.max.z), default=core.bounds.min.x) + 64
+    packed = [core]
+    for child in ports:
+        packed.append(child.translated(Vec3(x - child.bounds.min.x,
+            context.minimum_y - child.bounds.min.y, front - child.bounds.max.z)))
+        x += ((child.bounds.size.x + 16 + 15) // 16) * 16
+    return tuple(packed)
+
+
 def _parent(context, cluster_id, children, maximum_y):
     attempts, seen = [], set()
+    if context.front_io_row and cluster_id == context.plan["root_cluster"]:
+        front_row = _front_io_row(context, children)
+        if front_row is not None:
+            packing = {"horizontal_layout": "front-io-row", "io_row_clearance": 64}
+            try:
+                return _connect_parent(context, cluster_id, front_row, maximum_y, packing)
+            except base.PlacementError as error:
+                attempts.append({"horizontal_layout": "front-io-row", "error": str(error)})
     # Facades may need a clear corridor from every child's south face.
     # Fall back to one row with no vertical stacking when the dense options
     # leave a face buried behind another child.
@@ -99,6 +135,10 @@ def _connect_parent(context, cluster_id, children, maximum_y, packing):
                 or (link["sink"]["cluster"] == cluster_id and link["source"]["cluster"] not in child_ids)]
     port_count = sum(len(child.exposed_ports) for child in children)
     apron = 6 * (len(external) + len(children) + port_count + 1) + 16
+    if packing.get("horizontal_layout") == "front-io-row":
+        # The I/O leaves and exterior contacts occupy distinct rows. Their
+        # opposing stairs are checked by the shared escape allocator below.
+        apron = max(96, apron)
     attempts = []
     for _ in range(8):
         placed = _connect_attempt(context, cluster_id, children, maximum_y, packing, apron)
@@ -210,6 +250,8 @@ def _connect_attempt(context, cluster_id, children, maximum_y, packing, apron):
             max_domain_terminals=context.plan["budgets"]["routing_terminals_per_domain"])
     except ValueError as error:
         raise base.PlacementError(f"cluster {cluster_id}, shared graph/facade escape prefixes: {error}") from error
+    if context.finalize_tracks is not None:
+        context.finalize_tracks(tiles)
     expected_shared = {record["position"]: DUST for record in (*shared.values(), *facade_shared.values())}
     expected_shared.update({point.offset(dy=-1): SUPPORT for point in tuple(expected_shared)})
     modules, facade_modules = {}, {}
@@ -230,11 +272,18 @@ def _connect_attempt(context, cluster_id, children, maximum_y, packing, apron):
 
 
 def place_with_egress(graph: Graph, plan: dict, *, surface_y=-61, maximum_y=319,
-                      balance_clocks=True, progress=None) -> EgressCluster:
+                      balance_clocks=True, progress=None, front_io_row=False, local_data_tracks=False) -> EgressCluster:
     audit_plan(graph, plan)
     if not -64 <= surface_y < maximum_y <= 319:
         raise base.PlacementError("invalid above-grass facade height limits")
     context = _Context(plan, surface_y, maximum_y)
+    context.front_io_row = front_io_row
+    if local_data_tracks:
+        clocks = [net for net in plan["signals"] if any(s["pin"] == "C" for s in net["sinks"])]
+        pins = {end["entity"] for net in clocks for end in (net["source"], *net["sinks"])
+                if context.entities[end["entity"]]["kind"] == "port"}
+        context.finalize_tracks = partial(shorten_data_branches,
+            clock_bits={net["bit"] for net in clocks}, clock_port_entities=pins)
 
     def visit(cluster_id, limit):
         cluster = context.clusters[cluster_id]
@@ -242,7 +291,7 @@ def place_with_egress(graph: Graph, plan: dict, *, surface_y=-61, maximum_y=319,
             children = tuple(visit(child, limit - context.route_height(cluster_id)) for child in cluster["children"])
             result = _parent(context, cluster_id, children, limit)
         else:
-            original = base._leaf(context, cluster_id)
+            original = base._leaf(context, cluster_id, finalize_tracks=context.finalize_tracks)
             result = EgressCluster(**vars(original), exposed_ports=dict(original.ports))
             if result.bounds.max.y > limit:
                 raise base.PlacementError("original I/O egress leaves insufficient reserved leaf height")

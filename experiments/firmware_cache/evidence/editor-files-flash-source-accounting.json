@@ -1,0 +1,63 @@
+{
+  "method": "Assemble each tree independently and run shamaos software-usage on its factory image. Occupancy includes loaded kernel, app backing, and its reserved workspace. Heap figures describe capacity available to SYS_ALLOC.",
+  "baseline_commit": "4284b2dba06da6493543afc26faba9fdfbde09ac",
+  "baseline": {
+    "editor": {
+      "executable_bytes": 3476,
+      "workspace_bytes": 66116,
+      "ram_bytes": 69604,
+      "peak_ram_bytes_without_heap": 85988,
+      "peak_ram_percent_without_heap": 87.47151692708333,
+      "available_heap_bytes": 4096,
+      "largest_initial_heap_allocation_bytes": 4096
+    },
+    "files": {
+      "executable_bytes": 3584,
+      "workspace_bytes": 66116,
+      "ram_bytes": 69712,
+      "peak_ram_bytes_without_heap": 69712,
+      "peak_ram_percent_without_heap": 70.91471354166667,
+      "available_heap_bytes": 20480,
+      "largest_initial_heap_allocation_bytes": 16384
+    }
+  },
+  "candidate": {
+    "editor": {
+      "executable_bytes": 3664,
+      "workspace_bytes": 66116,
+      "ram_bytes": 69792,
+      "peak_ram_bytes_without_heap": 69792,
+      "peak_ram_percent_without_heap": 70.99609375,
+      "available_heap_bytes": 20480,
+      "largest_initial_heap_allocation_bytes": 16384
+    },
+    "files": {
+      "executable_bytes": 3604,
+      "workspace_bytes": 8772,
+      "ram_bytes": 12388,
+      "peak_ram_bytes_without_heap": 12388,
+      "peak_ram_percent_without_heap": 12.601725260416666,
+      "available_heap_bytes": 77824,
+      "largest_initial_heap_allocation_bytes": 73728
+    }
+  },
+  "candidate_capacities_bytes": {
+    "ram": 98304,
+    "flash": 204800,
+    "fast": 4096,
+    "vram": 16384,
+    "combined": 323584
+  },
+  "candidate_source_sha256": {
+    "rtl/shama_asm_accel.sv": "56c58f20c0d4fd9e1f12b9a4c6f2e0a7ac1ea0f8015386ded1b91945e730bf74",
+    "rtl/shama_services.sv": "1fe65080ccc2f25803bf302f983b717e676b3af35e184d298029bf14c49b4504",
+    "rtl/shama_boot_params.svh": "673d6d20f5535de56f16c8f9d4645d5fb3a814e3869c231170a085dc457ee225",
+    "src/shamaos/firmware/editor.asm": "60db1249a9b213abe974ffb309e132885347205568fe9f7a1fae5a7cd824ed98",
+    "src/shamaos/firmware/files.asm": "c7276f51a9ef1a07b04d355f20f34c91fb61c88d6504bccdb9367a3b91ca502a",
+    "src/shamaos/memory_map.py": "7b8d7c4b3e36d8eb817f9f5d36d3d4c85e549dd63c8020575ec43a28f31e5cb6",
+    "src/shamaos/software_resources.py": "cee0d8e77b668baadf23ac5756700030a5fdae5435ba78b76391c4e169179f53"
+  },
+  "firmware_image_sha256": "e526a33ebfb155659989a910495db1ed21c93470796bcba47dc972f6a76bbe2a",
+  "stock_peak_before_extra_heap_bytes": 69792,
+  "capacity_decision": "Keep 96 KiB. A fully dirty 65,535-byte document alone occupies 80.0% of 80 KiB. Editor and its resident code occupy about 71.0% of the existing 96 KiB."
+}

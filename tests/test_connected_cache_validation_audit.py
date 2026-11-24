@@ -33,7 +33,7 @@ def test_prepared_cache_can_feed_production_plan_and_independent_evidence_audit(
     assert current_fixture.validate_interface(graph, 4096) == report["interface"]
     assert report["interface"]["host_bits"] == 72 and report["interface"]["memory_nets"] == 77
     policy = cache_policy(graph)
-    assert policy["name"] == "one-bank-cache-root-io-guarded-v2"
+    assert policy["name"] == "one-bank-cache-front-io-guarded-v3"
     # The next stage re-plans with production cache-layout parameters and
     # compares the complete JSON, including the physical-mapping path.
     plan = build_plan(graph, cell_budget=policy["native_cells_per_leaf"],

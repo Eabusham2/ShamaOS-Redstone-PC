@@ -12,6 +12,8 @@ module tb_asm_cases;
     reg [7:0] source[0:65539];
     reg [31:0] expected[0:4095];
     reg [31:0] output_words[0:4095];
+    integer flash_source;
+    reg [31:0] output_base;
     wire [31:0] source_offset=dma_addr-`SHAMA_EDIT_BUF;
     wire [31:0] dma_rdata={source[{source_offset[15:2],2'b00}+3],source[{source_offset[15:2],2'b00}+2],source[{source_offset[15:2],2'b00}+1],source[{source_offset[15:2],2'b00}]};
     integer src_len,expected_len,error_expected,error_line_expected,cycles,i,j,unused;
@@ -19,11 +21,17 @@ module tb_asm_cases;
     always #5 clk=~clk;
     shama_asm_accel dut(.*);
     always @(posedge clk) if(dma_valid && dma_we) begin
-        if(dma_addr<`SHAMA_RUN_STAGING || dma_addr>=`SHAMA_RUN_STAGING+16380 || dma_wstrb!=15)
+        if(dma_flash || dma_addr<output_base || dma_addr>=output_base+16380 || dma_wstrb!=15)
             $fatal(1,"assembler output outside destination: %h",dma_addr);
-        output_words[(dma_addr-`SHAMA_RUN_STAGING)>>2]<=dma_wdata;
+        output_words[(dma_addr-output_base)>>2]<=dma_wdata;
+    end
+    always @(posedge clk) if(dma_valid && !dma_we) begin
+        if(dma_flash!=(flash_source!=0) || dma_addr<`SHAMA_EDIT_BUF || dma_addr>=`SHAMA_EDIT_BUF+src_len)
+            $fatal(1,"wrong source bank or address: flash=%d addr=%h",dma_flash,dma_addr);
     end
     initial begin
+        flash_source=$test$plusargs("FLASH_SOURCE");
+        output_base=flash_source?`SHAMA_EDIT_BUF:`SHAMA_RUN_STAGING;
         unused=$value$plusargs("SRC=%s",source_path);
         unused=$value$plusargs("EXPECT=%s",expected_path);
         unused=$value$plusargs("LEN=%d",src_len);
@@ -36,8 +44,8 @@ module tb_asm_cases;
         if(expected_len>0) $readmemh(expected_path,expected,0,expected_len/4-1);
         repeat(3) @(posedge clk);
         @(negedge clk);rst=0;
-        req_args[31:0]=`SHAMA_EDIT_BUF;req_args[63:32]=src_len;
-        req_args[95:64]=`SHAMA_RUN_STAGING;req_args[127:96]=16380;
+        req_args[31:0]=flash_source?(32'h01000000+`SHAMA_EDIT_BUF):`SHAMA_EDIT_BUF;req_args[63:32]=src_len;
+        req_args[95:64]=output_base;req_args[127:96]=16380;
         req_valid=1;cycles=0;
         while(!req_ready && cycles<3000000) begin @(negedge clk);cycles=cycles+1;end
         if(!req_ready) $fatal(1,"assembler timeout");

@@ -2,7 +2,7 @@
 ; r8 = selected file-table index
 ; r9 = mode: 0 directory list, 1 delete confirm, 2 text viewer, 3 rename,
 ; 4 error, 5 create folder. B goes to the parent, or Desktop at root.
-; r10 = selected metadata low word: [15:8] name length, [7:0] type
+; r10 = selected metadata: [31:16] first flash block, [15:8] name length, [7:0] type
 ; r11 = selected file size
 ; r7 = text-view offset / rename length
 
@@ -25,8 +25,8 @@ define FILE_NAME_PTR 0x00002400
 define RENAME_PTR 0x00002480
 define DIR_PATH 0x00002540
 define EDIT_CTX 0x00002600
-define EDIT_BUF 0x00004000
-; BIN launch and full text viewing are mutually exclusive. Reuse source RAM.
+; Files reads text directly from its validated flash extent. Only a runnable
+; BIN needs RAM here; Editor loads its own writable source after transfer.
 define RUN_BUF 0x00004000
 define EDIT_MAGIC 0x5348414d
 
@@ -351,7 +351,8 @@ CMP r7 r0
 BRS.EQ .redraw
 MOV r13 r7
 DEC r13
-LDIS r14 EDIT_BUF
+LDIS r14 EDIT_CTX
+LDW r14 r14 48
 ADD r14 r14 r13
 LDB r1 r14 0
 LEA r2 r0 10
@@ -360,7 +361,8 @@ BRS.NE .viewer_up_scan_start
 CMP r13 r0
 BRS.EQ .viewer_up_done
 DEC r13
-LDIS r14 EDIT_BUF
+LDIS r14 EDIT_CTX
+LDW r14 r14 48
 ADD r14 r14 r13
 LDB r1 r14 0
 CMP r1 r2
@@ -375,7 +377,8 @@ BRS.EQ .viewer_up_done
 LEA r14 r0 48
 CMP r3 r14
 BRS.GE .viewer_up_done
-LDIS r14 EDIT_BUF
+LDIS r14 EDIT_CTX
+LDW r14 r14 48
 ADD r14 r14 r13
 LDB r1 r14 -1
 LEA r2 r0 10
@@ -394,7 +397,8 @@ MOV r3 r0
 .viewer_down_scan
 CMP r13 r11
 BRS.GE .redraw
-LDIS r14 EDIT_BUF
+LDIS r14 EDIT_CTX
+LDW r14 r14 48
 ADD r14 r14 r13
 LDB r1 r14 0
 INC r13
@@ -561,12 +565,14 @@ BRS.NE .error
 CALLS .open_selected_handle
 CMP r2 r0
 BRS.NE .error
-MOV r1 r15
-LDIS r2 EDIT_BUF
-MOV r3 r11
-SYS SYS_FILE_READ
-CMP r2 r0
-BRS.NE .error
+LEA r2 r0 16
+SHR r1 r10 r2
+LEA r2 r0 8
+SHL r1 r1 r2
+LDI r2 0x01000000
+ADD r1 r1 r2
+LDIS r14 EDIT_CTX
+STW r14 r1 48
 MOV r7 r0
 LEA r9 r0 2
 JMPS .redraw
@@ -589,12 +595,6 @@ BRS.NE .error
 CALLS .open_selected_handle
 CMP r2 r0
 BRS.NE .error
-MOV r1 r15
-LDIS r2 EDIT_BUF
-MOV r3 r11
-SYS SYS_FILE_READ
-CMP r2 r0
-BRS.NE .error
 CALLS .prepare_editor_context
 CMP r2 r0
 BRS.NE .error
@@ -603,10 +603,13 @@ SYS SYS_APP_LAUNCH
 HLT
 
 .run_binary
-; A user binary must fit the executable cache.
+; Keep the normal run-capacity notice without copying an oversized BIN.
 LDIS r13 0x3ffc
 CMP r11 r13
 BRS.GT .too_large
+LDIS r13 8192
+CMP r11 r13
+BRS.GT .launch_binary
 CALLS .open_selected_handle
 CMP r2 r0
 BRS.NE .error
@@ -617,6 +620,7 @@ SYS SYS_FILE_READ
 CMP r2 r0
 BRS.NE .error
 
+.launch_binary
 LDIS r1 RUN_BUF
 MOV r2 r11
 SYS SYS_RUN_BUFFER
@@ -745,7 +749,8 @@ BRS.GE .draw_text_submit
 LEA r14 r0 48
 CMP r3 r14
 BRS.GE .draw_text_submit
-LDIS r13 EDIT_BUF
+LDIS r13 EDIT_CTX
+LDW r13 r13 48
 ADD r13 r13 r5
 LDB r4 r13 0
 INC r5

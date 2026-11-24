@@ -1,6 +1,6 @@
 from pathlib import Path
 import pytest
-from firmware_machine import FirmwareMachine,ROOT
+from firmware_machine import FLASH,FirmwareMachine,ROOT
 from shamaos.flashfs import FileType,ShamaFS
 from shamaos.assembler import assemble
 from shamaos.memory_map import EDIT_BUF, EDIT_CTX, EDIT_NAME, RUN_STAGING, APP_SLOT_BYTES
@@ -66,12 +66,14 @@ def test_editor_reuses_source_tail_without_reducing_full_source_capacity(length,
     machine.settle()
     action(machine, 5 if run else 4)
     src, size, dst, capacity = machine.assembly_requests[-1]
-    assert (src, size, capacity) == (EDIT_BUF, length, 16380)
-    expected_dst = (src + length + 3) & ~3 if length <= 49152 else RUN_STAGING
-    assert dst == expected_dst == machine.word((EDIT_CTX+64))
-    assert dst >= src + size
+    extent = FLASH + fs.stat('large.asm').start_block * fs.block_size
+    assert (src, size, capacity) == (EDIT_BUF if length <= 49152 else extent, length, 16380)
+    expected_dst = (EDIT_BUF + length + 3) & ~3 if length <= 49152 else EDIT_BUF
+    assert dst == expected_dst == machine.word(EDIT_CTX+64)
+    assert EDIT_BUF <= dst <= EDIT_BUF + 65536 - capacity
     assert fs.read_file('large.asm') == source
-    assert bytes(machine.memory[src:src + size]) == source
+    if not run:
+        assert bytes(machine.memory[EDIT_BUF:EDIT_BUF + size]) == source
     assert fs.read_file('large.BIN') == assemble('HLT\n').to_bytes()
     if run:
         assert machine.pending_binary == assemble('HLT\n').to_bytes()
@@ -87,16 +89,21 @@ def test_editor_saves_full_16380_byte_binary_without_reducing_source(length):
     machine = FirmwareMachine('files', fs)
     machine.settle(); machine.event(A)
     machine.load_app('editor'); machine.settle()
+    machine.memory[EDIT_BUF+65535] = 0xa5
     action(machine, 4)
+    assert machine.memory[EDIT_BUF+65535] == 0xa5
     assert machine.regs[8] == 3
     assert fs.read_file('full.asm') == source
     binary = assemble(source.decode()).to_bytes()
     assert len(binary) == 16380 > CACHE_BYTES
     assert fs.read_file('full.BIN') == binary
     src, size, dst, capacity = machine.assembly_requests[-1]
-    assert src == EDIT_BUF and size == length and capacity == 16380
-    assert bytes(machine.memory[src:src+size]) == source
-    assert bytes(machine.memory[dst:dst+len(binary)]) == binary
+    extent = FLASH + fs.stat('full.asm').start_block * fs.block_size
+    assert src == (EDIT_BUF if length <= 49152 else extent)
+    assert size == length and capacity == 16380
+    assert bytes(machine.memory[EDIT_BUF:EDIT_BUF+size]) == source
+    if length <= 49152:
+        assert bytes(machine.memory[dst:dst+len(binary)]) == binary
     assert dst+len(binary) <= RAM_BYTES and len(machine.memory) == RAM_BYTES
 
 
@@ -169,7 +176,7 @@ def test_files_to_editor_preserves_all_shipped_source_and_transfers_owned_handle
     m=FirmwareMachine('files',fs);m.settle();m.event(A)
     assert m.pending_app==1
     assert m.word((EDIT_CTX+8))==len(source)
-    assert bytes(m.memory[EDIT_BUF:EDIT_BUF+len(source)])==source
+    assert not any(m.memory[EDIT_BUF:EDIT_BUF+len(source)])
     handle=m.word(EDIT_CTX)
     assert fs.read_handle(handle,len(source),owner=1)==source
     fs.close_owner(2)
@@ -352,3 +359,134 @@ def test_terminal_rejects_unknown_commands_instead_of_matching_prefixes(command)
     m=FirmwareMachine('terminal');m.settle();m.type(command);m.event(1,13)
     assert m.pending_app is None
     assert m.views[-1][1][0]==1
+
+
+def long_source_editor(source, *, existing_binary=b'last good'):
+    fs = ShamaFS()
+    fs.create_file('long.asm', source, FileType.ASM)
+    fs.create_file('long.BIN', existing_binary, FileType.BIN)
+    machine = FirmwareMachine('files', fs)
+    machine.settle()
+    select_file(machine, 'long.asm')
+    machine.event(A)
+    fs.close_owner(2)
+    machine.load_app('editor')
+    machine.settle()
+    return machine
+
+
+def test_long_dirty_source_uses_relocated_extent_and_protects_adjacent_heap():
+    # The committed source moves on write. Fill its last byte with a real edit,
+    # then check the compiler did not scan the stale pre-save extent.
+    source = b';' + b'x' * 65528 + b'\nHLT\n'
+    machine = long_source_editor(source)
+    old_block = machine.fs.stat('long.asm').start_block
+    machine.regs[15] = len(source)
+    machine.type(';')
+    assert machine.regs[7] == 65535
+    machine.memory[RUN_STAGING:] = b'\xa5' * (RAM_BYTES - RUN_STAGING)
+    action(machine, 4)
+    assert machine.regs[8] == 3 and machine.word(EDIT_CTX+20) == 0
+    new_block = machine.fs.stat('long.asm').start_block
+    assert old_block != new_block
+    assert machine.assembly_requests[-1][0] == FLASH + new_block * machine.fs.block_size
+    assert machine.fs.read_file('long.BIN') == assemble('HLT').to_bytes()
+    assert machine.fs.read_file('long.asm') == bytes(machine.memory[EDIT_BUF:EDIT_BUF+65535]) == source + b';'
+    assert machine.memory[RUN_STAGING:] == b'\xa5' * (RAM_BYTES - RUN_STAGING)
+
+
+@pytest.mark.parametrize('dirty', [True, False])
+def test_long_source_flash_pressure_preserves_previous_binary_and_every_edit(dirty):
+    source = b';' + b'x' * 65525 + b'\nHLT\n'
+    machine = long_source_editor(source)
+    if dirty:
+        machine.regs[15] = len(source)
+        machine.type(';')
+    before = bytes(machine.memory[EDIT_BUF:EDIT_BUF+machine.regs[7]])
+    fs = machine.fs
+    fs.create_file('fill', bytes(fs.write_limit_bytes - fs.used_bytes))
+    assert fs.write_protected
+    action(machine, 4)
+    assert machine.regs[8] == 8 and machine.word(EDIT_CTX+32) != 0
+    assert fs.read_file('long.asm') == source and fs.read_file('long.BIN') == b'last good'
+    assert bytes(machine.memory[EDIT_BUF:EDIT_BUF+machine.regs[7]]) == before
+    assert machine.word(EDIT_CTX+20) == int(dirty)
+    # If source save failed, the assembler never saw the stale extent. If the
+    # output save failed, the successfully assembled prefix was restored.
+    assert bool(machine.assembly_requests) == (not dirty)
+    machine.event(B)
+    machine.event(B)
+    assert machine.regs[8] == 3
+
+
+def test_failed_second_assembly_pass_restores_entire_possible_output_span():
+    source = (b';' + bytes(range(32, 127)) * 690 + b'\nHLT\n')[:65535]
+    machine = long_source_editor(source)
+    from shamaos.isa import SYSCALLS
+    original_syscall = machine.syscall
+
+    def fail_after_partial_output(sid):
+        if sid == SYSCALLS['SYS_ASSEMBLE']:
+            src, length, dst, capacity = machine.regs[1:5]
+            assert src >= FLASH and length == len(source) and dst == EDIT_BUF
+            machine.memory[dst:dst+capacity] = b'\xab' * capacity
+            machine.regs[1:3] = [0, 0x206]
+        else:
+            original_syscall(sid)
+
+    machine.syscall = fail_after_partial_output
+    action(machine, 4)
+    assert machine.word(EDIT_CTX+32) == 0x206
+    assert bytes(machine.memory[EDIT_BUF:EDIT_BUF+len(source)]) == source
+    assert machine.fs.read_file('long.BIN') == b'last good'
+
+
+def test_files_views_final_byte_of_max_document_without_writing_any_source_ram():
+    contents = b'x' * 65532 + b'\nZ!'
+    fs = ShamaFS()
+    fs.create_file('full.txt', contents, FileType.TXT)
+    machine = FirmwareMachine('files', fs)
+    sentinel = b'\xcc' * 65536
+    machine.memory[EDIT_BUF:EDIT_BUF+65536] = sentinel
+    machine.settle()
+    machine.event(A)
+    machine.regs[7] = 65532
+    machine.event(DOWN)
+    assert machine.regs[7] == 65533
+    assert any(data == b'Z!' for _, _, data in machine.draws)
+    assert bytes(machine.memory[EDIT_BUF:EDIT_BUF+65536]) == sentinel
+    machine.event(LEFT)
+    assert machine.pending_app == 1 and bytes(machine.memory[EDIT_BUF:EDIT_BUF+65536]) == sentinel
+    fs.close_owner(2)
+    machine.load_app('editor')
+    machine.settle()
+    assert bytes(machine.memory[EDIT_BUF:EDIT_BUF+65535]) == contents
+    assert machine.memory[EDIT_BUF+65535] == 0xcc
+
+
+@pytest.mark.parametrize('length', [8192, 8196, 16380])
+def test_files_limits_binary_read_to_the_runnable_window(length):
+    from shamaos.isa import SYSCALLS
+    binary = b'abcd' * (length // 4)
+    fs = ShamaFS()
+    fs.create_file('run.bin', binary, FileType.BIN)
+    machine = FirmwareMachine('files', fs)
+    reads, runs = [], []
+    previous = machine.syscall
+
+    def trace(sid):
+        if sid == SYSCALLS['SYS_FILE_READ']:
+            reads.append(tuple(machine.regs[2:4]))
+        if sid == SYSCALLS['SYS_RUN_BUFFER']:
+            runs.append(tuple(machine.regs[1:3]))
+        previous(sid)
+
+    machine.syscall = trace
+    machine.settle()
+    machine.event(A)
+    assert reads == ([(EDIT_BUF, 8192)] if length == 8192 else [])
+    assert runs == [(EDIT_BUF, length)]
+    if length == 8192:
+        assert machine.pending_binary == binary
+    else:
+        assert machine.pending_app == 0 and machine.pending_binary is None

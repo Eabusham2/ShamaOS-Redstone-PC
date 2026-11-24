@@ -123,6 +123,22 @@ def test_boot_edit_dirty_close_shutdown_reboot_and_explorer_handoff(soc_executab
     assert "SOC INTEGRATION PASS" in output, output
 
 
+def test_maximum_flash_source_assembles_saves_restores_and_closes(soc_executable, os_image, tmp_path):
+    fs = ShamaFS.deserialize(os_image.image)
+    # Make room below the filesystem's 95% COW ceiling in this test volume.
+    # Miner still launches from its boot record. All editable sources remain.
+    fs.delete("miner-history.log")
+    fs.delete("miner.bin")
+    body = b"NOP\n" * 4094 + b"HLT\n"
+    source = b";" + b"x" * (65535 - len(body) - 2) + b"\n" + body
+    fs.create_file("Z.ASM", source, FileType.ASM)
+    assert fs.used_bytes + 16384 <= fs.write_limit_bytes
+    offset = fs.stat("Z.ASM").start_block * fs.block_size
+    result = run_soc(soc_executable, fs.serialize(), tmp_path, "+long_editor_flow",
+                     f"+long_source_base={offset}", timeout=1200)
+    assert "SOC FULL FLASH-BACKED ASSEMBLY RESTORE SAVE CLEANUP PASS" in result
+
+
 def test_real_memory_controllers_boot_save_reboot_and_explorer_handoff(
     real_adapter_soc_executable, os_image, tmp_path,
 ):

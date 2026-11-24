@@ -14,7 +14,8 @@ module tb_asm_capacity;
     integer writes=0,reads=0;
     shama_asm_accel dut(.*);
     always @(posedge clk) if(!rst && dma_valid) begin
-        if(dma_flash || dma_addr>=`SHAMA_RAM_BYTES)
+        if(dma_flash != (!dma_we && req_args[31:24]==1) ||
+           dma_addr >= (dma_flash?`SHAMA_FLASH_BYTES:`SHAMA_RAM_BYTES))
             $fatal(1,"assembler escaped physical RAM at%h",dma_addr);
         if(dma_we) begin
             writes<=writes+1;
@@ -49,6 +50,14 @@ module tb_asm_capacity;
         assemble_at(`SHAMA_EDIT_BUF,4,`SHAMA_RAM_BYTES,4,1);
         assemble_at(`SHAMA_EDIT_BUF,4,`SHAMA_RAM_BYTES-4,8,1);
         assemble_at(`SHAMA_EDIT_BUF,4,32'he0000,4,1);
+        assemble_at(32'h01000000+`SHAMA_FLASH_BYTES-4,4,0,4,0);
+        assemble_at(32'h01000000+`SHAMA_FLASH_BYTES-3,4,0,4,1);
+        assemble_at(32'h01000000+`SHAMA_FLASH_BYTES,4,0,4,1);
+        assemble_at(32'h01000000,4,32'h01000000,4,1);
+        assemble_at(32'h02000000,4,0,4,1);
+        assemble_at(32'hffffffff,4,0,4,1);
+        assemble_at(0,4,0,4,1);
+        assemble_at(32'h01000000,4,0,4,0);
         $display("ASSEMBLER PHYSICAL RAM ENDPOINTS PASS");
         $finish;
     end

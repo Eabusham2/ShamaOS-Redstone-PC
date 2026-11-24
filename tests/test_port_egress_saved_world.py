@@ -14,9 +14,7 @@ from test_partition_placement import analyze_pipeline_trace, partition_pipeline_
 from test_port_egress_placement import facade_pipeline
 
 
-@pytest.mark.parametrize("half_period, should_pass", [(512, True), (20, False)])
-def test_saved_facade_matches_dense_engine_at_every_original_and_handoff_pin(
-        facade_pipeline, tmp_path, half_period, should_pass):
+def check_saved_facade(facade_pipeline, tmp_path, half_period, should_pass):
     graph, plan, placed = facade_pipeline
     _, dense_inputs, dense_outputs, steps, expected, delta = partition_pipeline_case(
         graph, plan, placed, half_period, verify_outputs=should_pass)
@@ -58,3 +56,10 @@ def test_saved_facade_matches_dense_engine_at_every_original_and_handoff_pin(
                   original_port_bits=len(placed.ports), facade_handoffs=len(placed.facade_contacts),
                   complete_machine_runtime_verified=False)
     (tmp_path / "saved-facade-runtime.json").write_text(json.dumps(report, indent=2) + "\n")
+    return report
+
+
+@pytest.mark.parametrize("half_period, should_pass", [(512, True), (20, False)])
+def test_saved_facade_matches_dense_engine_at_every_original_and_handoff_pin(
+        facade_pipeline, tmp_path, half_period, should_pass):
+    check_saved_facade(facade_pipeline, tmp_path, half_period, should_pass)

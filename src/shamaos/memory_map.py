@@ -40,11 +40,11 @@ HEAP_PAGE_BYTES = 4096
 HEAP_PAGES = (RAM_BYTES - HEAP_BASE) // HEAP_PAGE_BYTES
 
 # Page reservations include all addresses an app can use later in its lifetime.
-# In particular Editor cannot lend its optional 16 KiB assembly staging to the
-# heap before assembling a long source. Files needs only the shared source span.
+# A committed long source can be scanned from flash by the assembler.
+# Files opens text in place and loads only runnable binaries into RAM.
 APP_HEAP_RESERVED_SPANS = {
-    "editor": ((EDIT_BUF, EDIT_BUFFER_BYTES), (RUN_STAGING, APP_SLOT_BYTES)),
-    "files": ((EDIT_BUF, EDIT_BUFFER_BYTES),),
+    "editor": ((EDIT_BUF, EDIT_BUFFER_BYTES),),
+    "files": ((EDIT_BUF, APP_BACKING_BYTES),),
     "miner": ((MINER_BASE, MINER_WORKSPACE_BYTES),),
     "terminal": ((TERMINAL_BUF, 1024),),
     "settings": ((SETTINGS_BASE, 272),),

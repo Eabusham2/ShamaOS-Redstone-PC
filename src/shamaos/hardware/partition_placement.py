@@ -160,7 +160,7 @@ def _check_domain_isolation(previous: Mapping[Vec3, BlockState], current: Mappin
         raise PlacementError("a bounded domain obstructs another domain's climbing headroom")
 
 
-def _leaf(context: _Context, cluster_id: int) -> PlacedCluster:
+def _leaf(context: _Context, cluster_id: int, *, finalize_tracks=None) -> PlacedCluster:
     cluster = context.clusters[cluster_id]
     if cluster["children"]:
         raise PlacementError("a native leaf cannot own child clusters")
@@ -246,6 +246,8 @@ def _leaf(context: _Context, cluster_id: int) -> PlacedCluster:
             constant_high=tuple(moved.get(point, point) for point in physical.constant_high),
             north_constant_high=tuple(moved[point] for point in physical.north_constant_high))
         tile = LocalTile(physical, {}, {}, 0, origin.y + 15, origin.y + 19)
+    if finalize_tracks is not None:
+        finalize_tracks((tile,))
     states = _literal_states(tile.iter_placements())
     terminals = {name: pins[0] for ports in (tile.physical.input_ports, tile.physical.output_ports)
                  for name, pins in ports.items() if name in boundary_names}

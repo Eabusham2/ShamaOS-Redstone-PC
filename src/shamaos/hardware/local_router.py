@@ -183,6 +183,58 @@ class LocalTile:
                 "clock_repeater_overrides":len(self.overrides)}
 
 
+@dataclass
+class _TrackSpan:
+    tile: LocalTile
+    bit: int
+    left: int
+    right: int
+    z: int
+    south_limit: int
+    terminals: int
+    fixed: bool
+
+
+def shorten_data_branches(tiles: Sequence[LocalTile], clock_bits, clock_port_entities):
+    """Move data trunks closer to their own landings on the existing plane.
+
+    Columns and escape prefixes stay fixed. Each crossing still has four
+    blocks of vertical separation. Overlapping X intervals need four blocks
+    of Z separation, exactly as in the original interval-colored router.
+    Clock trunks and one real northernmost trunk retain the complete
+    geometry envelope used by enclosing routers.
+    """
+    spans = []
+    for tile in tiles:
+        if tile.overrides or tile.clock_delays or tile._balanced_positions:
+            raise ValueError("data branches must be shortened before clock matching")
+        clocks = clock_port_entities if tile.physical.top.startswith("original-io-") else clock_bits
+        for net in tile.physical.nets:
+            endpoints = [tile.escapes[e.pos] for e in (net.source, *net.sinks)]
+            columns = [escape.branch_x for escape in endpoints]
+            z = tile.track_base_z + 4 * tile.tracks[net.bit]
+            spans.append(_TrackSpan(tile, net.bit, min(columns), max(columns), z,
+                min(escape.escape_z for escape in endpoints) - 16, len(endpoints), net.bit in clocks))
+    if not spans:
+        return
+    north = min(spans, key=lambda span: (span.z, not span.fixed, span.terminals))
+    north.fixed = True
+    # Reserve every original route up front. An unrouted signal can always
+    # keep its previous slot. Wider fanouts gain most from a shorter branch.
+    for span in sorted(spans, key=lambda s: -s.terminals * (s.south_limit - s.z)):
+        if span.fixed:
+            continue
+        conflicts = {other.z + delta for other in spans if other is not span
+                     and other.left <= span.right + 2 and span.left <= other.right + 2
+                     for delta in range(-3, 4)}
+        candidate = span.z + 4 * ((span.south_limit - span.z) // 4)
+        while candidate > span.z and candidate in conflicts:
+            candidate -= 4
+        if candidate > span.z:
+            span.z = candidate
+            span.tile.tracks[span.bit] = (candidate - span.tile.track_base_z) // 4
+
+
 def compact_tile(physical: PhysicalNetlist, *, max_cells: int = 64) -> LocalTile:
     """Plan one local domain, explicitly bounded by a caller-visible budget."""
     if max_cells<1:

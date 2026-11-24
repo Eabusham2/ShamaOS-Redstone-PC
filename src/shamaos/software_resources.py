@@ -13,13 +13,13 @@ from .os_image import APP_IDS, APP_SLOT_BYTES, BUNDLE_ORDER, FIRMWARE, OSImage, 
 
 
 # The same fixed reservations are owned/cleared by shama_services.sv.
-# Include the complete source buffer. Editor uses dedicated assembly staging
-# only when the source leaves insufficient room for output in the same buffer.
+# Editor owns its complete editable source. Files reads text from mapped flash
+# and reserves one executable-sized buffer to stage binary launches.
 # These are additional to resident kernel and foreground code bytes.
 APP_WORKSPACE_BYTES = {
     "desktop": 0,
     "editor": 512 + 68 + 65536,
-    "files": 512 + 68 + 65536,
+    "files": 512 + 68 + APP_BACKING_BYTES,
     "miner": MINER_WORKSPACE_BYTES,
     "monitor": 0,
     "terminal": 1024,
@@ -131,8 +131,7 @@ def software_resource_usage(image: OSImage | None = None) -> dict[str, object]:
         cached = min(executable, CACHE_BYTES)
         workspace = APP_WORKSPACE_BYTES[app]
         ram_used = kernel_bytes + executable + workspace
-        extra_staging = APP_SLOT_BYTES if app == "editor" else 0
-        peak_ram = ram_used + extra_staging
+        peak_ram = ram_used
         heap_spans = app_heap_spans(app)
         heap_bytes = sum(size for _, size in heap_spans)
         if peak_ram + heap_bytes > RAM_BYTES or executable > APP_BACKING_BYTES:
@@ -144,7 +143,7 @@ def software_resource_usage(image: OSImage | None = None) -> dict[str, object]:
             "ram_kib": ram_used / 1024,
             "ram_percent": 100 * ram_used / RAM_BYTES,
             "workspace_bytes": workspace,
-            "conditional_assembly_staging_bytes": extra_staging,
+            "conditional_assembly_staging_bytes": 0,
             "peak_ram_bytes_without_heap": peak_ram,
             "peak_ram_percent_without_heap": 100 * peak_ram / RAM_BYTES,
             "available_heap_bytes": heap_bytes,
@@ -161,8 +160,8 @@ def software_resource_usage(image: OSImage | None = None) -> dict[str, object]:
             "vram_shared_reserved_percent": 100 * vram_reserved / VRAM_BYTES,
             "all_memory_pools_used_bytes": combined_used,
             "all_memory_pools_used_percent": 100 * combined_used / combined_capacity,
-            "peak_all_memory_pools_used_bytes_without_heap": combined_used + extra_staging,
-            "peak_all_memory_pools_used_percent_without_heap": 100 * (combined_used + extra_staging) / combined_capacity,
+            "peak_all_memory_pools_used_bytes_without_heap": combined_used,
+            "peak_all_memory_pools_used_percent_without_heap": 100 * combined_used / combined_capacity,
             "installed_flash_attributed_bytes": flash_details["programs"][app]["attributed_bytes"],
             "installed_flash_capacity_percent": flash_details["programs"][app]["capacity_percent"],
         })
@@ -209,8 +208,7 @@ def software_resource_usage(image: OSImage | None = None) -> dict[str, object]:
             "ram_percent": 100 * HEAP_PAGES * HEAP_PAGE_BYTES / RAM_BYTES,
             "page_bytes": HEAP_PAGE_BYTES, "pages": HEAP_PAGES, "maximum_allocations": 16,
             "availability_note": "This is the page arena before per-app workspace exclusions. "
-                                 "Use each app's available_heap_bytes and heap_spans; "
-                                 "Editor staging remains excluded even before assembly begins.",
+                                 "Each app reports its available_heap_bytes and heap_spans.",
         },
         "kernel_bytes": kernel_bytes,
         "flash_details": flash_details,

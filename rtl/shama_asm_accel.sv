@@ -19,6 +19,13 @@ module shama_asm_accel(
     input  logic [31:0]  dma_rdata
 );
     localparam integer MAX_SOURCE=65536;
+    // Read-only mapped flash is also a source for the ordinary two-pass scanner.
+    // The destination stays in RAM. Normalize valid flash pointers for the DMA bus.
+    localparam [31:0] FLASH_BASE=32'h01000000;
+    wire request_flash=req_args[31:24]==FLASH_BASE[31:24];
+    wire [31:0] request_src=request_flash?{8'd0,req_args[23:0]}:req_args[31:0];
+    wire [31:0] source_limit=request_flash?`SHAMA_FLASH_BYTES:`SHAMA_RAM_BYTES;
+    logic source_flash;
     localparam integer MAX_SYMBOLS=128;
     localparam integer MAX_LINE_TOKENS=8;
     localparam integer MAX_TOKEN_CHARS=48;
@@ -531,6 +538,7 @@ module shama_asm_accel(
 
         if((state==ST_READ || state==ST_SKIP_COMMENT || state==ST_SLASH) && scan_pos<src_len) begin
             dma_valid=1;
+            dma_flash=source_flash;
             dma_addr=(src_ptr+scan_pos)&32'hfffffffc;
             case((src_ptr+scan_pos)&3)
                 0:selected_byte=dma_rdata[7:0];
@@ -554,7 +562,7 @@ module shama_asm_accel(
     always_ff @(posedge clk) begin
         if(rst) begin
             state<=ST_IDLE;
-            src_ptr<=0;src_len<=0;dst_ptr<=0;dst_capacity<=0;
+            source_flash<=0;src_ptr<=0;src_len<=0;dst_ptr<=0;dst_capacity<=0;
             scan_pos<=0;out_bytes<=0;pc_words<=0;
             error_code<=0;error_line<=0;
             pass_two<=0;line_no<=0;end_after_line<=0;
@@ -577,7 +585,7 @@ module shama_asm_accel(
 
             case(state)
                 ST_IDLE: if(req_valid) begin
-                    src_ptr<=req_args[31:0];
+                    source_flash<=request_flash;src_ptr<=request_src;
                     src_len<=req_args[63:32];
                     dst_ptr<=req_args[95:64];
                     dst_capacity<=req_args[127:96];
@@ -599,10 +607,10 @@ module shama_asm_accel(
                     def_count<=0;
 
                     if(req_args[63:32]==0 || req_args[63:32]>MAX_SOURCE ||
-                       req_args[31:0]>=`SHAMA_RAM_BYTES || req_args[63:32]>`SHAMA_RAM_BYTES-req_args[31:0] ||
+                       request_src>=source_limit || req_args[63:32]>source_limit-request_src ||
                        req_args[95:64]>=`SHAMA_RAM_BYTES || req_args[127:96]>`SHAMA_RAM_BYTES-req_args[95:64] ||
                        req_args[65:64]!=0 || req_args[127:96]<4 ||
-                       (req_args[31:0]<req_args[95:64]+req_args[127:96] &&
+                       (!request_flash && req_args[31:0]<req_args[95:64]+req_args[127:96] &&
                         req_args[95:64]<req_args[31:0]+req_args[63:32])) begin
                         error_code<=1;
                         error_line<=1;
