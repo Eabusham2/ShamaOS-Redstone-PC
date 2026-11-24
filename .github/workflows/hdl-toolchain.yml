@@ -7,6 +7,8 @@ on:
     paths:
       - .github/workflows/hdl-toolchain.yml
       - tests/mchprs_runtime/**
+      - tests/mchprs_sparse_runtime/**
+      - tools/prepare_mchprs_terrain_registry.py
 
 permissions:
   contents: read
@@ -65,21 +67,79 @@ jobs:
         with:
           name: hdl-tools-linux-x86_64
           path: hdl-tools-linux-x86_64.tar.gz
-          retention-days: 7
+          retention-days: 14
           if-no-files-found: error
 
   redstone-runtime:
     runs-on: ubuntu-24.04
+    env:
+      CARGO_TARGET_DIR: ${{ github.workspace }}/build/runtime-target
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
       - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            build/runtime-target
+          key: shama-export-runtime-${{ runner.os }}-${{ hashFiles('tests/mchprs_runtime/Cargo.lock', 'tests/mchprs_runtime/src/**', 'tests/mchprs_sparse_runtime/Cargo.lock', 'tests/mchprs_sparse_runtime/src/**', 'tests/mchprs_sparse_runtime/native-terrain-registry.patch', 'tests/mchprs_sparse_runtime/pinned-source-provenance.json', 'tools/prepare_mchprs_terrain_registry.py') }}
       - name: Build pinned MCHPRS block-level test harness
         run: cargo build --locked --release --manifest-path tests/mchprs_runtime/Cargo.toml
+      - name: Build saved-world and reference terrain engines
+        run: |
+          cargo build --locked --release --manifest-path tests/mchprs_sparse_runtime/Cargo.toml
+          python - <<'PY'
+          import json
+          import subprocess
+          import sys
+          from pathlib import Path
+          metadata = json.loads(subprocess.check_output([
+              'cargo', 'metadata', '--offline', '--locked', '--format-version', '1',
+              '--manifest-path', 'tests/mchprs_runtime/Cargo.toml',
+          ], text=True))
+          package = next(p for p in metadata['packages'] if p['name'] == 'mchprs_blocks')
+          source = Path(package['manifest_path']).parents[2]
+          subprocess.run([
+              sys.executable, 'tools/prepare_mchprs_terrain_registry.py',
+              '--source', str(source), '--output', 'build/mchprs-terrain', '--build',
+          ], check=True)
+          PY
+      - name: Retain portable Python test dependencies and exact build identity
+        run: |
+          python -m pip download --dest build/python-wheels \
+            'pytest>=8' 'pytest-cov>=5' 'nbtlib>=2,<3' 'setuptools>=69' wheel
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+          paths = sorted(Path('build/runtime-target/release').glob('shama-*'))
+          paths = [p for p in paths if p.is_file() and p.suffix != '.d']
+          required = {'shama-redstone-check', 'shama-sparse-world-check',
+                      'shama-sparse-world-check-terrain', 'shama-dense-world-check-terrain'}
+          assert required == {p.name for p in paths}, 'Missing or unexpected runtime executable'
+          report = {'source_commit': os.environ['GITHUB_SHA'], 'binaries': {
+              p.name: {'sha256': hashlib.sha256(p.read_bytes()).hexdigest(),
+                       'size_bytes': p.stat().st_size} for p in paths}}
+          Path('build/runtime-export.json').write_text(json.dumps(report, indent=2) + '\n')
+          PY
       - uses: actions/upload-artifact@v4
         with:
           name: mchprs-redstone-runtime-linux-x86_64
           path: |
-            tests/mchprs_runtime/target/release/shama-redstone-check
+            build/runtime-target/release/shama-redstone-check
+            build/runtime-target/release/shama-sparse-world-check
+            build/runtime-target/release/shama-sparse-world-check-terrain
+            build/runtime-target/release/shama-dense-world-check-terrain
+            build/runtime-export.json
+            build/python-wheels
+            build/mchprs-terrain/terrain-engine-provenance.json
+            build/mchprs-terrain/native-terrain-registry.patch
             tests/mchprs_runtime/Cargo.lock
-          retention-days: 7
+            tests/mchprs_sparse_runtime/Cargo.lock
+          retention-days: 14
           if-no-files-found: error
