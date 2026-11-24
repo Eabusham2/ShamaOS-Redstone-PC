@@ -219,13 +219,14 @@ jobs:
 
   behavioral-partitions:
     runs-on: ubuntu-24.04
-    # The combined job exceeded its 75-minute limit. Both jobs collect the
-    # same suite; the aggregate gate proves disjoint, exhaustive execution.
+    # The old system batch already took 69.8 minutes. Balance its
+    # lifecycle and remaining cases before adding more complete-system tests.
+    # Every job collects the same suite; the aggregate proves exact coverage.
     timeout-minutes: 75
     strategy:
       fail-fast: false
       matrix:
-        partition: [components, system]
+        partition: [components, system-lifecycle, system-other]
     env:
       PYTHONPATH: src:tests
       SHAMA_MCHPRS_RUNNER: ${{ github.workspace }}/tests/mchprs_runtime/target/release/shama-redstone-check
@@ -312,11 +313,11 @@ jobs:
           retention-days: 14
           if-no-files-found: error
       - name: Archive processor and OS integration results
-        if: always() && matrix.partition == 'system'
+        if: always() && matrix.partition != 'components'
         uses: actions/upload-artifact@v4
         with:
-          name: shamaos-behavior-system-${{ github.sha }}
-          path: build/required/system
+          name: shamaos-behavior-${{ matrix.partition }}-${{ github.sha }}
+          path: build/required/${{ matrix.partition }}
           retention-days: 14
           if-no-files-found: error
 
@@ -326,7 +327,7 @@ jobs:
     if: always()
     timeout-minutes: 10
     steps:
-      - name: Require both measured partitions to finish successfully
+      - name: Require every measured partition to finish successfully
         env:
           PARTITION_RESULT: ${{ needs.behavioral-partitions.result }}
         run: test "$PARTITION_RESULT" = success
@@ -340,8 +341,12 @@ jobs:
           path: build/combined
       - uses: actions/download-artifact@v4
         with:
-          name: shamaos-behavior-system-${{ github.sha }}
-          path: build/combined/required/system
+          name: shamaos-behavior-system-lifecycle-${{ github.sha }}
+          path: build/combined/required/system-lifecycle
+      - uses: actions/download-artifact@v4
+        with:
+          name: shamaos-behavior-system-other-${{ github.sha }}
+          path: build/combined/required/system-other
       - name: Require exact-source exhaustive test coverage and zero skips
         run: >-
           python tools/required_regressions.py verify

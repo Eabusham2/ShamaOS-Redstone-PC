@@ -1,8 +1,8 @@
 """Run disjoint required CI partitions and reject incomplete aggregate coverage.
 
-Both jobs collect the same complete suite before selecting their assigned tests.
+Every job collects the same complete suite before selecting its assigned tests.
 The aggregate gate requires every selected test's setup, call and teardown to
-pass, and proves that both selections cover the exact collected suite once.
+pass, and proves that the selections cover the exact collected suite once.
 """
 from __future__ import annotations
 
@@ -14,13 +14,22 @@ import re
 import subprocess
 import sys
 
-PARTITIONS = ("components", "system")
+PARTITIONS = ("components", "system-lifecycle", "system-other")
 SYSTEM_FILE = "tests/test_soc_integration.py"
 EXCLUDED_FILE = "tests/test_world_blockstates.py"
+LIFECYCLE_TESTS = frozenset({
+    "test_boot_edit_dirty_close_shutdown_reboot_and_explorer_handoff",
+    "test_real_memory_controllers_boot_save_reboot_and_explorer_handoff",
+    "test_real_memory_controllers_assemble_typed_source_and_run_saved_binary",
+    "test_physical_keyboard_source_assembly_runs_saved_binary_and_exits_halted_app",
+})
 
 
 def partition_for(nodeid: str) -> str:
-    return "system" if nodeid.split("::", 1)[0] == SYSTEM_FILE else "components"
+    source, _, test = nodeid.partition("::")
+    if source != SYSTEM_FILE:
+        return "components"
+    return "system-lifecycle" if test.split("[", 1)[0] in LIFECYCLE_TESTS else "system-other"
 
 
 def _unique_strings(value, label: str) -> set[str]:

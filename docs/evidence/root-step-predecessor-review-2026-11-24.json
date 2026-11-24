@@ -1,0 +1,11 @@
+{
+  "original_cells": 43,
+  "premature_pending_pulses": 23,
+  "finite_terminal_count": "0x1fff9",
+  "normal_core_edges": 0,
+  "premature_clear_tick": 22935,
+  "full_world_verified": false,
+  "fresh_native_cases": 3,
+  "archive_sha256": "8fc7fb47a2fda0576cf535de2b06b39ac22425f92dc223ecd6db24fc832aa50b",
+  "scope": "All3 retained STEP native scenarios; proposed repair and whole machine remain unaccepted."
+}

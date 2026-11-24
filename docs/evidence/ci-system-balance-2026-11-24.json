@@ -1,0 +1,25 @@
+{
+  "scope": "Future three-job exhaustive required suite; measured baseline rebalance, not a new whole-world result.",
+  "previous_source": "d85013b4c6cdb7c2ad2fbc4d9ee1da3f5beec52a",
+  "previous_system_tests": 21,
+  "previous_system_seconds": 4188.577,
+  "future_groups": {
+    "system-lifecycle": {
+      "cases": 4,
+      "baseline_case_seconds": 2078.401
+    },
+    "system-other": {
+      "cases": 17,
+      "baseline_case_seconds": 2108.013
+    }
+  },
+  "files_sha256": {
+    ".github/workflows/ci.yml": "df684c2913390c435c1e79e878b860d4bef8f5307f2b078e7b735262fc6cc1d9",
+    "tools/required_regressions.py": "c664dced1e5eb2a7fb0f193d419c7a83147cbf98ea5db03d184c62417fc50bb6",
+    "src/shamaos/release.py": "4063ebd1a6bb3ced588540567237a0b653a4c669fe82c14248a448c69d4948b0",
+    "tests/test_required_regressions.py": "96be4b1ab1ca3e7bf0aa85b967bbe738224fa432b69abf9886668696a5f8c112",
+    "tests/test_release_packaging.py": "396afed4c24aaaadb9020255d38f2fb9be8d5f591b8f31a2cb62e5e6b38e370b",
+    "tests/test_release_ci_artifacts.py": "82ebe9961c21e9bcfd3fccccdaf7e8eee76f0a2ca8208ad62f82539e86cca995"
+  },
+  "complete_machine_runtime_verified": false
+}

@@ -1,0 +1,18 @@
+{
+  "schema": "held-source-candidate-v1",
+  "local_commit": "c0e29395ed50ef6345922c8dd82d2e8a87f7f9f6",
+  "remote_commit": "641784e93e1c786e00dd6ae8666e109a9f036d19",
+  "candidate_tree": "ff5061b4e3ea28ed0b5d98e06f0dd5384d983b68",
+  "apply_base_tree": "8fc2e4055f8d78a201442205ea382351c16d0432",
+  "patch_sha256": "941f8ec7cb79a6f333319e5243b8708400019b5de31669d131f897ed19755ca4",
+  "compressed_patch_sha256": "e40a9e3ca1c9e06ae2af6b841510cfcbdc5b64068ec0181cf857c62f201d1148",
+  "production_promoted": false,
+  "complete_machine_runtime_verified": false,
+  "remaining_faults": [
+    "Old counter midpoint can arrive after reset releases",
+    "STEP feedback and delayed receipt can lose request identity",
+    "Full physical input receiver remains under integration"
+  ],
+  "scope": "Recoverable development source; archived patch is not applied to the production tree.",
+  "independent_patch_tree_reconstruction": "ff5061b4e3ea28ed0b5d98e06f0dd5384d983b68"
+}

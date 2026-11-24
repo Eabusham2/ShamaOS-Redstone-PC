@@ -15,7 +15,8 @@ COMMIT = "a" * 40
 
 
 def reports():
-    nodes = ["tests/test_one.py::test_component", "tests/test_soc_integration.py::test_complete_soc"]
+    nodes = ["tests/test_one.py::test_component", "tests/test_soc_integration.py::test_complete_soc",
+             "tests/test_soc_integration.py::test_real_memory_controllers_boot_save_reboot_and_explorer_handoff"]
     return [{
         "format": "shamaos-required-regressions-v1",
         "source_commit": COMMIT, "partition": part,
@@ -31,8 +32,8 @@ def reports():
 
 def test_full_collection_is_covered_once_and_remains_fixture_scope():
     actual = ci.validate_aggregate(reports(), source_commit=COMMIT)
-    assert actual["tests"] == 2
-    assert actual["partitions"] == {"components": 1, "system": 1}
+    assert actual["tests"] == 3
+    assert actual["partitions"] == {"components": 1, "system-lifecycle": 1, "system-other": 1}
     assert actual["complete_machine_runtime_verified"] is False
 
 
@@ -81,7 +82,9 @@ def fixture_repo(tmp_path, *, skip=False):
         "import pytest\ndef test_a():\n    " + ("pytest.skip('must fail required gate')" if skip else "assert True") + "\n"
     )
     (tests / "test_new.py").write_text("def test_new_file_is_included():\n    assert True\n")
-    (tests / "test_soc_integration.py").write_text("def test_soc():\n    assert True\n")
+    (tests / "test_soc_integration.py").write_text(
+        "def test_soc():\n    assert True\n"
+        "def test_real_memory_controllers_boot_save_reboot_and_explorer_handoff():\n    assert True\n")
     (tests / "test_world_blockstates.py").write_text("raise AssertionError('belongs to separate world backend')\n")
     for args in (
         ["init"], ["add", "."],
@@ -103,10 +106,11 @@ def test_real_pytest_partitions_collect_identical_universe_without_losing_new_fi
         assert result.returncode == 0, result.stdout + result.stderr
         data.append(json.loads((tmp_path / f"build/{part}/report.json").read_text()))
         assert (tmp_path / f"build/{part}/results.xml").is_file()
-    assert data[0]["collected"] == data[1]["collected"]
-    assert ci.validate_aggregate(data, source_commit=head)["tests"] == 3
+    assert all(d["collected"] == data[0]["collected"] for d in data)
+    assert ci.validate_aggregate(data, source_commit=head)["tests"] == 4
     assert len(data[0]["selected"]) == 2
     assert len(data[1]["selected"]) == 1
+    assert len(data[2]["selected"]) == 1
     result = subprocess.run([
         sys.executable, str(helper), "verify", "--reports", "build",
         "--source-commit", head, "--output", "build/aggregate.json",
@@ -154,7 +158,7 @@ def test_junit_merge_checks_real_case_identity_and_retains_legacy_root(tmp_path,
         suite = ET.SubElement(root, "testsuite", tests="1", errors="0", failures="0", skipped="0", name="pytest")
         classname, name = ci.junit_identity(report["selected"][0])
         case = ET.SubElement(suite, "testcase", classname=classname, name=name, time="0.1")
-        if report["partition"] == "system":
+        if report["partition"] == "system-other":
             if damage == "wrong_case": case.set("name", "test_not_the_selected_case")
             elif damage == "missing": suite.remove(case); suite.set("tests", "0")
             elif damage == "duplicate": suite.append(deepcopy(case)); suite.set("tests", "2")
@@ -165,8 +169,8 @@ def test_junit_merge_checks_real_case_identity_and_retains_legacy_root(tmp_path,
     output = tmp_path / "behavioral-results.xml"
     if damage == "none":
         ci.merge_junit(data, tmp_path, output)
-        assert len(ET.parse(output).findall(".//testcase")) == 2
-        assert len(ET.parse(output).findall("./testsuite")) == 2
+        assert len(ET.parse(output).findall(".//testcase")) == 3
+        assert len(ET.parse(output).findall("./testsuite")) == 3
     else:
         with pytest.raises(ValueError):
             ci.merge_junit(data, tmp_path, output)

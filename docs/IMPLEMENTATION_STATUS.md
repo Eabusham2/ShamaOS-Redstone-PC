@@ -7,6 +7,28 @@ feature contract; [VALIDATION.md](VALIDATION.md) defines the evidence required.
 
 ## Current completion work
 
+The [held counter source](../experiments/completion_candidates/README.md) is
+retained for recovery without applying it to the production tree. Joined
+physical tests found an old counter midpoint arriving after reset release,
+and STEP storage losing a request without a real admitted clock pulse.
+The [retained STEP negatives](../experiments/step_control_timing/README.md)
+include a finite counter stop before the predecessor value; root reran all
+three saved worlds and matched the recorded per-tick results. A separate
+[reset-receipt component](../experiments/raw_counter_timing/reset_receipt/README.md)
+passes all 70 tested relative clock phases. Root repeated its positive and
+old failing world and independently checked all 4,022 receiving register
+edges. The actual connected return and new STEP ownership implementation
+remain under repair. These component results do not certify the full machine.
+
+Required CI now assigns the four expensive lifecycle cases and the remaining
+SoC cases to separate jobs. The retained baseline took 2,078.401 and 2,108.013
+seconds respectively; the original combined job took 4,188.577 seconds out of
+its 75-minute limit. All three jobs collect the same complete suite, and the
+aggregate still requires each collected case and every setup/call/teardown
+exactly once with zero skips. The [timing receipt](evidence/ci-system-balance-2026-11-24.json)
+and [80 focused CI/release checks](evidence/root-ci-scheduling-2026-11-24.xml.gz)
+record the scheduling change. The exact revised CI run is still required.
+
 The production startup integration at `d85013b` passed all **thirteen** physical
 synthesis partitions and final reconnection in
 [run 45375342889](https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/45375342889).

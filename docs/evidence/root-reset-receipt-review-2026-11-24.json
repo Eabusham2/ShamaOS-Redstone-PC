@@ -1,0 +1,1292 @@
+{
+  "schema": "independent-reset-receipt-review-v1",
+  "positive": {
+    "scope": "Physical 19/18-cell reset-receipt bridge only; counter return, Step and whole-machine execution remain separate",
+    "source_files": {
+      "matrix.json": {
+        "path": "observed/matrix.json",
+        "sha256": "719fbb0712fcc95aae93150fd0ed033d8af6c6273b2a1c3fa998d8d2bd6b1d44"
+      },
+      "matrix-result.json": {
+        "path": "observed/matrix-result.json",
+        "sha256": "8a4c5f64c563288a6c2c214c20ae6d1b16233e12e8172314f118619b4776452c"
+      },
+      "bridge.json": {
+        "path": "observed/bridge.json",
+        "sha256": "d407f6fb226f9a91a82f7f4c00162a9bf0a2e64854b1a552265675c16795f213"
+      },
+      "world.jsonl": {
+        "path": "observed/world.jsonl",
+        "sha256": "9720e7d9d44029f59c9b5861f5b625806c12e1abc67a9f273e1132679a157b63"
+      }
+    },
+    "ticks": 245645,
+    "transactions": [
+      {
+        "input_rise": 8480,
+        "ticket_change": 8807,
+        "reset_rise": 8815,
+        "matching_response": 10930,
+        "reset_fall": 11510,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 11841,
+        "ticket_change": 12167,
+        "reset_rise": 12176,
+        "matching_response": 14291,
+        "reset_fall": 14940,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 15202,
+        "ticket_change": 15527,
+        "reset_rise": 15537,
+        "matching_response": 17652,
+        "reset_fall": 18230,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 18563,
+        "ticket_change": 18887,
+        "reset_rise": 18898,
+        "matching_response": 21013,
+        "reset_fall": 21660,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 21924,
+        "ticket_change": 22247,
+        "reset_rise": 22259,
+        "matching_response": 24374,
+        "reset_fall": 24950,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 25285,
+        "ticket_change": 25607,
+        "reset_rise": 25620,
+        "matching_response": 27735,
+        "reset_fall": 28380,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 28646,
+        "ticket_change": 28967,
+        "reset_rise": 28981,
+        "matching_response": 31096,
+        "reset_fall": 31670,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 32007,
+        "ticket_change": 32327,
+        "reset_rise": 32342,
+        "matching_response": 34457,
+        "reset_fall": 35100,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 35368,
+        "ticket_change": 35687,
+        "reset_rise": 35703,
+        "matching_response": 37818,
+        "reset_fall": 38390,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 38729,
+        "ticket_change": 39047,
+        "reset_rise": 39064,
+        "matching_response": 41179,
+        "reset_fall": 41820,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 42090,
+        "ticket_change": 42407,
+        "reset_rise": 42425,
+        "matching_response": 44540,
+        "reset_fall": 45110,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 45451,
+        "ticket_change": 45767,
+        "reset_rise": 45786,
+        "matching_response": 47901,
+        "reset_fall": 48540,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 48812,
+        "ticket_change": 49127,
+        "reset_rise": 49147,
+        "matching_response": 51262,
+        "reset_fall": 51830,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 52173,
+        "ticket_change": 52487,
+        "reset_rise": 52508,
+        "matching_response": 54623,
+        "reset_fall": 55260,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 55534,
+        "ticket_change": 55847,
+        "reset_rise": 55869,
+        "matching_response": 57984,
+        "reset_fall": 58620,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 58895,
+        "ticket_change": 59207,
+        "reset_rise": 59230,
+        "matching_response": 61345,
+        "reset_fall": 61980,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 62256,
+        "ticket_change": 62567,
+        "reset_rise": 62591,
+        "matching_response": 64706,
+        "reset_fall": 65340,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 65617,
+        "ticket_change": 65927,
+        "reset_rise": 65952,
+        "matching_response": 68067,
+        "reset_fall": 68700,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 68978,
+        "ticket_change": 69287,
+        "reset_rise": 69313,
+        "matching_response": 71428,
+        "reset_fall": 72060,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 72339,
+        "ticket_change": 72647,
+        "reset_rise": 72674,
+        "matching_response": 74789,
+        "reset_fall": 75420,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 75700,
+        "ticket_change": 76007,
+        "reset_rise": 76035,
+        "matching_response": 78150,
+        "reset_fall": 78780,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 79061,
+        "ticket_change": 79367,
+        "reset_rise": 79396,
+        "matching_response": 81511,
+        "reset_fall": 82140,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 82422,
+        "ticket_change": 82727,
+        "reset_rise": 82757,
+        "matching_response": 84872,
+        "reset_fall": 85500,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 85783,
+        "ticket_change": 86087,
+        "reset_rise": 86118,
+        "matching_response": 88233,
+        "reset_fall": 88860,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 89144,
+        "ticket_change": 89447,
+        "reset_rise": 89479,
+        "matching_response": 91594,
+        "reset_fall": 92220,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 92505,
+        "ticket_change": 92807,
+        "reset_rise": 92840,
+        "matching_response": 94955,
+        "reset_fall": 95580,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 95866,
+        "ticket_change": 96167,
+        "reset_rise": 96201,
+        "matching_response": 98316,
+        "reset_fall": 98940,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 99227,
+        "ticket_change": 99527,
+        "reset_rise": 99562,
+        "matching_response": 101677,
+        "reset_fall": 102300,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 102588,
+        "ticket_change": 102887,
+        "reset_rise": 102923,
+        "matching_response": 105038,
+        "reset_fall": 105660,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 105949,
+        "ticket_change": 106247,
+        "reset_rise": 106284,
+        "matching_response": 108399,
+        "reset_fall": 109020,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 109310,
+        "ticket_change": 109607,
+        "reset_rise": 109645,
+        "matching_response": 111760,
+        "reset_fall": 112380,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 112671,
+        "ticket_change": 112967,
+        "reset_rise": 113006,
+        "matching_response": 115121,
+        "reset_fall": 115740,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 116032,
+        "ticket_change": 116327,
+        "reset_rise": 116367,
+        "matching_response": 118482,
+        "reset_fall": 119100,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 119393,
+        "ticket_change": 119687,
+        "reset_rise": 119728,
+        "matching_response": 121843,
+        "reset_fall": 122460,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 122754,
+        "ticket_change": 123047,
+        "reset_rise": 123089,
+        "matching_response": 125204,
+        "reset_fall": 125820,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 126115,
+        "ticket_change": 126407,
+        "reset_rise": 126450,
+        "matching_response": 128565,
+        "reset_fall": 129180,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 129476,
+        "ticket_change": 129767,
+        "reset_rise": 129811,
+        "matching_response": 131926,
+        "reset_fall": 132540,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 132837,
+        "ticket_change": 133127,
+        "reset_rise": 133172,
+        "matching_response": 135287,
+        "reset_fall": 135900,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 136198,
+        "ticket_change": 136487,
+        "reset_rise": 136533,
+        "matching_response": 138648,
+        "reset_fall": 139260,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 139559,
+        "ticket_change": 139847,
+        "reset_rise": 139894,
+        "matching_response": 142009,
+        "reset_fall": 142620,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 142920,
+        "ticket_change": 143207,
+        "reset_rise": 143255,
+        "matching_response": 145370,
+        "reset_fall": 145980,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 146281,
+        "ticket_change": 146567,
+        "reset_rise": 146616,
+        "matching_response": 148731,
+        "reset_fall": 149340,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 149642,
+        "ticket_change": 149997,
+        "reset_rise": 149977,
+        "matching_response": 152092,
+        "reset_fall": 152700,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 153003,
+        "ticket_change": 153357,
+        "reset_rise": 153338,
+        "matching_response": 155453,
+        "reset_fall": 156060,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 156364,
+        "ticket_change": 156717,
+        "reset_rise": 156699,
+        "matching_response": 158814,
+        "reset_fall": 159420,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 159725,
+        "ticket_change": 160077,
+        "reset_rise": 160060,
+        "matching_response": 162175,
+        "reset_fall": 162780,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 163086,
+        "ticket_change": 163437,
+        "reset_rise": 163421,
+        "matching_response": 165536,
+        "reset_fall": 166140,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 166447,
+        "ticket_change": 166797,
+        "reset_rise": 166782,
+        "matching_response": 168897,
+        "reset_fall": 169500,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 169808,
+        "ticket_change": 170157,
+        "reset_rise": 170143,
+        "matching_response": 172258,
+        "reset_fall": 172860,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 173169,
+        "ticket_change": 173517,
+        "reset_rise": 173504,
+        "matching_response": 175619,
+        "reset_fall": 176220,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 176530,
+        "ticket_change": 176877,
+        "reset_rise": 176865,
+        "matching_response": 178980,
+        "reset_fall": 179580,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 179891,
+        "ticket_change": 180237,
+        "reset_rise": 180226,
+        "matching_response": 182341,
+        "reset_fall": 182940,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 183252,
+        "ticket_change": 183597,
+        "reset_rise": 183587,
+        "matching_response": 185702,
+        "reset_fall": 186300,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 186613,
+        "ticket_change": 186957,
+        "reset_rise": 186948,
+        "matching_response": 189063,
+        "reset_fall": 189660,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 189974,
+        "ticket_change": 190317,
+        "reset_rise": 190309,
+        "matching_response": 192424,
+        "reset_fall": 193020,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 193335,
+        "ticket_change": 193677,
+        "reset_rise": 193670,
+        "matching_response": 195785,
+        "reset_fall": 196380,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 196696,
+        "ticket_change": 197037,
+        "reset_rise": 197031,
+        "matching_response": 199146,
+        "reset_fall": 199740,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 200057,
+        "ticket_change": 200397,
+        "reset_rise": 200392,
+        "matching_response": 202507,
+        "reset_fall": 203100,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 203418,
+        "ticket_change": 203757,
+        "reset_rise": 203753,
+        "matching_response": 205868,
+        "reset_fall": 206460,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 206779,
+        "ticket_change": 207117,
+        "reset_rise": 207114,
+        "matching_response": 209229,
+        "reset_fall": 209820,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 210140,
+        "ticket_change": 210477,
+        "reset_rise": 210475,
+        "matching_response": 212590,
+        "reset_fall": 213180,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 213501,
+        "ticket_change": 213837,
+        "reset_rise": 213836,
+        "matching_response": 215951,
+        "reset_fall": 216540,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 216862,
+        "ticket_change": 217197,
+        "reset_rise": 217197,
+        "matching_response": 219312,
+        "reset_fall": 219900,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 220223,
+        "ticket_change": 220557,
+        "reset_rise": 220558,
+        "matching_response": 222673,
+        "reset_fall": 223330,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 223584,
+        "ticket_change": 223917,
+        "reset_rise": 223919,
+        "matching_response": 226034,
+        "reset_fall": 226620,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 226945,
+        "ticket_change": 227277,
+        "reset_rise": 227280,
+        "matching_response": 229395,
+        "reset_fall": 230050,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 230306,
+        "ticket_change": 230637,
+        "reset_rise": 230641,
+        "matching_response": 232756,
+        "reset_fall": 233340,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 233667,
+        "ticket_change": 233997,
+        "reset_rise": 234002,
+        "matching_response": 236117,
+        "reset_fall": 236770,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 237028,
+        "ticket_change": 237357,
+        "reset_rise": 237363,
+        "matching_response": 239478,
+        "reset_fall": 240060,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 240389,
+        "ticket_change": 240717,
+        "reset_rise": 240724,
+        "matching_response": 242839,
+        "reset_fall": 243490,
+        "stale_response_ticks": 1400
+      }
+    ],
+    "registers": {
+      "issue": {
+        "edges": 3435,
+        "minimum_setup": 21,
+        "minimum_hold": 19
+      },
+      "request_ticket": {
+        "edges": 70,
+        "minimum_setup": 3312,
+        "minimum_hold": 48
+      },
+      "released": {
+        "edges": 517,
+        "minimum_setup": 59,
+        "minimum_hold": 11
+      }
+    },
+    "aperture_violations": [],
+    "capture_mismatches": [],
+    "native_pending_events": 0,
+    "complete_machine_runtime_verified": false
+  },
+  "retained_negative": {
+    "scope": "Physical 19/18-cell reset-receipt bridge only; counter return, Step and whole-machine execution remain separate",
+    "source_files": {
+      "matrix.json": {
+        "path": "issued/matrix.json",
+        "sha256": "7bd8e8f08636eaa63f4ed08e7e2fad30ffe45bf3942582546b37d9720ac23b81"
+      },
+      "matrix-result.json": {
+        "path": "issued/matrix-result.json",
+        "sha256": "825cad682edc8883a6c11e7d12dcdb03618b5a2f32744ac6b9e880a62fe044fe"
+      },
+      "bridge.json": {
+        "path": "issued/bridge.json",
+        "sha256": "10416456a7a53e2bc3674cb5cf89ea07296d5163743a56a2b7c4f994db419837"
+      },
+      "world.jsonl": {
+        "path": "issued/world.jsonl",
+        "sha256": "59aa2d12181acc420ac6cd8c137f7d076528027a7810457756f14a04304ff327"
+      }
+    },
+    "ticks": 245645,
+    "transactions": [
+      {
+        "input_rise": 8480,
+        "ticket_change": 8731,
+        "reset_rise": 8805,
+        "matching_response": 10930,
+        "reset_fall": 11497,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 11841,
+        "ticket_change": 12091,
+        "reset_rise": 12166,
+        "matching_response": 14291,
+        "reset_fall": 14857,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 15202,
+        "ticket_change": 15451,
+        "reset_rise": 15527,
+        "matching_response": 17652,
+        "reset_fall": 18217,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 18563,
+        "ticket_change": 18811,
+        "reset_rise": 18888,
+        "matching_response": 21013,
+        "reset_fall": 21577,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 21924,
+        "ticket_change": 22171,
+        "reset_rise": 22249,
+        "matching_response": 24374,
+        "reset_fall": 24937,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 25285,
+        "ticket_change": 25531,
+        "reset_rise": 25610,
+        "matching_response": 27735,
+        "reset_fall": 28297,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 28646,
+        "ticket_change": 28891,
+        "reset_rise": 28971,
+        "matching_response": 31096,
+        "reset_fall": 31657,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 32007,
+        "ticket_change": 32251,
+        "reset_rise": 32332,
+        "matching_response": 34457,
+        "reset_fall": 35017,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 35368,
+        "ticket_change": 35611,
+        "reset_rise": 35693,
+        "matching_response": 37818,
+        "reset_fall": 38377,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 38729,
+        "ticket_change": 38971,
+        "reset_rise": 39054,
+        "matching_response": 41179,
+        "reset_fall": 41807,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 42090,
+        "ticket_change": 42331,
+        "reset_rise": 42415,
+        "matching_response": 44540,
+        "reset_fall": 45097,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 45451,
+        "ticket_change": 45691,
+        "reset_rise": 45776,
+        "matching_response": 47901,
+        "reset_fall": 48527,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 48812,
+        "ticket_change": 49051,
+        "reset_rise": 49137,
+        "matching_response": 51262,
+        "reset_fall": 51817,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 52173,
+        "ticket_change": 52411,
+        "reset_rise": 52498,
+        "matching_response": 54623,
+        "reset_fall": 55247,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 55534,
+        "ticket_change": 55771,
+        "reset_rise": 55859,
+        "matching_response": 57984,
+        "reset_fall": 58537,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 58895,
+        "ticket_change": 59132,
+        "reset_rise": 59220,
+        "matching_response": 61345,
+        "reset_fall": 61967,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 62256,
+        "ticket_change": 62561,
+        "reset_rise": 62581,
+        "matching_response": 64706,
+        "reset_fall": 65257,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 65617,
+        "ticket_change": 65921,
+        "reset_rise": 65942,
+        "matching_response": 68067,
+        "reset_fall": 68687,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 68978,
+        "ticket_change": 69281,
+        "reset_rise": 69303,
+        "matching_response": 71428,
+        "reset_fall": 71977,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 72339,
+        "ticket_change": 72641,
+        "reset_rise": 72664,
+        "matching_response": 74789,
+        "reset_fall": 75407,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 75700,
+        "ticket_change": 76001,
+        "reset_rise": 76025,
+        "matching_response": 78150,
+        "reset_fall": 78697,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 79061,
+        "ticket_change": 79361,
+        "reset_rise": 79386,
+        "matching_response": 81511,
+        "reset_fall": 82127,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 82422,
+        "ticket_change": 82721,
+        "reset_rise": 82747,
+        "matching_response": 84872,
+        "reset_fall": 85417,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 85783,
+        "ticket_change": 86081,
+        "reset_rise": 86108,
+        "matching_response": 88233,
+        "reset_fall": 88847,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 89144,
+        "ticket_change": 89441,
+        "reset_rise": 89469,
+        "matching_response": 91594,
+        "reset_fall": 92137,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 92505,
+        "ticket_change": 92801,
+        "reset_rise": 92830,
+        "matching_response": 94955,
+        "reset_fall": 95567,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 95866,
+        "ticket_change": 96161,
+        "reset_rise": 96191,
+        "matching_response": 98316,
+        "reset_fall": 98857,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 99227,
+        "ticket_change": 99521,
+        "reset_rise": 99552,
+        "matching_response": 101677,
+        "reset_fall": 102287,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 102588,
+        "ticket_change": 102881,
+        "reset_rise": 102913,
+        "matching_response": 105038,
+        "reset_fall": 105577,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 105949,
+        "ticket_change": 106241,
+        "reset_rise": 106274,
+        "matching_response": 108399,
+        "reset_fall": 109007,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 109310,
+        "ticket_change": 109601,
+        "reset_rise": 109635,
+        "matching_response": 111760,
+        "reset_fall": 112367,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 112671,
+        "ticket_change": 112961,
+        "reset_rise": 112996,
+        "matching_response": 115121,
+        "reset_fall": 115727,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 116032,
+        "ticket_change": 116321,
+        "reset_rise": 116357,
+        "matching_response": 118482,
+        "reset_fall": 119087,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 119393,
+        "ticket_change": 119681,
+        "reset_rise": 119718,
+        "matching_response": 121843,
+        "reset_fall": 122447,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 122754,
+        "ticket_change": 123041,
+        "reset_rise": 123079,
+        "matching_response": 125204,
+        "reset_fall": 125807,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 126115,
+        "ticket_change": 126401,
+        "reset_rise": 126440,
+        "matching_response": 128565,
+        "reset_fall": 129167,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 129476,
+        "ticket_change": 129761,
+        "reset_rise": 129801,
+        "matching_response": 131926,
+        "reset_fall": 132527,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 132837,
+        "ticket_change": 133121,
+        "reset_rise": 133162,
+        "matching_response": 135287,
+        "reset_fall": 135887,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 136198,
+        "ticket_change": 136481,
+        "reset_rise": 136523,
+        "matching_response": 138648,
+        "reset_fall": 139247,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 139559,
+        "ticket_change": 139841,
+        "reset_rise": 139884,
+        "matching_response": 142009,
+        "reset_fall": 142607,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 142920,
+        "ticket_change": 143201,
+        "reset_rise": 143245,
+        "matching_response": 145370,
+        "reset_fall": 145967,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 146281,
+        "ticket_change": 146561,
+        "reset_rise": 146606,
+        "matching_response": 148731,
+        "reset_fall": 149327,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 149642,
+        "ticket_change": 149921,
+        "reset_rise": 149967,
+        "matching_response": 152092,
+        "reset_fall": 152687,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 153003,
+        "ticket_change": 153281,
+        "reset_rise": 153328,
+        "matching_response": 155453,
+        "reset_fall": 156047,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 156364,
+        "ticket_change": 156641,
+        "reset_rise": 156689,
+        "matching_response": 158814,
+        "reset_fall": 159407,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 159725,
+        "ticket_change": 160001,
+        "reset_rise": 160050,
+        "matching_response": 162175,
+        "reset_fall": 162767,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 163086,
+        "ticket_change": 163361,
+        "reset_rise": 163411,
+        "matching_response": 165536,
+        "reset_fall": 166127,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 166447,
+        "ticket_change": 166721,
+        "reset_rise": 166772,
+        "matching_response": 168897,
+        "reset_fall": 169487,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 169808,
+        "ticket_change": 170081,
+        "reset_rise": 170133,
+        "matching_response": 172258,
+        "reset_fall": 172847,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 173169,
+        "ticket_change": 173441,
+        "reset_rise": 173494,
+        "matching_response": 175619,
+        "reset_fall": 176207,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 176530,
+        "ticket_change": 176801,
+        "reset_rise": 176855,
+        "matching_response": 178980,
+        "reset_fall": 179567,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 179891,
+        "ticket_change": 180161,
+        "reset_rise": 180216,
+        "matching_response": 182341,
+        "reset_fall": 182927,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 183252,
+        "ticket_change": 183521,
+        "reset_rise": 183577,
+        "matching_response": 185702,
+        "reset_fall": 186287,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 186613,
+        "ticket_change": 186881,
+        "reset_rise": 186938,
+        "matching_response": 189063,
+        "reset_fall": 189647,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 189974,
+        "ticket_change": 190241,
+        "reset_rise": 190299,
+        "matching_response": 192424,
+        "reset_fall": 193007,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 193335,
+        "ticket_change": 193601,
+        "reset_rise": 193660,
+        "matching_response": 195785,
+        "reset_fall": 196367,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 196696,
+        "ticket_change": 196961,
+        "reset_rise": 197021,
+        "matching_response": 199146,
+        "reset_fall": 199727,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 200057,
+        "ticket_change": 200321,
+        "reset_rise": 200382,
+        "matching_response": 202507,
+        "reset_fall": 203087,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 203418,
+        "ticket_change": 203681,
+        "reset_rise": 203743,
+        "matching_response": 205868,
+        "reset_fall": 206447,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 206779,
+        "ticket_change": 207041,
+        "reset_rise": 207104,
+        "matching_response": 209229,
+        "reset_fall": 209807,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 210140,
+        "ticket_change": 210401,
+        "reset_rise": 210465,
+        "matching_response": 212590,
+        "reset_fall": 213167,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 213501,
+        "ticket_change": 213761,
+        "reset_rise": 213826,
+        "matching_response": 215951,
+        "reset_fall": 216527,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 216862,
+        "ticket_change": 217121,
+        "reset_rise": 217187,
+        "matching_response": 219312,
+        "reset_fall": 219887,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 220223,
+        "ticket_change": 220481,
+        "reset_rise": 220548,
+        "matching_response": 222673,
+        "reset_fall": 223247,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 223584,
+        "ticket_change": 223841,
+        "reset_rise": 223909,
+        "matching_response": 226034,
+        "reset_fall": 226607,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 226945,
+        "ticket_change": 227201,
+        "reset_rise": 227270,
+        "matching_response": 229395,
+        "reset_fall": 229967,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 230306,
+        "ticket_change": 230561,
+        "reset_rise": 230631,
+        "matching_response": 232756,
+        "reset_fall": 233327,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 233667,
+        "ticket_change": 233921,
+        "reset_rise": 233992,
+        "matching_response": 236117,
+        "reset_fall": 236687,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 237028,
+        "ticket_change": 237281,
+        "reset_rise": 237353,
+        "matching_response": 239478,
+        "reset_fall": 240047,
+        "stale_response_ticks": 1400
+      },
+      {
+        "input_rise": 240389,
+        "ticket_change": 240641,
+        "reset_rise": 240714,
+        "matching_response": 242839,
+        "reset_fall": 243407,
+        "stale_response_ticks": 1400
+      }
+    ],
+    "registers": {
+      "issue": {
+        "edges": 3435,
+        "minimum_setup": 0,
+        "minimum_hold": 0
+      },
+      "request_ticket": {
+        "edges": 70,
+        "minimum_setup": 3314,
+        "minimum_hold": 46
+      },
+      "released": {
+        "edges": 529,
+        "minimum_setup": 58,
+        "minimum_hold": 11
+      }
+    },
+    "aperture_violations": [
+      {
+        "register": "issue",
+        "edge": 38923,
+        "setup": 7,
+        "hold": 173
+      },
+      {
+        "register": "issue",
+        "edge": 42283,
+        "setup": 6,
+        "hold": 173
+      },
+      {
+        "register": "issue",
+        "edge": 45643,
+        "setup": 5,
+        "hold": 173
+      },
+      {
+        "register": "issue",
+        "edge": 49003,
+        "setup": 4,
+        "hold": 173
+      },
+      {
+        "register": "issue",
+        "edge": 52363,
+        "setup": 3,
+        "hold": 173
+      },
+      {
+        "register": "issue",
+        "edge": 55723,
+        "setup": 2,
+        "hold": 173
+      },
+      {
+        "register": "issue",
+        "edge": 59083,
+        "setup": 1,
+        "hold": 173
+      },
+      {
+        "register": "issue",
+        "edge": 62443,
+        "setup": 0,
+        "hold": 0
+      },
+      {
+        "register": "issue",
+        "edge": 65803,
+        "setup": 3117,
+        "hold": 1
+      }
+    ],
+    "capture_mismatches": [
+      {
+        "register": "issue",
+        "edge": 59083,
+        "D": true,
+        "Q": false
+      },
+      {
+        "register": "issue",
+        "edge": 62443,
+        "D": true,
+        "Q": false
+      }
+    ],
+    "native_pending_events": 0,
+    "complete_machine_runtime_verified": false
+  },
+  "fresh_native_cases": 2,
+  "status": "bounded-bridge-positive-and-nine-aperture-negative-cases-reproduced",
+  "archive": {
+    "path": "experiments/raw_counter_timing/reset_receipt/bridge-evidence.tar.xz",
+    "bytes": 441900,
+    "sha256": "87de71a9bb031a6731a7914cf94015075002ae1c5a12226503c64f51f27565aa"
+  },
+  "independent_reviewer": {
+    "path": "experiments/raw_counter_timing/reset_receipt/review.py",
+    "sha256": "6e340159797234e3d26d27ee1f12e63fcc082ab935945542a95ebdf73d4fef53"
+  }
+}

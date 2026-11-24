@@ -27,7 +27,8 @@ COMMIT = "a" * 40
 
 def ci_report():
     names = ["world-backend", "rtl", "behavioral-and-redstone",
-             "behavioral-partitions (components)", "behavioral-partitions (system)", "full-physical-synthesis"]
+             "behavioral-partitions (components)", "behavioral-partitions (system-lifecycle)",
+             "behavioral-partitions (system-other)", "full-physical-synthesis"]
     names += [f"test ({os}, {python})" for os in ("ubuntu-24.04", "windows-latest") for python in ("3.11", "3.12")]
     names += list(required_partition_job_names())
     return {"head_sha": COMMIT, "conclusion": "success", "status": "completed",

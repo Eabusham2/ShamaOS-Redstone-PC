@@ -46,7 +46,8 @@ def validate_ci(report: dict, commit: str) -> None:
     _require(bool(jobs) and all(job.get("conclusion") == "success" for job in jobs), "Every required CI job must pass.")
     names = [job["name"] for job in jobs]
     for name in ("world-backend", "rtl", "behavioral-and-redstone",
-                 "behavioral-partitions (components)", "behavioral-partitions (system)", "full-physical-synthesis"):
+                 "behavioral-partitions (components)", "behavioral-partitions (system-lifecycle)",
+                 "behavioral-partitions (system-other)", "full-physical-synthesis"):
         _require(names.count(name) == 1, f"Missing required CI job: {name}")
     expected_platforms = Counter(f"test ({platform}, {version})"
         for platform in ("ubuntu-24.04", "windows-latest") for version in ("3.11", "3.12"))

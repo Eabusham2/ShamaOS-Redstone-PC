@@ -28,7 +28,8 @@ def entry(artifact_id, name):
 
 def workflow(monkeypatch, artifacts):
     names = ["world-backend", "rtl", "behavioral-and-redstone", "full-physical-synthesis",
-             "behavioral-partitions (components)", "behavioral-partitions (system)"]
+             "behavioral-partitions (components)", "behavioral-partitions (system-lifecycle)",
+             "behavioral-partitions (system-other)"]
     names += [f"test ({platform}, {version})" for platform in ("ubuntu-24.04", "windows-latest") for version in ("3.11", "3.12")] + list(required_partition_job_names())
     jobs = [{"name": name, "conclusion": "success"} for name in names]
     run = {"id": 99, "head_sha": COMMIT, "conclusion": "success", "status": "completed",
