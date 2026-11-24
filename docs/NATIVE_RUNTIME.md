@@ -11,6 +11,22 @@ The production capacities remain **200 KiB flash, 96 KiB RAM, 4 KiB cache and
 16 KiB VRAM**. The small fixtures below test loading and circuit behavior; they
 do not replace or reduce those capacities.
 
+## Run the Editor lifecycle across two engine processes
+
+[NATIVE_EDITOR_LIFECYCLE.md](NATIVE_EDITOR_LIFECYCLE.md) documents the integrated
+runner. It first independently checks a complete candidate's physical topology
+and source/engine identity. It then types and saves text, types and assembles a
+program, runs it, shuts down, restores the actual quiescent native snapshot to
+Anvil, and starts a fresh engine process to reopen the text through Files.
+Saved flash repeaters must retain the new files and all installed contents;
+shutdown must clear the full physical cache. Tick budgets must come from
+measurement of the candidate.
+
+The runner's bounded fixtures and rejection tests pass. No complete-machine
+positive execution has passed yet, and this Editor sequence does not satisfy
+the other app, mining, fault, loading and client-view requirements. The full
+release acceptance registry remains empty.
+
 ## Why the stock MCHPRS server needs a separate loading audit
 
 The pinned upstream revision is

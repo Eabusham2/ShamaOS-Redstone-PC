@@ -1,0 +1,57 @@
+{
+  "top": "input_slot_worker",
+  "mapped_sha256": "ad037050778cede0957d6b5e6152c6e1470a81d802ba0e02454f85acbe920d52",
+  "cells": 4087,
+  "by_kind": {
+    "$_NAND_": 1986,
+    "$_NOR_": 1416,
+    "$_NOT_": 450,
+    "DFF": 235
+  },
+  "register_to_register": {
+    "source": "priority_index[2]",
+    "sink": "state[1]",
+    "gate_count": 28,
+    "local_rt": 83
+  },
+  "input_to_register": {
+    "source": "mem_rdata[23]",
+    "sink": "state[3]",
+    "gate_count": 20,
+    "local_rt": 56
+  },
+  "scope": "Zero-wire combinational structural budgets weighted with local native cell delays.",
+  "rtl_sha256": "ecc81ead1eecfe6a3b22e06fe784c32aaa8e14fd7883e2d18d0f49c4a238185f",
+  "simulation": [
+    {
+      "case": "test_fixed_slot_worker_16_Fals0",
+      "result": "WORKER PASS 4164 samples 6795 commands 8782 reads 1165 writes 88276 ticks",
+      "vectors_sha256": "3914e65156bbc503c5d8ceff0d98098fdb38354787a481895a9f8bed5f238759"
+    },
+    {
+      "case": "test_fixed_slot_worker_16_True0",
+      "result": "WORKER PASS 4164 samples 6795 commands 8782 reads 1165 writes 88276 ticks",
+      "vectors_sha256": "3914e65156bbc503c5d8ceff0d98098fdb38354787a481895a9f8bed5f238759"
+    },
+    {
+      "case": "test_fixed_slot_worker_1_False0",
+      "result": "WORKER PASS 1284 samples 2472 commands 1352 reads 189 writes 21513 ticks",
+      "vectors_sha256": "e7996818f889e5e29e15bd4ea59dbe876c0d5ce87d97d5ada71766c78d53e218"
+    },
+    {
+      "case": "test_fixed_slot_worker_2_False0",
+      "result": "WORKER PASS 1476 samples 2753 commands 1754 reads 294 writes 24646 ticks",
+      "vectors_sha256": "f11dc4de3dc2e8300981ef7d6c947f493c956c46e9d9d290711ec568b81fbe20"
+    },
+    {
+      "case": "test_fixed_slot_worker_3_False0",
+      "result": "WORKER PASS 1668 samples 3040 commands 2169 reads 341 writes 27965 ticks",
+      "vectors_sha256": "c0993fe227f53d63e27db3a4e5f0b767542ee6800e6d76fda8907ac1f05239c3"
+    },
+    {
+      "case": "test_fixed_slot_worker_4_False0",
+      "result": "WORKER PASS 1860 samples 3339 commands 2637 reads 417 writes 31974 ticks",
+      "vectors_sha256": "301c799ecc2724ef4eb91c6aa44025c1a88faf7d4ff447a0a95d68427b4630b0"
+    }
+  ]
+}

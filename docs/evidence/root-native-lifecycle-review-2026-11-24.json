@@ -1,0 +1,17 @@
+{
+  "schema": "root-focused-test-receipt-v1",
+  "source_commit": "943c59e",
+  "junit_sha256": "4e768be1453137792b4dca0b1d4a141332b3a6797298037ac0bec33ec78ca437",
+  "junit_file": "root-native-lifecycle-review-2026-11-24.xml.gz",
+  "tests": 81,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "complete_machine_runtime_verified": false,
+  "sources_sha256": {
+    "src/shamaos/native_editor_lifecycle.py": "2b742122cafb07107254f2e78ac210a397be6842581210004797a26a4584ca15",
+    "src/shamaos/native_lifecycle_topology.py": "9a4fcbade4d25ea7e3f5cf245482c9de5a040773704a673f10b773451b60e15e",
+    "tools/run_native_editor_lifecycle.py": "86029f7184e5d7afda0e71df891802c3804cb3ba76f33bc7940e6cf44159f393",
+    "tests/test_native_editor_lifecycle.py": "df300be4b2bf4ff892106ea1d783215186f86a2a993ee821cf90e9f61f5c6343"
+  }
+}

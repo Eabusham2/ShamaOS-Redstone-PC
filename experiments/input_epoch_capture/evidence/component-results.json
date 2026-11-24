@@ -1,0 +1,68 @@
+{
+  "scope": "Native two-DFF sampler plus source/production-mapped isolated decode and compact bank. No production CDC or complete routed input timing claim.",
+  "native_sampler_source_sha256": "19d9b0697c76cb5aa861179709154ac50937765c7639a871ca11412e1fcd6809",
+  "native_result": "matrix-capture.json",
+  "native_cell_traces": "native-cell-delays.json",
+  "toolchain": {
+    "yosys": "0.33 (2584903a060)",
+    "iverilog": "12.0"
+  },
+  "model_random_raw_samples": 109000,
+  "backpressure_model_raw_samples": 26000,
+  "components": [
+    {
+      "top": "input_capture",
+      "mapped_sha256": "6f39dc50a6dc821ae8070fc52eacb8c4f726110f112b23601d58a5e82afd4137",
+      "cells": 534,
+      "by_kind": {
+        "$_NAND_": 84,
+        "$_NOR_": 192,
+        "$_NOT_": 61,
+        "DFF": 197
+      },
+      "register_to_register": {
+        "source": "cols_q[7]",
+        "sink": "decoded_key[0]",
+        "gate_count": 10,
+        "local_rt": 29
+      },
+      "input_to_register": {
+        "source": "rst[0]",
+        "sink": "shift_state[0]",
+        "gate_count": 1,
+        "local_rt": 3
+      },
+      "scope": "Zero-wire combinational structural budgets weighted with local native cell delays.",
+      "rtl_sha256": "e98766cd8f48b40376b9f319458a9cb65a2607d76c1d83d98d157a6ebf4724d9",
+      "source_and_mapped_edges_each": 32430,
+      "vectors_sha256": "6f2f7cab79d0466f925042ccad96ffb9902b4d442992d7856d8d0fc02e5f8f4b"
+    },
+    {
+      "top": "input_window_bank",
+      "mapped_sha256": "3ec7e01e9a5f3306aa501f7c1f5a17397a281fa93bfe2b9aff7fa450774a8a71",
+      "cells": 4362,
+      "by_kind": {
+        "$_NAND_": 2987,
+        "$_NOR_": 557,
+        "$_NOT_": 143,
+        "DFF": 675
+      },
+      "register_to_register": {
+        "source": "next_prefix[16]",
+        "sink": "next_urgent[9]",
+        "gate_count": 11,
+        "local_rt": 31
+      },
+      "input_to_register": {
+        "source": "edges[7]",
+        "sink": "next_urgent[9]",
+        "gate_count": 15,
+        "local_rt": 44
+      },
+      "scope": "Zero-wire combinational structural budgets weighted with local native cell delays.",
+      "rtl_sha256": "6447c1f1756e3eed99507cee584af85862ce5d777d1bfdcc158880882699e3cc",
+      "source_and_mapped_edges_each": 1600,
+      "vectors_sha256": "7adca6f576022c32340ac827506f3ef670c69a5bb995f45bafdf7604ced04e0e"
+    }
+  ]
+}

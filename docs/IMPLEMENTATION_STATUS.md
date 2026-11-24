@@ -7,13 +7,22 @@ feature contract; [VALIDATION.md](VALIDATION.md) defines the evidence required.
 
 ## Current completion work
 
+Checkpoint `99ee940` completed [all 20 standard CI jobs](https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/45340047612).
+That run includes all twelve mapped partitions and reconnection; it does not
+cover the subsequent input repairs or certify complete-cache execution.
+The reviewed production follow-up is `6785ca9`, with archive-only startup
+research in `f7f2755`. A [new complete-cache run](https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/45351382058)
+is bound to `6785ca9`; the [new CI run](https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/45352217215)
+is bound to `f7f2755`. Both require their own completed results.
+
 The `99ee940` full-cache workflow stopped during physical geometry: one clock
 branch needed 36 ticks more delay than its private route could provide. The
 [targeted reservation retry](../experiments/memory_controller_runtime/guarded_clock_reservation/README.md)
 retains the exact mapped graph and extends only the affected routing group.
 It passes full controller placement and matching for all 116 register clocks,
 with 17,597,778 unique controller blocks. This is not a connected-cache chunk
-total or an electrical result. A fresh complete saved-world run remains needed.
+total or an electrical result. The fresh complete saved-world run is underway;
+its electrical stages have not passed yet.
 
 The physical clock now includes a start/stop interlock. Once Power and the
 shutdown hold are low, it settles without pending engine events. Actual-engine
@@ -22,13 +31,15 @@ an active clock remains rejected by the snapshot writer. Its 1,485 blocks fit
 the existing 17-chunk footprint. The full machine must still demonstrate that
 its shutdown logic releases the hold and all other circuits settle.
 
-The [native console helpers](NATIVE_RUNTIME.md) now prepare a real-keyboard
-program scenario, check the Desktop/Editor title pixels, and independently read
-the newly saved source and binary from physical flash repeaters in a closed
-save. Their tests exercise the helpers, real font-rendering path and bounded
-fixtures. These additions do not mean that the complete ShamaOS world has run
-the scenario. The full-world acceptance registry remains empty until that
-separate proof exists.
+The [native Editor lifecycle runner](NATIVE_EDITOR_LIFECYCLE.md) now connects the
+physical console scenarios to shutdown, native snapshot restoration, a fresh
+engine process, and independent flash readback. Its mandatory flow types and
+saves `X.TXT`, types and assembles `Z.ASM`, runs it, powers off, reopens the save,
+and opens `X.TXT` through Files. Source, topology, engine, storage and execution
+records are bound together. Root review passed 81 focused lifecycle, console,
+screen-title, flash and packaging tests with no skips. Bounded native fixtures
+exercise persistence and rejection paths; the complete ShamaOS world has not
+yet passed this flow. The full-world acceptance registry remains empty.
 
 Two additional native timing problems remain under repair. The joined
 power/reset circuit can release reset while raw clock pulses are still in
@@ -126,10 +137,13 @@ These are remaining engineering tasks, not merely pending test executions:
 4. Complete clock/data timing and a loaded/ticking-chunk arrangement remain
    unproved. The existing conservative core divider is not a measured usable
    clock rate; the raw input domain also needs its own physical timing proof.
-5. The complete-world lifecycle runner is not implemented. The empty
-   `release_acceptance._FULL_WORLD_VALIDATORS` registry deliberately prevents
-   fixture evidence or supplied pass labels from publishing a complete world.
-   Packaging scripts exist, but that is not an implemented runtime validator.
+5. The native Editor lifecycle runner is implemented, but its positive run on
+   the complete production world is pending. It does not certify the remaining
+   apps, mining, capacity faults, relocated installation or the client/loading
+   setup. The empty `release_acceptance._FULL_WORLD_VALIDATORS` registry
+   deliberately prevents its bounded fixtures or supplied pass labels from
+   publishing a complete world. Full release acceptance requires those
+   additional measurements on the same finished machine.
 
 A new development build path, `tools/build_bounded_partition.py`, now connects
 the complete bounded planner/placer to native world output. It requires the
@@ -693,9 +707,11 @@ A new release workflow preserves existing assets and collects exact-commit CI
 evidence. It can generate the actual full-world candidate and package a checked
 world ZIP, multi-region Litematica schematic, source/tools, installer and simple
 README. Archive and installation tests cover split downloads, exact state
-readback, safe copied saves and failures. **The full-world acceptance runner is
-still absent, and publication is explicitly blocked until it exists and passes.**
-Hash-valid evidence or a manually supplied pass label cannot certify runtime.
+readback, safe copied saves and failures. The new Editor lifecycle runner covers
+one mandatory sequence, but has not passed on a complete physical computer.
+**Full-world release acceptance is still absent, and publication stays blocked
+until every required flow passes.** Hash-valid bounded evidence or a manually
+supplied pass label cannot certify complete-machine runtime.
 [RELEASES.md](RELEASES.md) records this boundary and the concrete workflow.
 
 The installer revision corrects the Windows shared world lock and preserves

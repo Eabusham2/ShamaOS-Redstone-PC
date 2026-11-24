@@ -1,0 +1,16 @@
+{
+  "revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+  "placement_operations": 9122,
+  "phases": 70,
+  "row_and_col_width_rt": 119,
+  "minimum_simultaneous_data_rt": 113,
+  "minimum_simultaneous_q_rt": 70,
+  "initial_settle_rt": 128,
+  "setup_rt": 8,
+  "hold_rt": 2,
+  "clock_to_q_rt": 7,
+  "minimum_eligible_edges_per_phase": 1,
+  "maximum_eligible_edges_per_phase": 2,
+  "ticks": 29528,
+  "clock_scope": "External empty single-neighbor drive pads. Actual unmodified C pins traced every tick against 35/35."
+}

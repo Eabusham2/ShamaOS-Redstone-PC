@@ -1,0 +1,18 @@
+{
+  "schema": "root-focused-test-receipt-v1",
+  "source_commit": "f455063",
+  "junit_sha256": "cfc7062ab121bf3c190153393533c7f526123564e0cd76882d79e7d7ede658e6",
+  "junit_file": "root-input-worker-review-2026-11-24.xml.gz",
+  "tests": 8,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "complete_machine_runtime_verified": false,
+  "sources_sha256": {
+    "experiments/input_receiver_timing/input_slot_worker.sv": "ecc81ead1eecfe6a3b22e06fe784c32aaa8e14fd7883e2d18d0f49c4a238185f",
+    "experiments/input_receiver_timing/test_worker.py": "b9f188f78ab1b8f15bfdd7b6a829acfb73e8b8efb57f5af84f56e97f1cb11fa9",
+    "experiments/input_receiver_timing/retimed_input_bank.sv": "f972fea306737032a311e0d59693624121e0df33eb45dec9662f142f04137b87",
+    "experiments/input_receiver_timing/retimed_input_capture.sv": "1ba0ff894d7db817efbb3c613a6b5f3a86e079bff6a97f45f5e8b95ef4b854a5",
+    "experiments/input_receiver_timing/test_retimed.py": "eb36c6b5a06a6729dd7b50cd9c8929644c9ff7d8eb703d31be5505b44301b80c"
+  }
+}

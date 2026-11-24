@@ -1,0 +1,22 @@
+{
+  "source_commit": "83ca421da7495ab5eb980ca2e47bc6da4e6335bd",
+  "records": 112143,
+  "variants": {
+    "mode": {
+      "changed_blocks": 3,
+      "stream_sha256": "ad44789eec698c371fa89b7cdb6c41a0945816a191b767e0211b4cbb89d521de"
+    },
+    "power": {
+      "changed_blocks": 1,
+      "stream_sha256": "4beaa08021fd0f894bd3ec3e8baee25cf3e215da178620d001cff075d421d12b"
+    },
+    "both": {
+      "changed_blocks": 4,
+      "stream_sha256": "4e6e27b0193141c21f229e778d87d5013a9de3d4468ab1cdb438cf6eb6eb2484"
+    }
+  },
+  "all_changes_delay_properties_only": true,
+  "new_blocks": 0,
+  "moved_blocks": 0,
+  "scope": "Independent archive replay and complete literal state comparison; no new native engine run."
+}

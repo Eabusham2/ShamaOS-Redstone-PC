@@ -1,0 +1,34 @@
+{
+  "scope": "Existing depth-16 production input, before any proposed credit-based interface. These two simulations compare ACK sampling epochs against the same physical key schedule.",
+  "source_sha256": "7c46dae63ccd9c1ca033b90b3cba8307eb9a7660e004fa49a8f32117d16853b3",
+  "production_mapped_json_sha256": "6fa76d66a784522fa954b606b32d0b63924c5bdaaa8ba8a2cb3fe4ecadd8701c",
+  "production_cells": 21627,
+  "fixture": "ack-credit-equivalence-witness.sv",
+  "fixture_sha256": "622fb2a2fc81b2e373f9aa9632a9ad5889b0aef39e0043d47fb121b4af826ee1",
+  "testbench_top": "ack_credit_equivalence_witness",
+  "tools": [
+    "Yosys 0.33 (2584903a060)",
+    "Icarus Verilog 12.0"
+  ],
+  "replay": {
+    "source": "Compile this fixture and rtl/shama_input.sv with iverilog -g2012 and run vvp.",
+    "mapped": "Use the production JSON-to-Verilog generation in tests/test_input_mapped_snapshots.py. Compile this fixture with that mapped.v and -DSHAMA_INPUT_MAPPED, then run vvp.",
+    "source_result": "ACK CREDIT WITNESS PASS",
+    "mapped_result": "ACK CREDIT WITNESS PASS"
+  },
+  "stimulus": "Reset, queue sixteen individually released A keys, sample a B key and an exact A ACK. A second identical FIFO receives the ACK one rising edge later.",
+  "ack_at_b_press": {
+    "queue_count": 16,
+    "tail_valid": true,
+    "tail_word": "0x4201",
+    "sticky_overflow": false
+  },
+  "ack_one_edge_later": {
+    "queue_count": 15,
+    "tail_valid": false,
+    "tail_word": "0x0000",
+    "sticky_overflow": true
+  },
+  "implication": "A new request/accept protocol needs real producer-side credit or durable reservation of the original ACK epoch. Delaying an already-sampled ACK changes observable queue state.",
+  "complete_machine_runtime_verified": false
+}

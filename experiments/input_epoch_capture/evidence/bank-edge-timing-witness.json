@@ -1,0 +1,16 @@
+{
+  "mapped_sha256": "3ec7e01e9a5f3306aa501f7c1f5a17397a281fa93bfe2b9aff7fa450774a8a71",
+  "destination": "next_urgent[15] D",
+  "old_bit": true,
+  "new_bit": false,
+  "first_change_rt": 44,
+  "optimistic_launch_plus_path_plus_setup_rt": 59,
+  "wire_and_skew_allowance_at_70rt": 11,
+  "gate_delay_model_rt": {
+    "$_NAND_": 3,
+    "$_NOR_": 3,
+    "$_NOT_": 2
+  },
+  "timing_model": "Ideal zero-wire connections, fixed local gate delays, settled prestate.",
+  "native_receiver_timing_verified": false
+}

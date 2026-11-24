@@ -1,0 +1,434 @@
+{
+  "combined_profiles": [
+    "cold",
+    "write",
+    "lead-12",
+    "lead-55",
+    "lead-95",
+    "lead-157",
+    "receiver-idle",
+    "receiver-write",
+    "receiver-out-of-range"
+  ],
+  "complete_machine_runtime_verified": false,
+  "global_clock_skew_verified": false,
+  "members_sha256": {
+    "baseline/functional-check.json": "60ad30304f536c7ae97859a6fcd2aaa989e2294249ebf1dedad9cc408558897c",
+    "baseline/power-cycle-report.json": "b13baa438fe37cbfeb472120914a357ba4810879104f8bf7420a53263b2a9675",
+    "baseline/power-cycle-result.json": "6eda751199937960cff76daa791df4e0faa07621a390da1d3a503e16c5be5f15",
+    "baseline/route-changes.json": "60080c4676fe08c5aa6470746575f52c4f4cc6ba2ae5d6d21a5a5ee3cf78688a",
+    "both/cold-report.json": "a8fd13076e4bf9baf00397b1647db7aa9cd76c7dbba62bd16bb818156609d01c",
+    "both/cold-result.json": "cc8f88685eba18c7e469f3c026901fcc613b693f5c06aad35239ffe3dcfd0e7e",
+    "both/diff.json": "f7c6138d4028d12847589cec2e68c36f03a224b22dd24be274a2348e47969cd8",
+    "both/functional-check.json": "60ad30304f536c7ae97859a6fcd2aaa989e2294249ebf1dedad9cc408558897c",
+    "both/lead-12-report.json": "52ce06e1054d10adbeaf623821e16272610d29be1cf77864da17c92140820444",
+    "both/lead-12-result.json": "d67a073f053b26c07099f283119feb601a5f79d707a0bacad7c345f62f2a42b1",
+    "both/lead-157-report.json": "e4e6b77805210d444bee9157cbee60393991df7aa5486230d989e8160cf4bde2",
+    "both/lead-157-result.json": "f41a88d7fb1baeab01356bd813d652dc2c91df3a900d438747710ab7fcde24c4",
+    "both/lead-55-report.json": "9d215c9807202874167140cb8c35bb10a1a3994032a9e167e5c0164709ba7a33",
+    "both/lead-55-result.json": "f1699af769dc14c782ae366d1db632fc387be8eb4ccdae1ca1eafb0046c84f9a",
+    "both/lead-95-report.json": "f8727b95f71ff65a192bcd00a801c1c4660cdf49f7ca87bd3bd4726b99e27db6",
+    "both/lead-95-result.json": "d8d5f1b4cde985f3411a25559701de106621f4d2ed1ad2add18986425280195b",
+    "both/power-cycle-report.json": "e9d68dc672db4c4f313a65f6b603a76fc0c52c2928a624d13ca669c5d2705914",
+    "both/power-cycle-result.json": "5615f1aa2f94a30ba5659cd07bae29d36b50ee4b1f0d2a26f5f22de55a08f64b",
+    "both/readback.json": "bebb8f162020d8d62cf7aa07552d82e5851b2eb121e2141d3e6617d53db3ecb0",
+    "both/receiver-audit.json": "04e2cbf550b6a6424909e298c1bdc342eeb4a5e5fc716f2efe8ccd1d1a6d59b3",
+    "both/receiver-idle-report.json": "d89fe9969fc6851f8e4b2b560af4337d8564604e7077b0dacd0ebaa7eb25af1d",
+    "both/receiver-idle-result.json": "1e2229d305f59a984fc16d49d2b06bb06d376ea60f3e2a7a8e264151c338510d",
+    "both/receiver-out-of-range-report.json": "dc1d5cf5c504957cf1ef733bb05d68215c428dd8c0aff960ec5d8e50ddba70ab",
+    "both/receiver-out-of-range-result.json": "2e6f1e6721234ae104e9b626cb21c088bc3cdb8edf97a0444424ced13ecd5279",
+    "both/receiver-write-report.json": "c8feea81ab1a7f52abd96aa0086da8e3b12390b63b85dbedb47468b0a977f629",
+    "both/receiver-write-result.json": "4ba1f6079f9adb885bc0b01815b96be94f690343d4474a08f56e94fba557210e",
+    "both/route-changes.json": "b2bc50e098ba3ece77a73835d4c6f00418b97f8ed05ce95e6d9ad142844eeace",
+    "both/stream-changes.json": "755a40893ca4b23d0d7592e883957b936036ec1bf46564bc7bbf10eab8ecc2ac",
+    "both/world/level.dat": "f3429948cefe5d2f1b787d74b6423e3782b8a174fc75f3624af59dfc430dd024",
+    "both/world/region/r.0.0.mca": "116aa1b57787a806f653d271655408578f3351b069b28ddbd3d6c22a48cd167e",
+    "both/world/region/r.1.0.mca": "a034be41282f673409f8cbf4299bb2eefb89e0d4eb2177978a79e3636c6adc0d",
+    "both/world/region/r.10.0.mca": "bfcb0284bcd08f954ea9b653d6ab461c1d959c82f984dd2d8df0f18465efd466",
+    "both/world/region/r.10.1.mca": "5e99b3603ac4ad54a4712775e4bc80dca69a5b6e0d453cd6c69604efd4aa42bf",
+    "both/world/region/r.11.0.mca": "864f7cc115279940cd7d017f676245b20ad9b7594fd19520e58b1a30403fe6c8",
+    "both/world/region/r.2.0.mca": "d1c8a76e8ffa3d822c8f405b15e908fc6d2f64ba46dc985b7bb3715dac3de7f5",
+    "both/world/region/r.3.0.mca": "cb947e2167447748695b27f8d71c2371aae2b11032113e0975ab86dab1f701bc",
+    "both/world/region/r.4.0.mca": "15ac6122b84a08e855fa9dfd8839b098220801b1b10a73df1f7089e239ed7221",
+    "both/world/region/r.5.0.mca": "6330e4c1724fe3fa026ada744abf6f0c4a6ca53bf39db20f5b7e5bd8b2709832",
+    "both/world/region/r.6.0.mca": "50b327ef201d465520cae2a743c989bfc8373f0211469c5c52d4369aba39419f",
+    "both/world/region/r.7.0.mca": "192ea0eb4374b8370330a7da7070f8c68d953ffd3d3fb8863939cdd0b90277a0",
+    "both/world/region/r.8.0.mca": "b6c026c1bc275c2f6892b8610788102fab650a1262ece625dc34c9ae588a086c",
+    "both/world/region/r.9.0.mca": "dcccbac5a3676f09012c04eee30fcc0004002021069a8ec0000f42a2654094d0",
+    "both/world/shamaos/expected.sqlite3": "315d85650171bb1a9810d91dfcf04bdf460d119e97e306a55e2e06713ef5a1d8",
+    "both/world/shamaos/world.json": "294839d1fa103cce35c34e4edf6a5df56c0c45630ecea0b4b7012e1f32e60bfc",
+    "both/write-report.json": "49be870819f60336b8e76895893adc22a76f91b8537682b15f15a0ad4b5038b3",
+    "both/write-result.json": "b1e96b80fb29c400dd9c9ca5268c4e9249f951d562a74824c2373aea6b188c48",
+    "mode/diff.json": "c6687d2ab6675953af52abd67d52517b6aee76f19557736e21761fd491e0526e",
+    "mode/functional-check.json": "60ad30304f536c7ae97859a6fcd2aaa989e2294249ebf1dedad9cc408558897c",
+    "mode/power-cycle-report.json": "4c1ae604ff1402a3f29a4964cf1048d6a364ea0d226568b33c6cd065985542c2",
+    "mode/power-cycle-result.json": "9bcdbd3e4ec3b05190ce3388ea8cf5af0bd047b1e55b4c2972679f5571062a43",
+    "mode/readback.json": "bebb8f162020d8d62cf7aa07552d82e5851b2eb121e2141d3e6617d53db3ecb0",
+    "mode/route-changes.json": "980b9ac55a4834734490c341c5f8250fa9cb2c39b1c187d3626d413b485905a1",
+    "mode/stream-changes.json": "62a4aa5a61ea1602fd5bbce3bec85dafdd3704a2d961bf53578e05ae799cd37c",
+    "power/diff.json": "c276705476ffb9b2f4342e4fa7c577d92a6211a75b213e48e7736489ced116d7",
+    "power/functional-check.json": "60ad30304f536c7ae97859a6fcd2aaa989e2294249ebf1dedad9cc408558897c",
+    "power/power-cycle-report.json": "27bcf410cc4dd9514abf5d15fac7e259cf1b3e1f3a2d6f81d36f2588c37d87f4",
+    "power/power-cycle-result.json": "8181140255051d610f041052b1791ada9d4e759afa1c41ca52225e21360ce588",
+    "power/readback.json": "bebb8f162020d8d62cf7aa07552d82e5851b2eb121e2141d3e6617d53db3ecb0",
+    "power/route-changes.json": "e6e716ea7695d5a71977e02d0c6287d676d4357b3fc7e8472d5d8a4adca65e11",
+    "power/stream-changes.json": "2ad4600e339eb973ac0c93bcc3b979d60f933281b10e02880b25955e77e17399",
+    "scenarios/cold.json": "a1634d2bc3d2d5ee930e77dffe3c2e63fe742f5f82b2ba2c28cb8a3016f4efa6",
+    "scenarios/lead-12.json": "b529e796aa8c6b8f14f2e60ffa4b0f64b9110a0f2c532b433cba6ce293639a35",
+    "scenarios/lead-157.json": "421fa398a2eba68cd98c50095de7ad8a83c3ddb4a7e4ce5e2cedf1b0a4f22811",
+    "scenarios/lead-55.json": "57cbd4822fdbcfaa9b463c6bf2a511f2f8aac0b72a94ce7d3d09e37802af19e6",
+    "scenarios/lead-95.json": "1ebe2b3ff196b070b39e02a6d1b1fce693d6f5b061ab43fa29b6ef72f1e853fa",
+    "scenarios/power-cycle.json": "e3801b5d52f2d44a63e5ccfde2e0eda4d2c81f469c431552e1562dc88dda025b",
+    "scenarios/receiver-idle.json": "4db77dae85de2090f58b58edb47ca04d48223e5d34cd840de558f8b4f967aa3c",
+    "scenarios/receiver-out-of-range.json": "b92ccdd215246480c87e24b6530cb6289362fd2836f0e60eccc48daabc5b1fb3",
+    "scenarios/receiver-write.json": "c5967d931a22fd8fe5126964232fdcc89d172ad7b26e7753daa1be4c55caf1a4",
+    "scenarios/write.json": "1aa72bf749115ef2c0405113d4a7c1b173e4af5d6914c666b75c4e193c820bc7"
+  },
+  "original_archive_sha256": "f27c8a80141ad9f86fdc0254b659dc39cd37df04fcce8bee1ab03e4f67491080",
+  "schema": "nominal-private-route-timing-controls-v1",
+  "source_commit": "370c24df4db7de1d9d34dec6272f40bb90e49a34",
+  "source_joined_sha256": "4be24238530d4294618401ada9f730fcfd3b98387a887c3dfcdde0ee02a22ef5",
+  "unique_private_sinks": {
+    "mode": [
+      1941,
+      "shell_$auto$ff.cc:266:slice$52691",
+      "C"
+    ],
+    "power": [
+      9191,
+      "shell_$auto$ff.cc:266:slice$52688",
+      "D"
+    ]
+  },
+  "variants": {
+    "baseline": {
+      "all_highs_under_reset": true,
+      "core_high_widths": [
+        35
+      ],
+      "core_highs": 136,
+      "pending_ever_high": false,
+      "power_holds": 2,
+      "registers": {
+        "receiver_": {
+          "bank": [
+            4179,
+            1953,
+            []
+          ],
+          "pending": [
+            4496,
+            1604,
+            []
+          ],
+          "state_0": [
+            4223,
+            1686,
+            []
+          ],
+          "state_1": [
+            4184,
+            1587,
+            []
+          ],
+          "state_2": [
+            4187,
+            1741,
+            []
+          ],
+          "write_enable": [
+            4425,
+            1631,
+            []
+          ]
+        },
+        "timing_": {
+          "clock_hold": [
+            69,
+            1,
+            [
+              [
+                15344,
+                13159,
+                1
+              ]
+            ]
+          ],
+          "divided_clock_active": [
+            1,
+            45,
+            [
+              [
+                5290,
+                1,
+                2435
+              ],
+              [
+                10960,
+                1,
+                4595
+              ],
+              [
+                24786,
+                1,
+                2027
+              ]
+            ]
+          ],
+          "power_previous": [
+            63,
+            7,
+            []
+          ],
+          "reset_pulse_received": [
+            60,
+            10,
+            []
+          ],
+          "reset_pulse_request": [
+            30,
+            11,
+            []
+          ]
+        }
+      },
+      "stream_sha256": "f8014cb2b6e715266b9c74aad7cdffd95ad0d921ef3d81d2abcf9be0f6175721"
+    },
+    "both": {
+      "all_highs_under_reset": true,
+      "core_high_widths": [
+        35
+      ],
+      "core_highs": 136,
+      "pending_ever_high": false,
+      "power_holds": 2,
+      "registers": {
+        "receiver_": {
+          "bank": [
+            4179,
+            1953,
+            []
+          ],
+          "pending": [
+            4496,
+            1604,
+            []
+          ],
+          "state_0": [
+            4223,
+            1686,
+            []
+          ],
+          "state_1": [
+            4184,
+            1587,
+            []
+          ],
+          "state_2": [
+            4187,
+            1741,
+            []
+          ],
+          "write_enable": [
+            4425,
+            1631,
+            []
+          ]
+        },
+        "timing_": {
+          "clock_hold": [
+            68,
+            2,
+            []
+          ],
+          "divided_clock_active": [
+            8,
+            38,
+            []
+          ],
+          "power_previous": [
+            63,
+            7,
+            []
+          ],
+          "reset_pulse_received": [
+            60,
+            10,
+            []
+          ],
+          "reset_pulse_request": [
+            30,
+            11,
+            []
+          ]
+        }
+      },
+      "stream_sha256": "4e6e27b0193141c21f229e778d87d5013a9de3d4468ab1cdb438cf6eb6eb2484"
+    },
+    "mode": {
+      "all_highs_under_reset": true,
+      "core_high_widths": [
+        35
+      ],
+      "core_highs": 136,
+      "pending_ever_high": false,
+      "power_holds": 2,
+      "registers": {
+        "receiver_": {
+          "bank": [
+            4179,
+            1953,
+            []
+          ],
+          "pending": [
+            4496,
+            1604,
+            []
+          ],
+          "state_0": [
+            4223,
+            1686,
+            []
+          ],
+          "state_1": [
+            4184,
+            1587,
+            []
+          ],
+          "state_2": [
+            4187,
+            1741,
+            []
+          ],
+          "write_enable": [
+            4425,
+            1631,
+            []
+          ]
+        },
+        "timing_": {
+          "clock_hold": [
+            69,
+            1,
+            [
+              [
+                15344,
+                13159,
+                1
+              ]
+            ]
+          ],
+          "divided_clock_active": [
+            8,
+            38,
+            []
+          ],
+          "power_previous": [
+            63,
+            7,
+            []
+          ],
+          "reset_pulse_received": [
+            60,
+            10,
+            []
+          ],
+          "reset_pulse_request": [
+            30,
+            11,
+            []
+          ]
+        }
+      },
+      "stream_sha256": "ad44789eec698c371fa89b7cdb6c41a0945816a191b767e0211b4cbb89d521de"
+    },
+    "power": {
+      "all_highs_under_reset": true,
+      "core_high_widths": [
+        35
+      ],
+      "core_highs": 136,
+      "pending_ever_high": false,
+      "power_holds": 2,
+      "registers": {
+        "receiver_": {
+          "bank": [
+            4179,
+            1953,
+            []
+          ],
+          "pending": [
+            4496,
+            1604,
+            []
+          ],
+          "state_0": [
+            4223,
+            1686,
+            []
+          ],
+          "state_1": [
+            4184,
+            1587,
+            []
+          ],
+          "state_2": [
+            4187,
+            1741,
+            []
+          ],
+          "write_enable": [
+            4425,
+            1631,
+            []
+          ]
+        },
+        "timing_": {
+          "clock_hold": [
+            68,
+            2,
+            []
+          ],
+          "divided_clock_active": [
+            1,
+            45,
+            [
+              [
+                5290,
+                1,
+                2435
+              ],
+              [
+                10960,
+                1,
+                4595
+              ],
+              [
+                24786,
+                1,
+                2027
+              ]
+            ]
+          ],
+          "power_previous": [
+            63,
+            7,
+            []
+          ],
+          "reset_pulse_received": [
+            60,
+            10,
+            []
+          ],
+          "reset_pulse_request": [
+            30,
+            11,
+            []
+          ]
+        }
+      },
+      "stream_sha256": "4beaa08021fd0f894bd3ec3e8baee25cf3e215da178620d001cff075d421d12b"
+    }
+  },
+  "zip_sha256": "e07983c3b675e7531875fe13892d14d15b9de020f94dca72cef6efda83120254"
+}

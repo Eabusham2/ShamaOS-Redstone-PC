@@ -1,0 +1,15 @@
+# Input storage and timing comparison
+
+A four-lane physical receiver exposes the cost of broadcasting registered payload data to independent writable records. The ordinary receiver synthesizes one shared launch register and four independent enable-controlled registers. Its 21-cell compact tile has a balanced physical clock, 13,852 placement operations and zero observed clock skew. At 70 RT the actual native receiver missed 18 of 56 expected transfers. The same emitted tile passed the 280-RT sequence.
+
+The passive receiver uses the production oscillator, native capture registers and a four-row bank of locked repeaters. Registered row selects and a low-phase subtract comparator qualify each write. The fixture drives different patterns into both ends of a real 32-bit row and verifies that adjacent unselected rows retain their values. The actual oscillator, launch clocks, row-select clocks, local write phases, near/far data, lock and stored bits are all observed. Both ends of a 16-row, 32-bit bank passed 102 sampled epochs with at least 65 RT of data setup and 2 RT of data hold around observed lock closure. Six extra ticks on the write-enable path corrupt stored values in the four-row comparison. The trace covers the two active data columns. Full-width independent data placement and the core crossing remain open.
+
+```sh
+PYTHONPATH=src:tests:. python -m pytest experiments/input_receiver_timing
+```
+
+The default native test runs four rows. The larger measurements are reproducible by invoking `audit_receiver(receiver(bits,16))` for widths 16 and 32 with the same native runner. Receipts include every local clock's arrival relative to the physical oscillator. The archived component comparison uses Yosys 0.33 and MCHPRS revision f9e10d2572116bf5dcb9a36a305f28e40641a61a.
+
+Retiming computes the epoch's eventful, urgent-present and winning-universal fields alongside its registered payload. Source and mapped tests check these fields against all 32,430 original capture samples and replay the bank's 1,600 pattern sequence. The longest bank input-to-D structural budget under the measured local cell delays falls from 44 RT to 29 RT. The bank still maps to 4,296 cells, including 675 DFFs. The passive receiver remains the preferred storage candidate for a broader physical integration experiment.
+
+The serial worker operates 16 fixed payload slots behind a held ready/valid memory port. Four-bit handles preserve chronological order. ACK scanning stops at the oldest exact 26-bit match, and an overflowing urgent epoch may replace the newest ordinary once. An observation scans for the oldest universal first. The depth-16 controller maps to 4,087 cells including 235 DFFs, plus its external 16-word payload memory. Both source and mapped netlist matched the original queue's selected output and every occupied payload in chronological order on 4,164 samples. The test introduced memory backpressure and checked 8,782 reads and 1,165 writes per depth-16 run. Its longest unrouted register cone is 83 RT before clock-to-Q, routing and setup. It requires a separate qualified service cadence.

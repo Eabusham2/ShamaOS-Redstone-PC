@@ -1,0 +1,254 @@
+{
+  "NAND": {
+    "cases": [
+      {
+        "stimulus": {
+          "A": true,
+          "B": true
+        },
+        "first_observed_output_change_after_ticks": null,
+        "trace": {
+          "A": "111111111111111111111111",
+          "B": "111111111111111111111111",
+          "Y": "110000000000000000000000"
+        }
+      },
+      {
+        "stimulus": {
+          "A": false,
+          "B": true
+        },
+        "first_observed_output_change_after_ticks": 3,
+        "trace": {
+          "A": "000000000000000000000000",
+          "B": "111111111111111111111111",
+          "Y": "001111111111111111111111"
+        }
+      },
+      {
+        "stimulus": {
+          "A": true,
+          "B": true
+        },
+        "first_observed_output_change_after_ticks": 3,
+        "trace": {
+          "A": "111111111111111111111111",
+          "B": "111111111111111111111111",
+          "Y": "110000000000000000000000"
+        }
+      },
+      {
+        "stimulus": {
+          "A": true,
+          "B": false
+        },
+        "first_observed_output_change_after_ticks": 3,
+        "trace": {
+          "A": "111111111111111111111111",
+          "B": "000000000000000000000000",
+          "Y": "001111111111111111111111"
+        }
+      },
+      {
+        "stimulus": {
+          "A": true,
+          "B": true
+        },
+        "first_observed_output_change_after_ticks": 3,
+        "trace": {
+          "A": "111111111111111111111111",
+          "B": "111111111111111111111111",
+          "Y": "110000000000000000000000"
+        }
+      }
+    ],
+    "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+    "engine": "MCHPRS redstone"
+  },
+  "NOR": {
+    "cases": [
+      {
+        "stimulus": {
+          "A": false,
+          "B": false
+        },
+        "first_observed_output_change_after_ticks": null,
+        "trace": {
+          "A": "000000000000000000000000",
+          "B": "000000000000000000000000",
+          "Y": "111111111111111111111111"
+        }
+      },
+      {
+        "stimulus": {
+          "A": true,
+          "B": false
+        },
+        "first_observed_output_change_after_ticks": 3,
+        "trace": {
+          "A": "111111111111111111111111",
+          "B": "000000000000000000000000",
+          "Y": "110000000000000000000000"
+        }
+      },
+      {
+        "stimulus": {
+          "A": false,
+          "B": false
+        },
+        "first_observed_output_change_after_ticks": 3,
+        "trace": {
+          "A": "000000000000000000000000",
+          "B": "000000000000000000000000",
+          "Y": "001111111111111111111111"
+        }
+      },
+      {
+        "stimulus": {
+          "A": false,
+          "B": true
+        },
+        "first_observed_output_change_after_ticks": 3,
+        "trace": {
+          "A": "000000000000000000000000",
+          "B": "111111111111111111111111",
+          "Y": "110000000000000000000000"
+        }
+      },
+      {
+        "stimulus": {
+          "A": false,
+          "B": false
+        },
+        "first_observed_output_change_after_ticks": 3,
+        "trace": {
+          "A": "000000000000000000000000",
+          "B": "000000000000000000000000",
+          "Y": "001111111111111111111111"
+        }
+      }
+    ],
+    "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+    "engine": "MCHPRS redstone"
+  },
+  "NOT": {
+    "cases": [
+      {
+        "stimulus": {
+          "A": false
+        },
+        "first_observed_output_change_after_ticks": null,
+        "trace": {
+          "A": "000000000000000000000000",
+          "Y": "111111111111111111111111"
+        }
+      },
+      {
+        "stimulus": {
+          "A": true
+        },
+        "first_observed_output_change_after_ticks": 2,
+        "trace": {
+          "A": "111111111111111111111111",
+          "Y": "100000000000000000000000"
+        }
+      },
+      {
+        "stimulus": {
+          "A": false
+        },
+        "first_observed_output_change_after_ticks": 2,
+        "trace": {
+          "A": "000000000000000000000000",
+          "Y": "011111111111111111111111"
+        }
+      }
+    ],
+    "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+    "engine": "MCHPRS redstone"
+  },
+  "DFF": {
+    "cases": [
+      {
+        "stimulus": {
+          "D": false,
+          "C": false
+        },
+        "first_observed_output_change_after_ticks": null,
+        "trace": {
+          "C": "000000000000000000000000",
+          "D": "000000000000000000000000",
+          "Q": "000000000000000000000000"
+        }
+      },
+      {
+        "stimulus": {
+          "D": true
+        },
+        "first_observed_output_change_after_ticks": null,
+        "trace": {
+          "C": "000000000000000000000000",
+          "D": "111111111111111111111111",
+          "Q": "000000000000000000000000"
+        }
+      },
+      {
+        "stimulus": {
+          "C": true
+        },
+        "first_observed_output_change_after_ticks": 7,
+        "trace": {
+          "C": "111111111111111111111111",
+          "D": "111111111111111111111111",
+          "Q": "000000111111111111111111"
+        }
+      },
+      {
+        "stimulus": {
+          "C": false
+        },
+        "first_observed_output_change_after_ticks": null,
+        "trace": {
+          "C": "000000000000000000000000",
+          "D": "111111111111111111111111",
+          "Q": "111111111111111111111111"
+        }
+      },
+      {
+        "stimulus": {
+          "D": false
+        },
+        "first_observed_output_change_after_ticks": null,
+        "trace": {
+          "C": "000000000000000000000000",
+          "D": "000000000000000000000000",
+          "Q": "111111111111111111111111"
+        }
+      },
+      {
+        "stimulus": {
+          "C": true
+        },
+        "first_observed_output_change_after_ticks": 7,
+        "trace": {
+          "C": "111111111111111111111111",
+          "D": "000000000000000000000000",
+          "Q": "111111000000000000000000"
+        }
+      },
+      {
+        "stimulus": {
+          "C": false
+        },
+        "first_observed_output_change_after_ticks": null,
+        "trace": {
+          "C": "000000000000000000000000",
+          "D": "000000000000000000000000",
+          "Q": "000000000000000000000000"
+        }
+      }
+    ],
+    "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+    "engine": "MCHPRS redstone"
+  }
+}

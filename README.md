@@ -11,11 +11,14 @@ boot are separate checks. A verified complete ShamaOS Minecraft world has not ye
 been released. See [implementation status](docs/IMPLEMENTATION_STATUS.md) and the
 [requirements and release gates](docs/REQUIREMENTS.md).
 
-The retained 200 KiB checkpoint with all 20 CI jobs green is
-[`1c1b3a1`](https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/43364358101):
-all 20 CI jobs pass, including the required behavioral/redstone job, all twelve
-physical synthesis partitions and final reconnection. Newer work and the remaining complete-world gates are tracked separately
-in the implementation status document.
+The `99ee940` checkpoint passed
+[all 20 CI jobs](https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/45340047612),
+including the behavioral/redstone job, all twelve physical synthesis partitions
+and final reconnection. Its separate complete-cache runtime workflow stopped at
+a physical clock-route shortage. The reviewed fix is in `6785ca9`; a
+[fresh complete-cache run](https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/45351382058)
+and new CI validate the subsequent source separately. Compilation and fixture
+success do not establish complete-world boot.
 
 The owner reopened app/cache optimization on November 13, 2026 (America/Chicago). Shared app routines
 and explicit one-word instruction forms now reduce all nine executables. The
