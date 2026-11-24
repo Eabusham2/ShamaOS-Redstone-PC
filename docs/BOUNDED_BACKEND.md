@@ -1,7 +1,7 @@
 # Opt-in bounded physical backend
 
 The complete-machine generator now has an explicit bounded logic backend. It
-uses the same twelve synthesized modules, mapping choices, and mapped top shell
+uses the same thirteen synthesized modules, mapping choices, and mapped top shell
 as the existing backend. Each complete child graph is partitioned and placed
 with real exterior contacts, and its original bus vectors are connected through
 the existing shell and global routers.
@@ -17,14 +17,21 @@ python -m shamaos generate --world build/bounded-world \
 This command attempts the complete machine and can fail on placement, clock
 matching, routing, height, resources, or native-world validation. It does not
 publish a release, assert a playable machine, or bypass an acceptance gate.
-The full set of twelve bounded partitions has not yet been generated and run
+The full set of thirteen bounded partitions has not yet been generated and run
 as one saved Minecraft computer.
 
 ## Production integration
 
 `system_build._prepare_partitioned_logic` retains the complete synthesis inputs
 and exact shell blackbox inventory. Its bounded branch calls
-`bounded_system.prepare_from_artifacts`; the flat branch remains unchanged.
+`bounded_system.prepare_from_artifacts`. Both backends retain the same named
+startup clock domain; the flat shell embeds that compact child through
+`system_build.place_flat_partition`, also used by synthesis CI.
+That child is checked against the 52,074 block states and 21 named signal
+positions measured in the native engine. Translation and a cell-name-only
+change are allowed when they preserve that complete geometry. A different
+repeater delay, route, gate or signal position requires a new physical timing
+qualification; a matching logic graph alone cannot reuse the measurement.
 The bounded implementation is installable under `src/shamaos` and does not
 import experiment modules.
 

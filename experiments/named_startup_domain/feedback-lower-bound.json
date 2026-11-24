@@ -1,0 +1,32 @@
+{
+  "source_artifact_sha256": "7040d8f59f959773cb32017e73a46e39f61e5835ff1cbc3008db90ddcfeede61",
+  "top": "shama_soc",
+  "default_shell_branch_y": 300,
+  "default_shell_trunk_y": 304,
+  "nearest_relative_trunk_z": -4104,
+  "minimum_relative_escape_z": -1197,
+  "minimum_endpoint_straight_blocks": 2903,
+  "minimum_repeaters_per_end": 290,
+  "minimum_native_to_native_route_ticks": 580,
+  "raw_period_ticks": 70,
+  "same_clock_feedback": [
+    {
+      "register": "time_counter[0]",
+      "route": [
+        "Q",
+        "NOR",
+        "D"
+      ],
+      "minimum_feedback_repeater_ticks": 1160
+    },
+    {
+      "register": "core_div_counter[0]",
+      "route": [
+        "Q",
+        "NOR",
+        "D"
+      ],
+      "minimum_feedback_repeater_ticks": 1160
+    }
+  ]
+}

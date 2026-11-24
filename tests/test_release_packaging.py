@@ -15,7 +15,7 @@ from shamaos.generator import build_plan, load_config, manifest
 from shamaos.hardware.memory import comparator, repeater
 from shamaos.installer import closed_world_lock, extract_ready_world, install_world
 from shamaos.model import BlockState, Placement, Vec3
-from shamaos.release import GATES, validate_candidate, validate_ci
+from shamaos.release import GATES, validate_candidate, validate_ci, required_partition_job_names
 from shamaos.release_acceptance import verify_full_world_acceptance
 from shamaos.release_io import extract_zip, file_inventory, inventory_digest, materialize_asset, split_asset, write_zip
 from shamaos.schematic import export_litematic, verify_litematic
@@ -28,8 +28,8 @@ COMMIT = "a" * 40
 def ci_report():
     names = ["world-backend", "rtl", "behavioral-and-redstone",
              "behavioral-partitions (components)", "behavioral-partitions (system)", "full-physical-synthesis"]
-    names += [f"test ({os}, {python})" for os in ("ubuntu", "windows") for python in ("3.11", "3.12")]
-    names += [f"full-physical-partitions ({i})" for i in range(12)]
+    names += [f"test ({os}, {python})" for os in ("ubuntu-24.04", "windows-latest") for python in ("3.11", "3.12")]
+    names += list(required_partition_job_names())
     return {"head_sha": COMMIT, "conclusion": "success", "status": "completed",
             "path": ".github/workflows/ci.yml", "jobs": [{"name": x, "conclusion": "success"} for x in names]}
 
@@ -324,6 +324,35 @@ def test_ci_gate_requires_exact_commit_and_all_real_jobs():
         modify(bad)
         with pytest.raises(WorldWriteError):
             validate_ci(bad, COMMIT)
+
+
+@pytest.mark.parametrize("kind", ["platform", "partition"])
+@pytest.mark.parametrize("fault", ["duplicate", "invented", "wrong-module"])
+def test_ci_same_job_count_cannot_hide_missing_matrix_entry(kind, fault):
+    report = ci_report()
+    prefix = "test (" if kind == "platform" else "full-physical-partitions ("
+    rows = [job for job in report["jobs"] if job["name"].startswith(prefix)]
+    if fault == "duplicate":
+        rows[-1]["name"] = rows[0]["name"]
+    elif fault == "invented":
+        rows[-1]["name"] = prefix + "unbuilt)"
+    else:
+        rows[-1]["name"] = rows[-1]["name"].replace(
+            "shama_startup_control" if kind == "partition" else "3.12", "wrong-source")
+    with pytest.raises(WorldWriteError, match="distinct|exact production"):
+        validate_ci(report, COMMIT)
+
+
+def test_ci_matrix_covers_the_actual_direct_production_children():
+    import re
+    from shamaos.system_build import PARTITION_SPECS
+
+    workflow = Path(".github/workflows/ci.yml").read_text(encoding="utf-8")
+    section = workflow.split("\n  full-physical-partitions:", 1)[1].split("\n    steps:", 1)[0]
+    entries = re.findall(r"- instance: (\w+)\s+module: (\w+)\s+index: (\d+)", section)
+    assert entries == [(instance, module, str(index))
+                       for index, (instance, module) in enumerate(PARTITION_SPECS)]
+    assert ("u_startup", "shama_startup_control") in PARTITION_SPECS
 
 
 def labeled_candidate(tmp_path):

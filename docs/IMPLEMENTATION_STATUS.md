@@ -45,19 +45,29 @@ screen-title, flash and packaging tests with no skips. Bounded native fixtures
 exercise persistence and rejection paths; the complete ShamaOS world has not
 yet passed this flow. The full-world acceptance registry remains empty.
 
-Two additional native timing problems remain under repair. The joined
-power/reset circuit can release reset while raw clock pulses are still in
-flight; a held out-of-range cache request exposes an incorrect state change.
-Separately, the 70-tick raw input clock has not closed timing against the full
-mapped FIFO. Its shorter RTL now preserves simultaneous urgent events, but
-gate propagation and front-end pulse retention still require physical proof.
-Neither the unit clock tests nor the console-to-RTL trace closes those gates.
+Two production timing domains remain under repair. The original joined
+power/reset circuit could release reset with raw pulses still in flight. Its
+replacement is a named local startup partition, retaining a held reset receipt
+and a physical acknowledgment from the inhibited clock path. Both generator
+backends and synthesis CI use its measured placement and private clock delay.
+Independent saved-world tests pass cold power, manual reset, shutdown, reopen,
+standing acknowledgment and immediate power at load. All four register apertures
+pass, with a deliberately insufficient delay retained as a failing case.
+The external oscillator/hold loop, raw counters and downstream clock/reset
+distribution still need complete physical timing. In particular, two fast
+counter feedback paths in the default shell exceed the 70-tick period.
+
+The full input path also needs physical closure at that raw period. The complete
+registered storage bank below passes independently; sparse event admission,
+queue handoff and cross-clock acknowledgment are still integration work.
+Neither a unit clock test nor a console-to-RTL trace closes those gates.
 
 The retained [level-request startup study](../experiments/soc_startup_timing/level_power/README.md)
 now passes its four-word physical timing and repeated saved-world restart
 cases, including a genuine saved acknowledgment lever. Its tested three-delay
-network is a private local layout; production shell routing remains unclosed
-and is being replaced with a named local startup component.
+network is a historical private layout. The newer
+[named startup implementation and independent reload audit](../experiments/named_startup_domain/INDEPENDENT_REVIEW.md)
+are retained separately, without replacing the original evidence.
 
 The [16-by-32 input store](../experiments/input_storage_bus/README.md) passes
 all 512 cells and save/reopen at a 41-tick interior launch phase. An independently
@@ -65,8 +75,13 @@ written review reads the raw D/lock/Q arrays and directly decodes Minecraft's
 packed block states. It reproduces 8,000 selected writes, 38,592 inhibited
 observations, all 512 reopened bits and the 34–49-tick common terminal window.
 The earlier 33-tick launch still produces 13 one-tick hold violations despite
-correct final values. Thirty interior launch routes remain external boundaries;
-their physical registered feeds and the complete input component remain open.
+correct final values. A later [registered-bank fixture](../experiments/input_registered_bank/README.md)
+connects every data lane and all sixteen row selectors. It passes 2,048 writes,
+38,912 retention observations and all 512 stored bits after native reopen.
+Root independently rederived those counts from the actual saved-lever uses,
+raw launch/storage traces and packed Anvil values. Adding six physical ticks
+to its row controls fails data and retention checks. The complete input queue
+and its clock crossing remain separate, unfinished gates.
 
 The input regression now also replays the production-mapped JSON, rather than
 only the source RTL. It found that Yosys 0.33 widened an event-code expression
@@ -139,7 +154,7 @@ These are remaining engineering tasks, not merely pending test executions:
    mapped partitions, their exterior contacts, the original mapped shell,
    resource finalization and global routing to the production world writer.
    Its small complete test top passes native save/reopen and actual global-input
-   execution. All twelve real production partitions still need accepted
+   execution. All thirteen real production partitions still need accepted
    placement, interconnection and runtime; the default backend remains `flat`.
 2. The rebuilt 4 KiB cache controller has a registered write commit and a
    physical gate that starts unpowered. A saved two-row fixture retained its

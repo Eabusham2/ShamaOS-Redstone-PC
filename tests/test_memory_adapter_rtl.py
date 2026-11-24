@@ -61,7 +61,7 @@ def test_single_bank_wrappers_keep_legal_fields_and_exact_capacity(tmp_path, kin
         header, count = re.subn(rf"(?m)^(`define\s+{symbol}\s+).*$", rf"\g<1>32'h{value:08x}", header)
         assert count == 1
     (tmp_path / "shama_boot_params.svh").write_text(header)
-    for name in ("shama_memory_adapter.sv", "tb_memory_adapter.sv"):
+    for name in ("shama_memory_adapter.sv", "shama_native_cells.svh", "tb_memory_adapter.sv"):
         shutil.copyfile(ROOT / "rtl" / name, tmp_path / name)
     binary = tmp_path / "single-bank.vvp"
     compiled = subprocess.run([

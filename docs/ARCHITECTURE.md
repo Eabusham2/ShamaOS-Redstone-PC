@@ -21,7 +21,11 @@ flowchart TD
 
 ## Timing
 
-A fast raw clock feeds input/event capture. Core divider bit 17 is the default for CPU/GPU/services/filesystem/assembler/memory controllers. On reset, core clock follows raw clock.
+A fast raw clock feeds input/event capture. Core divider bit 17 is the default
+for CPU/GPU/services/filesystem/assembler/memory controllers. The named startup
+controller retains complete raw reset pulses until a generated-clock receipt
+and a physical held-inhibit acknowledgment permit the divided clock. Its four
+registers stay in one measured local routing domain in both build backends.
 
 The physical raw clock has a 70-redstone-tick period. Bit 17 divides by
 262,144, so the current default core period is 18,350,080 redstone ticks
@@ -30,6 +34,13 @@ slow provisional setting, not a measured usable machine speed or proof of
 safe timing. Reducing it requires actual route-delay, clock-skew and hold-time
 validation. Local routing and memory-controller work target those costs; a
 faster file exporter does not make a running CPU instruction faster.
+
+The local startup domain has passed native timing and save/reopen tests. The
+default shell's raw counter feedback paths still exceed the 70-tick period;
+counter placement, the oscillator/hold loop and downstream reset/clock skew
+remain open production checks. The input sampler, event storage and clock
+crossing similarly require a connected proof. The thirteen-partition synthesis
+check records connectivity, not complete-machine electrical timing.
 
 ## Memory
 

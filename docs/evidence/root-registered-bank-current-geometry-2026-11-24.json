@@ -1,0 +1,139 @@
+{
+  "active_checkout_head": "2e770d85dbf0e02241bf2d1ad158c49bceb014f7",
+  "active_source_hashes": {
+    "experiments/input_receiver_timing/passive_fixture.py": "bce057790887355922a9a0072728c6d615e2414e7ba4318ce72bffd5f4843ee8",
+    "experiments/input_registered_bank/challenge.py": "7002e41d92c91d0f8897b0019df3a126906b830e46693bc4d2a721a294713318",
+    "experiments/input_registered_bank/fixture.py": "0e2769df0af377c3e790acaf4d50680354ac3f84bebdcea419b9dae61af246b8",
+    "experiments/input_registered_bank/prove.py": "ee01757064fc2cbc7458cf2f3d216121df56ebec6a43ffd9f5f252098618690e",
+    "experiments/input_registered_bank/recording.py": "8726a44ca8dd6b2e16064df9a9fc11c382ad5ead317c48e6e6348b5414da896c",
+    "experiments/input_registered_bank/review_sources.py": "70ee318a0ca0cfc8725448acb4c55fcf374f3e7ec77cafc30e92de04f7df5a36",
+    "experiments/input_storage_bus/archive_io.py": "58fe4be191c64bb9a5f8a0e3297e2d19848fa727101d70057eee43dfc6369531",
+    "experiments/input_storage_bus/capture.py": "ac17542855c3853dd894d6aea5224476e1774d4af1be255c51aa8f9706fc4a8d",
+    "experiments/input_storage_bus/full_width.py": "57bb7a1809f2b0bef4e85d7fc2e85c826f6c5f20f44e5dcd73e3908ec4bdd521",
+    "src/shamaos/__init__.py": "a191dc5c1f1dce8dde90da66d309ea7216301d051a92d1b67384de2541669526",
+    "src/shamaos/assembler.py": "85a6dff1424e1e3a348a81f63a076d88315e2caa9c49ec8df576f93295dec434",
+    "src/shamaos/bounded_build.py": "85ca0c83d4fc1bc781a4872cadca4b4f972e35cad0a0d35d151c3f9c8e153ee8",
+    "src/shamaos/bounded_system.py": "39adac5972e88c2d214908b4b1c5af65d112bb76ebf778e4a8e236388eb54f37",
+    "src/shamaos/cli.py": "8c7d41180a82ce95fa39004b23ab88ebbb6245f3c874a491a78674676029050c",
+    "src/shamaos/flashfs.py": "bbb4e60077afeae6e55216a777e338aa5a19215c74c068a4d97b1ee256cb1e99",
+    "src/shamaos/font5x7.py": "38bba64841310ac6f4d9adbfa3607c727a0f9a12db2afb66d518be75aa4618be",
+    "src/shamaos/generator.py": "0e1bc80b4095561c1627a9ba1cdbe2679919245fd84c7254fa45d8af06fdce60",
+    "src/shamaos/gpu.py": "63a6cce0888057956480fcdd58ef2381ae881b127d2b23646e17a2b35353a195",
+    "src/shamaos/hardware/__init__.py": "7996c03c727f02fb72aac9166cc5693636df3aa6762c10fd752639005863fe13",
+    "src/shamaos/hardware/appearance.py": "aaf80f35a2b4e4b8920bf360c14be734fe39c58ea1797651cabdae2fb5bb4323",
+    "src/shamaos/hardware/binary_row_decoder.py": "e58837fd0858146de95eea57e87186d8e1f1b3583f891a717ae14e156a461815",
+    "src/shamaos/hardware/bounded_facade.py": "2ea5ea89f4a965495342fecb373c961e81a9965a4cf7c63c9d429bd6057823b3",
+    "src/shamaos/hardware/bounded_interfaces.py": "bae5a546d3cd9be273115db8be03be9b63129924c7b83e432333c8df0575bfd8",
+    "src/shamaos/hardware/cache_layout.py": "9c1b75052f1f6bef1c6414123f66d8723295a98e5b27b31e60be713272e68119",
+    "src/shamaos/hardware/clock.py": "e4372b0f293dfaf9e07d3243185adda7bd13d7a0ab1ca0239d2171c0a3a59989",
+    "src/shamaos/hardware/controls.py": "1b83d5f5cb4da372e9c2055060712eb609eb094270c9bf27961ac981683d1514",
+    "src/shamaos/hardware/debug.py": "c2ac5e78bf151454ea09bf259a357dea381d4317bbae849ff680e10cdd4136b8",
+    "src/shamaos/hardware/display.py": "63bcbc001029ba5c7b6ceb64e2e427fe5aefea6a0eedc7e739f5c2c4099172be",
+    "src/shamaos/hardware/external_router.py": "96834193a37bb485ab225ea21dc1ae460afcc3ab9ac41a434e45660be2f7666d",
+    "src/shamaos/hardware/interfaces.py": "54d7ad897c770647d1320891c62cc82cb581cfb29031ea62cf560838ff93873e",
+    "src/shamaos/hardware/local_router.py": "63054c806442499ba0aa27f65b1ec2b35c339c0c8595521dbc3097a334307bc6",
+    "src/shamaos/hardware/logic.py": "de897be8f44c3f55a9d9d1880c3d7326288eb8d837498008caa4339784c74f2b",
+    "src/shamaos/hardware/memory.py": "f44923cd4376d10fb2f62d5daf3bf752fe340e269355ac3564fd26ee2b5a8517",
+    "src/shamaos/hardware/memory_backbone.py": "8a6c22218be1e0a32189817318f72aad8bd31bd365141da556578c3b4398075d",
+    "src/shamaos/hardware/memory_interfaces.py": "755e560ca0bd547d401cd2321b43785b3d21a62a6d5a76915c3fec96f80e775f",
+    "src/shamaos/hardware/memory_streaming.py": "7f784968748570f5e3d2286a5ee81a0d965a0882123cb8125169bc4d1d491a24",
+    "src/shamaos/hardware/netlist_cut.py": "43f66d75da245f54ab053ac0d83a38e403d988b076215b00fbd234f38eba38d1",
+    "src/shamaos/hardware/packed_parent_union.py": "a9982d5e230fb7fa4e8b4e666a42323fd59b55066564b1fbf1567d0d15281a50",
+    "src/shamaos/hardware/partition_placement.py": "10c6a4b5aba6b5c4776326d0a863bf57cd1fc5b0d216115ca496d851d6a82e90",
+    "src/shamaos/hardware/partition_planner.py": "5b7daafbd5eda35abb621fc6c64731c8fb3a6e56ab2422c8108812b1f26623fd",
+    "src/shamaos/hardware/pulse.py": "c52113541accbac7440939ef413613dd734470ef6226e9106531f42f09c7772b",
+    "src/shamaos/hardware/routing.py": "d2b885f908a5942036269992c3fff7e3eb19ffe5a4753b97f5494aaf7120ccce",
+    "src/shamaos/hardware/vertical_wiring.py": "734ba19ed845ea1d8c05475f1bb5f3de5f47f4842591e911cd813f3f618deb1a",
+    "src/shamaos/hardware/viewing.py": "452d860a6149e5e623245025fd41b0558d23aed40380b70c755c27652b12a1ef",
+    "src/shamaos/installer.py": "b69fccadc4ae8485acd77dd5e502e36dabf2f332496a8437dbaf91f16a3bd951",
+    "src/shamaos/isa.py": "8957d9b03343c3f0f800b95a09ffc63809e2bc7adc7bf0f6586506cda87338c6",
+    "src/shamaos/layout.py": "e6db5143f7b2d9c0ae477e649cfc4421e476f14038fd861e8a65b1ebec946eaa",
+    "src/shamaos/literal_union.py": "4732f29067e5d7aff013a9d2a5565e8e7037e4259b6cc1b74ffb0e45fd84281d",
+    "src/shamaos/machine_spec.py": "99e1155524c39b0c1f6d30f07f77cb0b7b18a4a2303ded30df2f7392789157bd",
+    "src/shamaos/mchprs_import.py": "0680be7ad82c53561bd1401be2b8133c7cd19a55b591bba6ea18410a6d5de0ea",
+    "src/shamaos/mchprs_snapshot.py": "428a16770614c5699f9cb850aad371e046ad71b130719e6db7e8ce0ad03bb492",
+    "src/shamaos/memory_fixture.py": "ee1ad247cdc33b64aa260f0fb0132b345c7d911cd3fb7e046baf60e7f680564e",
+    "src/shamaos/memory_map.py": "817c59f5ced00bb9faee09cc9ca2dc932bd9715c8055a4423dd9613f81b784a1",
+    "src/shamaos/model.py": "1a0fd1f9eb9469989057e4486401e5161e7f0bb02eb69195b7a14a74e92f4b95",
+    "src/shamaos/native_console_scenario.py": "499aac2bedd2d77d0fdd621e66f74aebcbad51d2e7d038075bde16ef39e2a294",
+    "src/shamaos/native_editor_lifecycle.py": "2b742122cafb07107254f2e78ac210a397be6842581210004797a26a4584ca15",
+    "src/shamaos/native_lifecycle_topology.py": "9a4fcbade4d25ea7e3f5cf245482c9de5a040773704a673f10b773451b60e15e",
+    "src/shamaos/native_program_flash.py": "05bb4aa798de738b046c7b01f080f4e1653e3a87b4ec602acc63d8d813ba9ffd",
+    "src/shamaos/native_title_crop.py": "30ef7f058a6ddac340895998af67624f555b5e0cd2d2580a8757e7eaa6270a2a",
+    "src/shamaos/os_image.py": "635533d52dd246580c0379e8c2c289623d2c9c68752aa56098c9ccdedce95e46",
+    "src/shamaos/os_runtime.py": "0c0cfd4151c5d1e053a5d00482d958fccfc35db01651fae899e9402f65097d0b",
+    "src/shamaos/physical_resources.py": "29aca2a5895a0444aef12970a7360b821bc682f2eb9aa285f408a7985dd70bd7",
+    "src/shamaos/redstone.py": "a7aec52b17991134497fffced5142d2ef09e29cbaef3bf2e6a9c9311de4e396f",
+    "src/shamaos/release.py": "fd759a729844f0fa1dfa990c0de57f6ed32f47a5a2a5418ac7a80d28c9d6a9e0",
+    "src/shamaos/release_acceptance.py": "18a552269dc934fc62449426823200951f8e42bd4daa7ea246a60bad6b3a8cc0",
+    "src/shamaos/release_io.py": "5e1f310243d2325b9e4f6987649a770d2d4d03667cb66f5d442262fae43609c1",
+    "src/shamaos/resource_accounting.py": "3d4cf752ebc194222f6746fb0ed22a1f832f45b9b79f6e4f25a87fa74571ec99",
+    "src/shamaos/schematic.py": "9b75566836fce6aaa59efe4ec341b3fe0b0116f1129fb5f1c8cd7e1b3cd34bf7",
+    "src/shamaos/sha256.py": "fef0826047e978ec107d38827d9497043e18cd543948b9ec8c0c17f48e17a4b2",
+    "src/shamaos/simulator.py": "8cd89293a432c79b00e5e9a80c0ad250e7503d58f12fea87fc76bd51b944176c",
+    "src/shamaos/software_resources.py": "32e3a5231dd0f2b63104e446a71199ae251dab47251bc8a1192faadc2ba36425",
+    "src/shamaos/synthesis.py": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274",
+    "src/shamaos/system_build.py": "d0d381e9e6787a1d9a250500e951e26586b3803c4baf962b157f38735c07a08f",
+    "src/shamaos/worldio.py": "f02cb999c0ecde4841d042def5f4b5c2200509cee025977c340eabd03e5d10d8",
+    "tests/mchprs_sparse_runtime/Cargo.toml": "e4c6bd5b3602b4ee0a3bef0d1816dea6042557eaf88b07877424d6d39164d2de",
+    "tests/mchprs_sparse_runtime/native-terrain-registry.patch": "8ebd0e097d07e93a6b2b158e08ad19c2660b0b7e2521c6b6d34a4583a10bfbdc",
+    "tests/mchprs_sparse_runtime/src/lazy_storage.rs": "2608a743c7b8f59ae90255e464a744b9492838df0dc0717dfee0272e0de5528c",
+    "tests/mchprs_sparse_runtime/src/main.rs": "907b595d253bd4891f156706fdffa6f1257b2b6abf667b2cb11ecd205e33079d",
+    "tests/mchprs_sparse_runtime/src/pending.rs": "ad8b1c89796c74a840b7535d9639d7734655726a71d91ef91c0f834121f3a20d",
+    "tests/mchprs_sparse_runtime/src/snapshot.rs": "ad61ec5722bcf20abea2c97ecef8401364abb1010e2f735f131b6d544d5839ab"
+  },
+  "approved_capture_inventories": {
+    "delayed": "03bd1ffb0dbda443c6ca2ac6b540e7760e30c7214978ba71babf55e5a7ed2bef",
+    "positive": "4fa05039bcadd15c01285190624bb62521cb4b4420759354bfc1249fd65cd10e"
+  },
+  "changed_from_captured": {
+    "src/shamaos/bounded_system.py": {
+      "active": "39adac5972e88c2d214908b4b1c5af65d112bb76ebf778e4a8e236388eb54f37",
+      "captured": "76f632427b8539af8b0fda0d78323916f24bbb6c5fcce9be76b8090372333287"
+    },
+    "src/shamaos/generator.py": {
+      "active": "0e1bc80b4095561c1627a9ba1cdbe2679919245fd84c7254fa45d8af06fdce60",
+      "captured": "f82fedcc6b2ed307b0ee2e52b032e78aad2b1bbb0be686df067f6a92a713f62b"
+    },
+    "src/shamaos/hardware/logic.py": {
+      "active": "de897be8f44c3f55a9d9d1880c3d7326288eb8d837498008caa4339784c74f2b",
+      "captured": "2d9c1af54ddb778ba04240e4e8036fa2ef1c7ec015bc24de2a716021470ae616"
+    },
+    "src/shamaos/release.py": {
+      "active": "fd759a729844f0fa1dfa990c0de57f6ed32f47a5a2a5418ac7a80d28c9d6a9e0",
+      "captured": "d2b8a4ea25af40f3d13f3374643bbaf973adc98a3d42116d86647cd2f6cfd1cf"
+    },
+    "src/shamaos/resource_accounting.py": {
+      "active": "3d4cf752ebc194222f6746fb0ed22a1f832f45b9b79f6e4f25a87fa74571ec99",
+      "captured": "168ab4f721207819543c4e8b711c126f1aeb2685f9b185255b5e82d13ab87451"
+    },
+    "src/shamaos/system_build.py": {
+      "active": "d0d381e9e6787a1d9a250500e951e26586b3803c4baf962b157f38735c07a08f",
+      "captured": "26ff06d346ae30699108b823b62efe5aaa58d3e4bd6d0ada1d6bbf07b85418d5"
+    }
+  },
+  "complete_machine_runtime_verified": false,
+  "fresh_native_run_performed": false,
+  "physical_archive_sha256": "359a0d44918784c5858dc0b76e47e090074a157eef71287476476fc8c78525f5",
+  "profiles": {
+    "delayed": {
+      "actuators_sha256": "c4b7534daf3f2e1181052ced5f5f3c48f32b5b2dbdaac08c902241859a54615e",
+      "identical_physical_positions_and_states": 75255,
+      "logical_probe_names": 1830,
+      "native_chunks": 367,
+      "probe_map_sha256": "a7586ebedd931805ca975f5ed3c9375023035a9e9c0d618cae37e02b9fdff0d2",
+      "saved_actuators": 34,
+      "sorted_block_states_sha256": "5adf660800ffda128bc6d2e467cfdd633d26ee5aaa56d15ad7d774b53d4616b6"
+    },
+    "positive": {
+      "actuators_sha256": "c4b7534daf3f2e1181052ced5f5f3c48f32b5b2dbdaac08c902241859a54615e",
+      "identical_physical_positions_and_states": 75255,
+      "logical_probe_names": 1830,
+      "native_chunks": 367,
+      "probe_map_sha256": "a7586ebedd931805ca975f5ed3c9375023035a9e9c0d618cae37e02b9fdff0d2",
+      "saved_actuators": 34,
+      "sorted_block_states_sha256": "2695f04f9cb1e816c99d90e2933cc3dfdf5bfdc2e9125ed9dc4b3fc8363b0b9c"
+    }
+  },
+  "scope": "active source reconstruction compared with both captured initial Anvil worlds"
+}

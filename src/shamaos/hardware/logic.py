@@ -54,21 +54,34 @@ def emit_not(origin: Vec3, component: str) -> Iterator[Placement]:
     yield from _dust(origin, 4, 0, component)
 
 
-def emit_nor(origin: Vec3, component: str) -> Iterator[Placement]:
-    """Isolated A/B repeaters feed an OR bus followed by an inverter.
-
-    Output x=16 is away from both inputs. The former compact layout joined
-    input B and the output torch through adjacent dust.
-    """
+def _isolated_or_bus(origin: Vec3, component: str) -> Iterator[Placement]:
     for x in (0, 8):
         yield from _dust(origin, x, 0, component)
         yield from _repeater(origin, x, -1, "north", component)
     for x in range(9):
         yield from _dust(origin, x, -2, component)
     yield from _repeater(origin, 9, -2, "east", component)
+
+
+def emit_nor(origin: Vec3, component: str) -> Iterator[Placement]:
+    """Isolated A/B repeaters feed an OR bus followed by an inverter.
+
+    Output x=16 is away from both inputs. The former compact layout joined
+    input B and the output torch through adjacent dust.
+    """
+    yield from _isolated_or_bus(origin, component)
     yield _place(origin, 10, 1, -2, SUPPORT, component)
     yield _place(origin, 11, 1, -2, WALL_TORCH_E, component)
     for x in range(12, 17):
+        yield from _dust(origin, x, -2, component)
+    for z in (-1, 0):
+        yield from _dust(origin, 16, z, component)
+
+
+def emit_clock_or(origin: Vec3, component: str) -> Iterator[Placement]:
+    """Join two pulse sources without an inverter or feedback into either input."""
+    yield from _isolated_or_bus(origin, component)
+    for x in range(10, 17):
         yield from _dust(origin, x, -2, component)
     for z in (-1, 0):
         yield from _dust(origin, 16, z, component)
@@ -96,7 +109,7 @@ def emit_and(origin: Vec3, component: str) -> Iterator[Placement]:
 
 
 def emit_write_guard(origin: Vec3, component: str) -> Iterator[Placement]:
-    """Pass a registered write only while reset is low.
+    """Pass A while B is low, for write strobes and clock pulses.
 
     Both inputs reach the subtract comparator through repeaters at strength
     15. The comparator and its drive path start unpowered.
@@ -120,6 +133,45 @@ def emit_write_guard(origin: Vec3, component: str) -> Iterator[Placement]:
         yield from _dust(origin, x, -4, component)
     for z in range(-3, 1):
         yield from _dust(origin, 14, z, component)
+
+
+def emit_clock_guard(origin: Vec3, component: str) -> Iterator[Placement]:
+    """Hold the inhibit input at the clock source's actual high phase."""
+    # Two directional copies of A lock B early and unlock it late. The
+    # subtract comparator's rear receives A through a three-tick repeater.
+    for x in range(7):
+        yield from _dust(origin, x, 0, component)
+    yield from _repeater(origin, 0, -1, "north", component, delay=3)
+    for z in range(-2, -10, -1):
+        yield from _dust(origin, 0, z, component)
+    yield from _repeater(origin, 2, -1, "north", component)
+    yield from _repeater(origin, 5, -1, "north", component, delay=4)
+    for x in range(2, 6):
+        yield from _dust(origin, x, -2, component)
+    yield from _dust(origin, 3, -3, component)
+    for x in range(3, 7):
+        yield from _dust(origin, x, -4, component)
+    yield from _repeater(origin, 7, -4, "east", component)
+
+    for z in range(0, -4, -1):
+        yield from _dust(origin, 8, z, component)
+    yield from _repeater(origin, 8, -4, "north", component)
+    for z in range(-5, -10, -1):
+        yield from _dust(origin, 8, z, component)
+    yield from emit_write_guard(origin.offset(dz=-10), component)
+    yield from _repeater(origin, 14, -9, "south", component)
+    for z in range(-8, 1):
+        yield from _dust(origin, 14, z, component)
+
+
+def emit_clock_guard_ack(origin: Vec3, component: str) -> Iterator[Placement]:
+    yield from emit_clock_guard(origin, component)
+    # Observe the stored mask after the lockable repeater. Isolate the tap so
+    # the external acknowledgment wire cannot feed the comparator or its latch.
+    yield from _repeater(origin, 9, -6, "east", component)
+    yield from _dust(origin, 10, -6, component)
+    for z in range(-6, 1):
+        yield from _dust(origin, 11, z, component)
 
 
 def emit_dff(origin: Vec3, component: str) -> Iterator[Placement]:
@@ -175,7 +227,13 @@ TEMPLATES: dict[str, LogicTemplate] = {
     "NOT": LogicTemplate("NOT", 5, 2, {"A": Vec3(0, 1, 0), "Y": Vec3(4, 1, 0)}, emit_not),
     "NAND": LogicTemplate("NAND", 17, 6, {"A": Vec3(0, 1, 0), "B": Vec3(8, 1, 0), "Y": Vec3(16, 1, 0)}, emit_nand),
     "NOR": LogicTemplate("NOR", 17, 4, {"A": Vec3(0, 1, 0), "B": Vec3(8, 1, 0), "Y": Vec3(16, 1, 0)}, emit_nor),
+    "CLOCK_OR": LogicTemplate("CLOCK_OR", 17, 4,
+        {"A": Vec3(0, 1, 0), "B": Vec3(8, 1, 0), "Y": Vec3(16, 1, 0)}, emit_clock_or),
     "AND": LogicTemplate("AND", 22, 6, {"A": Vec3(0, 1, 0), "B": Vec3(8, 1, 0), "Y": Vec3(21, 1, 0)}, emit_and),
+    "CLOCK_GUARD_ACK": LogicTemplate("CLOCK_GUARD_ACK", 15, 16,
+        {"A": Vec3(0, 1, 0), "B": Vec3(8, 1, 0), "Y": Vec3(14, 1, 0), "Q": Vec3(11, 1, 0)}, emit_clock_guard_ack),
+    "CLOCK_GUARD": LogicTemplate("CLOCK_GUARD", 15, 16,
+        {"A": Vec3(0, 1, 0), "B": Vec3(8, 1, 0), "Y": Vec3(14, 1, 0)}, emit_clock_guard),
     "WRITE_GUARD": LogicTemplate("WRITE_GUARD", 15, 6,
         {"A": Vec3(0, 1, 0), "B": Vec3(8, 1, 0), "Y": Vec3(14, 1, 0)}, emit_write_guard),
     "DFF": LogicTemplate(

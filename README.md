@@ -20,12 +20,20 @@ a physical clock-route shortage. The reviewed fix is in `6785ca9`; a
 and new CI validate the subsequent source separately. Compilation and fixture
 success do not establish complete-world boot.
 
-The latest saved-world timing evidence covers all 512 bits of a
-[physical input-store fixture](experiments/input_storage_bus/README.md) and
-[repeated startup after saving and reopening](experiments/soc_startup_timing/level_power/README.md).
-The full input launch wiring and the production shell's local clock paths are
-still being integrated. Required CI now separates long processor/OS simulations
-from component tests and verifies their exhaustive combined coverage.
+The latest saved-world input fixture has all 32 physical launch registers and
+all 512 storage bits connected. It passes 2,048 writes, 38,912 retention checks
+and save/reopen; a deliberately delayed control exposes corruption. Its
+[recording and scope](experiments/input_registered_bank/README.md) keep event
+admission and the eventual input queue separate from that completed bank test.
+The [named startup controller](experiments/named_startup_domain/README.md) now
+uses the same local physical placement in both generator backends and CI.
+Generation checks its complete block states and named signal positions against
+the measured circuit; changed wiring requires new timing evidence.
+Its reset/power and saved-state tests pass, while upstream counter timing and
+whole-machine clock distribution remain open. Required CI separates long
+processor/OS simulations from component tests and verifies their exhaustive
+combined coverage; synthesis and release checks include the new thirteenth
+startup partition.
 
 The owner reopened app/cache optimization on November 13, 2026 (America/Chicago). Shared app routines
 and explicit one-word instruction forms now reduce all nine executables. The

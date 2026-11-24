@@ -18,7 +18,8 @@ into a verified playable computer.
 ## What happens automatically
 
 1. Check out the release's exact tag commit and find its successful repository
-   CI run. All four OS/Python jobs, twelve physical partitions, behavioral and
+   CI run. All four OS/Python jobs, every physical partition (currently thirteen,
+   including the local startup controller), behavioral and
    actual-redstone tests, world backend, RTL and full synthesis must be green.
    Both regression partitions and their exhaustive-coverage aggregate are
    required; the aggregate preserves the original combined JUnit artifact.

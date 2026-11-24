@@ -31,7 +31,8 @@ def _cold_cone(tmp_path, region, unguarded):
         assert original.count(old) == 1
         source = tmp_path / source.name
         source.write_text(original.replace(old, old.replace("GUARDED_WRITE(1)", "GUARDED_WRITE(0)")))
-        shutil.copyfile(ROOT / "rtl/shama_boot_params.svh", tmp_path / "shama_boot_params.svh")
+        for name in ("shama_boot_params.svh", "shama_native_cells.svh"):
+            shutil.copyfile(ROOT / "rtl" / name, tmp_path / name)
     mapped = synthesize_json([source], top=top, output_json=tmp_path / "mapped.json", repo_root=ROOT)
     module, _ = load_mapped_module(mapped, top)
     drivers = {bits[0]: (name, cell) for name, cell in module["cells"].items()

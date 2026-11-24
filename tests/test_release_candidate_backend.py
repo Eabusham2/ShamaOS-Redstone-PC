@@ -11,6 +11,8 @@ from types import SimpleNamespace
 
 import pytest
 
+from shamaos.release import required_partition_job_names
+
 from shamaos.worldio import WorldWriteError
 from shamaos.generator import write_placement_stages
 from shamaos.model import BlockState, Placement, Vec3
@@ -24,9 +26,9 @@ ROOT = Path(__file__).resolve().parents[1]
 def _ci_report():
     names = ["world-backend", "rtl", "behavioral-and-redstone",
              "behavioral-partitions (components)", "behavioral-partitions (system)", "full-physical-synthesis"]
-    names += [f"test ({system}, {python})" for system in ("ubuntu", "windows")
+    names += [f"test ({system}, {python})" for system in ("ubuntu-24.04", "windows-latest")
               for python in ("3.11", "3.12")]
-    names += [f"full-physical-partitions ({index})" for index in range(12)]
+    names += list(required_partition_job_names())
     return {"head_sha": COMMIT, "conclusion": "success", "status": "completed",
             "path": ".github/workflows/ci.yml",
             "jobs": [{"name": name, "conclusion": "success"} for name in names]}

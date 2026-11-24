@@ -6,6 +6,8 @@ import subprocess
 
 import pytest
 
+from shamaos.release import required_partition_job_names
+
 from shamaos.worldio import WorldWriteError
 
 
@@ -27,7 +29,7 @@ def entry(artifact_id, name):
 def workflow(monkeypatch, artifacts):
     names = ["world-backend", "rtl", "behavioral-and-redstone", "full-physical-synthesis",
              "behavioral-partitions (components)", "behavioral-partitions (system)"]
-    names += [f"test ({i})" for i in range(4)] + [f"full-physical-partitions ({i})" for i in range(12)]
+    names += [f"test ({platform}, {version})" for platform in ("ubuntu-24.04", "windows-latest") for version in ("3.11", "3.12")] + list(required_partition_job_names())
     jobs = [{"name": name, "conclusion": "success"} for name in names]
     run = {"id": 99, "head_sha": COMMIT, "conclusion": "success", "status": "completed",
            "path": ".github/workflows/ci.yml", "event": "push", "head_repository": {"full_name": "a/b"}}
@@ -58,8 +60,8 @@ def workflow(monkeypatch, artifacts):
 
 
 def required_entries():
-    modules = "u_cpu u_input u_gpu u_display_bridge u_vram u_services u_kernel u_fs u_asm u_cache u_ram u_flash"
-    names = [f"full-soc-{name}" for name in modules.split()]
+    from shamaos.system_build import PARTITION_SPECS
+    names = [f"full-soc-{name}" for name, _module in PARTITION_SPECS]
     names.extend([f"full-soc-report-{COMMIT}", f"shamaos-tested-fixture-{COMMIT}"])
     return [entry(i, n) for i, n in enumerate(names, 1)]
 
@@ -102,6 +104,16 @@ def test_acquire_rejects_malformed_inventory_before_downloading(tmp_path, monkey
 def test_generated_filename_cannot_fulfil_a_required_logical_name(tmp_path, monkeypatch):
     artifacts = required_entries()[1:]
     artifacts.extend([entry(90, "full-soc-u_cpu--artifact-1"), entry(91, "full-soc-u_input")])
+    downloads = workflow(monkeypatch, artifacts)
+    with pytest.raises(WorldWriteError, match="missing original validation artifacts"):
+        ci.acquire("a/b", COMMIT, tmp_path / "evidence")
+    assert not downloads
+
+
+def test_release_retains_the_actual_startup_partition_artifact(tmp_path, monkeypatch):
+    artifacts = required_entries()
+    assert sum(a["name"] == "full-soc-u_startup" for a in artifacts) == 1
+    artifacts = [a for a in artifacts if a["name"] != "full-soc-u_startup"]
     downloads = workflow(monkeypatch, artifacts)
     with pytest.raises(WorldWriteError, match="missing original validation artifacts"):
         ci.acquire("a/b", COMMIT, tmp_path / "evidence")

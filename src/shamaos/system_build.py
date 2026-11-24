@@ -41,6 +41,7 @@ SOC_RTL_FILES = (
     "rtl/shama_kernel_accel.sv",
     "rtl/shama_fs_accel.sv",
     "rtl/shama_asm_accel.sv",
+    "rtl/shama_startup_control.sv",
     "rtl/shama_soc.sv",
 )
 
@@ -62,6 +63,7 @@ PARTITION_SPECS: tuple[tuple[str, str], ...] = (
     ("u_cache", "shama_cache_adapter"),
     ("u_ram", "shama_ram_adapter"),
     ("u_flash", "shama_flash_adapter"),
+    ("u_startup", "shama_startup_control"),
 ) 
 
 # The two memory-heavy accelerators intentionally bypass ABC. Their inferred
@@ -72,6 +74,12 @@ AIG_PARTITION_MODULES = frozenset({
     "shama_fs_accel",
     "shama_asm_accel",
 })
+
+
+def partition_rtl_files(root: Path, module_type: str):
+    if module_type == "shama_startup_control":
+        return [root / "rtl/shama_startup_control.sv"]
+    return [root / name for name in SOC_RTL_FILES]
 
 
 def partition_mapping_mode(module_type: str) -> str:
@@ -237,6 +245,28 @@ def _partition_origin(base: Vec3, index: int) -> Vec3:
     )
 
 
+def place_flat_partition(mapped: Path, *, top: str, origin: Vec3,
+                         minimum_build_y: int = -64):
+    """Use the same physical child placement in generation and synthesis CI.
+
+    The flat top-level shell can still contain a bounded local clock domain.
+    Its startup child must retain the measured private-clock adjustment.
+    """
+    if top != "shama_startup_control":
+        return build_physical_netlist(
+            mapped, top=top, origin=origin, minimum_build_y=minimum_build_y,
+        )
+    from .bounded_system import place_startup_control
+
+    startup = place_startup_control(mapped, surface_y=minimum_build_y - 1,
+                                    maximum_y=285)
+    offset = Vec3(origin.x - startup.bounds.min.x, origin.y - startup.bounds.min.y,
+                  origin.z - startup.bounds.min.z)
+    physical = replace(startup, placed=startup.placed.translated(offset))
+    physical.audit()
+    return physical
+
+
 def _prepare_partitioned_logic(
     *,
     root: Path,
@@ -252,7 +282,7 @@ def _prepare_partitioned_logic(
         artifacts = []
         for instance_name, module_type in PARTITION_SPECS:
             output = build / f"partition-{instance_name}-{module_type}.json"
-            synthesize_json([root / p for p in SOC_RTL_FILES], top=module_type,
+            synthesize_json(partition_rtl_files(root, module_type), top=module_type,
                 output_json=output, yosys=yosys, repo_root=root,
                 mapping_mode=partition_mapping_mode(module_type))
             artifacts.append((instance_name, module_type, output))
@@ -273,17 +303,15 @@ def _prepare_partitioned_logic(
         print(f"[partition-synth] START {instance_name}: {module_type}", flush=True)
         output = build / f"partition-{instance_name}-{module_type}.json"
         synthesize_json(
-            rtl_files,
+            partition_rtl_files(root, module_type),
             top=module_type,
             output_json=output,
             yosys=yosys,
             repo_root=root,
             mapping_mode=partition_mapping_mode(module_type),
         )
-        physical = build_physical_netlist(
-            output,
-            top=module_type,
-            origin=_partition_origin(base_origin, index),
+        physical = place_flat_partition(
+            output, top=module_type, origin=_partition_origin(base_origin, index),
             minimum_build_y=minimum_build_y,
         )
         pm = physical.manifest()

@@ -1,0 +1,30 @@
+{
+  "complete_machine_runtime_verified": false,
+  "junit_sha256": "c4dbd99b78e0fbe0d516fb5bbab771cac2d18e9dda8ec78539a7cbb67f8d4b2c",
+  "result": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "tests": 208
+  },
+  "scope": "Production flat/bounded startup and measured geometry binding, registered input-bank source/electrical replay, memory adapters/native definitions and CI/release integration; not complete-machine timing",
+  "source_files": {
+    ".github/workflows/ci.yml": "fc13dd94d4fd3c8f0319a9cc50e4dfc7506571bdc8c2e0a41def61c2d48323c6",
+    "experiments/input_registered_bank/review_independent.py": "101c255bc6b05f2ff92e40ca4acf4ea2430e9e69de5fd4d6be7640a0568341e1",
+    "experiments/input_registered_bank/review_sources.py": "70ee318a0ca0cfc8725448acb4c55fcf374f3e7ec77cafc30e92de04f7df5a36",
+    "experiments/memory_controller_runtime/current_fixture.py": "73169840cb6ecc5aeb4bfcbcfbebf3b924243f8afb939be49be1e05829b5bc48",
+    "rtl/shama_memory_adapter.sv": "f6ca0bf416c04d9566cf0f4b5af0bd466f47cbb39824bb3538ab669781b788de",
+    "rtl/shama_native_cells.svh": "f6b4ef9ccecacd77cad6920345455b8c49c851cbfc95e677762e48de625fda93",
+    "rtl/shama_startup_control.sv": "d1e17568f0194e1003dab78d424be1e8508b7ccde351b404cc94f95249171c92",
+    "src/shamaos/bounded_system.py": "39adac5972e88c2d214908b4b1c5af65d112bb76ebf778e4a8e236388eb54f37",
+    "src/shamaos/hardware/logic.py": "de897be8f44c3f55a9d9d1880c3d7326288eb8d837498008caa4339784c74f2b",
+    "src/shamaos/release.py": "fd759a729844f0fa1dfa990c0de57f6ed32f47a5a2a5418ac7a80d28c9d6a9e0",
+    "src/shamaos/resource_accounting.py": "3d4cf752ebc194222f6746fb0ed22a1f832f45b9b79f6e4f25a87fa74571ec99",
+    "src/shamaos/system_build.py": "d0d381e9e6787a1d9a250500e951e26586b3803c4baf962b157f38735c07a08f",
+    "tests/test_named_startup_bindings.py": "400867b637c374174cc2be856cf7d8202ea6f22c6c1919fcfaa428a7179edcfa",
+    "tests/test_registered_input_evidence.py": "7cd48dcc418d625810a9971ffd3dcabe60bda8e9c4949922773511c7253c8278",
+    "tests/test_startup_partition_binding.py": "878f297132f7fd43262e11edddd7dcad830a7ddf9b04b26eeec006dc95e033fd",
+    "tools/release_ci.py": "df70c8d3ac0487083bc1274d5177ef0e7004324d659e2f95a5d9baee96f82a76"
+  },
+  "startup_native_geometry_sha256": "2d81c1c1723f8357dcc77ebdab58f0374a1255eb69ca1e05c958c62b8fd9c997"
+}

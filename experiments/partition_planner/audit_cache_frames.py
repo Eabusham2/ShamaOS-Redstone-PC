@@ -153,13 +153,16 @@ def rtl_review(directory, *, source_root=None, capacity_bytes=8192):
     compiler, simulator = shutil.which("iverilog"), shutil.which("vvp")
     check(compiler and simulator, "Icarus Verilog and vvp are required; no skipped acceptance")
     scenarios.check_capacity(capacity_bytes)
+    rtl_inputs = ["rtl/shama_memory_adapter.sv", "rtl/shama_boot_params.svh"]
     if source_root is None:
         check(capacity_bytes == 8192, "historical RTL can only prove its original 8 KiB capacity")
         source_root = directory / "historical-inputs"
         (source_root / "rtl").mkdir(parents=True, exist_ok=False)
         historical = fixture.historical_inputs()
-        for name in ("rtl/shama_memory_adapter.sv", "rtl/shama_boot_params.svh"):
+        for name in rtl_inputs:
             (source_root / name).write_bytes(historical[name])
+    elif (source_root / "rtl/shama_native_cells.svh").is_file():
+        rtl_inputs.append("rtl/shama_native_cells.svh")
     initial = list(scenarios.functional_frames(capacity_bytes=capacity_bytes))
     final = next(frame.stored_words for frame in reversed(initial) if frame.stored_words is not None)
     continuation = list(scenarios.functional_frames(final, resume=True, capacity_bytes=capacity_bytes))
@@ -189,7 +192,7 @@ def rtl_review(directory, *, source_root=None, capacity_bytes=8192):
         outcomes.append({"case": label, "exit_code": run.returncode, "output": log.strip()})
     return result | {"capacity_bytes": capacity_bytes,
                      "negative_storage_address_xor": 1024 if capacity_bytes > 4096 else 1,
-                     "rtl_source_hashes": {name: sha(source_root / name) for name in ("rtl/shama_memory_adapter.sv", "rtl/shama_boot_params.svh")},
+                     "rtl_source_hashes": {name: sha(source_root / name) for name in rtl_inputs},
                      "initial_plan": {key: value for key, value in scenarios.summarize_frames(initial).items()
                                       if key not in ("final_words", "boundary_states")},
                      "continuation_frames": len(continuation), "outcomes": outcomes}
@@ -203,7 +206,7 @@ def main():
     directory.mkdir(parents=True, exist_ok=False)
     paths = ["experiments/memory_controller_runtime/fixture.py", "experiments/memory_controller_runtime/geometry.py",
              "experiments/memory_controller_runtime/scenarios.py", "rtl/shama_memory_adapter.sv",
-             "rtl/shama_boot_params.svh", "src/shamaos/system_build.py",
+             "rtl/shama_boot_params.svh", "rtl/shama_native_cells.svh", "src/shamaos/system_build.py",
              "src/shamaos/hardware/memory_backbone.py"]
     before = {name: sha(ROOT / name) for name in paths}
     report = {"schema": "independent-cache-frame-review-v1",

@@ -181,13 +181,4 @@ module shama_vram_adapter(
     );
 endmodule
 
-// Yosys retains this cell so the generator can use a passive subtract
-// comparator for the final write gate. RTL simulation uses the same truth table.
-`ifdef SYNTHESIS
-(* blackbox *)
-`endif
-module WRITE_GUARD(input wire A, B, output wire Y);
-`ifndef SYNTHESIS
-    assign Y = A && !B;
-`endif
-endmodule
+`include "shama_native_cells.svh"

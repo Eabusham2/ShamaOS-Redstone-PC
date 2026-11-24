@@ -113,3 +113,10 @@ def test_prepared_preflight_accepts_actual_console_terminal_access():
     assert report["global_routing"]["nets"] == len(control_access)
     assert report["global_routing"]["minimum_emitted_route_placements"] > 0
     assert report["generation_gate"] == "blocked-by-proven-disk-lower-bound"
+
+
+def test_empty_route_set_has_zero_region_and_chunk_cost():
+    measured = router_resource_lower_bound(())
+    assert measured["minimum_route_chunks"] == 0
+    assert measured["minimum_route_region_bytes"] == 0
+    assert measured["minimum_emitted_route_placements"] == 0

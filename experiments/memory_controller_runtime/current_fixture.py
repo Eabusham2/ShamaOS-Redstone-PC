@@ -32,7 +32,7 @@ from shamaos.system_build import _geometry_from_config
 
 TOP = "shama_cache_adapter"
 INPUTS = ("configs/default.toml", "rtl/shama_memory_adapter.sv", "rtl/shama_boot_params.svh",
-          "synth/redstone.ys", "synth/redstone.lib")
+          "rtl/shama_native_cells.svh", "synth/redstone.ys", "synth/redstone.lib")
 GENERATOR_SOURCES = (
     "experiments/memory_controller_runtime/current_fixture.py",
     "experiments/memory_controller_runtime/geometry.py",
@@ -102,16 +102,30 @@ def retain_native_mapping(raw_path: Path, mapped_path: Path, *, yosys, liberty):
     """
     raw = json.loads(raw_path.read_text())
     modules = raw["modules"]
-    if "WRITE_GUARD" in modules:
-        guard = modules["WRITE_GUARD"]
-        ports = guard.get("ports", {})
-        if (int(guard.get("attributes", {}).get("blackbox", "0"), 2) != 1
-                or guard.get("cells")
-                or {name: (port["direction"], len(port["bits"])) for name, port in ports.items()}
-                != {"A": ("input", 1), "B": ("input", 1), "Y": ("output", 1)}):
-            raise ValueError("unexpected native write-guard definition")
-    if set(modules) - {"WRITE_GUARD"} != {TOP}:
+    # The shared native-cell header is also parsed for memory-only builds.
+    # Yosys can retain its unused black-box definitions alongside the one top.
+    standard_ports = {"A": ("input", 1), "B": ("input", 1), "Y": ("output", 1)}
+    native_definitions = {
+        "WRITE_GUARD": standard_ports,
+        "CLOCK_OR": standard_ports,
+        "CLOCK_GUARD": standard_ports,
+        "CLOCK_GUARD_ACK": standard_ports | {"Q": ("output", 1)},
+    }
+    if set(modules) - native_definitions.keys() != {TOP}:
         raise ValueError("current cache must flatten to its single complete mapped top")
+    for name in modules.keys() & native_definitions.keys():
+        definition = modules[name]
+        ports = definition.get("ports", {})
+        if (int(definition.get("attributes", {}).get("blackbox", "0"), 2) != 1
+                or definition.get("cells")
+                or {pin: (port["direction"], len(port["bits"])) for pin, port in ports.items()}
+                != native_definitions[name]
+                or any(type(bit) is not int for port in ports.values() for bit in port["bits"])
+                or len({port["bits"][0] for port in ports.values()}) != len(native_definitions[name])):
+            raise ValueError(f"unexpected native {name} definition")
+    if any(cell["type"] in native_definitions and cell["type"] != "WRITE_GUARD"
+           for cell in modules[TOP].get("cells", {}).values()):
+        raise ValueError("the current cache unexpectedly instantiates a startup-only native cell")
     metadata = {module: [name for name, cell in value.get("cells", {}).items()
                         if cell["type"] == "$scopeinfo"] for module, value in raw["modules"].items() if module == TOP}
     for module, names in metadata.items():

@@ -1,0 +1,79 @@
+{
+  "shell_sha256": "98f289282dd4306e29acfba85c93ecf0094f2020262f80f3015800b032da0beb",
+  "shell_cells": 6934,
+  "entire_shell_startup_pin_binding": {
+    "clk": [
+      2
+    ],
+    "clock_hold": [
+      7
+    ],
+    "core_clk": [
+      9167
+    ],
+    "core_gate": [
+      1929
+    ],
+    "divider_high": [
+      1927
+    ],
+    "power_switch": [
+      3
+    ],
+    "reset_button": [
+      4
+    ],
+    "rst": [
+      1920
+    ],
+    "shutdown_ready": [
+      8
+    ]
+  },
+  "clock_sinks": {
+    "u_asm": "generated_core",
+    "u_cache": "generated_core",
+    "u_cpu": "generated_core",
+    "u_display_bridge": "generated_core",
+    "u_flash": "generated_core",
+    "u_fs": "generated_core",
+    "u_gpu": "generated_core",
+    "u_input": "raw",
+    "u_kernel": "generated_core",
+    "u_ram": "generated_core",
+    "u_services": "generated_core",
+    "u_vram": "generated_core"
+  },
+  "default_shell_feedback": {
+    "source_artifact_sha256": "98f289282dd4306e29acfba85c93ecf0094f2020262f80f3015800b032da0beb",
+    "top": "shama_soc",
+    "default_shell_branch_y": 300,
+    "default_shell_trunk_y": 304,
+    "nearest_relative_trunk_z": -4104,
+    "minimum_relative_escape_z": -1197,
+    "minimum_endpoint_straight_blocks": 2903,
+    "minimum_repeaters_per_end": 290,
+    "minimum_native_to_native_route_ticks": 580,
+    "raw_period_ticks": 70,
+    "same_clock_feedback": [
+      {
+        "register": "time_counter[0]",
+        "route": [
+          "Q",
+          "NOR",
+          "D"
+        ],
+        "minimum_feedback_repeater_ticks": 1160
+      },
+      {
+        "register": "core_div_counter[0]",
+        "route": [
+          "Q",
+          "NOR",
+          "D"
+        ],
+        "minimum_feedback_repeater_ticks": 1160
+      }
+    ]
+  }
+}

@@ -169,6 +169,26 @@ def _cell_counts(cell_type: str) -> tuple[int, int]:
 
 
 def physical_netlist_resource_lower_bound(physical) -> dict[str, object]:
+    from .bounded_system import BoundedPartition
+    if isinstance(physical, BoundedPartition):
+        # This compact child is also used by the flat shell. Count its
+        # actual footprint. The global unbounded router never emits its nets.
+        kinds = Counter(physical.cell_types.values())
+        chunks = set()
+        route_placements = 0
+        for tile in (*physical.placed.all_modules().values(), *physical.placed.all_facade_modules().values()):
+            for block in tile.iter_routes():
+                route_placements += 1
+                chunks.add((block.pos.x // 16, block.pos.z // 16))
+        regions = {(x // 32, z // 32) for x, z in chunks}
+        return {**physical.manifest(), "cells": len(physical.cell_types), "cell_types": dict(kinds),
+                "literal_cell_placements": sum(_cell_counts(kind)[0] * n for kind, n in kinds.items()),
+                "literal_unique_cell_blocks": sum(_cell_counts(kind)[1] * n for kind, n in kinds.items()),
+                "routing": {"minimum_route_chunks": len(chunks),
+                            "minimum_route_region_bytes": 4096 * len(chunks) + 8192 * len(regions),
+                            "minimum_emitted_route_placements": route_placements,
+                            "maximum_single_net_delay_lower_bound_redstone_ticks": 0},
+                "exact_child_route_chunks": len(chunks)}
     cell_types = Counter(physical.cell_types.values())
     emitted_cells = sum(_cell_counts(kind)[0] * count for kind, count in cell_types.items())
     unique_cell_blocks = sum(_cell_counts(kind)[1] * count for kind, count in cell_types.items())

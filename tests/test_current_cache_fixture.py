@@ -85,6 +85,7 @@ def test_single_bank_real_memory_contract_matches_production_connections(four_ki
 
 
 @pytest.mark.parametrize("name", ["source/rtl/shama_memory_adapter.sv", "source/rtl/shama_boot_params.svh",
+                                  "source/rtl/shama_native_cells.svh",
                                   "source/configs/default.toml", "mapped.json", "plan.json", "initial.bin"])
 def test_current_preparation_rejects_changed_sources_graph_plan_or_memory(four_kib_current, tmp_path, name):
     original, _ = four_kib_current
@@ -162,3 +163,27 @@ def test_short_native_probe_includes_reset_boundary_reads_write_and_readback(cap
     assert summary["frames"] < 70
     assert summary["storage_bits_per_boundary"] == capacity * 8
     assert summary["final_words"][min(4096, capacity - 4) // 4] == 0xC33CA55A
+
+
+@pytest.mark.parametrize("fault", ["aliased-pins", "implementation", "unknown-module", "missing-ack", "active-startup"])
+def test_current_cache_rejects_unexpected_shared_cell_definitions(tmp_path, fault):
+    definition = {
+        "attributes": {"blackbox": "1"},
+        "ports": {name: {"direction": direction, "bits": [bit]}
+                  for bit, (name, direction) in enumerate((("A", "input"), ("B", "input"), ("Y", "output")), 2)},
+        "cells": {},
+    }
+    name = "CLOCK_OR"
+    if fault == "aliased-pins":
+        definition["ports"]["Y"]["bits"] = definition["ports"]["A"]["bits"]
+    elif fault == "implementation":
+        definition["cells"]["unexpected"] = {"type": "BUF"}
+    elif fault == "unknown-module":
+        name = "UNRELATED"
+    elif fault == "missing-ack":
+        name = "CLOCK_GUARD_ACK"
+    path = tmp_path / "unexpected-definition.json"
+    cells = {"unexpected": {"type": name}} if fault == "active-startup" else {}
+    path.write_text(json.dumps({"modules": {current_fixture.TOP: {"cells": cells}, name: definition}}))
+    with pytest.raises(ValueError, match="unexpected native|single complete mapped top|startup-only"):
+        current_fixture.retain_native_mapping(path, tmp_path / "mapped.json", yosys="never-run", liberty=tmp_path / "unused.lib")

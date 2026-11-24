@@ -1,0 +1,317 @@
+{
+  "baseline": false,
+  "scope": "production startup partition, six driven input contacts",
+  "source_sha256": {
+    "rtl/shama_startup_control.sv": "d1e17568f0194e1003dab78d424be1e8508b7ccde351b404cc94f95249171c92",
+    "rtl/shama_native_cells.svh": "f6b4ef9ccecacd77cad6920345455b8c49c851cbfc95e677762e48de625fda93",
+    "src/shamaos/bounded_system.py": "67b499b61f92f49a00911a866e35446d2a0c44033fed369850c0981934202429",
+    "src/shamaos/hardware/logic.py": "de897be8f44c3f55a9d9d1880c3d7326288eb8d837498008caa4339784c74f2b",
+    "src/shamaos/system_build.py": "134a5cfc71bb3248fec29eb701ec3c010624c9150ad6c5d8a7529a32b6278cf3",
+    "experiments/named_startup_domain/measure.py": "bc4179a058053a9531a6fe1718139af35eb95c2765d81dca588a0a6c77f9c26d"
+  },
+  "mapped_sha256": "9b82b0d5b3b5110ec9d04533a747a0b057e06c2c7bc691d93669d0d7c6877546",
+  "emitted_stream_sha256": "45fcb1f7429973a5a5409ba8bb10ed8506b4f2dd6b74dc02fc02759bf731e986",
+  "runner_sha256": "c8032089622501cb57f9edbb0ea7e3be24e3a23fd0b2b80653b0ed4f07045610",
+  "partition": {
+    "top": "shama_startup_control",
+    "cell_count": 29,
+    "net_count": 63,
+    "mapped_signal_count": 36,
+    "routing_tracks": 40,
+    "strategy": "complete-bounded-original-io-facade",
+    "bounds": {
+      "min": {
+        "x": 0,
+        "y": -60,
+        "z": -28
+      },
+      "max": {
+        "x": 922,
+        "y": 1,
+        "z": 194
+      }
+    },
+    "original_mapped_source": {
+      "path": "/tmp/named-r2-positive/startup.json",
+      "sha256": "9b82b0d5b3b5110ec9d04533a747a0b057e06c2c7bc691d93669d0d7c6877546",
+      "container_sha256": "9b82b0d5b3b5110ec9d04533a747a0b057e06c2c7bc691d93669d0d7c6877546",
+      "encoding": "plain",
+      "top": "shama_startup_control",
+      "raw_cells": 29,
+      "lowered_cells": 29,
+      "lowering_source_sha256": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274"
+    },
+    "input_ports": {
+      "clk": [
+        {
+          "x": 0,
+          "y": -59,
+          "z": 194
+        }
+      ],
+      "core_gate": [
+        {
+          "x": 24,
+          "y": -59,
+          "z": 194
+        }
+      ],
+      "divider_high": [
+        {
+          "x": 32,
+          "y": -59,
+          "z": 194
+        }
+      ],
+      "power_switch": [
+        {
+          "x": 40,
+          "y": -59,
+          "z": 194
+        }
+      ],
+      "reset_button": [
+        {
+          "x": 48,
+          "y": -59,
+          "z": 194
+        }
+      ],
+      "shutdown_ready": [
+        {
+          "x": 64,
+          "y": -59,
+          "z": 194
+        }
+      ]
+    },
+    "output_ports": {
+      "clock_hold": [
+        {
+          "x": 8,
+          "y": -59,
+          "z": 194
+        }
+      ],
+      "core_clk": [
+        {
+          "x": 16,
+          "y": -59,
+          "z": 194
+        }
+      ],
+      "rst": [
+        {
+          "x": 56,
+          "y": -59,
+          "z": 194
+        }
+      ]
+    },
+    "native_modules": 3,
+    "facade_modules": 1,
+    "original_port_bits": 9,
+    "cache_layout_policy": null,
+    "planned_clock_matching_scope": "Exact original-input/generated-source-to-register matching is required; exterior facade prefix and runtime timing remain unverified",
+    "complete_machine_runtime_verified": false,
+    "electrical_route_isolation_verified": false,
+    "startup_private_clock_delay": {
+      "signal": "clk",
+      "receiver": "reset_pulse_request",
+      "pin": "C",
+      "position": {
+        "x": 912,
+        "y": -45,
+        "z": 50
+      },
+      "before": {
+        "delay": "1",
+        "facing": "north",
+        "locked": "false",
+        "powered": "false"
+      },
+      "after": {
+        "delay": "4",
+        "facing": "north",
+        "locked": "false",
+        "powered": "false"
+      }
+    }
+  },
+  "cases": {
+    "power-cycle": {
+      "ticks": 28860,
+      "core_output_pulse_widths": {
+        "35": 118
+      },
+      "registers": {
+        "clock_hold": {
+          "edges": 266,
+          "min_setup": 24,
+          "min_hold": 46,
+          "violations": []
+        },
+        "divided_clock_active": {
+          "edges": 266,
+          "min_setup": 22,
+          "min_hold": 36,
+          "violations": []
+        },
+        "reset_pulse_request": {
+          "edges": 266,
+          "min_setup": 8,
+          "min_hold": 35,
+          "violations": []
+        },
+        "reset_pulse_received": {
+          "edges": 118,
+          "min_setup": 11,
+          "min_hold": 59,
+          "violations": []
+        }
+      },
+      "scenario_sha256": "a1d10bcf3464821aa8f26318f160f5c91aafcd200d24fb18e500a5cadf87d6ce",
+      "result_sha256": "f88c662aa8cb2e2cbc16a0288907a59e75b9cbdbf56440d02611d031752ce8e5"
+    },
+    "lead-12": {
+      "ticks": 13830,
+      "core_output_pulse_widths": {
+        "35": 8,
+        "1024": 1
+      },
+      "registers": {
+        "clock_hold": {
+          "edges": 95,
+          "min_setup": 38,
+          "min_hold": 4948,
+          "violations": []
+        },
+        "divided_clock_active": {
+          "edges": 95,
+          "min_setup": 34,
+          "min_hold": 36,
+          "violations": []
+        },
+        "reset_pulse_request": {
+          "edges": 95,
+          "min_setup": 8,
+          "min_hold": 62,
+          "violations": []
+        },
+        "reset_pulse_received": {
+          "edges": 9,
+          "min_setup": 11,
+          "min_hold": 59,
+          "violations": []
+        }
+      },
+      "scenario_sha256": "21dbda2e904aad1262deea20d7712d7e2ec14a24839706b2c128071d436fd70d",
+      "result_sha256": "065094f330f408775ac20fcc104f879cb8c98f6c01bbb50db315f490d741099d"
+    },
+    "lead-55": {
+      "ticks": 13873,
+      "core_output_pulse_widths": {
+        "35": 8,
+        "1024": 1
+      },
+      "registers": {
+        "clock_hold": {
+          "edges": 95,
+          "min_setup": 81,
+          "min_hold": 4948,
+          "violations": []
+        },
+        "divided_clock_active": {
+          "edges": 95,
+          "min_setup": 34,
+          "min_hold": 36,
+          "violations": []
+        },
+        "reset_pulse_request": {
+          "edges": 95,
+          "min_setup": 8,
+          "min_hold": 62,
+          "violations": []
+        },
+        "reset_pulse_received": {
+          "edges": 9,
+          "min_setup": 11,
+          "min_hold": 59,
+          "violations": []
+        }
+      },
+      "scenario_sha256": "b436db123ee5464576c7a400c0b322398db94b12ff379cde0ebd90cf79a23b88",
+      "result_sha256": "07d629cf98fce347fdbf67c9837250071ab333a441bbc43f0a9a9dbdc583cdd6"
+    },
+    "lead-95": {
+      "ticks": 13913,
+      "core_output_pulse_widths": {
+        "35": 8,
+        "1024": 1
+      },
+      "registers": {
+        "clock_hold": {
+          "edges": 95,
+          "min_setup": 121,
+          "min_hold": 4948,
+          "violations": []
+        },
+        "divided_clock_active": {
+          "edges": 95,
+          "min_setup": 34,
+          "min_hold": 36,
+          "violations": []
+        },
+        "reset_pulse_request": {
+          "edges": 95,
+          "min_setup": 8,
+          "min_hold": 62,
+          "violations": []
+        },
+        "reset_pulse_received": {
+          "edges": 9,
+          "min_setup": 11,
+          "min_hold": 59,
+          "violations": []
+        }
+      },
+      "scenario_sha256": "a40c5dadd3a3872071e9447a068c0bdf76fcaaac6da0d294024b3782fa16043c",
+      "result_sha256": "09ce9842ef686eca6483e06e7d4d699f9c6767aba8c723fd63e1bd97ce3f6c4d"
+    },
+    "lead-157": {
+      "ticks": 13975,
+      "core_output_pulse_widths": {
+        "35": 8,
+        "1024": 1
+      },
+      "registers": {
+        "clock_hold": {
+          "edges": 95,
+          "min_setup": 183,
+          "min_hold": 4948,
+          "violations": []
+        },
+        "divided_clock_active": {
+          "edges": 95,
+          "min_setup": 34,
+          "min_hold": 36,
+          "violations": []
+        },
+        "reset_pulse_request": {
+          "edges": 95,
+          "min_setup": 8,
+          "min_hold": 62,
+          "violations": []
+        },
+        "reset_pulse_received": {
+          "edges": 9,
+          "min_setup": 11,
+          "min_hold": 59,
+          "violations": []
+        }
+      },
+      "scenario_sha256": "992ba88f9dfda3de9d9bcefe1297fa5a929cc725d696201b5e6a78b2d1efef0b",
+      "result_sha256": "266437c44d570a33dbea93cdedc567388a57bbc393c5521b9d9efcc0f3478b11"
+    }
+  }
+}

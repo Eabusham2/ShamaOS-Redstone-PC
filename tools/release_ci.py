@@ -94,12 +94,12 @@ def acquire(repo: str, commit: str, destination: Path, candidate_run: int | None
             ci_run = report
             break
     if ci_run is None:
-        raise WorldWriteError("No green exact-commit CI run includes all twelve full-synthesis partitions and all other gates.")
+        raise WorldWriteError("No green exact-commit CI run includes every production synthesis partition and all other gates.")
     (destination / "ci.json").write_text(json.dumps(ci_run, indent=2) + "\n", encoding="utf-8")
     artifacts = list(paginated(f"repos/{repo}/actions/runs/{ci_run['id']}/artifacts", "artifacts"))
     file_names = retained_artifact_names(artifacts)
-    required = {f"full-soc-{name}" for name in ("u_cpu", "u_input", "u_gpu", "u_display_bridge", "u_vram", "u_services",
-                "u_kernel", "u_fs", "u_asm", "u_cache", "u_ram", "u_flash")}
+    from shamaos.system_build import PARTITION_SPECS
+    required = {f"full-soc-{name}" for name, _module in PARTITION_SPECS}
     required |= {f"full-soc-report-{commit}", f"shamaos-tested-fixture-{commit}"}
     if not required.issubset({artifact["name"] for artifact in artifacts}):
         raise WorldWriteError("The exact-commit CI run is missing original validation artifacts.")

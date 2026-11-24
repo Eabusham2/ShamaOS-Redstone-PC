@@ -7,6 +7,7 @@ option. The ordinary CI fixtures remain separately named evidence artifacts.
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 import json
 from pathlib import Path
 import re
@@ -19,11 +20,17 @@ from .machine_spec import CACHE_BYTES, FLASH_BYTES, RAM_BYTES, VRAM_BYTES
 from .release_acceptance import verify_full_world_acceptance
 from .release_io import file_inventory, inventory_digest, safe_relative, sha256, split_asset, write_zip
 from .schematic import export_litematic, machine_bounds
+from .system_build import PARTITION_SPECS
 from .worldio import WorldWriteError, validate_native_world
 
 
 GATES = ("literal_capacity", "routing", "timing", "world_runtime", "controls_and_screen",
          "app_lifecycle", "persistence", "mining", "capacity_faults", "loaded_chunks", "relocation")
+
+
+def required_partition_job_names() -> tuple[str, ...]:
+    return tuple(f"full-physical-partitions ({instance}, {module}, {index})"
+                 for index, (instance, module) in enumerate(PARTITION_SPECS))
 
 
 def _require(condition, message):
@@ -41,9 +48,13 @@ def validate_ci(report: dict, commit: str) -> None:
     for name in ("world-backend", "rtl", "behavioral-and-redstone",
                  "behavioral-partitions (components)", "behavioral-partitions (system)", "full-physical-synthesis"):
         _require(names.count(name) == 1, f"Missing required CI job: {name}")
-    _require(sum(name.startswith("test (") for name in names) == 4, "All four Linux/Windows/Python matrix jobs must pass.")
-    _require(sum(name.startswith("full-physical-partitions (") for name in names) == 12,
-             "All twelve full synthesis partitions must pass; request CI with [full-synth].")
+    expected_platforms = Counter(f"test ({platform}, {version})"
+        for platform in ("ubuntu-24.04", "windows-latest") for version in ("3.11", "3.12"))
+    _require(Counter(name for name in names if name.startswith("test (")) == expected_platforms,
+             "All four distinct Linux/Windows/Python matrix jobs must pass.")
+    _require(Counter(name for name in names if name.startswith("full-physical-partitions ("))
+             == Counter(required_partition_job_names()),
+             "Every exact production synthesis partition must pass once; request CI with [full-synth].")
 
 
 def validate_candidate(candidate: Path, commit: str, ci: dict) -> dict:

@@ -36,6 +36,7 @@ def build_soc_executable(snapshot, os_image, *, real_adapters=False):
         destination = snapshot / source
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_bytes((ROOT / source).read_bytes())
+    shutil.copyfile(ROOT / "rtl/shama_native_cells.svh", snapshot / "rtl/shama_native_cells.svh")
     (snapshot / "rtl/shama_boot_params.svh").write_text(render_boot_parameters(os_image))
     sources = [str(snapshot / source) for source in source_paths]
     defines = ["-DSHAMA_REAL_ADAPTERS"] if real_adapters else []

@@ -214,7 +214,7 @@ jobs:
             rtl/shama_onehot_ring.sv rtl/shama_ring_memctl.sv \
             rtl/shama_memory_adapter.sv rtl/shama_services.sv \
             rtl/shama_kernel_accel.sv rtl/shama_fs_accel.sv \
-            rtl/shama_asm_accel.sv rtl/shama_soc.sv
+            rtl/shama_asm_accel.sv rtl/shama_startup_control.sv rtl/shama_soc.sv
 
 
   behavioral-partitions:
@@ -400,6 +400,9 @@ jobs:
           - instance: u_flash
             module: shama_flash_adapter
             index: 11
+          - instance: u_startup
+            module: shama_startup_control
+            index: 12
     steps:
       - uses: actions/checkout@v4
       - name: Install Yosys and package
@@ -424,11 +427,12 @@ jobs:
           from shamaos.synthesis import build_physical_netlist, synthesize_json
           from shamaos.resource_accounting import physical_netlist_resource_lower_bound
           from shamaos.system_build import (
-              SOC_RTL_FILES,
               _geometry_from_config,
               _partition_origin,
               _repo_root,
               partition_mapping_mode,
+              partition_rtl_files,
+              place_flat_partition,
           )
 
           instance = os.environ["SHAMA_INSTANCE"]
@@ -448,13 +452,13 @@ jobs:
           output = out_dir / f"partition-{instance}-{module}.json"
 
           synthesize_json(
-              [root / p for p in SOC_RTL_FILES],
+              partition_rtl_files(root, module),
               top=module,
               output_json=output,
               repo_root=root,
               mapping_mode=partition_mapping_mode(module),
           )
-          physical = build_physical_netlist(
+          physical = place_flat_partition(
               output,
               top=module,
               origin=origin,
@@ -464,7 +468,7 @@ jobs:
           (out_dir / f"physical-{instance}.json").write_text(json.dumps(manifest, indent=2) + "\n")
           resources = physical_netlist_resource_lower_bound(physical)
           (out_dir / f"resources-{instance}.json").write_text(json.dumps(resources, indent=2) + "\n")
-          print(json.dumps({key: manifest[key] for key in ("top", "cell_count", "net_count", "routing_tracks", "routing_planes", "trunk_track_bounds")}, indent=2))
+          print(json.dumps({key: manifest[key] for key in ("top", "cell_count", "net_count", "routing_tracks", "routing_planes", "trunk_track_bounds") if key in manifest}, indent=2))
           assert manifest["cell_count"] > 0
           assert manifest["net_count"] > 0
           assert manifest["routing_tracks"] > 0
@@ -522,6 +526,7 @@ jobs:
               _geometry_from_config,
               _partition_origin,
               _repo_root,
+              place_flat_partition,
           )
 
           root = _repo_root()
@@ -535,7 +540,7 @@ jobs:
           for index, (instance, module) in enumerate(PARTITION_SPECS):
               mapped = build / f"partition-{instance}-{module}.json"
               assert mapped.exists(), mapped
-              physical = build_physical_netlist(
+              physical = place_flat_partition(
                   mapped,
                   top=module,
                   origin=_partition_origin(origins.control, index),

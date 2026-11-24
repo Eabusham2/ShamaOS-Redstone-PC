@@ -73,31 +73,15 @@ module shama_soc #(
         INPUT_BASE = 32'h02001000,
         INPUT_END  = 32'h02001fff;
 
-    logic rst;
-    logic powered,power_previous;
-    // Turning the lever off requests a clean close. The clock remains held on
-    // until filesystem saves, ownership cleanup and volatile clearing finish.
-    always_ff @(posedge clk) begin
-        if(reset_button) begin powered<=power_switch;power_previous<=power_switch;end
-        else begin
-            // Edge history and edge detection use the same sampling clock.
-            // Sampling history on the opposite edge can swallow a lever rise.
-            power_previous<=power_switch;
-            if(shutdown_ready) powered<=0;
-            else if(power_switch && !power_previous) powered<=1;
-        end
-    end
-    assign rst = reset_button | ~powered;
-    assign clock_hold = powered;
-
-    // Raw physical clock stays fast enough to latch short keyboard/controller
-    // events. Core logic runs extremely slowly so the longest literal
-    // RAM/flash redstone routes settle before the next architectural edge.
-    // During reset, core_clk follows the raw clock so every state element
-    // receives multiple reset edges before the physical clock stops.
-    logic [CORE_DIV_BIT:0] core_div_counter;
-    logic core_clk;
+    logic rst, core_clk;
+    logic [CORE_DIV_BIT:0] core_div_counter = '0;
     logic core_gate,step_pending,step_previous;
+
+    shama_startup_control u_startup(
+        .clk, .power_switch, .reset_button, .shutdown_ready,
+        .divider_high(core_div_counter[CORE_DIV_BIT]), .core_gate,
+        .clock_hold, .core_clk, .rst
+    );
 
     always_ff @(posedge clk) begin
         if(rst) begin core_div_counter<='0;step_pending<=0;step_previous<=0;end
@@ -116,7 +100,6 @@ module shama_soc #(
         else if(!core_div_counter[CORE_DIV_BIT])
             core_gate<=!pause_switch || step_pending || !power_switch;
     end
-    assign core_clk = rst ? clk : (core_div_counter[CORE_DIV_BIT] & core_gate);
 
     logic [63:0] time_counter;
     always_ff @(posedge clk) begin

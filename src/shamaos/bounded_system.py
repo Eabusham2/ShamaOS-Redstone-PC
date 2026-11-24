@@ -20,7 +20,7 @@ from shamaos.hardware.interfaces import RoutingInterfaces
 from shamaos.hardware.logic import template_for
 from shamaos.hardware.memory import DUST, SUPPORT
 from shamaos.hardware.partition_placement import audit_placement, balance_partition_clocks
-from shamaos.hardware.partition_planner import Graph, audit_plan, build_plan
+from shamaos.hardware.partition_planner import Graph, audit_plan, build_plan, load_mapped_module
 from shamaos.model import Box, Placement, Vec3
 from shamaos.synthesis import MacroInstance, PhysicalNetlist, build_physical_netlist, _expand_sequential_cells
 from shamaos.worldio import validate_position
@@ -375,6 +375,129 @@ def measure_logic(logic: BoundedSystemLogic, *, temporary_parent=None) -> Measur
     return MeasuredBoundedLogic(logic, geometry, routing)
 
 
+@dataclass(frozen=True)
+class StartupPartition(BoundedPartition):
+    """Keep the generated reset-request receiver inside its measured aperture."""
+
+    def audit(self):
+        super().audit()
+        if self.native_geometry_fingerprint() != STARTUP_NATIVE_GEOMETRY_SHA256:
+            raise ValueError("startup routing differs from the measured native geometry; requalification is required")
+
+    def native_geometry_fingerprint(self):
+        """Bind all native states and semantic pins, independent of translation.
+
+        Use the raw routed cluster below this partition's iterator so checking
+        the exact delay override cannot recurse through audit(). A logical
+        graph alone cannot establish that a new placer has the same timing.
+        """
+        module, _ = load_mapped_module(self.graph.source["path"], self.top)
+        points = {f"{direction}/{name}": point
+                  for direction, ports in (("input", self.input_ports), ("output", self.output_ports))
+                  for name, (point,) in ports.items()}
+        for role in ("clock_hold", "divided_clock_active", "reset_pulse_request", "reset_pulse_received"):
+            bits = module["netnames"][role]["bits"]
+            name, = (name for name, cell in module["cells"].items()
+                     if template_for(cell["type"]).cell_type == "DFF"
+                     and cell["connections"]["Q"] == bits)
+            anchor = self.cell_origins[name]
+            for pin, offset in template_for(self.cell_types[name]).pins.items():
+                points[f"register/{role}/{pin}"] = anchor.offset(offset.x, offset.y, offset.z)
+        position, before, after = self.request_clock_repeater()
+        states, changed = {}, 0
+        for block in self.placed.iter_placements():
+            state = block.block
+            if block.pos == position:
+                if state != before:
+                    raise ValueError("unexpected startup private clock state")
+                state = after
+                changed += 1
+            if states.setdefault(block.pos, state) != state:
+                raise ValueError("conflicting startup native block states")
+        if changed != 1:
+            raise ValueError("startup private delay must occur exactly once")
+        return startup_geometry_fingerprint(states, points)
+
+    def request_clock_repeater(self):
+        module, _ = load_mapped_module(self.graph.source["path"], self.top)
+        request = module["netnames"]["reset_pulse_request"]["bits"]
+        cell, = (name for name, item in module["cells"].items()
+                 if template_for(item["type"]).cell_type == "DFF"
+                 and item["connections"]["Q"] == request)
+        if module["cells"][cell]["connections"]["C"] != module["ports"]["clk"]["bits"]:
+            raise ValueError("the reset request no longer samples the raw clock")
+        tile, = (t for t in self.placed.all_modules().values() if cell in t.physical.cell_types)
+        net, sink = next((net, sink) for net in tile.physical.nets for sink in net.sinks
+                         if (sink.name, sink.pin) == (cell, "C"))
+        lo, hi = sorted((tile.track_base_z + 4 * tile.tracks[net.bit] + 4,
+                         tile.escapes[sink.pos].escape_z - 6))
+        for segment in tile.endpoint_route(net, sink)[1]:
+            pos = segment.pos
+            old = tile.overrides.get(pos, segment.block)
+            if (lo < pos.z < hi and pos.y == tile.branch_y and old.name == "minecraft:repeater"
+                    and dict(old.properties)["delay"] == "1"):
+                # Branch sources, trunks and other exit paths must keep their exact geometry.
+                owners = [(path.bit, end) for path in tile.physical.nets for end in (path.source, *path.sinks)
+                          if any(p.pos == pos for p in tile.endpoint_route(path, end)[1])]
+                if owners != [(net.bit, sink)]:
+                    raise ValueError("reset-request skew requires an exclusive existing receiver branch")
+                from .model import BlockState
+                return pos, old, BlockState.of(old.name, **(dict(old.properties) | {"delay": "4"}))
+        raise ValueError("the raw-clock reset-request branch lacks its measured delay capacity")
+
+    def iter_placements(self, *, component=None):
+        pos, old, new = self.request_clock_repeater()
+        seen = 0
+        for block in super().iter_placements(component=component):
+            if block.pos == pos:
+                if block.block != old:
+                    raise ValueError("unexpected physical state on the reset-request clock route")
+                block = replace(block, block=new)
+                seen += 1
+            yield block
+        if seen != 1:
+            raise ValueError("reset-request clock skew did not modify exactly one existing repeater")
+
+    def manifest(self):
+        pos, old, new = self.request_clock_repeater()
+        return {**super().manifest(),
+                "startup_native_geometry_sha256": self.native_geometry_fingerprint(),
+                "planned_clock_matching_scope": "Original matching plus one measured private receiver delay; only the retained local geometry is qualified. External clock/reset delivery remains unverified.",
+                "startup_private_clock_delay": {
+            "signal": "clk", "receiver": "reset_pulse_request", "pin": "C",
+            "position": asdict(pos), "before": dict(old.properties), "after": dict(new.properties)}}
+
+
+# The complete corrected 29-cell island in the retained native timing and
+# save/reopen proofs. A new geometry needs fresh electrical qualification.
+STARTUP_NATIVE_GEOMETRY_SHA256 = "2d81c1c1723f8357dcc77ebdab58f0374a1255eb69ca1e05c958c62b8fd9c997"
+
+
+def startup_geometry_fingerprint(states, points):
+    origin = Vec3(min(p.x for p in states), min(p.y for p in states), min(p.z for p in states))
+    relative = lambda p: (p.x-origin.x, p.y-origin.y, p.z-origin.z)
+    palette = sorted({(state.name, state.properties) for state in states.values()})
+    indices = {value: i for i, value in enumerate(palette)}
+    blocks = sorted((*relative(p), indices[(state.name, state.properties)]) for p, state in states.items())
+    body = {"schema": "shama-startup-native-geometry-v1", "palette": palette, "blocks": blocks,
+            "points": {name: relative(point) for name, point in points.items()}}
+    return hashlib.sha256(json.dumps(body, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()
+
+
+def place_startup_control(mapped, *, surface_y, maximum_y):
+    """Put every causal startup path inside one native routing domain."""
+    from .hardware.bounded_facade import place_with_egress
+
+    graph = Graph.read(mapped, "shama_startup_control")
+    plan = build_plan(graph, cell_budget=64, boundary_budget=128, domain_budget=128, arity=4)
+    placed = place_with_egress(graph, plan, surface_y=surface_y, maximum_y=maximum_y)
+    if sum(bool(tile.physical.cell_types) for tile in placed.all_modules().values()) != 1:
+        raise ValueError("the startup controller must fit one complete physical domain")
+    implementation = StartupPartition(graph, plan, placed, surface_y, maximum_y)
+    implementation.audit()
+    return implementation
+
+
 def prepare_from_artifacts(partition_artifacts, shell_mapped, *, shell_top="shama_soc",
                            base_origin=Vec3(0, -60, 0), minimum_build_y=-60, options=None):
     """Place complete mapped children; whole-logic measurement happens later.
@@ -416,7 +539,11 @@ def prepare_from_artifacts(partition_artifacts, shell_mapped, *, shell_top="sham
         graph = Graph.read(path, top)
         from .hardware.cache_layout import cache_policy, place_compact_cache
         policy = cache_policy(graph) if name == "u_cache" and settings["cache_compaction"] else None
-        if policy is not None:
+        if name == "u_startup" and top == "shama_startup_control":
+            startup = place_startup_control(path, surface_y=minimum_build_y-1,
+                                           maximum_y=settings["maximum_partition_y"])
+            graph, plan, placed = startup.graph, startup.plan, startup.placed
+        elif policy is not None:
             if (settings["cell_budget"], settings["boundary_budget"], settings["arity"]) != (64, 128, 4):
                 raise ValueError("compact cache policy requires cell/boundary/arity 64/128/4; use cache_compaction=0 for a different unverified layout")
             plan, placed = place_compact_cache(graph, surface_y=minimum_build_y-1,
@@ -427,8 +554,9 @@ def prepare_from_artifacts(partition_artifacts, shell_mapped, *, shell_top="sham
             placed = place_with_egress(graph, plan, surface_y=minimum_build_y-1,
                                       maximum_y=settings["maximum_partition_y"])
         offset = Vec3(right-placed.bounds.max.x, minimum_build_y-placed.bounds.min.y, front-placed.bounds.max.z)
-        part = BoundedPartition(graph, plan, placed.translated(offset), minimum_build_y-1,
-                                settings["maximum_partition_y"])
+        implementation = StartupPartition if name == "u_startup" and top == "shama_startup_control" else BoundedPartition
+        part = implementation(graph, plan, placed.translated(offset), minimum_build_y-1,
+                              settings["maximum_partition_y"])
         part.audit()
         partitions[name] = part
         right = part.bounds.min.x - settings["component_gap"]

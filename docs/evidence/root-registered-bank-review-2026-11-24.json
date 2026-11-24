@@ -1,0 +1,85 @@
+{
+  "archive_sha256": "359a0d44918784c5858dc0b76e47e090074a157eef71287476476fc8c78525f5",
+  "complete_machine_runtime_verified": false,
+  "profiles": {
+    "delayed": {
+      "counts": {
+        "q_falls": 60,
+        "q_rises": 73,
+        "retained": 2432,
+        "writes": 128
+      },
+      "faults": {
+        "incorrect_Q": 86,
+        "retention": 1381,
+        "stray_Q": 0,
+        "unstable_data": 96
+      },
+      "minimum_rt": {
+        "aperture": 35,
+        "hold": 66,
+        "setup": 1
+      },
+      "register_terminal_arrivals_rt": {
+        "0": 19,
+        "31": 33
+      }
+    },
+    "positive": {
+      "counts": {
+        "q_falls": 647,
+        "q_rises": 895,
+        "reopened_bits": 512,
+        "retained": 38912,
+        "writes": 2048
+      },
+      "faults": {
+        "incorrect_Q": 0,
+        "retention": 0,
+        "stray_Q": 0,
+        "unstable_data": 0
+      },
+      "minimum_rt": {
+        "aperture": 35,
+        "hold": 2,
+        "setup": 39
+      },
+      "register_terminal_arrivals_rt": {
+        "0": 19,
+        "1": 45,
+        "2": 45,
+        "3": 45,
+        "4": 45,
+        "5": 45,
+        "6": 45,
+        "7": 45,
+        "8": 45,
+        "9": 45,
+        "10": 45,
+        "11": 45,
+        "12": 45,
+        "13": 45,
+        "14": 45,
+        "15": 45,
+        "16": 45,
+        "17": 45,
+        "18": 45,
+        "19": 45,
+        "20": 45,
+        "21": 45,
+        "22": 45,
+        "23": 45,
+        "24": 45,
+        "25": 45,
+        "26": 45,
+        "27": 45,
+        "28": 45,
+        "29": 45,
+        "30": 45,
+        "31": 33
+      }
+    }
+  },
+  "reviewer_sha256": "101c255bc6b05f2ff92e40ca4acf4ea2430e9e69de5fd4d6be7640a0568341e1",
+  "scope": "Independent real-lever stimulus, launch registers, raw storage timing and direct packed Anvil decode; event admission/CDC remain open."
+}
