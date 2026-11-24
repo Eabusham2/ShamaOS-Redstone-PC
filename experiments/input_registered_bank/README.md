@@ -38,6 +38,11 @@ Replay the delivered recording without an engine process. This command verifies
 the two approved capture source inventories, reconstructs their original
 producer modules in a temporary directory and invokes the reviewer there.
 It also works after the production logic templates or other tracked code change.
+Offline replay supports Windows without modifying the archived producer. Its
+isolated process forbids native subprocesses. Where the POSIX `resource` module
+is absent, the historical unused import has no resource methods available;
+attempting to invoke its native memory limiter still fails. A fresh native
+capture requires the actual Linux runner and its resource limits.
 
 ```sh
 PYTHONPATH="$PWD/src:$PWD" python -m experiments.input_registered_bank.review_sources \

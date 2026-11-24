@@ -24,6 +24,25 @@ APPROVED = {
 }
 
 
+_OFFLINE_PROCESS_SETUP = """
+import importlib.util, json, sys, types
+root, path, *dependencies = sys.argv[1:]
+sys.path[:0] = [root + '/src', root, *dependencies]
+
+def offline_only(event, arguments):
+    if event in {'subprocess.Popen', 'os.system', 'os.posix_spawn', 'os.exec', 'os.fork'}:
+        raise RuntimeError('captured waveform replay cannot launch a native process')
+sys.addaudithook(offline_only)
+
+# Preserve every archived producer byte. Its old eager import is unused by
+# build/trace/Anvil review. The unavailable module exposes no POSIX methods:
+# any attempt to use the old memory limiter still fails, rather than running
+# an unbounded engine. Actual native subprocesses are forbidden above.
+if importlib.util.find_spec('resource') is None:
+    sys.modules['resource'] = types.ModuleType('resource')
+"""
+
+
 def json_digest(value):
     encoded = json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
     return hashlib.sha256(encoded).hexdigest()
@@ -63,10 +82,7 @@ def review_frozen(path):
         for name in ("experiments", "experiments/input_registered_bank",
                      "experiments/input_storage_bus", "experiments/input_receiver_timing"):
             (root / name / "__init__.py").touch(exist_ok=False)
-        script = (
-            "import json, sys\n"
-            "root, path, *dependencies = sys.argv[1:]\n"
-            "sys.path[:0] = [root + '/src', root, *dependencies]\n"
+        script = _OFFLINE_PROCESS_SETUP + (
             "from experiments.input_registered_bank.recording import review\n"
             "print(json.dumps(review(path)))\n"
         )

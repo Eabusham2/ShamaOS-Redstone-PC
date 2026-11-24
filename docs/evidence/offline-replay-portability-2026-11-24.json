@@ -1,0 +1,18 @@
+{
+  "actual_windows_ci_passed": false,
+  "complete_machine_runtime_verified": false,
+  "junit_sha256": "14b1160d8ed3aff9004f83e4c13f4dfb527dadc66bec40495c92108821e69dcc",
+  "result": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "tests": 16
+  },
+  "review": "Independent reviewer approved the deferred limiter, byte-identical archive and deny-native offline scope. This is not a general-purpose security sandbox.",
+  "scope": "Offline frozen-recording portability and measured startup regression; missing resource and prohibited native execution tested in real isolated Python processes",
+  "source_hashes": {
+    "experiments/input_registered_bank/review_sources.py": "e64df370a439c20c0db5bb0e2a528d63396aa4bc41d02c0bf04f0fc76820dbe3",
+    "experiments/input_storage_bus/full_width.py": "15db8a43748ed0af13b129e885d9dfe5eacbc2496d67b09d97ad94920d176da1",
+    "tests/test_registered_input_evidence.py": "358faf17507a803d2e2f51577f3e4f1ad63b336bad46a87c5bd37bc7e6a4a57d"
+  }
+}

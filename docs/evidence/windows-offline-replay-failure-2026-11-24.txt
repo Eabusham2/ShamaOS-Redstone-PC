@@ -1,0 +1,26 @@
+CI revision: d85013b4c6cdb7c2ad2fbc4d9ee1da3f5beec52a
+Run: https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/45375342889
+Windows 3.12 job: 138381753136; Windows 3.11 job: 138381753237
+Both failed during test collection on the same Unix-only import.
+The fix keeps offline replay portable; a new native capture still requires the real limiter.
+
+2026-11-24T10:33:35.6312185Z __________ ERROR collecting tests/test_registered_input_evidence.py ___________
+2026-11-24T10:33:35.6314393Z ImportError while importing test module 'D:\a\ShamaOS-Redstone-PC\ShamaOS-Redstone-PC\tests\test_registered_input_evidence.py'.
+2026-11-24T10:33:35.6315994Z Hint: make sure your test modules/packages have valid Python names.
+2026-11-24T10:33:35.6316896Z Traceback:
+2026-11-24T10:33:35.6317823Z C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\importlib\__init__.py:90: in import_module
+2026-11-24T10:33:35.6319074Z     return _bootstrap._gcd_import(name[level:], package, level)
+2026-11-24T10:33:35.6320269Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-24T10:33:35.6321076Z tests\test_registered_input_evidence.py:5: in <module>
+2026-11-24T10:33:35.6322122Z     from experiments.input_registered_bank.test_review_sources import (
+2026-11-24T10:33:35.6323266Z experiments\input_registered_bank\test_review_sources.py:6: in <module>
+2026-11-24T10:33:35.6324764Z     from experiments.input_registered_bank.review_sources import approved_sources, compare_active, review_frozen
+2026-11-24T10:33:35.6326171Z experiments\input_registered_bank\review_sources.py:14: in <module>
+2026-11-24T10:33:35.6326884Z     from experiments.input_registered_bank import prove
+2026-11-24T10:33:35.6327596Z experiments\input_registered_bank\prove.py:9: in <module>
+2026-11-24T10:33:35.6328347Z     from experiments.input_registered_bank.fixture import build
+2026-11-24T10:33:35.6330867Z experiments\input_registered_bank\fixture.py:4: in <module>
+2026-11-24T10:33:35.6331706Z     from experiments.input_storage_bus.full_width import fixture as terminal_fixture
+2026-11-24T10:33:35.6332523Z experiments\input_storage_bus\full_width.py:13: in <module>
+2026-11-24T10:33:35.6333129Z     import resource
+2026-11-24T10:33:35.6333667Z E   ModuleNotFoundError: No module named 'resource'

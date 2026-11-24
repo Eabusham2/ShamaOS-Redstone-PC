@@ -10,7 +10,6 @@ import json
 import os
 from pathlib import Path
 import random
-import resource
 import subprocess
 import sys
 
@@ -48,6 +47,10 @@ def frozen(paths):
 
 
 def limit_native_memory():
+    # Offline geometry and captured-waveform review also run on Windows.
+    # A real native execution still requires this POSIX resource limiter.
+    import resource
+
     # This harness is single-threaded. Splitting observations bounds the memory
     # required by Rust to serialize and print the JSON trace.
     _, hard = resource.getrlimit(resource.RLIMIT_AS)
