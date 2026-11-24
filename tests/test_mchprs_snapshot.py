@@ -193,11 +193,15 @@ def test_missing_original_chunk_is_rejected_even_when_total_count_still_matches_
     assert not list(tmp_path.glob('output-world.partial-*'))
 
 
-def test_unsupported_publication_platform_does_not_fall_back_to_replacing_rename(tmp_path, monkeypatch):
+@pytest.mark.parametrize('platform', ('unsupported-platform', 'win32'))
+def test_unsupported_publication_platform_does_not_fall_back_to_replacing_rename(tmp_path, monkeypatch, platform):
     source, destination = tmp_path / 'source', tmp_path / 'destination'
     source.mkdir()
     (source / 'native-file').write_text('retain')
-    monkeypatch.setattr(snapshot_module.sys, 'platform', 'unsupported-platform')
+    monkeypatch.setattr(snapshot_module.sys, 'platform', platform)
+    def forbidden_libc(*args, **kwargs):
+        raise AssertionError('unsupported host must be rejected before loading libc')
+    monkeypatch.setattr(snapshot_module.ctypes, 'CDLL', forbidden_libc)
     with pytest.raises(WorldWriteError, match='requires Linux renameat2'):
         snapshot_module._publish_no_replace(source, destination)
     assert (source / 'native-file').read_text() == 'retain'

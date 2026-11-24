@@ -322,7 +322,8 @@ def verify_clocks(clock_path, prepared, imported, inputs, outputs, clocks):
         require(document == expected_document, "native clock scenario changes requested pulses, exact reset or original locations")
         captured = sum(step["ticks"] for step in document["steps"])
         check_runtime_result(runtime, imported, case["scenario"]["sha256"], steps=len(document["steps"]),
-            ticks=document["initial_ticks"] + captured, assertions=116, output_names=expected_outputs, clock_names=clocks)
+            ticks=document["initial_ticks"] + captured, assertions=len(clocks) + 1,
+            output_names=expected_outputs, clock_names=clocks)
         require(runtime["trace_capture"]["samples_per_output"] == captured, "native clock trace count differs")
         checked = check_clock_traces(runtime, clocks, document)
         require(checked["passed"] is (name == "safe"), "safe/too-fast native clock evidence has the wrong outcome")

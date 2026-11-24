@@ -1,0 +1,151 @@
+name: Validate complete physical cache world
+
+on:
+  workflow_dispatch:
+    inputs:
+      stop_after:
+        description: Last stage to execute; only audit can establish the complete cache result
+        type: choice
+        default: audit
+        options: [prepare, geometry, world, runtime, clocks, transactions, audit]
+      half_period:
+        description: Clock half-period in redstone ticks; checked against actual saved clock traces
+        type: string
+        default: "12000"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: physical-cache-validation-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  cache-world:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    env:
+      CARGO_TARGET_DIR: ${{ github.workspace }}/build/runtime-target
+      SHAMA_MCHPRS_RUNNER: ${{ github.workspace }}/build/runtime-target/release/shama-redstone-check
+      SHAMA_MCHPRS_TERRAIN_RUNNER: ${{ github.workspace }}/build/runtime-target/release/shama-sparse-world-check-terrain
+      CACHE_STOP_AFTER: ${{ inputs.stop_after }}
+      CACHE_HALF_PERIOD: ${{ inputs.half_period }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            build/runtime-target
+          key: shama-export-runtime-${{ runner.os }}-${{ hashFiles('tests/mchprs_runtime/Cargo.lock', 'tests/mchprs_runtime/src/**', 'tests/mchprs_sparse_runtime/Cargo.lock', 'tests/mchprs_sparse_runtime/src/**', 'tests/mchprs_sparse_runtime/native-terrain-registry.patch', 'tests/mchprs_sparse_runtime/pinned-source-provenance.json', 'tools/prepare_mchprs_terrain_registry.py') }}
+      - name: Install synthesis, HDL and native-world dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y iverilog yosys
+          python -m pip install -e ".[dev]"
+      - name: Build the pinned actual redstone engines
+        run: |
+          cargo build --locked --release --manifest-path tests/mchprs_runtime/Cargo.toml
+          cargo build --locked --release --manifest-path tests/mchprs_sparse_runtime/Cargo.toml
+          python - <<'PY'
+          import json
+          import subprocess
+          import sys
+          from pathlib import Path
+          metadata = json.loads(subprocess.check_output([
+              'cargo', 'metadata', '--offline', '--locked', '--format-version', '1',
+              '--manifest-path', 'tests/mchprs_runtime/Cargo.toml',
+          ], text=True))
+          package = next(p for p in metadata['packages'] if p['name'] == 'mchprs_blocks')
+          source = Path(package['manifest_path']).parents[2]
+          subprocess.run([
+              sys.executable, 'tools/prepare_mchprs_terrain_registry.py',
+              '--source', str(source), '--output', 'build/mchprs-terrain', '--build',
+          ], check=True)
+          PY
+      - name: Record exact revision, tools and available resources
+        run: |
+          mkdir -p build
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          import shutil
+          import subprocess
+          from pathlib import Path
+          binaries = [Path(os.environ['SHAMA_MCHPRS_RUNNER']),
+                      Path(os.environ['SHAMA_MCHPRS_TERRAIN_RUNNER'])]
+          report = {
+              'commit': os.environ['GITHUB_SHA'],
+              'workflow_run': os.environ['GITHUB_RUN_ID'],
+              'yosys': subprocess.check_output(['yosys', '-V'], text=True),
+              'iverilog': subprocess.check_output(['iverilog', '-V'], text=True, stderr=subprocess.STDOUT),
+              'disk_free_bytes': shutil.disk_usage('.').free,
+              'memory': Path('/proc/meminfo').read_text(),
+              'runners': {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in binaries},
+              'complete_machine_runtime_verified': False,
+          }
+          Path('build/cache-environment.json').write_text(json.dumps(report, indent=2) + '\n')
+          print(json.dumps({'commit': report['commit'], 'disk_free_bytes': report['disk_free_bytes']}))
+          if (os.environ['CACHE_STOP_AFTER'] not in ('prepare', 'geometry')
+                  and report['disk_free_bytes'] < 12 * 1024 ** 3):
+              raise SystemExit('Full cache evidence needs at least 12 GiB free before starting; no partial result is accepted.')
+          PY
+      - name: Generate, reopen and exercise the complete physical cache
+        run: |
+          set -euo pipefail
+          # Leave time to retain the evidence even when the experiment exceeds
+          # its deadline. INT lets the orchestrator record a failed stage.
+          timeout --signal=INT --kill-after=60s 300m \
+            python -u tools/validate_connected_cache.py \
+            --output build/cache-validation \
+            --runner "$SHAMA_MCHPRS_TERRAIN_RUNNER" \
+            --stop-after "$CACHE_STOP_AFTER" \
+            --half-period "$CACHE_HALF_PERIOD" \
+            --settle-ticks 48000 --initial-ticks 48000 \
+            --memory-limit-mib 4096 --wall-seconds 18000 \
+            2>&1 | tee build/cache-validation.log
+      - name: Retain concise progress and diagnostics first
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cache-diagnostics-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            build/cache-environment.json
+            build/cache-validation.log
+            build/cache-validation/validation-report.json
+            build/cache-validation/source-inventory.json
+            build/cache-validation/native-runner-probe/runner-probe.json
+            build/cache-validation/native-runner-probe/probe-progress.jsonl
+            build/cache-validation/rtl-oracle-crosscheck.json
+            build/cache-validation/source/build/current/prepared.json
+            build/cache-validation/source/build/current/rtl-review/*.log
+            build/cache-validation/geometry/facade-report.json
+            build/cache-validation/connected/connected-build-report.json
+            build/cache-validation/runtime/prepared.json
+            build/cache-validation/clocks/clock-report.json
+            build/cache-validation/transactions/transaction-report.json
+            build/cache-validation/independent-audit.json
+          retention-days: 14
+          if-no-files-found: warn
+      - name: Retain the actual world, sources and electrical evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cache-physical-evidence-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            build/cache-validation
+            build/mchprs-terrain/terrain-engine-provenance.json
+            build/mchprs-terrain/native-terrain-registry.patch
+            build/runtime-target/release/shama-sparse-world-check-terrain
+          # The frozen public source tree includes .github workflows. No Git
+          # credentials or arbitrary home directory are included in this path.
+          include-hidden-files: true
+          compression-level: 1
+          retention-days: 14
+          if-no-files-found: warn

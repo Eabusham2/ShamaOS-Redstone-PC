@@ -296,7 +296,7 @@ def _evaluate_clock_case(case, imported, drive, clock_points, ready, period, set
     result = json.loads(Path(case["stdout"]["path"]).read_text())
     captured = sum(step["ticks"] for step in scenario["steps"])
     _validate_result(result, imported, case["scenario"], len(scenario["steps"]),
-                     scenario["initial_ticks"] + captured, 116)
+                     scenario["initial_ticks"] + captured, len(clock_points) + 1)
     if any(len(trace) != captured or any(type(value) is not bool for value in trace)
            for trace in result["traces"].values()):
         raise ValueError("native clock traces lost samples or contain invalid values")

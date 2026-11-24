@@ -22,11 +22,12 @@ and explicit one-word instruction forms now reduce all nine executables. The
 physical cache is **4 KiB**, retaining the original **8 KiB execution window**
 through its existing RAM backing. See the [cache reduction record](docs/CACHE_REDUCTION.md)
 for exact byte savings, cache residency, tests and physical-routing scope.
-The complete one-bank cache fixture, including its controller, decoder and all
-connecting wires, now measures **22,805,546 blocks / 118,781 occupied chunks**,
-down **38.53% / 38.14%** from the earlier two-bank fixture. Both exact block-union
-checks agree; saved-world electrical operation remains pending. These fixture
-counts are separate from the whole-computer footprint.
+Two block collectors measured **22,805,546 blocks across 118,781 occupied
+chunks** for the earlier one-bank fixture with an unguarded write output. The
+current controller adds a registered write guard to protect preloaded data
+during startup. Its complete connected geometry, clock delivery, transactions
+and reopened storage require a fresh run of the
+[physical cache validation workflow](docs/CACHE_VALIDATION.md).
 
 Native world creation/readback also has a reviewed fingerprint optimization.
 A separate 64-chunk fixture writes about twice as fast and validates about

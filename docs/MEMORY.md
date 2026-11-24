@@ -44,7 +44,7 @@ Supported wider pitches are also behaviorally tested.
 ### Measured cell improvement
 
 Counts below include support blocks and internal bank buses, using the real
-emitter. They exclude bank-selection backbones, synthesized controllers, display,
+emitter. They exclude binary row decoders, bank-selection backbones, synthesized controllers, display,
 CPU/GPU logic and external routes.
 
 | Metric, one 4 KiB bank | Corrected eight-block-pitch baseline | Compact five-block-pitch cell |
@@ -55,11 +55,13 @@ CPU/GPU logic and external routes.
 | Capacity | 4,096 bytes | 4,096 bytes |
 
 The cell change removes **520,192 blocks per full 4 KiB bank**, about **20.7%**
-of the corrected same-capacity baseline. The current 80 full banks emit
-**159,324,160 storage-cell/internal-bus placements**. Generic 2 KiB banks remain
+of the corrected same-capacity baseline. At 1,991,552 placements per full
+bank, the 79 installed banks account for **157,332,608 storage-cell and
+internal-bus placements**. The [emitter preflight](evidence/cache4-preflight-2026-11-14.json)
+records the sampled 1,024 × 32-bit bank and the separate decoder and backbone counts. Generic 2 KiB banks remain
 supported and emit 996,224 placements for 16,384 stored bits; the default 200 KiB
 flash contains no half bank. With the compact cell held fixed, the authorized
-capacity reductions remove 2,413,761,024 placements from the original 1 MiB RAM / 4 MiB flash design's
+capacity reductions remove 2,415,752,576 placements from the original 1 MiB RAM / 4 MiB flash design's
 2,573,085,184 compact-cell placements, including its original fast memory and
 VRAM. Capacity reduction and cell efficiency are distinct savings; fewer stored
 bits do not make an individual bit cheaper.

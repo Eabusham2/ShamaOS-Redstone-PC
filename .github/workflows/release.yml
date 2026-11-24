@@ -13,6 +13,14 @@ on:
         description: Optional successful same-commit run containing a full-world candidate
         required: false
         type: string
+      logic_backend:
+        description: Logic backend when building a new candidate (existing candidates are unchanged)
+        required: true
+        type: choice
+        default: bounded
+        options:
+          - bounded
+          - flat
 
 permissions:
   contents: read
@@ -33,6 +41,7 @@ jobs:
       PYTHONPATH: src
       RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag }}
       CANDIDATE_RUN: ${{ inputs.candidate_run }}
+      LOGIC_BACKEND: ${{ inputs.logic_backend || 'bounded' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -65,7 +74,8 @@ jobs:
           if [ ! -d build/release-input/candidate ]; then
             python tools/build_release_candidate.py \
               --candidate build/release-input/candidate \
-              --commit "$SOURCE_COMMIT" --ci-report build/release-input/ci.json
+              --commit "$SOURCE_COMMIT" --ci-report build/release-input/ci.json \
+              --logic-backend "$LOGIC_BACKEND"
           fi
       - name: Verify full world and make schematic, installer, ready save and guide
         env:

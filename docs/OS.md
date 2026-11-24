@@ -8,8 +8,9 @@ mounts ShamaFS, copies the kernel into resident RAM, clears foreground RAM/fast
 memory, loads Desktop, and starts its program at fast-memory PC 0.
 
 Kernel RAM base is `0x2000`, with a protected 1 KiB image slot. Foreground
-executable backing occupies physical RAM `0x0000..0x1FFF`: service DMA reaches
-that RAM while the CPU uses its separate executable cache at those addresses.
+executable backing occupies physical RAM `0x0000..0x1FFF`. Service DMA can
+access all 8 KiB there. The CPU uses the separate 4 KiB cache at
+`0x0000..0x0FFF` and accesses RAM directly at `0x1000..0x1FFF`.
 An invalid mount or executable bundle halts before Desktop with the original
 error in r1 and `0xFFFFFFFF` in r2. The immutable ROM and `boot.asm` are checked
 word for word; repairing the image and resetting retries boot. Persistent flash
@@ -67,7 +68,7 @@ Oversized files are refused explicitly; saving never replaces a complete file
 with a truncated display prefix. Binaries must fit **16,380 bytes**, the executable
 slot payload after its length word; large-source assembly staging is at `0x14000`.
 Sources up to 49,152 bytes reuse the source buffer's aligned unused tail for
-output. Executing a result still requires it to fit the 8 KiB executable cache.
+output. Executing a result requires it to fit the 8 KiB RAM-backed program window.
 
 Keyboard input inserts at the visible cursor. Left/Right moves by byte;
 Up/Down moves between logical lines while preserving the column where possible.

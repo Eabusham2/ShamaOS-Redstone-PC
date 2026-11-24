@@ -6,7 +6,7 @@ ShamaOS is a 32-bit redstone computer generated as one synthesized SoC plus larg
 flowchart TD
     I["Keyboard and controller"] --> E["Queued input"]
     E --> C["32-bit CPU and native SHA"]
-    C <--> R["96 KiB RAM and 8 KiB fast memory"]
+    C <--> R["96 KiB RAM and 4 KiB fast memory"]
     C <--> O["OS services, filesystem and assembler"]
     O <--> F["200 KiB persistent flash"]
     C --> G["Independent GPU"]
@@ -33,12 +33,12 @@ faster file exporter does not make a running CPU instruction faster.
 
 ## Memory
 
-Literal default capacities:
+The default machine has 79 full memory banks.
 
-- cache 8 KiB / 2 banks;
-- RAM 96 KiB / 24 banks;
-- flash 200 KiB / 50 full banks;
-- VRAM 16 KiB / 4 banks.
+- Cache uses one bank for 4 KiB.
+- RAM uses 24 banks for 96 KiB.
+- Flash uses 50 banks for 200 KiB.
+- VRAM uses four banks for 16 KiB.
 
 Each default bank contains 4 KiB (1,024 × 32-bit words). Flash's 50 banks provide
 exactly 200 KiB without padded storage. The latest owner amendment also requires
@@ -69,7 +69,9 @@ the full production builder requires the upright panel and matching bridge.
 
 ## OS/storage
 
-ShamaFS is hardware. The in-world assembler is a hardware two-pass assembler. Boot loads resident kernel RAM plus one foreground app mirrored into the 8 KiB fast cache.
+ShamaFS is hardware. The in-world assembler is a hardware two-pass assembler. Boot loads the resident kernel and one foreground app into RAM.
+The app has an 8 KiB execution window. The loader mirrors its first 4 KiB into
+physical cache, and the CPU executes any remaining bytes directly from RAM.
 
 ## Physical synthesis
 

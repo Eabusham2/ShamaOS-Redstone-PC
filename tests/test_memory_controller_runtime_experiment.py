@@ -561,8 +561,8 @@ def test_connected_union_methods_preserve_exact_small_native_states(tmp_path):
         union.close()
 
 
-@pytest.fixture
-def runtime_clock_evidence(tmp_path):
+@pytest.fixture(params=[115, 116], ids=["original-clocks", "guarded-clocks"])
+def runtime_clock_evidence(tmp_path, request):
     """Synthetic traces test the evidence gate; they never prove physical timing."""
     from experiments.memory_controller_runtime import run_connected as runtime
     from experiments.memory_controller_runtime.probe_controller import clock_scenario
@@ -572,11 +572,12 @@ def runtime_clock_evidence(tmp_path):
     prepared_directory.mkdir()
     (prepared_directory / "prepared.json").write_text('{"synthetic_guard_test":true}\n')
     prepared = {"stream": {"sha256": "1" * 64}, "runtime_helper_sources": runtime._helper_sources()}
-    imported = {"stream_sha256": "1" * 64, "chunks": 1, "nonair": 116,
+    count = request.param
+    imported = {"stream_sha256": "1" * 64, "chunks": 1, "nonair": count + 1,
                 "comparators": 0, "source": {"synthetic_guard_test": True}}
     inputs = {host("clk"): [0, 0, 0], host("rst"): [4, 0, 0]}
     outputs = {port("req_ready"): [8, 0, 0]}
-    clock_points = {f"register:test-{index}:C": Vec3(index * 4, 4, 0) for index in range(115)}
+    clock_points = {f"register:test-{index}:C": Vec3(index * 4, 4, 0) for index in range(count)}
     drive = {"clk": Vec3(0, 0, 0), "rst": Vec3(4, 0, 0)}
     report = {"status": runtime.CLOCKS_PASSED, "native_clock_gate_verified": True,
         "world_stream": prepared["stream"], "runtime_helper_sources": prepared["runtime_helper_sources"],
@@ -592,9 +593,9 @@ def runtime_clock_evidence(tmp_path):
         assert len(trace) == captured
         result = {"status": "passed", "imported_stream_sha256": "1" * 64,
             "scenario_sha256": runtime._sha(scenario_path), "source": imported["source"],
-            "loaded_chunks": 1, "decoded_nonair_blocks": 116, "initialized_nonair_blocks": 116,
+            "loaded_chunks": 1, "decoded_nonair_blocks": count + 1, "initialized_nonair_blocks": count + 1,
             "comparator_entities": 0, "steps": len(scenario["steps"]),
-            "ticks": 1 + captured, "assertions": 116, "complete_machine_runtime_verified": False,
+            "ticks": 1 + captured, "assertions": count + 1, "complete_machine_runtime_verified": False,
             "engine_revision": runtime.ENGINE_REVISION, "engine_registry_patch_sha256": runtime.TERRAIN_PATCH,
             "traces": {name: trace for name in clock_points}}
         result_path.write_text(json.dumps(result))
@@ -611,7 +612,21 @@ def test_native_runtime_clock_gate_rechecks_both_bound_sample_sets(runtime_clock
     checked = runtime._verify_clock_report(*arguments, 2)
     assert checked["safe"]["clock_gate_passed"]
     assert not checked["too-fast"]["clock_gate_passed"]
-    assert checked["safe"]["register_clocks"] == 115
+    assert checked["safe"]["register_clocks"] == len(arguments[-1])
+
+
+@pytest.mark.parametrize("name", ["safe", "too-fast"])
+@pytest.mark.parametrize("delta", [-1, 1])
+def test_native_runtime_clock_gate_requires_exact_assertion_inventory(runtime_clock_evidence, name, delta):
+    runtime, arguments = runtime_clock_evidence
+    case = arguments[0]["cases"][name]
+    path = Path(case["stdout"]["path"])
+    document = json.loads(path.read_text())
+    document["assertions"] += delta
+    path.write_text(json.dumps(document))
+    case["stdout"] = runtime._record(path)
+    with pytest.raises(ValueError, match="every requested step, tick and assertion"):
+        runtime._verify_clock_report(*arguments, 2)
 
 
 @pytest.mark.parametrize("name", ["safe", "too-fast"])

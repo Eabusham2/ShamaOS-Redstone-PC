@@ -55,6 +55,66 @@ def test_independent_clock_audit_rejects_incomplete_or_distorted_observations(fa
         assert not audit.check_clock_traces(result, {"a", "b"}, scenario)["passed"]
 
 
+@pytest.mark.parametrize("registers", [115, 116], ids=["original-clocks", "guarded-clocks"])
+@pytest.mark.parametrize("assertion_delta", [0, -1, 1], ids=["exact", "lost-assertion", "extra-assertion"])
+def test_independent_clock_report_requires_exact_dynamic_inventory(tmp_path, registers, assertion_delta):
+    """Synthetic evidence exercises the audit contract, not physical clocks."""
+    inputs = {"host:clk:0": [0, 0, 0], "host:rst:0": [4, 0, 0]}
+    clocks = {f"register:checked-{index}:C" for index in range(registers)}
+    outputs = {name: [index * 4, 4, 0] for index, name in enumerate(sorted(clocks))}
+    outputs["port:req_ready:0"] = [8, 0, 0]
+    imported = {"stream_sha256": "a" * 64, "chunks": 1, "nonair": registers + 1,
+                "comparators": 0, "source": {"synthetic_evidence_audit": True}}
+    prepared = {"stream": {"sha256": "a" * 64}}
+    runner = tmp_path / "runner-identity"
+    runner.write_text("identity only; not an executable")
+    report = {"status": "complete-connected-cache-exterior-clocks-passed",
+              "runner": audit.file_record(runner), "world_stream": prepared["stream"], "cases": {}}
+    for name, period in (("safe", 2), ("too-fast", 1)):
+        steps = [{"drive": {"clk": False, "rst": True}, "ticks": 1}]
+        for _ in range(3):
+            steps.extend(({"drive": {"clk": True}, "ticks": period},
+                          {"drive": {"clk": False}, "ticks": period}))
+        steps.append({"ticks": 1, "expect": dict.fromkeys(clocks, False) | {"req_ready": False}})
+        expected_outputs = {key: outputs[key] for key in clocks} | {"req_ready": outputs["port:req_ready:0"]}
+        scenario = {"inputs": {"clk": inputs["host:clk:0"], "rst": inputs["host:rst:0"]},
+                    "outputs": expected_outputs, "initial_ticks": 1, "steps": steps,
+                    "capture_trace": True, "trace_outputs": sorted(clocks)}
+        scenario_path = tmp_path / f"{name}-scenario.json"
+        scenario_path.write_text(json.dumps(scenario))
+        captured = sum(step["ticks"] for step in steps)
+        trace = ([False] + [True, True, False, False] * 3 + [False]
+                 if name == "safe" else [False, True, True, True, False, False, False, False])
+        assert len(trace) == captured
+        result = {"status": "passed", "imported_stream_sha256": imported["stream_sha256"],
+                  "scenario_sha256": audit.sha(scenario_path), "source": imported["source"],
+                  "loaded_chunks": 1, "decoded_nonair_blocks": registers + 1,
+                  "initialized_nonair_blocks": registers + 1, "comparator_entities": 0,
+                  "steps": len(steps), "ticks": captured + 1,
+                  "assertions": registers + 1 + (assertion_delta if name == "safe" else 0),
+                  "engine_revision": audit.ENGINE_REVISION, "engine_registry_patch_sha256": audit.TERRAIN_PATCH,
+                  "complete_machine_runtime_verified": False,
+                  "trace_capture": {"declared_outputs": registers + 1, "mode": "selected",
+                                    "traced_outputs": registers, "samples_per_output": captured},
+                  "traces": {clock: trace for clock in clocks}}
+        result_path = tmp_path / f"{name}-result.json"
+        result_path.write_text(json.dumps(result))
+        report["cases"][name] = {"scenario": audit.file_record(scenario_path),
+                                 "stdout": audit.file_record(result_path),
+                                 "half_period_ticks": period, "settle_ticks": 1, "exit_code": 0,
+                                 "wall_seconds": 0.1, "wall_limit_seconds": 60,
+                                 "explicit_wall_timeout_reached": False}
+    report_path = tmp_path / "clock-report.json"
+    report_path.write_text(json.dumps(report))
+    if assertion_delta:
+        with pytest.raises(ValueError, match="omitted steps, ticks or assertions"):
+            audit.verify_clocks(report_path, prepared, imported, inputs, outputs, clocks)
+    else:
+        checked = audit.verify_clocks(report_path, prepared, imported, inputs, outputs, clocks)
+        assert checked["safe"]["passed"]
+        assert not checked["too-fast"]["passed"]
+
+
 @pytest.fixture(scope="module")
 def full_boundary_document(tmp_path_factory):
     directory = tmp_path_factory.mktemp("full-cache-boundary")

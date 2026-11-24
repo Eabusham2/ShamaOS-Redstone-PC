@@ -6,8 +6,10 @@ checksums and validation downloads when a GitHub release is published. It can
 also be rerun from Actions for an existing release tag. Existing assets are
 preserved; a rerun skips an identical file and refuses to replace a differing one.
 
-**Complete-world publication is currently closed.** The current global router
-fails its mapped-resource preflight. Complete-world timing, loading, usable
+**Complete-world publication is currently closed.** The bounded backend has
+saved-world component tests, but the complete production circuit has not passed
+placement, routing and runtime acceptance. The flat backend still fails its
+mapped-resource preflight. Complete-world timing, loading, usable
 screen/console operation and full OS execution have not been accepted. There is
 no complete-world acceptance validator in this repository yet. The release code
 cannot turn a fixture, a green synthesis job, or a caller's JSON `passed` label
@@ -24,7 +26,10 @@ into a verified playable computer.
    `shamaos-full-world-candidate-<40-character-commit>`, download it. Pull-request
    artifacts and artifacts from another source commit are rejected. Otherwise
    run `tools/build_release_candidate.py`, which invokes the actual full-capacity
-   generator, including storage and mapped-logic resource preflight.
+   generator with the **bounded** logic backend, including storage and
+   mapped-logic resource preflight. A manual workflow run can explicitly select
+   `flat`; a published-release event selects `bounded`. This choice only applies
+   when generating a new candidate, and never rewrites a downloaded candidate.
 4. Independently read the saved Anvil chunks, validate capacities and above-grass
    placement, verify the source/world/evidence hashes, and run the supported
    complete-world acceptance validator. **No such validator is registered yet,
@@ -47,6 +52,18 @@ This workflow consumes an independently accepted candidate when available; it
 does not yet supply the missing whole-computer runtime harness. The fallback
 build currently stops at the concrete resource or runtime gate and uploads its
 diagnostics. It never falls back to `fixture-world`.
+
+For a direct candidate build, use `--logic-backend bounded` to select the same
+backend as the release workflow. Omitting that option preserves the selected
+configuration's backend (currently `flat` for `configs/default.toml`). The
+effective backend is recorded in both `generation-preflight.json` and
+`generated-manifest.json`, and is included in the effective configuration's
+digest together with the effective grass datum. Release generation requires
+`generator.validate_after_write = true`. Before recording verified topology,
+the builder checks that the native Anvil readback passed for the intended
+world version and surface, preserved terrain, and counted saved blocks,
+chunks, regions and region bytes. Runtime and publication retain their
+separate gates.
 
 ## Downloads
 

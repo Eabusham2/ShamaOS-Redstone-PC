@@ -268,11 +268,12 @@ namespace as for other transactions. This guarantees complete old-or-new
 records at the acknowledged DMA-write interruption boundaries exercised by the
 tests; it does not promise recovery from arbitrary flash-bit corruption.
 
-The installed 200 KiB image uses 162,304 bytes (158.5 KiB / 79.25%). A history
-save keeps that allocation unchanged. Its previous 32 KiB temporary copy would
-have reached 195,072 bytes, exceeding the 194,560-byte guard by 512 bytes. A
-256-byte Miner state save continues to use ordinary copy-on-write and remains
-within the guard.
+The current 200 KiB image allocates 146,688 bytes (143.25 KiB, 71.625%).
+The journal updates one history record within that allocation. The earlier
+image allocated 162,304 bytes. Copying its entire 32 KiB history would have
+reached 195,072 bytes, 512 bytes above the 194,560-byte write guard. The
+separate 256-byte Miner state save still uses ordinary copy-on-write.
+[Installed resource ledger](evidence/software-usage-cache4-2026-11-14.json)
 
 ## Source, executables and persistent app data
 
@@ -289,8 +290,9 @@ a BIN only after successful assembly. Diagnostic failures and destination-type
 collisions preserve the previous executable. Editor can hold 65,535 content
 bytes, enough for every shipped app source; it explicitly refuses larger files.
 Assembly output and saved binaries can contain up to 16,380 bytes. The executable
-cache is **8,192 bytes**; larger binaries are rejected for execution with a
-capacity-recovery notice before the copy can wrap or overwrite another region.
+window is **8,192 bytes**. The first 4,096 bytes use cache and the remainder
+execute from RAM. A larger binary triggers a capacity-recovery notice before
+the loader copies it.
 
 TXT contents are plain bytes. Settings uses a versioned 16-byte `settings.cfg`
 record, restored by Settings and Paint. The canvas itself is temporary. Miner

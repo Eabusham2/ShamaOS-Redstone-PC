@@ -88,14 +88,13 @@ wires. The [current preflight](evidence/cache4-preflight-2026-11-14.json) and
 [regular geometry](evidence/regular-geometry-cache4-2026-11-14.json) preserve that
 scope; halving cache bytes is not a claim of halving the complete world.
 
-## Smaller controller construction
+## Retained controller geometry before the write guard
 
-The fresh one-bank controller has been mapped from the current configuration,
-adapter RTL and generated header. Its complete original-I/O facade passes graph
-conservation, physical placement guards, register-clock matching and an
-independent exact block-state union.
+The following comparison uses the one-bank mapping from before the registered
+write guard was introduced. Its complete original-I/O facade passed graph
+conservation, placement, register-clock matching and an exact block-state union.
 
-| Controller and exterior signal delivery | Earlier 8 KiB mapping/layout | Current 4 KiB mapping/layout |
+| Controller and exterior signal delivery | Earlier 8 KiB mapping/layout | Unguarded 4 KiB mapping/layout |
 |---|---:|---:|
 | Unique emitted blocks | 27,156,924 | 15,645,176 |
 | Occupied X/Z chunks | 136,764 | 67,206 |
@@ -104,36 +103,34 @@ independent exact block-state union.
 
 That is **42.39% fewer blocks and 50.86% fewer occupied chunks** for this
 controller-and-facade scope. The physical memory bank, decoder and external
-memory routes are additional. The fresh mapping contains all 1,178 native cells;
+memory routes are additional. That one-bank mapping contains all 1,178 native cells;
 it is not a claim that halving stored bytes halves the controller's cell count.
 The separate same-graph comparison isolates the routing change: keeping original
 port leaves near the root reduced the historical controller's occupied chunks
 by 48.76% while preserving its exact 1,144-cell graph.
 
-The [current source bundle and receipt](../experiments/memory_controller_runtime/current_four_kib/README.md)
+The [retained unguarded source bundle and receipt](../experiments/memory_controller_runtime/current_four_kib/README.md)
 retain every elaboration input, raw/normalized mapping, complete plan, accepted
 manifest, exact union and rejected-address RTL checks. The new transaction
 oracle exercises 601 frames and 49 complete storage checkpoints, comparing
 1,605,632 stored bits through the real controller RTL. This oracle still models
 storage; saved redstone execution remains a separate gate.
 
-The [bounded production backend](BOUNDED_BACKEND.md) now selects this layout for
-the complete one-bank cache. It records the chosen budgets and real clock-space
-reservations in its manifest and retains every collision and clock-matching
-rejection. Other partitions keep their existing policy, and the overall default
-backend remains `flat`.
+The [bounded production backend](BOUNDED_BACKEND.md) selects its one-bank
+placement policy from the mapped controller. The current guarded controller
+uses a different clock-space reservation and needs its own geometry measurement.
 
-The complete cache geometry now also includes its physical storage, decoder and
-all 77 external routes. Two independent collectors agree on every block state
-and the same final digest:
+For the retained unguarded fixture, two collectors also measured the physical
+bank, decoder and all 77 external routes. They produced the same block states
+and final digest.
 
-| Complete cache fixture | Earlier 8 KiB | Current 4 KiB | Reduction |
+| Complete cache fixture | Earlier 8 KiB | Unguarded 4 KiB | Reduction |
 |---|---:|---:|---:|
 | Unique blocks | 37,102,012 | 22,805,546 | 38.53% |
 | Occupied X/Z chunks | 192,026 | 118,781 | 38.14% |
 
 The [complete-cache union receipt](../experiments/memory_controller_runtime/current_four_kib/evidence/connected-union-checkpoint.json)
-binds both collectors and all 55 frozen input files. It preserves every current
+binds both collectors and all 55 frozen input files. It preserves every unguarded
 controller cell, 182 original terminals, 115 register clocks, 32,768 stored bits
 and 32 physical read-return nets. These are cache-fixture counts; they are not
 the complete computer's footprint and cannot be added to the overlapping
@@ -233,9 +230,9 @@ malformed-input rejection and connected-world recovery guards. Its
 binds the tested files and native runner; complete-cache transactions remain a
 separate execution target.
 
-The connected physical cache still needs its own saved-world electrical and
-persistence proof. Earlier two-bank mapping/world evidence is retained as an
-explicit historical fixture with its original source hashes. The complete
-accepted one-bank geometry is being written and reopened for that proof.
+The guarded one-bank cache still needs its own geometry, saved-world electrical
+and persistence evidence. The [physical cache workflow](CACHE_VALIDATION.md)
+rebuilds its controller and checks the complete connected bank. Earlier
+two-bank and unguarded one-bank evidence remains bound to its original sources.
 Complete ShamaOS world routing, timing, loading and end-to-end release acceptance
 remain unfinished.

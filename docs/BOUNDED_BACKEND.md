@@ -111,7 +111,7 @@ insufficient separation, insufficient shell clearance, or impossible clock
 matching is not silently relaxed.
 
 Within the bounded backend, `cache_compaction = 1` is the default. It selects
-the measured compact policy only for `u_cache` with the complete one-bank
+the compact routing policy only for `u_cache` with the complete one-bank
 `shama_cache_adapter` interface. The cache retains cell/boundary/arity values
 64/128/4, keeps the original I/O leaves near the root, and uses a cache-specific
 domain budget of 256; the generic domain budget remains 128. The effective
@@ -119,11 +119,11 @@ cache budgets are recorded even when another `domain_budget` is configured.
 Changing the global cell budget, boundary budget or arity requires
 `cache_compaction = 0` to deliberately use the unverified generic cache layout.
 
-The installable `hardware.cache_layout` helper owns the measured clock-space
-reservation: 128 blocks normally and 160 blocks for domain 6 and its complete
-sibling group. It validates that the target exists and carries an actual
-clock, records every effective reservation, and requires the unchanged clock
-matcher to succeed. Experimental wrappers are not imported by production.
+The installable `hardware.cache_layout` helper reserves 160 blocks for
+clock-bearing groups in the guarded controller. The earlier unguarded policy
+reserved 128 blocks by default and 160 for domain 6 and its siblings. Domain
+IDs depend on the mapped graph. Each placement records its effective
+reservations and must pass the physical clock matcher. Experimental wrappers are not imported by production.
 Other partitions and the default flat backend retain their existing paths.
 This policy does not assert native timing or whole-machine acceptance.
 
@@ -156,14 +156,16 @@ and world-generation regressions remain required.
 The historical two-bank 8 KiB connected cache fixture has accepted geometry:
 37,102,012 unique blocks across 192,026 occupied chunks. Its retained
 [geometry checkpoint](../experiments/memory_controller_runtime/evidence/connected-cache-union-checkpoint.json)
-records that historical scope. The current one-bank 4 KiB controller and
-original-I/O facade have separately accepted geometry of 15,645,176 blocks
-across 67,206 chunks, with all 1,178 current mapped cells, 182 original terminals
-and 115 register clocks retained. Exact sources, complete mapped/plan inputs,
-geometry manifests and test evidence are retained under
-[current cache evidence](../experiments/memory_controller_runtime/current_four_kib/README.md).
-The complete current bank, decoder and connecting routes are being saved and
-checked; their clocks, transactions and persistence still need native evidence.
+records that historical scope. The earlier one-bank 4 KiB controller and
+exterior wires occupied 15,645,176 blocks across 67,206 chunks. That unguarded
+mapping contained 1,178 cells, 182 original terminals and 115 register clocks.
+[Retained one-bank geometry and inputs](../experiments/memory_controller_runtime/current_four_kib/README.md)
+
+The guarded one-bank controller includes a registered write output and its
+own clock-routing policy. The [physical cache workflow](CACHE_VALIDATION.md)
+regenerates the guarded layout and checks it with the complete bank, decoder
+and connecting wires. Its saved-world clocks, transactions and persistence
+are pending.
 All complete production partitions must then be
 generated, joined and timed, including generated clocks and input pulse
 capture. Whole-machine loaded/ticking coverage and native boot, applications,

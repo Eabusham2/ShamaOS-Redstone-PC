@@ -70,17 +70,14 @@ These are remaining engineering tasks, not merely pending test executions:
 2. The rebuilt 4 KiB cache controller has a registered write commit and a
    physical gate that starts unpowered. A saved two-row fixture retained its
    preloaded bits during delayed reset, accepted a deliberate write, and
-   retained the result after reopening. The full controller retains all 182
-   original port bits and matches all 116 clock paths structurally. The
-   full controller and exterior wires occupy 12,288,636 unique blocks in
-   this run with Yosys 0.71+post.
-3. Two independent block collectors agreed on 19,129,302 unique blocks
-   across 108,977 occupied chunks for the guarded controller, decoder, full
-   physical bank and all 77 external routes. Full native readback, exterior
-   clock delivery, transactions and save/reopen remain the acceptance gates
-   for this fixture. The [retained receipt](../experiments/memory_controller_runtime/current_four_kib/evidence/connected-union-checkpoint.json)
-   describes the earlier unguarded 4 KiB geometry. Neither set of cache
-   measurements is a whole-computer footprint.
+   retained the result after reopening. The guarded cache mapping has 182
+   original port bits and 116 register clocks.
+3. A fresh guarded layout and connected block union still need retained
+   evidence. The full cache includes its decoder, 32,768 storage bits and
+   77 external nets. The [physical cache workflow](CACHE_VALIDATION.md)
+   checks placement, native world readback, delivered clocks, transactions and
+   saved-state reopening. The [earlier one-bank union receipt](../experiments/memory_controller_runtime/current_four_kib/evidence/connected-union-checkpoint.json)
+   covers the unguarded controller.
 4. Complete clock/data timing and a loaded/ticking-chunk arrangement remain
    unproved. The existing conservative core divider is not a measured usable
    clock rate; the raw input domain also needs its own physical timing proof.
@@ -384,8 +381,8 @@ paused shutdown → cache-cleared reboot → Explorer → Editor reopen with the
 bytes intact. A separate flow types a new assembly source through the real input
 path, saves it, invokes the hardware assembler, runs the generated binary, checks
 its result and returns from the halted program using universal Home. Its external
-memory devices use bounded test models for broad failure coverage. The current
-96 KiB RAM / 200 KiB flash lifecycle run retains the four production memory adapters and exercises
+memory devices use bounded test models for broad failure coverage. The earlier
+8 KiB cache / 96 KiB RAM / 200 KiB flash lifecycle run retains the four production memory adapters and exercises
 their physical bank/row/read/write pins against delayed persistent bank models.
 It passes boot, edit/save, paused shutdown, cache-cleared reboot and reopened
 bytes in 8,602,153 simulator cycles. The production-controller typed-assembly
@@ -416,6 +413,8 @@ stored bits checked after each step. The small saved stacked-world fixture is
 reopened and run from its serialized block states, with ground preservation
 checked independently.
 
+### Earlier 96 KiB RAM and 8 KiB cache checkpoint
+
 The owner authorized halving main RAM to **96 KiB**, conditional on all shipped
 features still fitting. The map now uses real RAM beneath the CPU cache alias
 for executable backing, protects a 1 KiB kernel slot and shares workspaces
@@ -437,7 +436,7 @@ starts at Y=-60 above preserved grass at -61 and reaches Y=307. These are
 geometric subtotals, excluding synthesized logic and external routes.
 [MEMORY.md](MEMORY.md) reports exact shared unions and before/after comparisons.
 
-Flash is now **200 KiB**, with **158.5 KiB / 79.25%** initially allocated. Packed
+This checkpoint used **200 KiB flash**, with **158.5 KiB / 79.25%** initially allocated. Packed
 boot records retain complete sources, binaries and persistent records. All 50
 flash banks contain 1,024 physical rows, with no inaccessible padded cells.
 Explicit 250 KiB fixtures continue to test the generic half-bank boundary.
@@ -455,7 +454,7 @@ grass at Y=-46 or below; the default remains -61. The 3×2 pitch stretches the
 visible image horizontally. Standing-view geometry passes with console exports
 present, while in-client legibility with complete-machine routes remains open.
 
-## Latest compaction and capacity protections
+## Earlier 8 KiB cache compaction and capacity protections
 
 The owner subsequently halved cache to 8 KiB and VRAM to 16 KiB. GPU frames and
 staging now occupy 15,680 bytes; overlap-safe word scrolling replaces its full

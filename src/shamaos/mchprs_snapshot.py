@@ -104,6 +104,10 @@ def _cleanup_owned_directory(path: Path, identity: tuple[int, int]) -> None:
 
 def _publish_no_replace(source: Path, destination: Path) -> None:
     """Atomically publish a directory without ever replacing another entry."""
+    if not (sys.platform.startswith("linux") or sys.platform == "darwin"):
+        # Check before loading libc: CDLL(None) is itself invalid on Windows.
+        # Unsupported hosts must still get our fail-closed publication error.
+        raise WorldWriteError("atomic native snapshot publication requires Linux renameat2 or macOS renamex_np")
     libc = ctypes.CDLL(None, use_errno=True)
     old, new = os.fsencode(source), os.fsencode(destination)
     if sys.platform.startswith("linux"):

@@ -7,7 +7,7 @@ scheduled ticks. This gives the project a working import and execution path for
 saved fixtures. Complete-machine boot and application acceptance remain pending
 the complete connected physical build and its timing tests.
 
-The production capacities remain **200 KiB flash, 96 KiB RAM, 8 KiB cache and
+The production capacities remain **200 KiB flash, 96 KiB RAM, 4 KiB cache and
 16 KiB VRAM**. The small fixtures below test loading and circuit behavior; they
 do not replace or reduce those capacities.
 
@@ -28,6 +28,44 @@ conditions. These statements refer to this exact pinned source, not every
 MCHPRS release or custom server configuration.
 
 Source: upstream [`PlotWorld` constants, block access and update loop](https://github.com/MCHPR/MCHPRS/blob/f9e10d2572116bf5dcb9a36a305f28e40641a61a/crates/core/src/plot/mod.rs).
+
+## Boot and physical console scenario
+
+For a freshly generated candidate, the scenario builder reads the physical
+input origin and debug pins from `generated-manifest.json`, then reopens
+`world/` and checks the actual Power lever, Editor and Home buttons and 110
+visible lamps. The manifest's debug coordinates identify the input dust. Each
+observed lamp lies three blocks north of its corresponding input. Run from the
+source checkout for the candidate so the expected executable sizes come from
+the same firmware.
+
+```bash
+python -m shamaos.native_console_scenario "$candidate" "$scenario" \
+  --initial-ticks "$settle" --boot-ticks "$boot" \
+  --editor-ticks "$editor" --home-ticks "$home"
+python -m shamaos.mchprs_import "$candidate/world" "$stream"
+"$SHAMA_MCHPRS_TERRAIN_RUNNER" "$stream" "$scenario" "$maximum_chunks"
+```
+
+Supply positive redstone tick budgets for all four phases and a chunk limit
+large enough for the import. The pre-power sample expects a clear foreground
+app, cache counter, CPU registers r8 and r11, fault, halt and overflow. The next three
+samples require Desktop, fresh Editor and Desktop again. Each must have the
+exact foreground app ID and cached executable length. Desktop must set r8
+to its initial selection of one, and Editor must set r11 to its initial file
+type of one. This checks execution after the app switch clears the registers.
+Fault, halt and overflow must stay clear at each sample. The runner operates only the
+three saved actuators. It uses no external input pads and retains no per-tick
+output traces.
+
+Physical timing for these transitions has yet to be measured. The default
+nominal divider takes 18,350,080 redstone ticks per architectural cycle.
+The end-of-phase checks sample outcomes at the supplied budgets. Tests use
+a disconnected console to confirm the real pinned engine toggles the saved
+Power lever and rejects a missing CPU at the boot sample. Running on the
+complete production circuit, validating visible GUI pixels, and exercising a
+Java client with the required chunks ticking are still open gates. The
+scenario builder emits only a runner input file.
 
 ## What the sparse runner does
 
@@ -134,9 +172,9 @@ coordinates directly, so unselected memory bits are not read on each tick just
 to discard their traces. Every entry in each step's `expect` still checks its
 original declared coordinate, including untraced storage bits. End-of-step
 checks, zero-tick boundary checks and `continuous: true` checks keep the same
-meaning. A complete cache fixture must therefore continue to include all 65,536
-storage bits in its boundary expectations; selecting controller and clock
-traces does not reduce that assertion set. Continuous assertions still evaluate
+meaning. The current 4 KiB cache has 32,768 storage bits to check at each full storage
+boundary. The earlier 8 KiB fixture required 65,536. Selecting a subset of
+clock traces preserves every storage assertion. Continuous assertions still evaluate
 every output explicitly requested in that step on every tick.
 
 The report's `trace_capture` records `mode` (`all`, `selected` or `disabled`),
@@ -358,7 +396,7 @@ bounds for the exact lazy representation now used by the runner. Synthesized
 logic, global routes, active state, tick queues and compiler graphs remain
 additional. The complete connected world has not yet been measured.
 
-The complete 1,144-cell controller development world contains 1,064,880 section
+The historical two-bank, 1,144-cell controller development world contains 1,064,880 section
 records, including 895,464 uniform air sections. Avoiding full arrays for those
 air sections removes **1,833,910,272 bytes** of packed-array allocation while
 retaining every section record. Actual full-controller clock replay initializes

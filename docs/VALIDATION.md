@@ -35,17 +35,16 @@ executes the marker, compares both code copies and checks every released heap
 word before returning Home. It directly guards against cleanup erasing the
 staged source before the loader reads it.
 
-The fresh 200 KiB checkpoint passes **all 19 integrated cases with zero skips**
+The historical 200 KiB flash, 8 KiB cache checkpoint passed **all 19 integrated cases with zero skips**
 in 1,897.783 seconds. Its production-controller lifecycle takes **8,602,153
 cycles**, typed assembly/save/run **9,639,349 cycles**, and heap-backed
 self-replacement **5,137,201 cycles**. Lifecycle commits are 18,188 cache,
 39,485 RAM, 1,359 flash and 180,397 VRAM writes. The retained
-[current report](evidence/soc-200-journal-2026-11-13.json) includes the exact
+[checkpoint report](evidence/soc-200-journal-2026-11-13.json) includes the exact
 compiled source hashes, flash image hash, test names and observed output.
 These are RTL simulation measurements, not physical-world execution speed.
 All eight malformed boot cases and RAM/heap/cache/VRAM/protected-flash recovery
-also pass. Current results come from this report; historical cycle counts are
-not reused as proof of a later source revision.
+also passed on that revision.
 
 ### Bounded history-save recovery
 
@@ -59,10 +58,11 @@ must be idempotent. Invalid checksum/payload/identity/generation, reused file
 slots and overlapping extent owners fail before any target write. Protected
 images can finish committed recovery but reject new history saves.
 
-The unchanged installed allocation is 162,304 bytes. The 128-byte payload plus
-24-byte descriptor live in existing reserved metadata; there is no additional
-flash extent or application RAM/cache allocation. [FILESYSTEM.md](FILESYSTEM.md)
-documents the order and [MINER.md](MINER.md) links the reproducible matched
+That test image allocated 162,304 bytes. The current installed image allocates
+146,688 bytes of its 204,800-byte flash. The journal stores its 128-byte payload
+and 24-byte descriptor in existing metadata. [Current flash allocation](evidence/software-usage-cache4-2026-11-14.json)
+
+[FILESYSTEM.md](FILESYSTEM.md) documents the order and [MINER.md](MINER.md) links the reproducible matched
 controller benchmark. Additional comparison/control logic still needs the exact
 candidate synthesis measurement.
 
@@ -152,7 +152,7 @@ redstone updates, and rejects conflicting block placements before simulation:
 - The local binary decoder checks all 1,024 row addresses. Production memory
   interfaces expose ten address pins instead of 1,024 global row-select pins.
   External escape planning includes the complete decoder/control geometry.
-- A mixed cache2/VRAM4/RAM24 column has independent bank/control/read-return
+- The earlier mixed cache2/VRAM4/RAM24 fixture has independent bank/control/read-return
   paths. The prior descending-return saved fixture reopened **522,568 unique circuit blocks** and passed
   **84 steps / 43,520 redstone ticks**, with native blocks at Y=-60..307 above
   preserved grass. This uses a reduced number of rows per bank; full 1,024-word
