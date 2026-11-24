@@ -1,0 +1,48 @@
+{
+  "archive_sha256": "5bbc016e4f02ef8dda45624ee95a4581957daac312b505144c2fb0efe60f92b0",
+  "producer_commit": "176cef9afb17684220fc007744dc1a7680cd9d35",
+  "scope": "Complete saved console and physical input registers, at default height. The classifier, CDC return, packet memory, CPU and whole computer are not covered.",
+  "scenarios": 141,
+  "native_ticks": 3203540,
+  "retained_native_assertions": 27181,
+  "gestures": 6793,
+  "qualified_register_apertures": 1001128,
+  "edge_word_apertures": 428970,
+  "retained_skew_negative": "clock skew: C0",
+  "saved_world": {
+    "chunks": 156,
+    "circuit_blocks": 35495,
+    "terrain_blocks": 159744,
+    "fresh_anvil_export_body_matches_native_input": true,
+    "export_body_sha256": "142a458946850cb01e1302cacf05dc966f428dca7c43673994158cace6fc457f"
+  },
+  "fresh_native": {
+    "positive": {
+      "native_ticks": 36319,
+      "assertions": 329,
+      "native_json_sha256": "4810eec8ada36c491f3a2761247d326b85348b747ea52874fbe5e08b711b9c3e",
+      "retained_raw_trace_sha256": "17f189468c9c6ea96c02fa7191f7fe01d2ac99f0b674bcbbfd3328291b48ba54",
+      "all_declared_traces_identical": true
+    },
+    "negative": {
+      "native_ticks": 3940,
+      "assertions": 12,
+      "native_json_sha256": "faeea2e003b48254c36859245b0121bf864d0628665378cc670ae6d07cdb093a",
+      "retained_raw_trace_sha256": "fb168350ef9dccbb1b53b0f5965cbc5df2e6d5141ea802f780619560cc10ed3f",
+      "all_declared_traces_identical": true
+    }
+  },
+  "status": "passed",
+  "complete_machine_runtime_verified": false,
+  "reviewer_source_sha256": "3fdb389406e8feb7fabec5abe1ac66aee5768efa1e3674d618d937911cc9dfaa",
+  "reviewer_base_commit": "b5ab73dba6983e550dadc0e216fc1fac7e43a05c",
+  "reviewed_utc_date": "2026-11-24",
+  "native_review_source_archive": "experiments/input_receiver_review/evidence/native-reviewer-source.py.gz",
+  "portable_offline_reviewer_sha256": "b4e94e108d2a124e0b46b204c176b58b82702f482b8f313695fd34d38c9d493e",
+  "portable_offline_pytest": {
+    "tests": 1,
+    "failures": 0,
+    "skipped": 0,
+    "scope": "All141 native recorded cases, one physical skew negative and exact complete Anvil-to-native export body; no new native invocation."
+  }
+}

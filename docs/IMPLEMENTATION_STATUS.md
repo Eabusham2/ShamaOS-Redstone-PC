@@ -7,6 +7,28 @@ feature contract; [VALIDATION.md](VALIDATION.md) defines the evidence required.
 
 ## Current completion work
 
+The production startup integration at `d85013b` passed all **thirteen** physical
+synthesis partitions and final reconnection in
+[run 45375342889](https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/45375342889).
+Both Ubuntu platform jobs, RTL and the world backend passed. The component
+partition passed all 2,092 selected tests without skips; root independently
+matched every recorded setup/call/teardown and JUnit case to its collected node.
+The processor/OS partition is still running. The Windows jobs failed during collection because
+an archived input-fixture helper imported the Unix-only `resource` module.
+The correction at `ea03c06` keeps the native resource limit mandatory and makes
+only the frozen offline replay portable. Its
+[fresh CI run](https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/45378669366)
+has not passed yet. Subsequent commits require their own platform results.
+
+The [independent default-height input review](../experiments/input_receiver_review/README.md)
+rechecks all 141 saved cases, 6,793 physical gestures, 1,001,128 qualified
+register samples and 428,970 controller-edge-word apertures. A fresh engine run
+reproduces the positive sequence; the retained physical one-tick clock-skew
+failure is reproduced and rejected. Fresh decoding/export also matches the
+saved 156-chunk world's complete section stream. These results stop at the
+physical samplers. The producer's source bundle and mapped classifier replay
+are retained research, not an activation of the unfinished whole input path.
+
 Checkpoint `99ee940` completed [all 20 standard CI jobs](https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/45340047612).
 That run includes all twelve mapped partitions and reconnection; it does not
 cover the subsequent input repairs or certify complete-cache execution.

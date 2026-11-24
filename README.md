@@ -35,6 +35,13 @@ processor/OS simulations from component tests and verifies their exhaustive
 combined coverage; synthesis and release checks include the new thirteenth
 startup partition.
 
+The [default-height input receiver review](experiments/input_receiver_review/README.md)
+independently checks all 141 saved console cases and every retained signal tick,
+including the physical clock-skew failure. A fresh engine run and a fresh export
+of the Minecraft regions reproduce the retained results. The CPU request/return
+connections, packet memory and complete worker still require physical timing;
+this component evidence does not activate the unfinished input replacement.
+
 The owner reopened app/cache optimization on November 13, 2026 (America/Chicago). Shared app routines
 and explicit one-word instruction forms now reduce all nine executables. The
 physical cache is **4 KiB**, retaining the original **8 KiB execution window**

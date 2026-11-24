@@ -1,0 +1,15 @@
+{
+  "source_commit": "d85013b4c6cdb7c2ad2fbc4d9ee1da3f5beec52a",
+  "workflow_run": 45375342889,
+  "job": 138381752750,
+  "artifact_id": 14913283302,
+  "artifact_sha256": "e3e0800a6217d0c5f2e3c3e9bda4c4b9b55acca43df407166d43b34e3fdad7a9",
+  "scope": "Exact component partition; processor/OS partition and two corrected Windows jobs need separate completed results.",
+  "collected_suite": 2113,
+  "component_tests": 2092,
+  "all_setup_call_teardown_passed_once": true,
+  "junit_matches_each_selected_node_once": true,
+  "failures": 0,
+  "skipped": 0,
+  "complete_machine_runtime_verified": false
+}
