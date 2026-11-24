@@ -1,6 +1,6 @@
 // A bounded FIFO preserves short presses while the CPU is busy.  Simultaneous
-// controls are queued in the documented universal-control-first order. Overflow
-// drops the newest events only and remains observable until reset.
+// controls are queued in universal-control-first order. Overflow is sticky. One
+// overflowing universal control per edge may displace the newest ordinary record.
 module shama_input #(
     parameter integer FIFO_DEPTH = 16
 )(
@@ -95,6 +95,21 @@ module shama_input #(
         endcase
     endfunction
 
+    function automatic [3:0] event_population(input [10:0] events);
+        logic [1:0] p0,p1,p2,p3,p4;
+        logic [2:0] q0,q1;
+        begin
+            p0={1'b0,events[0]}+{1'b0,events[1]};
+            p1={1'b0,events[2]}+{1'b0,events[3]};
+            p2={1'b0,events[4]}+{1'b0,events[5]};
+            p3={1'b0,events[6]}+{1'b0,events[7]};
+            p4={1'b0,events[8]}+{1'b0,events[9]};
+            q0={1'b0,p0}+{1'b0,p1};
+            q1={1'b0,p2}+{1'b0,p3};
+            event_population={1'b0,q0}+{1'b0,q1}+{2'b0,p4}+{3'b0,events[10]};
+        end
+    endfunction
+
     always_comb begin
         row_idx=-1;col_idx=-1;
         for(integer k=0;k<8;k=k+1) begin
@@ -125,69 +140,90 @@ module shama_input #(
         queued_count=count;
     end
 
+    // Work in the old FIFO's index space. An ACK removes exactly the first
+    // occupied record with the captured payload. If more universal events
+    // arrive than will fit, one may displace the newest surviving ordinary
+    // record. Arriving universal records never enter the eviction scan.
+    wire ack_rise=event_ack && !prev_event_ack;
+    wire [FIFO_DEPTH-1:0] ack_matches,ordinary_survivor;
+    wire [FIFO_DEPTH:0] ack_prefix,evict_prefix,ordinary_suffix;
+    assign ack_prefix[0]=0;
+    assign evict_prefix[0]=0;
+    assign ordinary_suffix[FIFO_DEPTH]=0;
+    wire pop=ack_prefix[FIFO_DEPTH];
+    wire [PTR_BITS:0] count_after_ack=count-pop;
+    wire [PTR_BITS:0] free_after_ack=count_after_ack<FIFO_DEPTH ? FIFO_DEPTH-count_after_ack : 0;
+    wire [3:0] urgent_arrivals=event_population({7'b0,controller_edges[9:6]});
+    wire evict_for_urgent=(urgent_arrivals>free_after_ack) && ordinary_suffix[0];
+    wire [FIFO_DEPTH-1:0] shift_stored;
+    wire [25:0] shifted_record [0:FIFO_DEPTH-1];
+    for(genvar slot=0;slot<FIFO_DEPTH;slot=slot+1) begin : fifo_lane
+        assign ack_matches[slot]=slot<count && fifo[slot]==event_ack_data;
+        assign ack_prefix[slot+1]=ack_rise && (|ack_matches[slot:0]);
+        wire consumed_here=ack_rise && ack_matches[slot] && !ack_prefix[slot];
+        assign ordinary_survivor[slot]=slot<count && !consumed_here &&
+            (fifo[slot][7:0]<EVT_HOME || fifo[slot][7:0]>EVT_FILES);
+        assign ordinary_suffix[slot]=|ordinary_survivor[FIFO_DEPTH-1:slot];
+        assign evict_prefix[slot+1]=evict_for_urgent && !ordinary_suffix[slot+1];
+
+        // Compact both removals before appending anything. A destination
+        // skips two old entries if both removals occur by its next slot.
+        // Otherwise a removal at or before this slot advances it by one.
+        assign shift_stored[slot]=ack_prefix[slot+1] || evict_prefix[slot+1];
+        if(slot+1==FIFO_DEPTH) begin
+            assign shifted_record[slot]=0;
+        end else begin
+            wire skip_two=ack_prefix[slot+2] && evict_prefix[slot+2];
+            if(slot+2==FIFO_DEPTH)
+                assign shifted_record[slot]=skip_two ? 26'b0 : fifo[slot+1];
+            else
+                assign shifted_record[slot]=skip_two ? fifo[slot+2] : fifo[slot+1];
+        end
+    end
+
     always_ff @(posedge clk) begin : queue_update
-        integer available_count;
-        integer next_write;
+        // Queue occupancy and its insertion slot range from zero through
+        // FIFO_DEPTH. Keep that arithmetic at the actual queue width; a
+        // 32-bit integer here replicates a wide carry chain for every control.
+        logic [PTR_BITS:0] available_count;
+        logic [PTR_BITS:0] next_write;
+        logic [PTR_BITS:0] remaining_count;
+        logic [10:0] arrivals;
+        logic [3:0] arrival_rank,total_arrivals;
         integer ctl;
-        integer evict;
-        integer ack_index;
-        logic overflow_urgent_added;
         if(rst) begin
             count<=0;input_overflow<=0;keyboard_shift<=0;
             prev_rows<=0;prev_cols<=0;prev_controller<=0;prev_event_ack<=0;
             for(integer k=0;k<FIFO_DEPTH;k=k+1) fifo[k]<=0;
         end else begin
             if(shift_edge) keyboard_shift<=!keyboard_shift;
-            available_count=count;
-            overflow_urgent_added=0;
-            ack_index=-1;
-            // The consumer snapshots the presented record with its slow-clock
-            // acknowledgement. A new universal event can change selection
-            // before the next raw edge; remove the consumed record, not that
-            // newly selected event. Identical records match oldest first.
-            for(integer k=FIFO_DEPTH-1;k>=0;k=k-1)
-                if(k<count && fifo[k]==event_ack_data) ack_index=k;
-            // The consumer runs on the divided core clock. A single slow
-            // acknowledgement can span many raw clocks and must pop once.
-            if(event_ack && !prev_event_ack && ack_index>=0) begin
-                for(integer k=0;k<FIFO_DEPTH-1;k=k+1)
-                    if(k>=ack_index) fifo[k]<=fifo[k+1];
-                fifo[FIFO_DEPTH-1]<=0;
-                available_count=available_count-1;
-            end
-            next_write=available_count;
+            available_count=count_after_ack-evict_for_urgent;
+            if(evict_for_urgent) input_overflow<=1;
+            for(integer k=0;k<FIFO_DEPTH;k=k+1)
+                if(shift_stored[k]) fifo[k]<=shifted_record[k];
+            remaining_count=available_count<FIFO_DEPTH ? FIFO_DEPTH-available_count : 0;
+            for(integer k=0;k<10;k=k+1) arrivals[k]=controller_edges[control_index(k)];
+            arrivals[10]=key_edge;
+            total_arrivals=event_population(arrivals);
             for(integer k=0;k<10;k=k+1) begin
                 ctl=control_index(k);
+                arrival_rank=event_population(arrivals & ((11'b1<<k)-1'b1));
                 if(controller_edges[ctl]) begin
-                    if(available_count<FIFO_DEPTH) begin
-                        fifo[next_write]<={controller,8'h00,(8'h10+8'(ctl))};
-                        next_write=next_write+1;
-                        available_count=available_count+1;
-                    end else begin
-                        input_overflow<=1;
-                        // A saturated typing queue must not disable Exit/Home.
-                        // Evict the newest ordinary event, leaving earlier
-                        // events and all already-queued universal controls.
-                        if(ctl>=6 && !overflow_urgent_added) begin
-                            evict=-1;
-                            for(integer j=0;j<FIFO_DEPTH;j=j+1)
-                                if(fifo[j][7:0]<EVT_HOME || fifo[j][7:0]>EVT_FILES) evict=j;
-                            if(evict>=0) begin
-                                fifo[evict]<={controller,8'h00,(8'h10+8'(ctl))};
-                                overflow_urgent_added=1;
-                            end
-                        end
-                    end
+                    if(arrival_rank<remaining_count) begin
+                        next_write=available_count+arrival_rank;
+                        // Explicitly bound every field of this 26-bit MMIO payload.
+                        fifo[next_write]<={controller,8'h00,4'h1,ctl[3:0]};
+                    end else input_overflow<=1;
                 end
             end
             if(key_edge) begin
-                if(available_count<FIFO_DEPTH) begin
+                arrival_rank=event_population(arrivals & 11'b01111111111);
+                if(arrival_rank<remaining_count) begin
+                    next_write=available_count+arrival_rank;
                     fifo[next_write]<={controller,pending_key,EVT_KEY};
-                    next_write=next_write+1;
-                    available_count=available_count+1;
                 end else input_overflow<=1;
             end
-            count<=available_count;
+            count<=available_count+(total_arrivals<remaining_count ? total_arrivals : remaining_count);
             prev_rows<=kb_rows;prev_cols<=kb_cols;prev_controller<=controller;
             prev_event_ack<=event_ack;
         end

@@ -7,11 +7,10 @@ on:
     branches: [main]
 
 concurrency:
-  # During heavyweight physical synthesis, only the newest validation for the
-  # branch matters. Superseded runs are cancelled so they cannot consume the
-  # runners needed by the current release candidate.
+  # Preserve the evidence from a running main checkpoint. The newest main
+  # checkpoint waits for it; superseded pull-request runs can be cancelled.
   group: shamaos-ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   test:

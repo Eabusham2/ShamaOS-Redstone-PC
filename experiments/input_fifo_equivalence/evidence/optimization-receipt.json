@@ -1,0 +1,301 @@
+{
+  "reference_commit": "99ee9400c9d7a85418d3432dd5efc9bbc748733a",
+  "mapping": {
+    "reference": {
+      "rtl_sha256": "50c552be1af19dbc9da2b2d3e93fb9b94d3e420a4618cd2a21514a9c71c27b4e",
+      "mapped_sha256": "72de32765694b710828511f74f972783c1f2d2c4803f1958840618e6518fd5e6",
+      "cells": 24931,
+      "dff": 418,
+      "max_unrouted_q_to_d_gates": 240
+    },
+    "narrow": {
+      "rtl_sha256": "b30a7ea3f2a8f3e8ac3f3a1fd5aed140888ac9bf31774a9c0c63dc9c1983aa5c",
+      "mapped_sha256": "45ee3e369cc85de0d636078e1e42689a2d591acb2158dd23c4281d7e71482243",
+      "cells": 18396,
+      "dff": 418,
+      "max_unrouted_q_to_d_gates": 121
+    },
+    "parallel": {
+      "rtl_sha256": "82037ca46b92b585b82e2e2132f1d014284d856f54653d354b961f07822d58f3",
+      "mapped_sha256": "73b3fa17dd2cb0cb299b99d8aaa2ac26620e9e126bafd6ebbb2c9e53b12922b0",
+      "cells": 18238,
+      "dff": 418,
+      "max_unrouted_q_to_d_gates": 93
+    },
+    "ack_prefix": {
+      "rtl_sha256": "6b1d99501b1f487b8f17dd904dfc875a60d7b1b82f201ecbba5ed233c2fa9262",
+      "mapped_sha256": "20d4294f5afe6ec7fc696cf69539cbe6c724f21b68fbc5112887c6d08c56a883",
+      "cells": 19049,
+      "dff": 418,
+      "max_unrouted_q_to_d_gates": 81
+    }
+  },
+  "sat_arbitrary_common_prestate_next_state_and_all_post_outputs": {
+    "narrow": {
+      "8": {
+        "variables": 215117,
+        "clauses": 579838,
+        "sha256": "208c86be5ce793865f2069b132c4f22e6ef7245b40f7b1721da6f6030920df6b"
+      },
+      "5": {
+        "variables": 157253,
+        "clauses": 423760,
+        "sha256": "3f818eb0f5c8bcca6f65c2e5a9e7e5409cb2c16b0e77a31c2075b9fb01633f31"
+      },
+      "4": {
+        "variables": 135164,
+        "clauses": 364096,
+        "sha256": "2b156195302b053d7f45e46398d732945bd17da07fad352ab748006e68306a45"
+      },
+      "3": {
+        "variables": 116063,
+        "clauses": 312629,
+        "sha256": "eb6cdb5395024219d94f65bab77c891365903f43bd044f8996ce28b013d3f3bb"
+      },
+      "2": {
+        "variables": 94634,
+        "clauses": 254729,
+        "sha256": "9bc5b4c9478f47553cdbaeeeb24a55190b117adc327fddbd0b86a165b9a16881"
+      },
+      "1": {
+        "variables": 74960,
+        "clauses": 201723,
+        "sha256": "9ebdf6674b8e28e1afde871ee33238d30ae839fe1fdbcf664512e8269f4d4a78"
+      }
+    },
+    "parallel": {
+      "16": {
+        "variables": 371123,
+        "clauses": 1001529,
+        "sha256": "3a36b567a7c42a0afbf9d7ddbeba20cf571682f5e6bc2b54b5b7e063096c60ce"
+      },
+      "8": {
+        "variables": 212300,
+        "clauses": 572983,
+        "sha256": "fe16b27d6a1192cf512c04957fe6dce6dcbb60643d5fdf41ebccd53009d0871a"
+      },
+      "5": {
+        "variables": 153980,
+        "clauses": 415597,
+        "sha256": "c7e26840d6b01c42287b715e1083dc56c02bf5ee52185e49ad3c4ad86ffe2f8d"
+      },
+      "1": {
+        "variables": 72653,
+        "clauses": 196194,
+        "sha256": "ce17febb6833eb707a36cd25db42b3e4998f0d4051b7267096149e3541380d27"
+      },
+      "3": {
+        "variables": 113243,
+        "clauses": 305693,
+        "sha256": "a014837cd70b278cd446eebe5fe0434766471908cc6791dda6097e5dddf58bdb"
+      }
+    },
+    "ack_prefix": {
+      "8": {
+        "variables": 210362,
+        "clauses": 567388,
+        "sha256": "c957046c3675df558fb6735bf157d8be504be1680f6f6b5664931aa7084454a6"
+      },
+      "3": {
+        "variables": 112676,
+        "clauses": 304043,
+        "sha256": "b474b73778e4a24ad8d31aa320251fd5e47826ebed2b7e79d1f3a941acb1d511"
+      },
+      "1": {
+        "variables": 72653,
+        "clauses": 196194,
+        "sha256": "fe476dd0e28f20a424ba911b960ce769572ae0735bc6607817b7a6382794feaa"
+      },
+      "5": {
+        "variables": 152825,
+        "clauses": 412252,
+        "sha256": "3b292e7005b8d2db459e524bfe6e0a0cae5b97cc822a482511dcfa9b20d61484"
+      },
+      "16": {
+        "variables": 366851,
+        "clauses": 989424,
+        "sha256": "5ab3bd87b151a903f303665509634613bc3494699014b7b44e9d7ead2527650f"
+      }
+    }
+  },
+  "rtl_simulation": [
+    {
+      "D": 1,
+      "cycles": 14031,
+      "comparisons": 28061,
+      "full": 13317,
+      "overflowing": 13696,
+      "held_ack": 6608,
+      "bad_ack": 1229,
+      "ack_other_slot": 0,
+      "shift": 1208,
+      "chords": 4167,
+      "simultaneous": 2835,
+      "busy_resets": 134
+    },
+    {
+      "D": 2,
+      "cycles": 14037,
+      "comparisons": 28073,
+      "full": 13280,
+      "overflowing": 13673,
+      "held_ack": 6608,
+      "bad_ack": 1161,
+      "ack_other_slot": 318,
+      "shift": 1208,
+      "chords": 4167,
+      "simultaneous": 2835,
+      "busy_resets": 139
+    },
+    {
+      "D": 3,
+      "cycles": 14051,
+      "comparisons": 28101,
+      "full": 13243,
+      "overflowing": 13660,
+      "held_ack": 6608,
+      "bad_ack": 1154,
+      "ack_other_slot": 458,
+      "shift": 1208,
+      "chords": 4167,
+      "simultaneous": 2835,
+      "busy_resets": 140
+    },
+    {
+      "D": 5,
+      "cycles": 14055,
+      "comparisons": 28109,
+      "full": 13203,
+      "overflowing": 13595,
+      "held_ack": 6608,
+      "bad_ack": 1132,
+      "ack_other_slot": 550,
+      "shift": 1208,
+      "chords": 4167,
+      "simultaneous": 2835,
+      "busy_resets": 140
+    },
+    {
+      "D": 7,
+      "cycles": 14059,
+      "comparisons": 28117,
+      "full": 13109,
+      "overflowing": 13506,
+      "held_ack": 6608,
+      "bad_ack": 1118,
+      "ack_other_slot": 601,
+      "shift": 1208,
+      "chords": 4167,
+      "simultaneous": 2835,
+      "busy_resets": 140
+    },
+    {
+      "D": 8,
+      "cycles": 14061,
+      "comparisons": 28121,
+      "full": 13069,
+      "overflowing": 13460,
+      "held_ack": 6608,
+      "bad_ack": 1109,
+      "ack_other_slot": 618,
+      "shift": 1208,
+      "chords": 4167,
+      "simultaneous": 2835,
+      "busy_resets": 140
+    },
+    {
+      "D": 15,
+      "cycles": 14097,
+      "comparisons": 28193,
+      "full": 12678,
+      "overflowing": 13050,
+      "held_ack": 6608,
+      "bad_ack": 1078,
+      "ack_other_slot": 675,
+      "shift": 1208,
+      "chords": 4167,
+      "simultaneous": 2835,
+      "busy_resets": 139
+    },
+    {
+      "D": 16,
+      "cycles": 14099,
+      "comparisons": 28197,
+      "full": 12613,
+      "overflowing": 12993,
+      "held_ack": 6608,
+      "bad_ack": 1066,
+      "ack_other_slot": 710,
+      "shift": 1208,
+      "chords": 4167,
+      "simultaneous": 2835,
+      "busy_resets": 139
+    },
+    {
+      "D": 17,
+      "cycles": 14101,
+      "comparisons": 28201,
+      "full": 12583,
+      "overflowing": 12942,
+      "held_ack": 6608,
+      "bad_ack": 1078,
+      "ack_other_slot": 692,
+      "shift": 1208,
+      "chords": 4167,
+      "simultaneous": 2835,
+      "busy_resets": 139
+    },
+    {
+      "D": 31,
+      "cycles": 14129,
+      "comparisons": 28257,
+      "full": 11898,
+      "overflowing": 12265,
+      "held_ack": 6608,
+      "bad_ack": 1077,
+      "ack_other_slot": 720,
+      "shift": 1208,
+      "chords": 4167,
+      "simultaneous": 2835,
+      "busy_resets": 139
+    }
+  ],
+  "regression_summary": {
+    "tests": "6",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0"
+  },
+  "native_input_fixture": {
+    "kind": "native-physical-trace-to-input-rtl",
+    "status": "passed",
+    "raw_period_rt": 70,
+    "clock_phases": 70,
+    "matrix_banks": 2,
+    "matrix_keys_per_bank": 64,
+    "controller_buttons": 10,
+    "dedicated_shift": true,
+    "fifo_depth": 16,
+    "held_ack_new_arrival": true,
+    "reprioritized_ack_snapshot": true,
+    "oldest_identical_record_ack": true,
+    "overflow_and_universal_exit": true,
+    "minimum_measured_row_column_overlap_rt": 101,
+    "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+    "engine_ticks": 23228,
+    "placement_operations": 13254,
+    "sample_file_sha256": "6adc6845fa22b9d4c272bdc191a1eb30699a7050b04ccc5ffbdcd797391f0aca",
+    "input_rtl_sha256": "6b1d99501b1f487b8f17dd904dfc875a60d7b1b82f201ecbba5ed233c2fa9262",
+    "scope": "measured source interface plus actual RTL behavior; mapped input logic and complete global timing unverified"
+  },
+  "mutants_detected": [
+    "one-bit-short-count simulation D16 and SAT D2",
+    "held-ACK-history forced to zero SAT D3"
+  ],
+  "complete_machine_runtime_verified": false,
+  "physical_input_timing_verified": false,
+  "scope": "Historical matched input mappings and behavioral equivalence of the archived ACK-prefix optimization before the urgent-eviction correction.",
+  "yosys_version": "0.33",
+  "simulator_version": "Icarus Verilog 12",
+  "proof_protocol": "Three symbolic frames. Load shared arbitrary state, then apply an unconstrained original transition and compare every registered bit and all post-transition outputs."
+}

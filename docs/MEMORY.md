@@ -142,7 +142,7 @@ bound, not a forecast of the compressed world file size.
 
 Storage cells/internal bank buses emit **157,332,608 placement operations**.
 Local selectors/returns add **36,680,118**, binary decoders **3,662,424** and
-screen/controls/debug/clock **2,391,140**, producing **200,066,290 regular-component
+screen/controls/debug/clock **2,391,859**, producing **200,067,009 regular-component
 placement operations**. These are emission operations, not a claim of that many
 unique blocks in a complete world. Every default bank is full; the smaller
 capacity is implemented by fewer literal banks, without inaccessible padding.
@@ -181,13 +181,16 @@ components. Coloring their existing supports adds zero placements or chunks.
 | 96 KiB RAM / 250 KiB flash, horizontal 5×4 screen | 36,533 | 116,688 | 235,478,992 |
 | 96 KiB RAM / 200 KiB flash, upright screen, final console, descending returns | 24,109 | 92,235 | 203,500,256 |
 | 96 KiB RAM / 200 KiB flash, 8 KiB cache and upward returns | 23,328 | 86,000 | 202,522,304 |
-| **Same memory/screen layout with 4 KiB cache** | **23,328** | **86,000** | **200,066,290** |
+| Same memory/screen layout with 4 KiB cache, before clock interlock | 23,328 | 86,000 | 200,066,290 |
+| **4 KiB cache with the stopped-clock interlock** | **23,328** | **86,000** | **200,067,009** |
 
 Against the 250 KiB/horizontal-screen checkpoint, the current build removes
 **13,205 occupied chunks (36.15%)**, **30,688 envelope chunks (26.30%)** and
-**35,412,702 placement operations (15.04%)**. Against the 96 KiB RAM / 500 KiB
+**35,411,983 placement operations (15.04%)**. Against the 96 KiB RAM / 500 KiB
 flash checkpoint, occupied chunks fall **56.38%** and envelope chunks **36.76%**.
 
+The [updated preflight](evidence/clock-interlock-preflight-2026-11-24.json)
+counts the clock interlock's 719 added blocks inside the existing clock footprint.
 Counts come from the real geometry and exact X/Z chunk union, including overlaps
 between independent fabrics. **Synthesized CPU/GPU/assembler/OS logic and their
 internal/global routes remain additional.** A complete-machine chunk total and

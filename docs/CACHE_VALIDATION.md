@@ -8,6 +8,12 @@ publish a finished-world release.
 
 ## Run it
 
+The first full run on `99ee940` correctly stopped at a clock-route capacity
+failure during geometry. A retained retry adds physical delay space only around
+the affected clock group and passes complete controller placement with all 116
+register paths matched. Its [source-bound receipt](../experiments/memory_controller_runtime/guarded_clock_reservation/README.md)
+is a geometry result; the saved-world and electrical stages remain required.
+
 Open the workflow in GitHub Actions, select the intended revision and use
 **Run workflow**. Leave the last stage at `audit` for the complete check. The
 default clock half-period is 12,000 redstone ticks; the test verifies the actual

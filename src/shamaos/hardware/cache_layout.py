@@ -36,14 +36,15 @@ def cache_policy(graph):
     if pins != expected:
         raise ValueError("compact cache policy requires the complete one-bank controller interface")
     guarded = any(entity.get("cell_type") == "WRITE_GUARD" for entity in graph.entities)
-    # The guarded controller is a new graph. A targeted padding entry from
-    # the frozen unguarded graph cannot identify a clock domain in this one.
+    # Each graph has its own measured reservation. The guarded graph needs
+    # 176 blocks at domain 6: the 160-block baseline left a private clock
+    # branch short of 36 redstone ticks. Keep the real matcher authoritative.
     return {"name": "one-bank-cache-root-io-guarded-v2" if guarded else "one-bank-cache-root-io-v1",
             "ports_at_root": True,
             "native_cells_per_leaf": 64, "boundary_terminals_per_leaf": 128,
             "routing_terminals_per_domain": 256, "children_per_cluster": 4,
             "clock_padding_blocks": 160 if guarded else 128,
-            "clock_domain_padding_blocks": {} if guarded else {6: 160},
+            "clock_domain_padding_blocks": {6: 176} if guarded else {6: 160},
             "native_runtime_verified": False}
 
 

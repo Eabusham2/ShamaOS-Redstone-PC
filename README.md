@@ -142,11 +142,12 @@ and the envelope **26.30%**. The upright screen retains all 57,600 pixels in
 tails. These counts include local decoders and count shared X/Z chunks once.
 Removing one vertically stacked cache bank saves **2,456,014 emission operations**
 but leaves this horizontal subtotal unchanged. Placement emits
-**200,066,290 regular-component operations**;
+**200,067,009 regular-component operations** after adding 719 blocks for the
+stopped-clock interlock within its existing 17 chunks;
 complete-world logic and routing remain additional.
 
 The [current geometry report](docs/evidence/regular-geometry-cache4-2026-11-14.json)
-and [preflight](docs/evidence/cache4-preflight-2026-11-14.json) retain the current
+and [updated preflight](docs/evidence/clock-interlock-preflight-2026-11-24.json) retain the current
 capacities and excluded full-machine costs. The earlier
 [two-bank geometry](docs/evidence/capacity-200-upright-return.json) remains the
 comparison checkpoint.

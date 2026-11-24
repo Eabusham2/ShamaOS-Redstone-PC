@@ -92,20 +92,41 @@ universal event ahead of ordinary typing so a nonpolling app remains escapable.
 Simultaneous fresh controller presses enter in Editor, Files, Exit, Home, Up,
 Down, Left, Right, A, B order, followed by a keyboard character.
 
-When full, the queue drops new ordinary events and sets a sticky overflow flag.
-A newly pressed universal action can replace the newest queued ordinary event
-so saturated typing cannot disable recovery controls. A queue already full of
-universal actions cannot hold more than its capacity. Overflow stays set until
-reset; `SYS_INPUT_STATUS` returns count in bits 0–7 and overflow in bit 8.
-The physical overflow output is available for diagnostics.
+On each raw edge, a rising acknowledgement first removes the oldest exact
+26-bit payload match. The queue then uses its free slots in the priority order
+above. When a universal action would overflow, the first such action on that
+edge can displace the newest surviving ordinary record and append after the
+already admitted events. At most one ordinary record is evicted per edge.
+The surviving records keep their relative order. If all remaining records are
+universal actions, the queue drops the overflow arrival. It also drops ordinary
+arrivals that reach a full queue.
+
+For example, with one free slot behind three ordinary keys A, B and C, pressing
+Editor and Files together leaves A, B, Editor and Files queued. The presented
+universal event is Editor. Dropping an arrival or evicting an ordinary record
+sets the sticky overflow flag until reset. `SYS_INPUT_STATUS` returns count in
+bits 0–7 and overflow in bit 8. The physical overflow output is available for
+diagnostics.
 
 ## Physical signal timing and debug placement
 
 The emitted oscillator has **35 redstone ticks per high/low phase**, for a
 70-tick raw-clock period. Its enable register admits complete pulses when power
-changes; the SoC's `clock_hold` keeps it running during orderly shutdown. Pausing
+changes; the SoC's `clock_hold` keeps it running during orderly shutdown. A
+physical start/stop interlock keeps the internal ring on or off long enough to
+finish its current cycle before accepting another transition. Once both Power
+and `clock_hold` are low, the stopped clock settles with no scheduled events;
+an active clock still cannot be exported as a quiescent snapshot. All 70 stop
+phases and rapid-toggle regressions are exercised in the actual redstone engine.
+The clock uses 1,485 blocks within its existing 17-chunk footprint. Pausing
 and manual stepping operate on complete divided-core pulses. The oscillator's
 local timing does not establish timing closure for the complete routed machine.
+
+The full mapped input FIFO has not passed that 70-tick period. Source-RTL and
+zero-delay mapped transactions pass, but native gate propagation can miss a
+queue update before the next edge. Capturing short physical presses while
+preserving their ordered snapshots is an open implementation task. Increasing
+the server tick rate does not shorten this delay measured in redstone ticks.
 
 A real stone-button press lasts 10 redstone ticks. Physical delay lines stretch
 controller/reset/step signals to **94 ticks** and keyboard row/column signals to

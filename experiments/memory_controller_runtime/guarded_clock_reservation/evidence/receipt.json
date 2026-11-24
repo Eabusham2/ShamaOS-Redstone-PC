@@ -1,0 +1,58 @@
+{
+  "schema": "guarded-cache-targeted-clock-reservation-v1",
+  "status": "complete-controller-placement-passed-electrical-runtime-pending",
+  "ci_failure": {
+    "run_id": 45340109477,
+    "job_id": 138261448871,
+    "commit": "99ee9400c9d7a85418d3432dd5efc9bbc748733a",
+    "stage": "geometry",
+    "error": "clock leaf boundary:net2:cluster27>cluster25:out needs 36 additional delay ticks beyond its private branch capacity",
+    "physical_artifact_sha256": "e17b741d1242cfee4a5e6c7b78f613379146ce6777d5c2e7d9976ba7b3d4aaa9"
+  },
+  "change": {
+    "baseline_padding_blocks": 160,
+    "targeted_domain": 6,
+    "targeted_padding_blocks": 176,
+    "real_clock_bit": 2,
+    "matcher_or_collision_checks_disabled": false
+  },
+  "unique_controller_blocks": 17597778,
+  "native_cells": 1147,
+  "original_port_bits": 182,
+  "register_clock_pins": 116,
+  "balanced_repeater_delay": 3163,
+  "scope": "Complete controller geometry and structural clock matching; storage-bank union, saved-world readback and electrical runtime still required.",
+  "controller_runtime_verified": false,
+  "connected_cache_runtime_verified": false,
+  "complete_machine_runtime_verified": false,
+  "bundle": {
+    "path": "experiments/memory_controller_runtime/guarded_clock_reservation/evidence/clock-domain6-176.zip",
+    "bytes": 487659,
+    "sha256": "dd0f77c7821c020a2329b1920685814aacd0f7926003391d6f3656e21af713db"
+  },
+  "inventory": {
+    "changes.patch": "08de265db98b7e9a1fdd578a8e096402e03da06355c3cde361b64d5d51ff96b5",
+    "controller.json.gz": "f45d75ed50b8d57c5fe8dac96fea7bc26a364e0844f5ee5d2371f363e8009582",
+    "inputs/mapped.json": "10b02d6dfb55386eff220f09c3036469735504d7d6f381369e128c484fc55279",
+    "inputs/plan.json": "0eca6a67032eb5e55555f3611398f6a01609d431200ebf7a4e6e704955979143",
+    "report.json": "efd9ea0494189b50fe58b78cac577ce8a67e79a8c4b5dcc7895813b8adbe7747",
+    "run.log": "d000fb9a02f99cb3d9ad496edd5713caab68c0fc3fb5250519ecb7a22ba44182",
+    "source-inventory.json": "bc9aa7fc39f6a3e40700020a096f78e0b4d13ca0db6eb2da04c188baa670799f",
+    "source/experiments/memory_controller_runtime/clock_reserve.py": "6a5bd0ba923dbb6aabf0046ad6a487905043373854e76bdec502432db815d8fb",
+    "source/experiments/partition_placement/packed_parent_union.py": "a9982d5e230fb7fa4e8b4e666a42323fd59b55066564b1fbf1567d0d15281a50",
+    "source/experiments/partition_placement/port_egress.py": "6f68c7a605661e25402e194061c1ce5d2ef6f3fb4ddcb30b83ff3bb3b02964a8",
+    "source/experiments/partition_placement/port_egress_manifest.py": "822e4d29bd605456a159e687411e829268b183a7962a09a128324ffe97e6ba1a",
+    "source/experiments/partition_placement/raised_exports/replay_manifest.py": "308075b05664930ed457ca14054943bc7370e07ac45a86f54a9716ebf2c26ddb",
+    "source/retry_geometry.py": "6a9c071df9de0232b4479d4c8609538cc85cc1bcdaac9d079c88fba9dd3941b4",
+    "source/src/shamaos/hardware/cache_layout.py": "8bcae59b5d04c5d721896b1b73fb77c5ca66270e8b208d4362774714218785fb",
+    "source/src/shamaos/hardware/external_router.py": "96834193a37bb485ab225ea21dc1ae460afcc3ab9ac41a434e45660be2f7666d",
+    "source/src/shamaos/hardware/local_router.py": "63054c806442499ba0aa27f65b1ec2b35c339c0c8595521dbc3097a334307bc6",
+    "source/src/shamaos/hardware/logic.py": "2d9c1af54ddb778ba04240e4e8036fa2ef1c7ec015bc24de2a716021470ae616",
+    "source/src/shamaos/hardware/memory.py": "f44923cd4376d10fb2f62d5daf3bf752fe340e269355ac3564fd26ee2b5a8517",
+    "source/src/shamaos/hardware/partition_placement.py": "10c6a4b5aba6b5c4776326d0a863bf57cd1fc5b0d216115ca496d851d6a82e90",
+    "source/src/shamaos/hardware/partition_planner.py": "5b7daafbd5eda35abb621fc6c64731c8fb3a6e56ab2422c8108812b1f26623fd",
+    "source/src/shamaos/hardware/routing.py": "d2b885f908a5942036269992c3fff7e3eb19ffe5a4753b97f5494aaf7120ccce",
+    "source/src/shamaos/model.py": "1a0fd1f9eb9469989057e4486401e5161e7f0bb02eb69195b7a14a74e92f4b95",
+    "source/src/shamaos/synthesis.py": "231bc0ef03d810e6532029ec8910b37526c3304559ffc7156c03a65cac494274"
+  }
+}

@@ -67,6 +67,90 @@ complete production circuit, validating visible GUI pixels, and exercising a
 Java client with the required chunks ticking are still open gates. The
 scenario builder emits only a runner input file.
 
+### Observe the monitor title
+
+Add `--titles` to the console command to check the visible title at four
+checkpoints. The initial title field must be blank. Boot must display
+`DESKTOP > EDITOR`, the fresh Editor must display `EDITOR > NEW TEXT`, and
+Home must restore `DESKTOP > EDITOR`. The flag also works with `--program`.
+Allow enough time at each of those checkpoints for the GPU presentation,
+display bridge, lamp panel and CPU observations to settle.
+
+The kernel draws 32 characters at logical pixel (4, 4) using the resident
+5×7 font and a six-pixel character advance. The check samples all 1,746
+lamps from x=3 through 196 and y=3 through 11. This covers each glyph, the
+spaces, the remainder of the padded title and a one-pixel border. The
+scenario uses the upright 320×180 panel mapping and requires each monitored
+lamp to exist and start dark in the saved world. Live status counters lie
+outside this crop.
+
+The kernel/GPU test bench checks the crop against accepted serial display
+transfers, including a Desktop status refresh and a different Editor menu
+selection. The sparse engine tests use static saved lamp fixtures to check
+that a stale Desktop, the wrong Editor item or a lit border fails the
+corresponding observation. A successful complete-machine run and a Java
+client viewing the screen with the required chunks ticking still require
+their own evidence.
+
+### Type, assemble and run Z.ASM
+
+The `--program` scenario uses the physical controller and unpressed 8×8
+keyboard positions. Before generating it, the helper reads the 200 KiB flash
+from all 50 physical banks and requires both `Z.ASM` and `Z.BIN` to be absent.
+Start with a closed, powered-off copy and keep this original for comparison.
+
+```bash
+python -m shamaos.native_console_scenario "$candidate" "$scenario" --program \
+  --initial-ticks "$settle" --boot-ticks "$boot" --editor-ticks "$editor" \
+  --home-ticks "$home" --key-ticks "$key" --action-ticks "$action" \
+  --run-ticks "$run" --shutdown-ticks "$shutdown"
+python -m shamaos.mchprs_import "$candidate/world" "$stream"
+"$SHAMA_MCHPRS_TERRAIN_RUNNER" "$stream" "$scenario" "$maximum_chunks" > "$result"
+```
+
+After starting Editor, the physical Down and A buttons select New Program. The
+keyboard enters Z and the two lines `LDI R1 42` and `HLT`, including their
+line breaks. All 14 character boundaries check the Editor's live length in r7.
+B opens the actions menu, five Down presses select Assemble and Run, and A
+starts the program. The observed lamps must show app 15, 12 cached bytes, a
+halted CPU and the complete r1 value 42. Home must return to a running Desktop
+with a clear lifecycle error. Switching Power off must clear cache use while
+the physical lever, overflow, fault and lifecycle error read zero.
+
+The key budget covers consuming **one** character. The action budget covers
+processing one navigation or filename action. Both must allow the stretched
+signals to release and the application to consume the event before sampling.
+119 ticks is the local keyboard pulse duration. Crossing that threshold alone
+establishes no end-to-end timing. The run and shutdown budgets cover assembly,
+flash operations, program execution and shutdown, respectively.
+
+### Inspect the saved program files
+
+Keep the original and a separate closed, powered-off save from the same
+placement. The following command reads both flash images from their saved
+storage repeaters, rejects a pending ShamaFS transaction, and decodes both
+with the filesystem reader. It checks the new source and executable types,
+lengths, separate extents and exact contents. Its JSON records both physical
+flash hashes, the directory extents and the observed bytes.
+
+```bash
+python -m shamaos.native_console_scenario --inspect-saved-program \
+  "$candidate" "$saved_world" "$new_report"
+```
+
+The sparse engine runs on an imported copy. Running a scenario does not
+update the original Anvil world. A live Java save or a faithfully restored
+native snapshot is required for the disk comparison. The generated clock now
+drains its internal ring after both Power and `clock_hold` are low, and the
+actual-engine clock tests cover all 70 stop phases plus rapid stop/restart.
+The complete machine must still release its shutdown hold and settle every
+other circuit. The quiescent-only snapshot writer continues to reject any
+remaining scheduled work, including a running internal clock.
+Reading a closed Java save tolerates pending ticks and light-only sections
+because it observes stored blocks without restoring or advancing the clock.
+The file report records a disk comparison. Evidence linking that save to the
+particular run, client display and ticking chunks remains a separate gate.
+
 ## What the sparse runner does
 
 `python -m shamaos.mchprs_import WORLD OUTPUT.jsonl` independently decodes the

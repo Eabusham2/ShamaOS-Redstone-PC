@@ -81,10 +81,12 @@ working set falls to **85,988 bytes / 87.47% of RAM**; Miner uses **6,392 bytes 
 6.50%** including its complete software-SHA workspace and RAM code backing.
 
 Removing one physical cache bank eliminates **32,768 storage cells**. Regular
-storage/local-circuit emissions fall from **202,522,304 to 200,066,290 operations**.
+storage/local-circuit emissions fell from **202,522,304 to 200,066,290 operations**
+at that capacity-change checkpoint. The later stopped-clock interlock adds 719
+blocks, making the current regular-component count **200,067,009 operations**.
 Because these banks are vertically stacked, the regular-component horizontal
 union remains **23,328 chunks**. It excludes synthesized logic and external
-wires. The [current preflight](evidence/cache4-preflight-2026-11-14.json) and
+wires. The [current preflight](evidence/clock-interlock-preflight-2026-11-24.json) and
 [regular geometry](evidence/regular-geometry-cache4-2026-11-14.json) preserve that
 scope; halving cache bytes is not a claim of halving the complete world.
 

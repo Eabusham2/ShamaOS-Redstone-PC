@@ -1,0 +1,83 @@
+{
+  "scope": "Corrected live-entry urgent admission in shama_input RTL. Structural counts describe the matched source only.",
+  "rtl_sha256": "911c38f2ba99ce9ca8e975f003af2c6441dfd4968a878a3f212159677ba3b1b5",
+  "yosys_version": "0.33 (2584903a060)",
+  "iverilog_version": "12.0",
+  "architectural_tests": {
+    "1": {
+      "compared_edges": 5367,
+      "checked_output_and_fifo_bits_per_edge": 63,
+      "vectors_sha256": "d9f9f0c4d079b20c58688a9566a4e2ea3ba43b942a090076a039bb126f053f86",
+      "old_rtl_first_failed_edge": 1
+    },
+    "2": {
+      "compared_edges": 5769,
+      "checked_output_and_fifo_bits_per_edge": 89,
+      "vectors_sha256": "3b43bcd3a382d0ca93974eee626e03b8067c7b34993b04a2679daf727769c70f",
+      "old_rtl_first_failed_edge": 3
+    },
+    "3": {
+      "compared_edges": 6171,
+      "checked_output_and_fifo_bits_per_edge": 115,
+      "vectors_sha256": "2bae6c7aae9d2b67046a49064c0a92049f88815605179125ba90ab2d10833506",
+      "old_rtl_first_failed_edge": 5
+    },
+    "4": {
+      "compared_edges": 6573,
+      "checked_output_and_fifo_bits_per_edge": 141,
+      "vectors_sha256": "0710b38ceb0c1c0b5b6b9158441823cf175303a509b793eaa9a176394f4a1a3c",
+      "old_rtl_first_failed_edge": 7
+    },
+    "16": {
+      "compared_edges": 11397,
+      "checked_output_and_fifo_bits_per_edge": 453,
+      "vectors_sha256": "e1b119231293b430407cf173cb63bb80f3657b50743982c3e405758f9e988a85",
+      "old_rtl_first_failed_edge": 31
+    }
+  },
+  "test_summary": {
+    "tests": 8,
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0
+  },
+  "native_console_source_trace": {
+    "kind": "native-physical-trace-to-input-rtl",
+    "status": "passed",
+    "raw_period_rt": 70,
+    "clock_phases": 70,
+    "matrix_banks": 2,
+    "matrix_keys_per_bank": 64,
+    "controller_buttons": 10,
+    "dedicated_shift": true,
+    "fifo_depth": 16,
+    "held_ack_new_arrival": true,
+    "reprioritized_ack_snapshot": true,
+    "oldest_identical_record_ack": true,
+    "overflow_and_universal_exit": true,
+    "minimum_measured_row_column_overlap_rt": 101,
+    "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+    "engine_ticks": 23228,
+    "geometry_translation": {
+      "x": -82,
+      "y": -12,
+      "z": -4984
+    },
+    "placement_operations": 13254,
+    "sample_file_sha256": "6adc6845fa22b9d4c272bdc191a1eb30699a7050b04ccc5ffbdcd797391f0aca",
+    "input_rtl_sha256": "911c38f2ba99ce9ca8e975f003af2c6441dfd4968a878a3f212159677ba3b1b5",
+    "scope": "measured source interface plus actual RTL behavior; mapped input logic and complete global timing unverified"
+  },
+  "mapped_default_fifo_depth": 16,
+  "mapped_cells": 18030,
+  "mapped_kinds": {
+    "$_NOT_": 1499,
+    "$_NOR_": 8717,
+    "$_NAND_": 7396,
+    "DFF": 418
+  },
+  "max_unrouted_register_q_to_d_gates": 75,
+  "mapped_json_sha256": "a7161c6313b194fb7920cd6a8efdf2913855de38d7191e6372b43dc52d1f5ed8",
+  "physical_input_timing_verified": false,
+  "complete_machine_runtime_verified": false
+}

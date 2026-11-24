@@ -79,7 +79,9 @@ def test_full_storage_cost_is_reported_without_generating_billions_of_blocks(tmp
     assert regular["regular_fabric_union_chunks"] == 23_328
     assert regular["local_memory_control_and_return_placements"] == 36_680_118
     assert regular["binary_row_decoder_placements"] == 3_662_424
-    assert regular["regular_fabric_emitted_placements"] == 200_066_290
+    # The stopped-clock interlock adds 719 real blocks inside the same
+    # 17 occupied clock chunks; memory, display and controls stay intact.
+    assert regular["regular_fabric_emitted_placements"] == 200_067_009
     assert regular["regular_fabric_envelope"]["envelope_chunks"] == 86_000
     assert report["complete_world_runtime_verified"] is False
     assert "unverified" in report["full_world_loading_strategy"]

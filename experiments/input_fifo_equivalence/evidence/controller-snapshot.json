@@ -1,0 +1,60 @@
+{
+  "scope": "Zero-delay production ABC netlist and source RTL checked against an independent chronological queue model. Physical timing remains open.",
+  "versions": {
+    "yosys": "0.33 (2584903a060)",
+    "iverilog": "12.0"
+  },
+  "snapshot_witness": {
+    "vectors": "controller-snapshot-witness.hex",
+    "vectors_sha256": "95488804ed134a019be060121d58094aa3e4999335fdd1bf1b2a44accda0727d",
+    "edges": 37,
+    "failure_edge_index_zero_based": 33,
+    "stimulus": "Reset, sixteen separately released A presses, one Editor press, release, exact ACK, release.",
+    "source_record": "0x1000018",
+    "historical_mapped_record": "0x0000018",
+    "expected_controller_mask": "0x100",
+    "historical_mapped_controller_mask": "0x000"
+  },
+  "historical_mappings": [
+    {
+      "name": "frozen optimization baseline",
+      "source": "baseline.sv.gz",
+      "rtl_sha256": "50c552be1af19dbc9da2b2d3e93fb9b94d3e420a4618cd2a21514a9c71c27b4e",
+      "mapped_json_sha256": "72de32765694b710828511f74f972783c1f2d2c4803f1958840618e6518fd5e6",
+      "source_witness": "pass",
+      "mapped_witness": "fails at edge 33"
+    },
+    {
+      "name": "urgent-eviction fix before snapshot repair",
+      "source": "before-controller-snapshot.sv.gz",
+      "rtl_sha256": "911c38f2ba99ce9ca8e975f003af2c6441dfd4968a878a3f212159677ba3b1b5",
+      "mapped_json_sha256": "a7161c6313b194fb7920cd6a8efdf2913855de38d7191e6372b43dc52d1f5ed8",
+      "source_witness": "pass",
+      "mapped_witness": "fails at edge 33"
+    }
+  ],
+  "fixed": {
+    "rtl_sha256": "7c46dae63ccd9c1ca033b90b3cba8307eb9a7660e004fa49a8f32117d16853b3",
+    "mapped_json_sha256": "f8b747dd1b52553399b995d2cc31b7147446889ef79827e1b0f92c4e7d26b25f",
+    "cells": 21627,
+    "kinds": {
+      "$_NAND_": 11544,
+      "$_NOR_": 8170,
+      "$_NOT_": 1495,
+      "DFF": 418
+    },
+    "max_unrouted_register_q_to_d_gates": 75,
+    "bits_checked_per_edge": 453,
+    "depth": 16,
+    "source_and_mapped_oracle_edges_each": 14967,
+    "vectors_sha256": "8fe61052061adab7426576b6ee8c35daa3818b80c8175f2556d1333788fddd7e",
+    "snapshot_witness_source_and_mapped": "both pass all 37 edges",
+    "source_oracle_depths": [
+      1,
+      2,
+      3,
+      4,
+      16
+    ]
+  }
+}

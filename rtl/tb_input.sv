@@ -42,6 +42,16 @@ module tb_input;
         expect_event(8'h01,"B");
         if(event_valid) $fatal(1,"queue did not drain");
 
+        // An ACK identifies all 26 bits. The controller snapshot may differ
+        // even when the event code and key are right. Identical records in
+        // separate slots remove only the oldest matching occurrence.
+        keypress(1,1);keypress(1,2);keypress(1,1);
+        @(negedge clk);event_ack_data={10'h200,8'h41,8'h01};event_ack=1;
+        @(negedge clk);event_ack=0;
+        if(queued_count!=3 || key_code!="A") $fatal(1,"malformed ACK changed FIFO");
+        expect_event(8'h01,"A");expect_event(8'h01,"B");expect_event(8'h01,"A");
+        if(event_valid) $fatal(1,"duplicate ACK removed the wrong record");
+
         // One divided-clock acknowledgement remains high across raw clocks.
         // It consumes one record, even when a further key arrives while high.
         keypress(1,1);keypress(1,2);keypress(1,4);

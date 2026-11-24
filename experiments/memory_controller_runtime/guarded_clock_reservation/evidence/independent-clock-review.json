@@ -1,0 +1,144 @@
+{
+  "schema": "independent-guarded-cache-structural-review-v1",
+  "reviewed_commit": "0317d5e4183c027aa50edc9fa1e933a08f863b52",
+  "reviewed_source_sha256": {
+    "src/shamaos/hardware/cache_layout.py": "9c1b75052f1f6bef1c6414123f66d8723295a98e5b27b31e60be713272e68119",
+    "src/shamaos/hardware/partition_placement.py": "10c6a4b5aba6b5c4776326d0a863bf57cd1fc5b0d216115ca496d851d6a82e90",
+    "src/shamaos/hardware/bounded_facade.py": "2ea5ea89f4a965495342fecb373c961e81a9965a4cf7c63c9d429bd6057823b3",
+    "experiments/partition_placement/port_egress_manifest.py": "822e4d29bd605456a159e687411e829268b183a7962a09a128324ffe97e6ba1a",
+    "tools/validate_connected_cache.py": "38dbe3a970591ecde13a67016d36316e758c854ee54eb2426aceac47200e9707",
+    "experiments/memory_controller_runtime/save_connected.py": "a3c1a70ac358412ddd0a3ef52a46f0d210196ce32c251185a29478024bad2453",
+    "experiments/memory_controller_runtime/run_connected.py": "40e34ef59429ead8cdd0b71dfa017ecdae1041a9adeb03e7bc097a7400840067",
+    "experiments/memory_controller_runtime/audit_native_connected.py": "c693621a078edc60aabf2d93bc73e4ef475a69f56f48d4ef6981dcfc37a729cf",
+    ".github/workflows/cache-world-validation.yml": "266d4183273fbc6db8bc5a5b9d020e9eec4040873c070cc2697d11123bca00e1"
+  },
+  "source_receipt_sha256": "f47a5bf89224bd91d95537c537da825bdb4aa17debde859d13a5acf22e6da3bd",
+  "source_bundle_sha256": "dd0f77c7821c020a2329b1920685814aacd0f7926003391d6f3656e21af713db",
+  "prior_failed_ci": {
+    "commit": "99ee9400c9d7a85418d3432dd5efc9bbc748733a",
+    "physical_artifact_sha256": "e17b741d1242cfee4a5e6c7b78f613379146ce6777d5c2e7d9976ba7b3d4aaa9",
+    "matched_exact_archived_mapped_bytes": true,
+    "tracked_paths_compared_to_retry": 775,
+    "changed_path": "src/shamaos/hardware/cache_layout.py"
+  },
+  "policy": {
+    "ordinary_guarded_domain_padding": 160,
+    "target_domain": 6,
+    "target_sibling_modules": [
+      "domain-6",
+      "domain-8"
+    ],
+    "physical_sibling_padding": 176,
+    "counterfactual": "Removed 16 blocks of private branch space from each of those two physical tiles in the restored placement and reran the actual matcher. No router, clearance, matcher or graph change.",
+    "counterfactual_error": "clock leaf boundary:net2:cluster27>cluster25:out needs 36 additional delay ticks beyond its private branch capacity",
+    "counterfactual_failure_preserved_prior_overrides": true
+  },
+  "complete_saved_controller": {
+    "native_cells": 1147,
+    "signals": 1251,
+    "original_ports": 182,
+    "original_sink_uses": 2157,
+    "clock_leaf_uses": 116,
+    "shared_contacts": 1418,
+    "directed_facade_handoffs": 182,
+    "structural_clock_modules_visited": 27,
+    "plan_placement_and_facade_audits_equal_saved_outputs": true,
+    "repeating_clock_matcher_preserved_all_overrides_and_balanced_positions": true,
+    "independent_route_tally": {
+      "method": "For each physical clock net, read effective override-or-literal block states. Sum repeater delays on the source branch, only the trunk strictly between its source and sink X junctions, and each sink branch. Join absolute endpoints and check the complete set of mapped DFF C pins against the clock fanout. Repeat from the exterior facade entry, respecting the exterior port entity ID.",
+      "original_input_ticks_per_leaf": 3163,
+      "exterior_common_prefix_ticks": 1509,
+      "exterior_ticks_per_leaf": 4672,
+      "distinct_dff_c_pins": 116,
+      "override_positions_visited": 2167,
+      "local_sink_branches_including_facade": 142
+    },
+    "review_peak_rss_kib": 66484
+  },
+  "fresh_preparation": {
+    "entry": "tools/validate_connected_cache.py --stop-after prepare",
+    "memory_limit_mib": 900,
+    "wall_seconds": 600,
+    "status": "stopped-after-prepare-full-validation-pending",
+    "tracked_sources": 798,
+    "tool_versions": {
+      "yosys": "0.33 (2584903a060)",
+      "iverilog": "12.0"
+    },
+    "engine_revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+    "terrain_runner_sha256": "c8032089622501cb57f9edbb0ea7e3be24e3a23fd0b2b80653b0ed4f07045610",
+    "native_probe_assertions": 6,
+    "native_probe_readback": {
+      "assigned_blocks": 3,
+      "chunks": 1,
+      "data_version": 3700,
+      "grass_surface_y": -61,
+      "method": "independent-anvil-block-state-readback",
+      "minimum_build_y": -60,
+      "region_bytes": 12288,
+      "regions": 1,
+      "status": "passed",
+      "terrain_preserved": true
+    },
+    "fresh_map_sha256": "be2165fe5ccfeaa5cd5bf2f34536ccd3b469e5688ad0abc78a688b3afd198b9c",
+    "retained_ci_map_sha256": "10b02d6dfb55386eff220f09c3036469735504d7d6f381369e128c484fc55279",
+    "complete_graph_comparison": {
+      "identical_cell_ids_types_parameters_pin_directions_and_connections": 1147,
+      "identical_bit_pin_connections": 3226,
+      "identical_port_declarations": 15,
+      "identical_named_net_bit_vectors": 1048,
+      "partition_plan_equal_excluding_source_metadata": true
+    },
+    "rtl_frames": 601,
+    "storage_boundaries": 49,
+    "bit_boundary_assertions": 1605632,
+    "read_remap_rejected_frame": 20,
+    "write_remap_rejected_frame": 50
+  },
+  "fresh_source_handoff": {
+    "method": "Restored the retained controller only after checking the full graph and partition plan against fresh compilation. Bound its physical tiles to the fresh source through the production manifest writer and the strict world reader. Built the connected interfaces, all storage coordinates and the native source-input bundle.",
+    "facade_contacts": 182,
+    "external_nets": 77,
+    "host_inputs": 72,
+    "distinct_storage_bit_coordinates": 32768,
+    "native_output_probes": 34975,
+    "source_bundle_files": 814,
+    "review_peak_rss_kib": 97980
+  },
+  "workflow": {
+    "entry": ".github/workflows/cache-world-validation.yml",
+    "defaults_to": "audit",
+    "validation_minutes": 300,
+    "job_minutes": 360,
+    "writer_or_engine_address_space_mib": 4096,
+    "preflight_free_disk_gib": 12,
+    "always_uploads": [
+      "concise diagnostics",
+      "source tree, partial world, engine and native evidence"
+    ],
+    "retention_days": 14,
+    "success_requires": [
+      "native clocks at all 116 registers with a rejected fast clock",
+      "complete cold and reopened transaction schedule",
+      "fresh saved-bit readback of all 32768 coordinates",
+      "independently accepted final audit"
+    ]
+  },
+  "cache_focused_pytest": {
+    "files": [
+      "tests/test_guarded_cache_reservation_evidence.py",
+      "tests/test_cache_layout_policy.py",
+      "tests/test_connected_cache_validation.py",
+      "tests/test_connected_cache_validation_audit.py",
+      "tests/test_independent_cache_native_audit.py"
+    ],
+    "tests": 84,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "scope": "This review replays the complete structural clock route. The full connected world, real clock waveform, transaction persistence and whole-machine runtime remain separate acceptance gates. The preparation probe is a separate three-block terrain world.",
+  "repeated_controller_literal_union": false,
+  "connected_cache_runtime_verified": false,
+  "complete_machine_runtime_verified": false
+}

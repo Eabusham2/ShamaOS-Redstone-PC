@@ -5,6 +5,50 @@ has not been certified or released.** The package version `1.0.0` is not evidenc
 that all acceptance gates have passed. [REQUIREMENTS.md](REQUIREMENTS.md) is the
 feature contract; [VALIDATION.md](VALIDATION.md) defines the evidence required.
 
+## Current completion work
+
+The `99ee940` full-cache workflow stopped during physical geometry: one clock
+branch needed 36 ticks more delay than its private route could provide. The
+[targeted reservation retry](../experiments/memory_controller_runtime/guarded_clock_reservation/README.md)
+retains the exact mapped graph and extends only the affected routing group.
+It passes full controller placement and matching for all 116 register clocks,
+with 17,597,778 unique controller blocks. This is not a connected-cache chunk
+total or an electrical result. A fresh complete saved-world run remains needed.
+
+The physical clock now includes a start/stop interlock. Once Power and the
+shutdown hold are low, it settles without pending engine events. Actual-engine
+tests cover every stop phase, save/reopen, held shutdown and rapid reactivation;
+an active clock remains rejected by the snapshot writer. Its 1,485 blocks fit
+the existing 17-chunk footprint. The full machine must still demonstrate that
+its shutdown logic releases the hold and all other circuits settle.
+
+The [native console helpers](NATIVE_RUNTIME.md) now prepare a real-keyboard
+program scenario, check the Desktop/Editor title pixels, and independently read
+the newly saved source and binary from physical flash repeaters in a closed
+save. Their tests exercise the helpers, real font-rendering path and bounded
+fixtures. These additions do not mean that the complete ShamaOS world has run
+the scenario. The full-world acceptance registry remains empty until that
+separate proof exists.
+
+Two additional native timing problems remain under repair. The joined
+power/reset circuit can release reset while raw clock pulses are still in
+flight; a held out-of-range cache request exposes an incorrect state change.
+Separately, the 70-tick raw input clock has not closed timing against the full
+mapped FIFO. Its shorter RTL now preserves simultaneous urgent events, but
+gate propagation and front-end pulse retention still require physical proof.
+Neither the unit clock tests nor the console-to-RTL trace closes those gates.
+
+The input regression now also replays the production-mapped JSON, rather than
+only the source RTL. It found that Yosys 0.33 widened an event-code expression
+inside a concatenation and discarded the controller snapshot bits. Explicitly
+sized fields retain those bits. The corrected image has 21,627 cells; the older
+18,030-cell and 19,049-cell figures describe incomplete payload hardware and
+must not be counted as accepted size reductions. The retained
+[mapped-input regression](../experiments/input_fifo_equivalence/README.md)
+compares all public outputs and every stored FIFO record with an independent
+queue model. These transaction checks do not establish the raw clock's
+electrical operating rate.
+
 ## Owner request tracking
 
 The recovered 4 KiB cache revision
@@ -72,8 +116,9 @@ These are remaining engineering tasks, not merely pending test executions:
    preloaded bits during delayed reset, accepted a deliberate write, and
    retained the result after reopening. The guarded cache mapping has 182
    original port bits and 116 register clocks.
-3. A fresh guarded layout and connected block union still need retained
-   evidence. The full cache includes its decoder, 32,768 storage bits and
+3. A fresh guarded controller layout now has retained geometry evidence; its
+   connected block union and electrical runtime still need proof. The full
+   cache includes its decoder, 32,768 storage bits and
    77 external nets. The [physical cache workflow](CACHE_VALIDATION.md)
    checks placement, native world readback, delivered clocks, transactions and
    saved-state reopening. The [earlier one-bank union receipt](../experiments/memory_controller_runtime/current_four_kib/evidence/connected-union-checkpoint.json)
