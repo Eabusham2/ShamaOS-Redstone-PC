@@ -49,7 +49,7 @@ def prepare_roundtrip(directory: Path, runner: Path) -> dict:
     inputs |= {f'W{i}': driver(p) for i, p in enumerate(pins.write_select)}
     inputs |= {f'R{i}': driver(p) for i, p in enumerate(pins.read_select)}
     outputs = {f'Q{i}': coord(p) for i, p in enumerate(pins.data_out)}
-    outputs |= {f'S{row}:{bit}': coord(origin.offset(bit * 5 + 2, 3, 3 + row * 6))
+    outputs |= {f'S{row}:{bit}': coord(origin.offset(bit * bank.bit_pitch + 2, bank.cell_y, 3 + row * bank.word_pitch))
                 for row in range(4) for bit in range(32)}
     analog = origin.offset(dx=220)
     outputs['ANALOG'] = coord(analog.offset(dx=6))
@@ -104,7 +104,7 @@ def prepare_roundtrip(directory: Path, runner: Path) -> dict:
     reader = NativeWorldReader(restored_world)
     for row, word in enumerate(values):
         for bit in range(32):
-            state = reader.get_block(origin.offset(bit * 5 + 2, 3, 3 + row * 6))
+            state = reader.get_block(origin.offset(bit * bank.bit_pitch + 2, bank.cell_y, 3 + row * bank.word_pitch))
             assert state.name == 'minecraft:repeater'
             assert dict(state.properties)['powered'] == str(bool(word >> bit & 1)).lower()
             assert dict(state.properties)['locked'] == 'true'

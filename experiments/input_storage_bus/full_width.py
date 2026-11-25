@@ -75,7 +75,7 @@ def fixture(rows, extra):
     result = receiver(32, rows, guard_extra=extra)
     # Locate the unchanged native bank from the independently observed row-zero storage pin.
     origin = result.outputs["bit0_0"].offset(-2, -3, -3)
-    spec = MemoryBankSpec(words=rows, word_bits=32, word_pitch=16)
+    spec = MemoryBankSpec(words=rows, word_bits=32, bit_pitch=5, word_pitch=16)
     ports = bank_ports(origin, spec)
     blocks = {b.pos: b.block for b in result.blocks}
     inputs = dict(result.inputs)

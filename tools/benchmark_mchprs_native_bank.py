@@ -55,7 +55,7 @@ def validate_prepared_cache(prepared: dict, world: Path, initial_path: Path,
                             initial_sha256: str, sources: dict[str, str]) -> None:
     """Reject stale geometry rather than reusing its previous validation label."""
     required = {"cache_version": 1, "physical_bytes": 4096, "stored_bits": 32768,
-                "physical_placements": 1_991_552, "initial_image_sha256": initial_sha256,
+                "physical_placements": 1_864_576, "initial_image_sha256": initial_sha256,
                 "generator_source_files_sha256": sources}
     for key, expected in required.items():
         if prepared.get(key) != expected:
@@ -159,7 +159,7 @@ def main(DIRECTORY: Path, runner: Path):
                 if count % 200_000 == 0:
                     print(json.dumps({"phase": "native-save", "placements": count,
                                       "seconds": time.monotonic() - started}), flush=True)
-            assert count == 1_991_552
+            assert count == 1_864_576
             validation = writer.validate()
             assert validation["status"] == "passed"
         prepared = {"cache_version": 1, "physical_bytes": bank.bytes, "stored_bits": 32768,

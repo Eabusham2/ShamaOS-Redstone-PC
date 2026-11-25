@@ -84,7 +84,7 @@ def comparator(facing: str, *, powered: bool = False) -> BlockState:
 class MemoryBankSpec:
     words: int = 1024
     word_bits: int = 32
-    bit_pitch: int = 5
+    bit_pitch: int = 4
     word_pitch: int = 6
     data_y: int = 0
     cell_y: int = 3
@@ -240,7 +240,7 @@ def iter_memory_bank(
     """
     if spec.words <= 0 or spec.word_bits <= 0 or spec.word_bits % 8:
         raise ValueError("memory bank geometry must be positive and byte aligned")
-    if spec.bit_pitch < 5 or spec.word_pitch < 6:
+    if spec.bit_pitch < 4 or spec.word_pitch < 6:
         raise ValueError("memory bank pitch must isolate neighboring bits and words")
     if spec.cell_y != spec.data_y + 3 or spec.read_y != spec.cell_y + 3:
         raise ValueError("memory bank risers require three blocks between bus planes")
@@ -341,7 +341,7 @@ def iter_memory_bank(
             # The comparator directly powers the read riser. This directed input
             # cannot backfeed its rear storage input and avoids two blocks per
             # bit; the read trunk overlaps the next bit only in X, on a
-            # separate Y plane. Five-block bit pitch preserves isolation from the next data riser.
+            # separate Y plane. The next input column runs below the read riser.
             yield from _same_polarity_riser(
                 bx + 4, oy + spec.cell_y, cz, component=component
             )

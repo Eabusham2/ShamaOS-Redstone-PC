@@ -45,3 +45,14 @@ def test_filesystem_transactions_and_final_flash_word_through_production_adapter
     assert result.returncode == 0, result.stdout + result.stderr
     assert f"SHAMAFS REAL ADAPTERS EXACT FLASH TAIL PASS bytes={FLASH_BYTES} final_row={(FLASH_BYTES // 4 - 1) % 1024}" in result.stdout
     assert "SHAMAFS TRANSACTIONS OWNERSHIP DIRECTORIES TRUNCATE MINER PASS" in result.stdout
+
+
+def test_queued_repeated_keys_each_receive_a_distinct_modal_ack(tmp_path):
+    if not shutil.which("iverilog") or not shutil.which("vvp"):
+        pytest.skip("Icarus Verilog required for joined services and input FIFO")
+    executable = tmp_path / "modal"
+    subprocess.run(["iverilog", "-g2012", "-I", ROOT / "rtl", "-s", "input_modal_fifo_tb",
+                    "-o", executable, ROOT / "rtl/shama_input.sv", ROOT / "rtl/shama_services.sv",
+                    ROOT / "tests/rtl/input_modal_fifo_tb.sv"], check=True, capture_output=True)
+    result = subprocess.run(["vvp", executable], check=True, capture_output=True, text=True, timeout=15)
+    assert "QUEUED MODAL FIFO PASS 10 exact ACKs" in result.stdout

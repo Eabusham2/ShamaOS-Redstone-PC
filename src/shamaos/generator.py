@@ -151,7 +151,7 @@ def memory_bank_profile(spec: MemoryBankSpec = MemoryBankSpec()) -> dict[str, ob
 @lru_cache(maxsize=64)
 def _bank_chunk_footprint(spec: MemoryBankSpec, x_mod: int, z_mod: int) -> frozenset[tuple[int, int]]:
     """Exact horizontal occupancy of the regular bank geometry, in chunks."""
-    if spec.bit_pitch < 5 or spec.word_pitch < 6:
+    if spec.bit_pitch < 4 or spec.word_pitch < 6:
         raise WorldWriteError("native resource estimate requires nonoverlapping memory-cell pitches")
     chunks: set[tuple[int, int]] = set()
     z_first = (z_mod - 2) // 16

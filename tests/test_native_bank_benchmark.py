@@ -32,7 +32,7 @@ def cached(tmp_path):
     sources = {"generator.py": "current-generator-sha256"}
     prepared = {
         "cache_version": 1, "physical_bytes": 4096, "stored_bits": 32768,
-        "physical_placements": 1_991_552, "initial_image_sha256": initial_sha,
+        "physical_placements": 1_864_576, "initial_image_sha256": initial_sha,
         "generator_source_files_sha256": sources,
         "native_validation": {"status": "passed"},
         "native_world_files": benchmark.world_inventory(world),

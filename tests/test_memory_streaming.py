@@ -8,7 +8,7 @@ from shamaos.model import Vec3
 from shamaos.worldio import NativeWorldWriter, NativeWorldReader
 
 
-@pytest.mark.parametrize("words,bits,pitch", [(1, 8, 5), (4, 8, 8), (17, 32, 5), (17, 32, 8)])
+@pytest.mark.parametrize("words,bits,pitch", [(1, 8, 4), (17, 32, 4), (1, 8, 5), (4, 8, 8), (17, 32, 5), (17, 32, 8)])
 def test_ordered_bank_preserves_every_placement_state_and_initial_bit(words, bits, pitch):
     spec = MemoryBankSpec(words=words, word_bits=bits, bit_pitch=pitch)
     image = bytes((index * 37 + 129) & 255 for index in range(spec.bytes))

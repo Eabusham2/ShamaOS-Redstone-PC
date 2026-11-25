@@ -48,22 +48,22 @@ def test_full_storage_cost_is_reported_without_generating_billions_of_blocks(tmp
     assert report["storage_banks"] == 79
     assert report["storage_full_banks"] == 79 and report["storage_partial_banks"] == 0
     assert report["sample_bank"]["bytes"] == 4096
-    assert report["sample_bank"]["placements"] == 1_991_552
+    assert report["sample_bank"]["placements"] == 1_864_576
     assert report["storage_placements"] == report["sample_bank"]["placements"] * 79
     assert {shape["words"]: shape["bank_count"] for shape in report["sampled_bank_shapes"]} == {1024: 79}
-    assert report["storage_chunks"] == 12_738
+    assert report["storage_chunks"] == 10_806
     assert report["storage_regions"] == 42
     assert report["horizontal_memory_tiles"] == 3
     assert report["logical_memory_tiles"] == 5
-    assert report["storage_fabric_chunk_sum"] == 21_230
+    assert report["storage_fabric_chunk_sum"] == 17_754
     assert report["production_packing"]["actual_max_layers"] == 30
     assert report["production_packing"]["surface_y"] == -61
     assert report["production_packing"]["minimum_build_y"] == -60
     assert report["production_packing"]["storage_base_y"] == -56
     assert report["minimum_storage_region_bytes"] >= report["storage_chunks"] * 4096
-    assert report["minimum_storage_region_bytes"] == 52_518_912
+    assert report["minimum_storage_region_bytes"] == 44_605_440
     scenarios = {item["layers"]: item for item in report["stacking_scenarios"]}
-    assert scenarios[1]["storage_chunks"] == 349_369
+    assert scenarios[1]["storage_chunks"] == 289_201
     assert scenarios[30]["storage_chunks"] == report["storage_chunks"]
     assert scenarios[30]["production_enabled"]
     assert all(item["physical_storage_placements"] == report["storage_placements"] for item in scenarios.values())
@@ -73,16 +73,16 @@ def test_full_storage_cost_is_reported_without_generating_billions_of_blocks(tmp
     assert report["storage_fabrics"]["flash"]["final_bank_bytes"] == 4096
     assert report["storage_fabrics"]["flash"]["final_bank_words"] == 1024
     regular = report["regular_fabrics"]
-    assert regular["storage_and_local_control_union_chunks"] == 23_147
-    assert regular["memory_fabric_chunk_sum"] == 38_190
-    assert regular["shared_memory_chunk_savings"] == 15_043
-    assert regular["regular_fabric_union_chunks"] == 23_328
+    assert regular["storage_and_local_control_union_chunks"] == 21_216
+    assert regular["memory_fabric_chunk_sum"] == 34_715
+    assert regular["shared_memory_chunk_savings"] == 13_499
+    assert regular["regular_fabric_union_chunks"] == 21_397
     assert regular["local_memory_control_and_return_placements"] == 36_680_118
     assert regular["binary_row_decoder_placements"] == 3_662_424
     # The stopped-clock interlock adds 719 real blocks inside the same
     # 17 occupied clock chunks; memory, display and controls stay intact.
-    assert regular["regular_fabric_emitted_placements"] == 200_067_009
-    assert regular["regular_fabric_envelope"]["envelope_chunks"] == 86_000
+    assert regular["regular_fabric_emitted_placements"] == 190_035_905
+    assert regular["regular_fabric_envelope"]["envelope_chunks"] == 83_600
     assert report["complete_world_runtime_verified"] is False
     assert "unverified" in report["full_world_loading_strategy"]
     assert "interconnect" in report["estimate_excludes"]

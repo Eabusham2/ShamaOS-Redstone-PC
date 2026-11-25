@@ -24,7 +24,7 @@ def west_driver(pin):
 def receiver(width=32, words=4, oscillator=True, *, guard_extra=0):
     if guard_extra not in range(7): raise ValueError("guard_extra must be 0..6 redstone ticks")
     memory=Vec3(100,40,96)
-    spec=MemoryBankSpec(words=words,word_bits=width,word_pitch=16)
+    spec=MemoryBankSpec(words=words,word_bits=width,bit_pitch=5, word_pitch=16)
     blocks=list(iter_memory_bank(memory,spec=spec))
     ports=bank_ports(memory,spec)
     inputs,outputs={},{}

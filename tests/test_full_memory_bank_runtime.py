@@ -75,7 +75,7 @@ def run_full_bank_case(work_path: Path, runner: str, *, words: int = 1024) -> di
     runtime = json.loads(result.stdout)
     runtime.pop("traces", None)
     assert runtime["status"] == "passed"
-    assert count == {1024: 1_991_552, 512: 996_224}[words]
+    assert count == {1024: 1_864_576, 512: 932_736}[words]
     report = {
         "kind": "literal-memory-bank-runtime", "physical_bytes": bank.bytes, "physical_placements": count,
         "stored_bits": words * 32, "stored_bits_checked_after_each_step": words * 32,

@@ -8,7 +8,7 @@ from shamaos.model import Vec3
 from test_mchprs_runtime import run_case, west_driver
 
 
-@pytest.mark.parametrize("pitch,words,width", [(5,8,8),(6,8,8),(8,8,8),(5,32,32)])
+@pytest.mark.parametrize("pitch,words,width", [(4,8,8),(5,8,8),(6,8,8),(8,8,8),(4,32,32)])
 def test_compact_storage_walking_bits_random_writes_and_neighbor_isolation(pitch, words, width):
     origin = Vec3(128,32,128)
     spec = MemoryBankSpec(words=words,word_bits=width,bit_pitch=pitch)
@@ -57,14 +57,14 @@ def test_compact_storage_walking_bits_random_writes_and_neighbor_isolation(pitch
     run_case(placements,inputs,outputs,steps)
 
 
-def test_compact_bank_uses_fewer_than_62_blocks_per_stored_bit():
+def test_compact_bank_uses_fewer_than_58_blocks_per_stored_bit():
     spec = MemoryBankSpec(words=64,word_bits=32)
     placements = list(iter_memory_bank(Vec3(0,64,0),spec=spec))
-    assert spec.bit_pitch == 5
-    assert len(placements) / (spec.words * spec.word_bits) < 62
+    assert spec.bit_pitch == 4
+    assert len(placements) / (spec.words * spec.word_bits) < 58
     assert any(p.block.name == "minecraft:target" for p in placements)
 
 
 def test_insufficient_cell_pitch_is_rejected_instead_of_creating_crosstalk():
     with pytest.raises(ValueError,match="isolate"):
-        list(iter_memory_bank(Vec3(0,64,0),spec=MemoryBankSpec(words=1,word_bits=8,bit_pitch=4)))
+        list(iter_memory_bank(Vec3(0,64,0),spec=MemoryBankSpec(words=1,word_bits=8,bit_pitch=3)))

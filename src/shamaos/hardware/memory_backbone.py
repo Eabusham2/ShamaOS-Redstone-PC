@@ -80,7 +80,7 @@ def stacked_tile_ports(origin: Vec3, tile: StackedMemoryTileSpec) -> StackedMemo
         tuple(stacked_bank_origin(origin, tile, bank).offset(-125, 0, -16) for bank in range(tile.banks)),
         tuple(origin.offset((-56 if row % 2 == 0 else -88) - 1, 0, 3 + row * tile.bank.word_pitch) for row in range(tile.words)),
         origin.offset(-115, 4, -4), origin.offset(-115, 0, -10),
-        tuple(origin.offset(bit * tile.bank.bit_pitch - 4, tile.bank.data_y - 3, -4) for bit in range(tile.bank.word_bits)),
+        tuple(origin.offset(bit * tile.bank.bit_pitch - 1, tile.bank.data_y - 3, -7) for bit in range(tile.bank.word_bits)),
         tuple(point.offset(2, (tile.banks - 1) * tile.layer_pitch, 2) for point in lower_read),
         tuple(bank_ports(stacked_bank_origin(origin, tile, bank), tile.bank_spec(bank)).data_out for bank in range(tile.banks)),
     )
@@ -198,7 +198,9 @@ def iter_stacked_tile_terminal_keepouts(origin: Vec3, tile: StackedMemoryTileSpe
         point = pin.offset(1, 3, -1)
         yield Placement(point.offset(dy=-1), SUPPORT, component)
         yield Placement(point, repeater("north"), component)
-    for pin in (*pins.write_data, pins.write_enable, pins.read_enable):
+    for pin in pins.write_data:
+        yield from _tower(pin.offset(dx=1), 3, (3,), component, south_taps=True)
+    for pin in (pins.write_enable, pins.read_enable):
         yield from _tower(pin.offset(dx=1), 3, (3,), component)
     # The router approaches the top output from the south. These are the
     # exact buffered terminal cells, including their supports, at that Y.
@@ -252,7 +254,8 @@ def _stacked_read_return(origin: Vec3, tile: StackedMemoryTileSpec, component: s
             yield Placement(point, repeater("east"), component)
 
 
-def _tower(base: Vec3, top: int, buffered_taps: tuple[int, ...], component: str) -> Iterator[Placement]:
+def _tower(base: Vec3, top: int, buffered_taps: tuple[int, ...], component: str,
+           *, south_taps: bool = False) -> Iterator[Placement]:
     """Two inversions per four Y blocks; taps at 3 mod 4 preserve polarity."""
     yield Placement(base.offset(-1, -1, 0), SUPPORT, component)
     yield Placement(base.offset(-1, 0, 0), DUST, component)
@@ -263,9 +266,10 @@ def _tower(base: Vec3, top: int, buffered_taps: tuple[int, ...], component: str)
     for dy in buffered_taps:
         if dy % 4 != 3:
             raise ValueError("tower tap would invert its signal")
-        for dx, state in ((1, DUST), (2, repeater("east")), (3, DUST)):
-            yield Placement(base.offset(dx, dy - 1, 0), SUPPORT, component)
-            yield Placement(base.offset(dx, dy, 0), state, component)
+        for distance, state in ((1, DUST), (2, repeater("south" if south_taps else "east")), (3, DUST)):
+            point = base.offset(0, dy, distance) if south_taps else base.offset(distance, dy, 0)
+            yield Placement(point.offset(dy=-1), SUPPORT, component)
+            yield Placement(point, state, component)
 
 
 def _local_x(start: Vec3, end_x: int, component: str) -> Iterator[Placement]:
@@ -358,9 +362,11 @@ def iter_stacked_memory_tile(
         return
 
     taps = tuple(3 + bank * tile.layer_pitch for bank in range(tile.banks))
+    # Keep the three-block output tap parallel to each input bus. A transverse
+    # tap at four-block pitch can power the neighboring tower.
     for bit in range(spec.word_bits):
-        base = origin.offset(bit * spec.bit_pitch - 3, spec.data_y - 3, -4)
-        yield from _tower(base, taps[-1], taps, component)
+        base = origin.offset(bit * spec.bit_pitch, spec.data_y - 3, -7)
+        yield from _tower(base, taps[-1], taps, component, south_taps=True)
         for bank in range(tile.banks):
             bo = stacked_bank_origin(origin, tile, bank)
             yield from _wire_z(bo.x + bit * spec.bit_pitch, bo.y + spec.data_y, bo.z - 4, bo.z - 1, facing="south", component=component)

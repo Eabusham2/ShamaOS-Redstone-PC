@@ -381,6 +381,10 @@ module shama_services #(
         endcase
     end
 
+    // The raw FIFO consumes a rising ACK and compares its full payload.
+    // Leave a low core cycle between records, including identical queued keys.
+    wire can_ack_input = event_valid && !event_ack;
+
     always_ff @(posedge clk) begin
         if(rst) begin
             state<=ST_IDLE;latched_id<=0;latched_args<=0;
@@ -405,7 +409,7 @@ module shama_services #(
             if(os_loaded && raw_flash_write_blocked && !raw_flash_block_previous && !recovering_app && notice_code==0) begin
                 notice_code<=1;flash_notice_latched<=1;
             end
-            if(notice_code!=0 && notice_ready && event_valid && state!=ST_CLOSE_DECISION) begin
+            if(notice_code!=0 && notice_ready && can_ack_input && state!=ST_CLOSE_DECISION) begin
                 // Consume irrelevant modal input too, so a queued ordinary
                 // key cannot block Enter/A behind it indefinitely.
                 event_ack<=1;event_ack_data<={controller_latched,key_code,event_code};
@@ -425,6 +429,8 @@ module shama_services #(
                     end else if(shutdown_pending) begin
                         async_switch<=1;close_shutdown<=1;force_discard<=0;run_staged<=0;target_app<=0;
                         lifecycle_error<=0;state<=(foreground_app==1 || foreground_app==3)?ST_SNAPSHOT_READ:ST_CLOSE_BEGIN;
+                    end else if(event_valid && event_ack) begin
+                        // Wait until the raw FIFO can distinguish another ACK.
                     end else if(event_valid && universal_event(event_code)) begin
                         event_ack<=1;event_ack_data<={controller_latched,key_code,event_code};
                         async_switch<=1;target_app<=universal_app(event_code);
@@ -553,7 +559,7 @@ module shama_services #(
                     if(ext_ret[63:32]==32'hffffffff) refuse_close(ext_ret[31:0]);
                     else state<=ST_CLOSE_SAVE_DROP;
                 end
-                ST_CLOSE_DECISION:if(notice_ready && event_valid) begin
+                ST_CLOSE_DECISION:if(notice_ready && can_ack_input) begin
                     event_ack<=1;event_ack_data<={controller_latched,key_code,event_code};
                     if(event_code==8'h12 || (event_code==8'h01 && key_code==8'h82)) notice_code<=6;
                     else if(event_code==8'h13 || (event_code==8'h01 && key_code==8'h83)) notice_code<=7;
