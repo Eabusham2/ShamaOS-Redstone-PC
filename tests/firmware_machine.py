@@ -90,6 +90,9 @@ class FirmwareMachine(CPUReference):
                 elif b == 0 or (a | b) & 3:
                     r1 = 0xfffffffa
                     r2 = 0xffffffff
+                elif self.owner == 2 and FLASH <= a <= FLASH + self.fs.flash_bytes - b:
+                    self.pending_binary = self.flash_image[a-FLASH:a-FLASH+b]
+                    self.halted = True
                 else:
                     self._memory_range(a,b)
                     self.pending_binary=bytes(self.memory[a:a+b]);self.halted=True

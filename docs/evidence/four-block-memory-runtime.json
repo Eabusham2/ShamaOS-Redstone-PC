@@ -1,0 +1,173 @@
+{
+  "kind": "four-block-dense-memory-verification",
+  "source_revision": "0a77dad9c52dd90f10800beaef2b769d42c3e3b4",
+  "runtime_binary_sha256": "777737e45afc10f5cd20aebc76f7cf53f671fd0313b1b52ef4df4c8add27a1bd",
+  "preflight_sha256": "38a49b639258bed268656e7905c6af199269e0d2999cf2c66f7bb8352c7f8e23",
+  "native_and_structural_tests": {
+    "tests": "30",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0"
+  },
+  "test_cases": [
+    {
+      "file": "tests.test_full_memory_bank_runtime",
+      "case": "test_actual_full_1024_by_32_bank_preload_first_middle_last_and_retention"
+    },
+    {
+      "file": "tests.test_full_memory_bank_runtime",
+      "case": "test_actual_half_512_by_32_bank_has_exact_2kib_and_retains_every_bit"
+    },
+    {
+      "file": "tests.test_stacked_memory",
+      "case": "test_stacked_tile_preserves_complete_bank_capacity_and_height"
+    },
+    {
+      "file": "tests.test_stacked_memory",
+      "case": "test_two_layer_memory_has_no_conflicting_placements"
+    },
+    {
+      "file": "tests.test_stacked_memory",
+      "case": "test_actual_two_layer_local_decoder_preload_read_write_and_isolation"
+    },
+    {
+      "file": "tests.test_stacked_memory",
+      "case": "test_actual_shared_return_first_middle_last_bank_and_maximum_height[3-12-32-32]"
+    },
+    {
+      "file": "tests.test_stacked_memory",
+      "case": "test_actual_shared_return_first_middle_last_bank_and_maximum_height[16-16-64-8]"
+    },
+    {
+      "file": "tests.test_stacked_memory",
+      "case": "test_actual_shared_return_first_middle_last_bank_and_maximum_height[24-16--60-8]"
+    },
+    {
+      "file": "tests.test_stacked_memory",
+      "case": "test_actual_shared_return_first_middle_last_bank_and_maximum_height[32-12--60-8]"
+    },
+    {
+      "file": "tests.test_stacked_memory",
+      "case": "test_actual_shared_return_first_middle_last_bank_and_maximum_height[32-12--60-32]"
+    },
+    {
+      "file": "tests.test_stacked_memory",
+      "case": "test_actual_shared_return_first_middle_last_bank_and_maximum_height[30-12--56-32]"
+    },
+    {
+      "file": "tests.test_memory_density",
+      "case": "test_compact_storage_walking_bits_random_writes_and_neighbor_isolation[4-8-8]"
+    },
+    {
+      "file": "tests.test_memory_density",
+      "case": "test_compact_storage_walking_bits_random_writes_and_neighbor_isolation[5-8-8]"
+    },
+    {
+      "file": "tests.test_memory_density",
+      "case": "test_compact_storage_walking_bits_random_writes_and_neighbor_isolation[6-8-8]"
+    },
+    {
+      "file": "tests.test_memory_density",
+      "case": "test_compact_storage_walking_bits_random_writes_and_neighbor_isolation[8-8-8]"
+    },
+    {
+      "file": "tests.test_memory_density",
+      "case": "test_compact_storage_walking_bits_random_writes_and_neighbor_isolation[4-32-32]"
+    },
+    {
+      "file": "tests.test_memory_density",
+      "case": "test_compact_bank_uses_fewer_than_58_blocks_per_stored_bit"
+    },
+    {
+      "file": "tests.test_memory_density",
+      "case": "test_insufficient_cell_pitch_is_rejected_instead_of_creating_crosstalk"
+    },
+    {
+      "file": "tests.test_memory_streaming",
+      "case": "test_ordered_bank_preserves_every_placement_state_and_initial_bit[1-8-4]"
+    },
+    {
+      "file": "tests.test_memory_streaming",
+      "case": "test_ordered_bank_preserves_every_placement_state_and_initial_bit[17-32-4]"
+    },
+    {
+      "file": "tests.test_memory_streaming",
+      "case": "test_ordered_bank_preserves_every_placement_state_and_initial_bit[1-8-5]"
+    },
+    {
+      "file": "tests.test_memory_streaming",
+      "case": "test_ordered_bank_preserves_every_placement_state_and_initial_bit[4-8-8]"
+    },
+    {
+      "file": "tests.test_memory_streaming",
+      "case": "test_ordered_bank_preserves_every_placement_state_and_initial_bit[17-32-5]"
+    },
+    {
+      "file": "tests.test_memory_streaming",
+      "case": "test_ordered_bank_preserves_every_placement_state_and_initial_bit[17-32-8]"
+    },
+    {
+      "file": "tests.test_memory_streaming",
+      "case": "test_z_slab_order_reduces_chunk_reloads_without_changing_capacity"
+    },
+    {
+      "file": "tests.test_memory_streaming",
+      "case": "test_ordered_world_readback_retains_full_physical_bank"
+    },
+    {
+      "file": "tests.test_mixed_memory_stack",
+      "case": "test_actual_mixed_ram_cache_vram_stack_preserves_independent_control[direct]"
+    },
+    {
+      "file": "tests.test_mixed_memory_stack",
+      "case": "test_actual_mixed_ram_cache_vram_stack_preserves_independent_control[helical]"
+    },
+    {
+      "file": "tests.test_mixed_memory_stack",
+      "case": "test_actual_mixed_ram_cache_vram_stack_preserves_independent_control[binary]"
+    },
+    {
+      "file": "tests.test_mixed_memory_stack",
+      "case": "test_actual_mixed_ram_cache_vram_stack_preserves_independent_control[binary-saved]"
+    }
+  ],
+  "literal_bank_runs": [
+    {
+      "physical_bytes": 4096,
+      "physical_placements": 1864576,
+      "stored_bits_checked_after_each_step": 32768,
+      "addresses_exercised": [
+        0,
+        512,
+        1023
+      ],
+      "settling_ticks_per_step": 4096,
+      "runtime": {
+        "revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+        "runtime": "MCHPRS redstone",
+        "status": "passed",
+        "steps": 19,
+        "ticks": 81920
+      }
+    },
+    {
+      "physical_bytes": 2048,
+      "physical_placements": 932736,
+      "stored_bits_checked_after_each_step": 16384,
+      "addresses_exercised": [
+        0,
+        256,
+        511
+      ],
+      "settling_ticks_per_step": 4096,
+      "runtime": {
+        "revision": "f9e10d2572116bf5dcb9a36a305f28e40641a61a",
+        "runtime": "MCHPRS redstone",
+        "status": "passed",
+        "steps": 19,
+        "ticks": 81920
+      }
+    }
+  ],
+  "complete_machine_runtime_verified": false
+}

@@ -1,0 +1,250 @@
+{
+  "scope": "Complete shama_services graph, independently reconstructed signal paths and inferred physical parent workloads. Complete services placement and runtime are separate.",
+  "source_files_sha256": {
+    "rtl/shama_services.sv": "1fe65080ccc2f25803bf302f983b717e676b3af35e184d298029bf14c49b4504",
+    "rtl/shama_boot_params.svh": "673d6d20f5535de56f16c8f9d4645d5fb3a814e3869c231170a085dc457ee225",
+    "src/shamaos/hardware/partition_cuts.py": "eed2cc7956c9a3d48d117a7a7daeadd2972adade639d8166332f03018c136e3a",
+    "src/shamaos/hardware/partition_planner.py": "da0310e7c26e3f41e13639a78deac5e0db554a406e74274bc5d01180b749ca97"
+  },
+  "mapped_json_sha256": "af8cc9a108a22238a2a1a05efaa206941641b30d2566b91a524465e6ba194536",
+  "pymetis_version": "2025.2.2",
+  "seed": 1,
+  "production_shared_prefix_limit": 4096,
+  "original": {
+    "plan_summary": {
+      "native_cells": 55107,
+      "original_port_bits": 1043,
+      "signals": 55598,
+      "original_sink_uses": 105185,
+      "clock_leaf_uses": 1259,
+      "constant_terminals": 36,
+      "leaf_clusters": 879,
+      "internal_clusters": 294,
+      "hierarchy_depth": 5,
+      "bounded_router_domains": 1798,
+      "signal_tree_links": 128744,
+      "explicit_fanout_branches": 14945,
+      "maximum_router_fanout": 4,
+      "maximum_leaf_boundary": 126,
+      "maximum_domain_terminals": 128,
+      "maximum_domains_at_one_cluster": 91,
+      "topology_sha256": "c1d0fc48570db6beed4dfe65bb1c933e7ab25a4dbd39a42d600226bf590d4306",
+      "original_signal_endpoints_sha256": "6fd4c93169d3056c43aed0e03e2e2e356d6f0bbce13f12c368ea3d12e51d1aab",
+      "all_signal_records_retained": true
+    },
+    "independent_audit": {
+      "status": "passed",
+      "signals": 55598,
+      "native_cells": 55107,
+      "scope": "complete structural graph reconstruction; no physical routing or timing claim"
+    },
+    "maximum_combined_prefixes": 13644,
+    "overloaded_parent_count": 6,
+    "largest_parents": [
+      {
+        "cluster": 1172,
+        "graph_terminals": 11558,
+        "facade_terminals": 2086,
+        "combined": 13644
+      },
+      {
+        "cluster": 1170,
+        "graph_terminals": 9390,
+        "facade_terminals": 0,
+        "combined": 9390
+      },
+      {
+        "cluster": 1169,
+        "graph_terminals": 8169,
+        "facade_terminals": 0,
+        "combined": 8169
+      },
+      {
+        "cluster": 1168,
+        "graph_terminals": 6874,
+        "facade_terminals": 0,
+        "combined": 6874
+      },
+      {
+        "cluster": 1171,
+        "graph_terminals": 3998,
+        "facade_terminals": 2086,
+        "combined": 6084
+      },
+      {
+        "cluster": 1167,
+        "graph_terminals": 2112,
+        "facade_terminals": 2086,
+        "combined": 4198
+      }
+    ]
+  },
+  "graph_cut": {
+    "plan_summary": {
+      "native_cells": 55107,
+      "original_port_bits": 1043,
+      "signals": 55598,
+      "original_sink_uses": 105185,
+      "clock_leaf_uses": 1259,
+      "constant_terminals": 36,
+      "leaf_clusters": 1024,
+      "internal_clusters": 341,
+      "hierarchy_depth": 5,
+      "bounded_router_domains": 1018,
+      "signal_tree_links": 73563,
+      "explicit_fanout_branches": 14036,
+      "maximum_router_fanout": 4,
+      "maximum_leaf_boundary": 60,
+      "maximum_domain_terminals": 128,
+      "maximum_domains_at_one_cluster": 15,
+      "topology_sha256": "9b54a5d7c2362ccecb47b758698ccf6a12f610afca4dca045c5bdb6790442a31",
+      "original_signal_endpoints_sha256": "6fd4c93169d3056c43aed0e03e2e2e356d6f0bbce13f12c368ea3d12e51d1aab",
+      "all_signal_records_retained": true
+    },
+    "independent_audit": {
+      "status": "passed",
+      "signals": 55598,
+      "native_cells": 55107,
+      "scope": "complete structural graph reconstruction; no physical routing or timing claim"
+    },
+    "maximum_combined_prefixes": 3927,
+    "overloaded_parent_count": 0,
+    "largest_parents": [
+      {
+        "cluster": 1364,
+        "graph_terminals": 1841,
+        "facade_terminals": 2086,
+        "combined": 3927
+      },
+      {
+        "cluster": 340,
+        "graph_terminals": 1732,
+        "facade_terminals": 1008,
+        "combined": 2740
+      },
+      {
+        "cluster": 681,
+        "graph_terminals": 1818,
+        "facade_terminals": 784,
+        "combined": 2602
+      },
+      {
+        "cluster": 1022,
+        "graph_terminals": 1823,
+        "facade_terminals": 292,
+        "combined": 2115
+      },
+      {
+        "cluster": 84,
+        "graph_terminals": 1347,
+        "facade_terminals": 108,
+        "combined": 1455
+      },
+      {
+        "cluster": 851,
+        "graph_terminals": 1268,
+        "facade_terminals": 24,
+        "combined": 1292
+      }
+    ]
+  },
+  "native_pipeline_fixture": {
+    "safe": {
+      "clock_skew_ticks": 0,
+      "clock_edges": 16,
+      "half_period_redstone_ticks": 512,
+      "minimum_setup_ticks": 956,
+      "minimum_hold_ticks": 69,
+      "pipeline_failures": [],
+      "actual_ticks": 27648,
+      "status": "saved-facade-native-and-dense-traces-match",
+      "compared_trace_samples": 745472,
+      "exact_saved_circuit_blocks": 8584,
+      "imported_chunks": 85,
+      "imported_stream_sha256": "0a52cff527c98ab2186140b2712b29777652de147ce9899c74891553db6420aa",
+      "scenario_sha256": "4c82db1502b1bc62d59133affc184f9e1059e81278c412fb9de14fe9ab33b64f",
+      "original_port_bits": 6,
+      "facade_handoffs": 6,
+      "complete_machine_runtime_verified": false
+    },
+    "too_fast": {
+      "clock_skew_ticks": 0,
+      "clock_edges": 16,
+      "half_period_redstone_ticks": 8,
+      "minimum_setup_ticks": 1010,
+      "minimum_hold_ticks": 21,
+      "pipeline_failures": [
+        {
+          "edge": 3231,
+          "register": "b",
+          "expected": true,
+          "actual": false
+        },
+        {
+          "edge": 3247,
+          "register": "b",
+          "expected": true,
+          "actual": false
+        },
+        {
+          "edge": 3263,
+          "register": "b",
+          "expected": true,
+          "actual": false
+        },
+        {
+          "edge": 5343,
+          "register": "b",
+          "expected": false,
+          "actual": true
+        },
+        {
+          "edge": 5359,
+          "register": "b",
+          "expected": false,
+          "actual": true
+        },
+        {
+          "edge": 5375,
+          "register": "b",
+          "expected": false,
+          "actual": true
+        },
+        {
+          "edge": 7455,
+          "register": "b",
+          "expected": true,
+          "actual": false
+        },
+        {
+          "edge": 7471,
+          "register": "b",
+          "expected": true,
+          "actual": false
+        },
+        {
+          "edge": 9551,
+          "register": "b",
+          "expected": false,
+          "actual": true
+        },
+        {
+          "edge": 9567,
+          "register": "b",
+          "expected": false,
+          "actual": true
+        }
+      ],
+      "actual_ticks": 11520,
+      "status": "saved-facade-native-and-dense-traces-match",
+      "compared_trace_samples": 293888,
+      "exact_saved_circuit_blocks": 8584,
+      "imported_chunks": 85,
+      "imported_stream_sha256": "e961cfa3e4b5e3d5f95e5747dadadcec80aebbf2a6702d81104037c3292ea947",
+      "scenario_sha256": "f5afd7fad513c526fdb58ff9a8b764c188e82a1329e021dbbd22f2649b5a9e78",
+      "original_port_bits": 6,
+      "facade_handoffs": 6,
+      "complete_machine_runtime_verified": false
+    }
+  }
+}

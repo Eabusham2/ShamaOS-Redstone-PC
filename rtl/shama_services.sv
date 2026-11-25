@@ -72,6 +72,12 @@ module shama_services #(
     localparam [31:0] RUN_STAGING=`SHAMA_RUN_STAGING;
     localparam integer FAST_BYTES=(APP_SLOT_BYTES<`SHAMA_CACHE_BYTES)?APP_SLOT_BYTES:`SHAMA_CACHE_BYTES;
     localparam integer EXEC_BYTES=(APP_SLOT_BYTES<`SHAMA_APP_BACKING_BYTES)?APP_SLOT_BYTES:`SHAMA_APP_BACKING_BYTES;
+    localparam [31:0] FLASH_BASE=32'h01000000;
+    // Files is the single foreground owner. Its filesystem STAT validates the
+    // selected extent, and the loader bounds the whole DMA before cleanup.
+    wire run_flash=(foreground_app==2 && sys_args[31:24]==FLASH_BASE[31:24]);
+    wire [31:0] run_offset=run_flash?{8'd0,sys_args[23:0]}:sys_args[31:0];
+    wire [31:0] run_limit=run_flash?`SHAMA_FLASH_BYTES:`SHAMA_RAM_BYTES;
     typedef enum logic [5:0] {
         ST_IDLE,ST_SLOT_LENGTH,ST_COPY_READ,ST_COPY_RAM_WRITE,ST_COPY_CACHE_WRITE,
         ST_APP_CLEAR_RAM,ST_APP_CLEAR_CACHE,ST_EXT,ST_RESP,
@@ -175,14 +181,13 @@ module shama_services #(
 
     // Only the foreground app owns workspace pages. These reservations protect
     // future accesses as well as current data. Allocated pages have their own
-    // bitmap. Files needs only the 8 KiB used to launch a runnable BIN.
+    // bitmap. Files reads selected text and executables from flash.
     function automatic logic heap_page_reserved(input integer page);
         reg [31:0] addr;
         begin
             addr=HEAP_BASE+page*HEAP_PAGE_BYTES;
             case(foreground_app)
                 1:heap_page_reserved=addr>=EDIT_BUF && addr<EDIT_BUF+65536;
-                2:heap_page_reserved=addr>=EDIT_BUF && addr<EDIT_BUF+EXEC_BYTES;
                 3:heap_page_reserved=addr==`SHAMA_MINER_BASE;
                 5:heap_page_reserved=addr==(`SHAMA_TERMINAL_BUF/HEAP_PAGE_BYTES)*HEAP_PAGE_BYTES;
                 7:heap_page_reserved=addr==(`SHAMA_PAINT_BASE/HEAP_PAGE_BYTES)*HEAP_PAGE_BYTES;
@@ -221,7 +226,7 @@ module shama_services #(
     function automatic [31:0] workspace_bytes(input logic [3:0] app_id);
         case(app_id)
             1:workspace_bytes=32'd66116;
-            2:workspace_bytes=32'd580+EXEC_BYTES;
+            2:workspace_bytes=32'd580;
             3:workspace_bytes=`SHAMA_MINER_WORKSPACE_BYTES;
             5:workspace_bytes=1024;
             7,8:workspace_bytes=272; // config record plus filename staging at +0x100
@@ -250,7 +255,6 @@ module shama_services #(
                 1:if((foreground_app==1 || foreground_app==2) && !handoff) workspace_size=68;
                 2:if(!(run_staged && staged_from_text)) begin
                     if(foreground_app==1) workspace_size=65536;
-                    else if(foreground_app==2) workspace_size=EXEC_BYTES;
                 end
                 4:if(foreground_app==3) workspace_size=`SHAMA_MINER_WORKSPACE_BYTES;
                 5:if(foreground_app==5) workspace_size=1024;
@@ -291,7 +295,7 @@ module shama_services #(
     task automatic advance_app_copy;
         begin
             if(copy_offset+4>=copy_bytes) begin
-                if(run_staged) begin
+                if(run_staged && !copy_source_flash) begin
                     // Keep the source live until every word is in RAM and
                     // the cached prefix is complete; only then release it.
                     clear_base<=staged_from_text?EDIT_BUF:RUN_STAGING;
@@ -457,9 +461,9 @@ module shama_services #(
                             end
                             SYS_RUN_BUFFER:begin
                                 if(sys_args[63:32]>EXEC_BYTES) begin_recovery(8'd3,1);
-                                else if(sys_args[31:0]>=`SHAMA_RAM_BYTES || sys_args[63:32]>`SHAMA_RAM_BYTES-sys_args[31:0]) begin_recovery(8'd2,1);
+                                else if(run_offset>=run_limit || sys_args[63:32]>run_limit-run_offset) begin_recovery(8'd2,1);
                                 else if(sys_args[63:32]==0 ||
-                                   !((sys_args[31:0]>=RUN_STAGING && sys_args[31:0]<=RUN_STAGING+APP_SLOT_BYTES-sys_args[63:32]) ||
+                                   !(run_flash || (sys_args[31:0]>=RUN_STAGING && sys_args[31:0]<=RUN_STAGING+APP_SLOT_BYTES-sys_args[63:32]) ||
                                      ((foreground_app==1 || foreground_app==2) && sys_args[31:0]>=EDIT_BUF && sys_args[31:0]<=EDIT_BUF+65536-sys_args[63:32])) ||
                                    sys_args[1:0]!=0 || sys_args[33:32]!=0) begin
                                     response<=64'hfffffffffffffffa;state<=ST_RESP;
@@ -618,7 +622,11 @@ module shama_services #(
                         copy_offset<=0;app_loaded_bytes<=0;
                         if(close_shutdown) begin os_loaded<=0;state<=ST_SHUTDOWN_DONE;end
                         else if(run_staged) begin
-                            copy_source_base<=staged_source_ptr;copy_source_flash<=0;copy_ram_base<=`SHAMA_APP_RAM_BASE;
+                            // Keep the mapped pointer through heap cleanup. Its tag
+                            // distinguishes flash from equal numerical RAM offsets.
+                            copy_source_base<={8'd0,staged_source_ptr[23:0]};
+                            copy_source_flash<=staged_source_ptr[31:24]==FLASH_BASE[31:24];
+                            copy_ram_base<=`SHAMA_APP_RAM_BASE;
                             copy_bytes<=staged_bytes;copy_to_cache<=1;copy_is_kernel<=0;boot_after_kernel<=0;state<=ST_COPY_READ;
                         end else begin
                             copy_source_base<=app_flash(target_app);copy_source_flash<=1;copy_ram_base<=`SHAMA_APP_RAM_BASE;

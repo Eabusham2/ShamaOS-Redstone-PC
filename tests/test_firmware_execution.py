@@ -3,7 +3,7 @@ import pytest
 from firmware_machine import FLASH,FirmwareMachine,ROOT
 from shamaos.flashfs import FileType,ShamaFS
 from shamaos.assembler import assemble
-from shamaos.memory_map import EDIT_BUF, EDIT_CTX, EDIT_NAME, RUN_STAGING, APP_SLOT_BYTES
+from shamaos.memory_map import EDIT_BUF, EDIT_CTX, EDIT_NAME, RUN_STAGING
 from shamaos.machine_spec import RAM_BYTES, CACHE_BYTES
 
 A,B,UP,DOWN,LEFT,RIGHT=0x14,0x15,0x10,0x11,0x12,0x13
@@ -123,17 +123,16 @@ def test_assembly_output_over_capacity_preserves_the_last_saved_binary():
     assert len(machine.memory) == RAM_BYTES
 
 
-def test_files_binary_launch_reuses_its_text_buffer():
+def test_files_binary_launch_leaves_ram_staging_untouched():
     binary = assemble('LDI r1 42\nHLT\n').to_bytes()
     fs = ShamaFS()
     fs.create_file('run.bin', binary, FileType.BIN)
     machine = FirmwareMachine('files', fs)
-    machine.memory[RUN_STAGING:RUN_STAGING+APP_SLOT_BYTES] = bytes([0xA5]) * 16384
+    machine.memory[EDIT_BUF:] = b'\xa5' * (RAM_BYTES - EDIT_BUF)
     machine.settle()
     machine.event(A)
     assert machine.pending_binary == binary
-    assert bytes(machine.memory[EDIT_BUF:EDIT_BUF + len(binary)]) == binary
-    assert bytes(machine.memory[RUN_STAGING:RUN_STAGING+APP_SLOT_BYTES]) == bytes([0xA5]) * 16384
+    assert machine.memory[EDIT_BUF:] == b'\xa5' * (RAM_BYTES - EDIT_BUF)
 
 
 def test_delete_initially_selects_cancel_then_requires_selecting_delete():
@@ -464,8 +463,8 @@ def test_files_views_final_byte_of_max_document_without_writing_any_source_ram()
     assert machine.memory[EDIT_BUF+65535] == 0xcc
 
 
-@pytest.mark.parametrize('length', [8192, 8196, 16380])
-def test_files_limits_binary_read_to_the_runnable_window(length):
+@pytest.mark.parametrize('length', [4, 4096, 4100, 8192, 8196, 16380])
+def test_files_launches_from_committed_flash_without_staging(length):
     from shamaos.isa import SYSCALLS
     binary = b'abcd' * (length // 4)
     fs = ShamaFS()
@@ -484,9 +483,61 @@ def test_files_limits_binary_read_to_the_runnable_window(length):
     machine.syscall = trace
     machine.settle()
     machine.event(A)
-    assert reads == ([(EDIT_BUF, 8192)] if length == 8192 else [])
-    assert runs == [(EDIT_BUF, length)]
-    if length == 8192:
+    assert reads == []
+    assert runs == [(FLASH + fs.stat('run.bin').start_block * fs.block_size, length)]
+    if length <= 8192:
         assert machine.pending_binary == binary
     else:
         assert machine.pending_app == 0 and machine.pending_binary is None
+
+
+@pytest.mark.parametrize('binary', [b'', b'abc'])
+def test_files_reports_invalid_binary_and_returns_to_directory(binary):
+    fs = ShamaFS()
+    fs.create_file('broken.bin', binary, FileType.BIN)
+    machine = FirmwareMachine('files', fs)
+    machine.settle()
+    machine.event(A)
+    assert machine.regs[9] == 4 and machine.pending_binary is None
+    machine.event(B)
+    assert machine.regs[9] == 0 and machine.cstring(EDIT_NAME) == 'broken.bin'
+
+
+def test_files_revalidates_changed_extent_before_launch():
+    fs = ShamaFS()
+    fs.create_file('moved.bin', b'old!', FileType.BIN)
+    machine = FirmwareMachine('files', fs)
+    machine.settle()
+    # Move the file by COW while the directory still displays the old extent.
+    old = fs.stat('moved.bin').start_block
+    fs.write_file('moved.bin', b'new!')
+    assert fs.stat('moved.bin').start_block != old
+    machine.event(A)
+    assert machine.regs[9] == 4 and machine.pending_binary is None
+    machine.event(B)
+    machine.event(A)
+    assert machine.pending_binary == b'new!'
+
+
+def test_files_keeps_directory_on_corrupt_extent_stat():
+    from shamaos.isa import SYSCALLS
+
+    fs = ShamaFS()
+    fs.create_file('bad.bin', b'good', FileType.BIN)
+    machine = FirmwareMachine('files', fs)
+    machine.settle()
+    previous = machine.syscall
+
+    def fail_stat(sid):
+        if sid == SYSCALLS['SYS_FILE_STAT']:
+            # The real filesystem uses E_IO when the table extent fails validation.
+            machine.regs[1:3] = [0xfffffffb, 0xffffffff]
+        else:
+            assert sid != SYSCALLS['SYS_RUN_BUFFER']
+            previous(sid)
+
+    machine.syscall = fail_stat
+    machine.event(A)
+    assert machine.pending_binary is None and machine.regs[9] == 4
+    machine.event(B)
+    assert machine.regs[9] == 0

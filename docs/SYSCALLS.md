@@ -48,7 +48,7 @@ reports reserved pages in usage. Free/exit clears them before reuse.
 | App | Initially allocatable heap | Largest contiguous allocation |
 |---|---:|---:|
 | Editor | 20 KiB | 16 KiB |
-| File Explorer | 76 KiB | 72 KiB |
+| File Explorer | 84 KiB | 84 KiB |
 | Miner | 80 KiB | 76 KiB |
 | Terminal | 80 KiB | 72 KiB |
 | Paint / Settings | 80 KiB | 76 KiB |
@@ -73,7 +73,7 @@ adds 4.1667 percentage points to RAM use.
 | Foreground app | Assigned workspace bytes | RAM ranges |
 | --- | ---: | --- |
 | Editor | 66,116 | `0x2400..0x25FF`, `0x2600..0x2643`, `0x4000..0x13FFF` |
-| File Explorer | 8,772 | `0x2400..0x25FF`, `0x2600..0x2643`, `0x4000..0x5FFF` |
+| File Explorer | 580 | `0x2400..0x25FF`, `0x2600..0x2643` |
 | Miner | 1,376 | `0x4000..0x455F` |
 | Terminal | 1,024 | `0x5000..0x53FF` |
 | Settings | 272 | `0x4000..0x410F` |
@@ -128,7 +128,7 @@ longest path plus slash and terminator; the stored/LIST name remains 43 bytes.
 | `027` | SYS_FILE_DELETE | r1 handle; GUI confirmation must already have occurred |
 | `028` | SYS_FILE_STAT | r1 handle; return packed metadata in r1 and size in r2 |
 | `029` | SYS_FILE_LIST | r1 table index 0–63, r2 name destination; return metadata/size, copy name plus NUL |
-| `02A` | SYS_FLASH_USAGE | r1 allocated bytes, r2 total bytes (256,000) |
+| `02A` | SYS_FLASH_USAGE | r1 allocated bytes, r2 total bytes (204,800) |
 | `02B` | SYS_FILE_TRANSFER | r1 handle, r2 new owner app ID 0–15; transfer an open handle before app replacement |
 | `02C` | SYS_FS_SYNC | Complete prior serialized storage work; return 0 |
 
@@ -218,7 +218,12 @@ capacity, 4 invalid/duplicate definition, 5 unknown instruction, 6 bad operands
 or undefined name, and 7 insufficient output space. Failed staging is never a
 valid executable; callers must retain their previous BIN until assembly succeeds.
 
-`SYS_RUN_BUFFER` (`061`) takes r1 staging pointer and r2 emitted byte length.
+`SYS_RUN_BUFFER` (`061`) takes the source pointer in r1 and length in r2.
+Files may pass a mapped flash address after `SYS_FILE_STAT` validates the
+selected BIN. The loader checks the complete range before cleanup and copies
+that extent directly to executable RAM and the cache prefix. The calling CPU
+waits throughout cleanup and loading. Closing a read handle leaves the committed
+extent in place. RAM-staged launches use the same original address ranges.
 Staging normally lies within `0x14000..0x17FFF`; Editor and Files may instead
 borrow a nonoverrunning range within `0x4000..0x13FFF`. The pointer and byte
 length must be word aligned and the length nonzero. Executables may use at most

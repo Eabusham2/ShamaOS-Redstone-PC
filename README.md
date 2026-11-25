@@ -87,14 +87,14 @@ connected saved-world execution proof.
 The current implementation has **96 KiB RAM, 200 KiB flash, 4 KiB cache and
 16 KiB VRAM**. History updates stage a **128-byte record** in existing reserved
 metadata, retaining all 256 complete records and interrupted-save recovery.
-Editor uses **70.80% RAM normally and 87.47% at its largest assembly peak**;
-Explorer uses **70.91%**. The complete 65,535-byte source and 16,380-byte
+Editor peaks at **69,748 bytes (70.95% of RAM)** when editing or assembling.
+Explorer uses **4,140 bytes (4.21%)** and reads selected files from flash. The complete 65,535-byte source and 16,380-byte
 assembly/save limits remain. Miner uses **6.50% RAM**, including its full
 software-SHA workspace and 5,004-byte code backing. Its first 4,096 code bytes
 occupy cache and the remaining 908 execute from RAM. Its ordinary native-mining
 and UI code is entirely within the cached prefix.
 
-The initial flash allocates **143.25 KiB (71.625%)**, including all editable
+The initial flash allocates **144.75 KiB (72.375%)**, including all editable
 sources, binaries and persistent records. Two full screen buffers plus
 text/sprites fit in **15,680 bytes**; scrolling reserves no third frame.
 All shipped programs fit the unchanged 8 KiB execution limit. Larger user
@@ -113,8 +113,8 @@ installed persistent data; shared metadata and documents are counted separately.
 | App | Code bytes | RAM bytes | RAM | Cache bytes | Of 4 KiB cache | Attributed flash |
 |---|---:|---:|---:|---:|---:|---:|
 | Desktop | 184 | 196 | 0.20% | 184 | 4.49% | 0.84% |
-| Editor | 3,476 | 69,604 | 70.80%; peak 87.47% | 3,476 | 84.86% | 10.82% |
-| File Explorer | 3,584 | 69,712 | 70.91% | 3,584 | 87.50% | 11.50% |
+| Editor | 3,620 | 69,748 | 70.95% | 3,620 | 88.38% | 11.52% |
+| File Explorer | 3,548 | 4,140 | 4.21% | 3,548 | 86.62% | 11.48% |
 | Bitcoin Miner | 5,004 | 6,392 | 6.50% | 4,096 | 100.00% | 31.32% |
 | System Monitor | 40 | 52 | 0.05% | 40 | 0.98% | 0.40% |
 | Terminal | 1,488 | 2,524 | 2.57% | 1,488 | 36.33% | 4.48% |
@@ -125,13 +125,13 @@ installed persistent data; shared metadata and documents are counted separately.
 Code length and cache residency differ for Miner: the RAM counter already
 includes its complete executable, so the 908-byte tail adds no new allocation.
 
-Editor additionally has 4 KiB of allocatable heap, Explorer 20 KiB and Miner
+Editor additionally has 20 KiB of allocatable heap, Explorer 84 KiB and Miner
 80 KiB. Other apps have 80–84 KiB depending on their workspace. The allocator
 protects overlapping workspaces; free bytes are not all interchangeable heap.
 
-Flash's 143.25 KiB consists of **71.75 KiB sources, 17.5 KiB separate executables,
-16.25 KiB packed loader, 32 KiB Miner history, 0.25 KiB Miner state, 1 KiB welcome
-documents and 4.5 KiB metadata**. It leaves **56.75 KiB free**, with **46.75 KiB**
+Flash's 144.75 KiB consists of **72.75 KiB sources, 17.75 KiB separate executables,
+16.5 KiB packed loader, 32 KiB Miner history, 0.25 KiB Miner state, 1 KiB welcome
+documents and 4.5 KiB metadata**. It leaves **55.25 KiB free**, with **45.25 KiB**
 of allocation headroom before the **190 KiB / 95% write guard**. Copy-on-write
 saves also need their temporary replacement extent to fit. Miner history uses
 its bounded record journal and needs no replacement extent. At this capacity,
@@ -150,32 +150,21 @@ All local bank selectors, binary row decoders and read-return wiring are counted
 
 | Component | Physical capacity | Bank modules | Occupied X/Z chunks |
 |---|---:|---:|---:|
-| Shared cache + RAM + VRAM column and local wiring | 4 + 96 + 16 KiB | 29 | 8,102 |
-| Flash and local wiring | 200 KiB | 50 | 15,045 |
+| Shared cache + RAM + VRAM column and local wiring | 4 + 96 + 16 KiB | 29 | 7,330 |
+| Flash and local wiring | 200 KiB | 50 | 13,886 |
 | Screen | 320×180 pixels | — | 108 |
 | Keyboard / controller circuitry | — | — | 47 |
 | Debug panel | — | — | 9 |
 | Clock | — | — | 17 |
-| **Measured regular-component subtotal** | **316 KiB memory** | **79** | **23,328** |
+| **Measured regular-component subtotal** | **316 KiB memory** | **79** | **21,397** |
 | Synthesized CPU/GPU/assembler/OS logic and connecting routes | — | — | **Not yet established** |
 
-The regular-component envelope is **3,425×6,388 blocks**, or
-**215×400 = 86,000 chunks**, including gaps. Compared with the previous
-250 KiB flash / horizontal-screen checkpoint, occupied chunks fall **36.15%**
-and the envelope **26.30%**. The upright screen retains all 57,600 pixels in
-108 occupied chunks; upward memory-return columns remove the long descending
-tails. These counts include local decoders and count shared X/Z chunks once.
-Removing one vertically stacked cache bank saves **2,456,014 emission operations**
-but leaves this horizontal subtotal unchanged. Placement emits
-**200,067,009 regular-component operations** after adding 719 blocks for the
-stopped-clock interlock within its existing 17 chunks;
-complete-world logic and routing remain additional.
-
-The [current geometry report](docs/evidence/regular-geometry-cache4-2026-11-14.json)
-and [updated preflight](docs/evidence/clock-interlock-preflight-2026-11-24.json) retain the current
-capacities and excluded full-machine costs. The earlier
-[two-bank geometry](docs/evidence/capacity-200-upright-return.json) remains the
-comparison checkpoint.
+The default regular components occupy an envelope of **3,331×6,388 blocks**,
+or **209×400 = 83,600 chunks** including gaps. Four-block bit columns and
+isolated write-data towers remove 10,031,104 placement operations and 1,931
+occupied chunks from the five-block-pitch layout. The resulting subtotal is
+**190,035,905 placement operations**. Physical capacity, the upright screen and
+the 79 controls are included in the [current geometry report](docs/evidence/four-block-memory-preflight.json).
 
 All 79 input actuators fit a connected, walkable **16×16 activation area**;
 47 chunks is the separate backend circuitry. A nearby walking lip provides the

@@ -68,24 +68,21 @@ LDW r3 r14 32
 SYS SYS_UI_EDITOR_VIEW
 CALLS .draw_content
 .loop
-CALLS .sync
+; Redraw already published the complete document. Idle polling has no writes.
 SYS SYS_GET_EVENT
 CMP r1 r0
 BRS.EQ .idle
 ; Publish a sequence-locked source transaction for asynchronous close/save.
 LDIS r14 CTX
 LDW r12 r14 36
-LEA r13 r0 1
-OR r12 r12 r13
+ORIS r12 1
 STW r14 r12 36
 LEA r14 r0 10
 SHR r12 r1 r14
-LEA r14 r0 255
-AND r12 r12 r14
+ANDIS r12 255
 LEA r14 r0 18
 SHR r13 r1 r14
-LEA r14 r0 255
-AND r13 r13 r14
+ANDIS r13 255
 CMP r8 r0
 BRS.EQ .menu
 LEA r14 r0 3
@@ -656,8 +653,7 @@ SYS SYS_YIELD
 JMPS .loop
 
 .sync
-PUSH r12
-PUSH r13
+; r1/r2 can hold a pending syscall; r12/r13 can hold flash restoration state.
 LDIS r14 CTX
 STW r14 r10 0
 STW r14 r11 4
@@ -665,16 +661,13 @@ STW r14 r7 8
 STW r14 r6 16
 STW r14 r15 24
 STW r14 r5 28
-LDW r12 r14 36
-LEA r13 r0 1
-AND r13 r12 r13
-CMP r13 r0
+LDW r3 r14 36
+MOV r4 r3
+ANDIS r4 1
 BRS.EQ .sync_done
-INC r12
-STW r14 r12 36
+INC r3
+STW r14 r3 36
 .sync_done
-POP r13
-POP r12
 RET
 .dirty
 LEA r1 r0 1
@@ -972,8 +965,7 @@ LEA r2 r0 4
 LEA r3 r3 17
 .diag_hex
 SHR r12 r4 r2
-LEA r13 r0 15
-AND r12 r12 r13
+ANDIS r12 15
 LEA r13 r0 10
 CMP r12 r13
 BRS.LT .diag_digit
@@ -985,8 +977,7 @@ LEA r13 r0 48
 ADD r12 r12 r13
 STB r3 r12 0
 INC r3
-LEA r13 r0 4
-SUB r2 r2 r13
+SUBIS r2 4
 CMP r2 r0
 BRS.GE .diag_hex
 LDI r12 GPU

@@ -19,8 +19,8 @@ source file, separate binary and packed loader record.
 | App | Restored executable | Current executable | Reduction | Cached bytes | Direct-RAM tail |
 |---|---:|---:|---:|---:|---:|
 | Desktop | 232 | 184 | 20.69% | 184 | 0 |
-| Editor | 4,696 | 3,476 | 25.98% | 3,476 | 0 |
-| File Explorer | 5,320 | 3,584 | 32.63% | 3,584 | 0 |
+| Editor | 4,696 | 3,620 | 22.91% | 3,620 | 0 |
+| File Explorer | 5,320 | 3,548 | 33.31% | 3,548 | 0 |
 | Bitcoin Miner | 6,904 | 5,004 | 27.52% | 4,096 | 908 |
 | System Monitor | 52 | 40 | 23.08% | 40 | 0 |
 | Terminal | 1,920 | 1,488 | 22.50% | 1,488 | 0 |
@@ -28,7 +28,7 @@ source file, separate binary and packed loader record.
 | Paint | 868 | 696 | 19.82% | 696 | 0 |
 | Settings | 772 | 608 | 21.24% | 608 | 0 |
 
-Together the nine executables fall from **22,588 to 16,528 bytes**, a **26.83%**
+Together the nine executables fall from **22,588 to 16,636 bytes**, a **26.35%**
 reduction. Editor/Files share private launch, redraw and formatting paths. Miner
 shares snapshot/save tails, repeated digest/configuration rows and hexadecimal
 formatting, and copies aligned workspaces by words. Explicit one-word branch,
@@ -37,9 +37,8 @@ instruction. The old instruction encodings remain valid. The host assembler,
 in-world assembler, CPU and reference interpreter all implement the same
 [short-form contract](ISA.md#one-word-forms).
 
-[Exact app measurements and source hashes](evidence/app-cache-reduction-2026-11-14.json)
-and the [full resource ledger](evidence/software-usage-cache4-2026-11-14.json)
-retain the input/output identities. Reassemble the checked-in sources and run
+The [November 13 measurements](evidence/app-cache-reduction-2026-11-14.json)
+record the original cache reduction. The [November 25 resource ledger](evidence/software-usage-2026-11-25.json) includes the flash-backed loader and assembler. Reassemble the checked-in sources and run
 `shamaos software-usage --report build/software-usage.json` to reproduce current
 occupancy. The earlier source-only checkpoints are retained separately; their
 larger byte counts precede the short forms.
@@ -73,12 +72,14 @@ recovery; the 65,535-byte editing and 16,380-byte assembly/save limits remain.
 
 ## Savings outside the executable cache
 
-The installed image uses **146,688 bytes / 143.25 KiB / 71.625% of 200 KiB
+The installed image uses **148,224 bytes / 144.75 KiB / 72.375% of 200 KiB
 flash**, down from 158.5 KiB / 79.25%. It still contains all 32 entries and the
-full 32 KiB Miner history. There are **56.75 KiB free**, with **46.75 KiB** of
+full 32 KiB Miner history. There are **55.25 KiB free**, with **45.25 KiB** of
 allocation headroom before the 95% write guard. Editor's maximum assembly
-working set falls to **85,988 bytes / 87.47% of RAM**; Miner uses **6,392 bytes /
-6.50%** including its complete software-SHA workspace and RAM code backing.
+working set falls to **69,748 bytes / 70.95% of RAM**. Explorer uses **4,140
+bytes / 4.21%** after moving text viewing and executable loading to flash. Miner
+uses **6,392 bytes / 6.50%** including its complete software-SHA workspace and
+RAM code backing.
 
 Removing one physical cache bank eliminates **32,768 storage cells**. Regular
 storage/local-circuit emissions fell from **202,522,304 to 200,066,290 operations**

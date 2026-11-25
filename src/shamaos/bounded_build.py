@@ -21,7 +21,8 @@ import time
 from typing import Iterator
 
 from .hardware import external_router, local_router, logic, memory, routing
-from .hardware import partition_placement, partition_planner
+from .hardware import partition_cuts, partition_placement, partition_planner
+from .hardware.local_router import DEFAULT_SHARED_TERMINALS
 from .hardware.partition_planner import Graph, audit_plan, build_plan
 from .hardware.partition_placement import PlacedCluster, audit_placement, balance_partition_clocks
 from .model import BlockState, Placement, Vec3
@@ -35,7 +36,7 @@ class BoundedBuildError(ValueError):
 
 _CHUNK_BIAS = 1 << 21
 _RECORD = struct.Struct(">QI")
-_SOURCE_MODULES = (partition_planner, partition_placement, local_router,
+_SOURCE_MODULES = (partition_planner, partition_cuts, partition_placement, local_router,
                    external_router, logic, memory, routing, model, release_io, synthesis, worldio)
 
 
@@ -300,7 +301,8 @@ def build_bounded_partition(mapped: str | Path, top: str, destination: str | Pat
         _height_contract(surface_y, maximum_y)
         graph = _read_graph(mapped, top, expected_mapped_sha256, report)
         plan = build_plan(graph, cell_budget=cell_budget, boundary_budget=boundary_budget,
-                          domain_budget=domain_budget, arity=arity, retain_signals=True)
+                          domain_budget=domain_budget, arity=arity, retain_signals=True,
+                          shared_prefix_budget=DEFAULT_SHARED_TERMINALS)
         report["plan_audit"] = audit_plan(graph, plan)
         report["plan_summary"] = plan["summary"]
         _json_write(destination / "plan.json", plan)

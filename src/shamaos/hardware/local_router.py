@@ -334,12 +334,15 @@ def _tile_from_escapes(physical: PhysicalNetlist, escapes: Mapping[Vec3,_Escape]
     return LocalTile(physical,dict(escapes),tracks,track_base_z,branch_y,trunk_y)
 
 
+DEFAULT_SHARED_TERMINALS = 4096
+
+
 def plan_bounded_domains(physicals: Sequence[PhysicalNetlist], *, branch_y: int, trunk_y: int,
                          obstacles: Iterable[Placement], access: Mapping[Vec3,tuple[str,...]],
                          endpoint_bounds: Mapping[Vec3,Box] | None = None,
                          obstacle_bounds: Iterable[Box] = (),
                          max_domain_terminals: int = 256,
-                         max_shared_terminals: int = 4096,
+                         max_shared_terminals: int = DEFAULT_SHARED_TERMINALS,
                          north_lane_limit: int | None = None) -> tuple[LocalTile,...]:
     """Allocate parent escape prefixes in height order, then route bounded domains.
 

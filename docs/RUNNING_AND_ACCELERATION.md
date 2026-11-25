@@ -88,6 +88,15 @@ Java 1.20.4 server caps view distance at 32. A closer viewing position is under
 review. Raising a configuration value to 40 alone does not bypass that cap, and
 the complete live screen has not yet been observed in a client.
 
+## Exact loading commands
+
+Generated and relocated worlds now include a data pack that requests their
+actual occupied chunks in bounded batches. Use the exact command in the
+world's `shamaos/LOADING.txt` or the installed copy's `START-HERE.txt`.
+The [loading guide](WORLD_LOADING.md) explains load, stop and unload, how
+coordinates are regenerated after installation, and the remaining server
+measurement requirements.
+
 ## Verification before calling a world ready
 
 Boot ShamaOS, enter and save text, assemble and run a program, switch/exit apps,

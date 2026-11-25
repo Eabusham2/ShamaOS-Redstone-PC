@@ -22,7 +22,10 @@ def test_input_and_services_protocols(tmp_path, module, marker):
         str(ROOT / f"rtl/shama_{module}.sv"), str(ROOT / f"rtl/tb_{module}.sv"),
     ], capture_output=True, text=True, timeout=30)
     assert compiled.returncode == 0, compiled.stdout + compiled.stderr
-    result = subprocess.run(["vvp", str(binary)], capture_output=True, text=True, timeout=30)
+    # The services bench takes 971,690 simulated clocks, including RAM
+    # clearing and full-window DMA. Its 1.2M-clock watchdog also covers stalls.
+    timeout = 120 if module == "services" else 30
+    result = subprocess.run(["vvp", str(binary)], capture_output=True, text=True, timeout=timeout)
     assert result.returncode == 0, result.stdout + result.stderr
     assert marker in result.stdout
 

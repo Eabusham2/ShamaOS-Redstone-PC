@@ -1,0 +1,88 @@
+{
+  "capacity_bytes": 4096,
+  "checked_date": "2026-11-25",
+  "clock_half_period_redstone_ticks": 12000,
+  "complete_machine_runtime_verified": false,
+  "connected_cache_runtime_verified": true,
+  "diagnostic_artifact": {
+    "bytes": 186498,
+    "id": 14922350637,
+    "sha256": "a52da5578db433d12666d7d6f56f75112f9615da5228b765737089c41322f41c"
+  },
+  "frames": 601,
+  "full_storage_checkpoints": 49,
+  "geometry": {
+    "bounds": {
+      "max": {
+        "x": 8082,
+        "y": 318,
+        "z": 4756
+      },
+      "min": {
+        "x": 0,
+        "y": -60,
+        "z": -6136
+      }
+    },
+    "occupied_chunks": 122097,
+    "occupied_regions": 198,
+    "sorted_unique_record_sha256": "7207d5732cbd7b51e1ce3a3edf296a6ca47121769c57d4db37c49747e69ec6b5",
+    "unique_blocks": 24608768
+  },
+  "independent_audit_status": "complete-cache-native-transactions-and-reopen-independently-verified",
+  "native_clock_verified": true,
+  "native_persistence_verified": true,
+  "physical_artifact": {
+    "bytes": 462949784,
+    "id": 14920324325,
+    "sha256": "9812311aff55b603ff15506e4dcd8d77fe4ea6600a813c3c6fac55111ca872a8"
+  },
+  "register_clocks": 116,
+  "reopened_bits": 32768,
+  "report_status": "complete-connected-cache-validation-passed",
+  "review_scope": "Downloaded CI diagnostics and byte-count/hash checks of every stage report. The full physical archive is identified, not downloaded or re-executed by this review. This result applies only to its original source and geometry.",
+  "schema": "shamaos-retained-cache-ci-result-v1",
+  "source_commit": "6785ca9aeb03e2613ea0c0a7293426aca73134f6",
+  "stage_reports_hash_checked": {
+    "audit": {
+      "bytes": 10644,
+      "path": "/home/runner/work/ShamaOS-Redstone-PC/ShamaOS-Redstone-PC/build/cache-validation/independent-audit.json",
+      "sha256": "68942056c72e59d036b590f40aca5004e58ba50812363981bf58ac170f8703d7"
+    },
+    "clocks": {
+      "bytes": 85062,
+      "path": "/home/runner/work/ShamaOS-Redstone-PC/ShamaOS-Redstone-PC/build/cache-validation/clocks/clock-report.json",
+      "sha256": "b22be4004c658565dff0e7f9176b8b807da4a132004d9b1fe2d14f4231d31d98"
+    },
+    "geometry": {
+      "bytes": 108846,
+      "path": "/home/runner/work/ShamaOS-Redstone-PC/ShamaOS-Redstone-PC/build/cache-validation/geometry/facade-report.json",
+      "sha256": "23b149bce3a79fcb1afddaa9eda3c7fd3a8b072b6bc70eb000c80090dfbb93e7"
+    },
+    "prepare": {
+      "bytes": 6957,
+      "path": "/home/runner/work/ShamaOS-Redstone-PC/ShamaOS-Redstone-PC/build/cache-validation/source/build/current/prepared.json",
+      "sha256": "3e84b349d2afb199f34626c1b5fe0a4d583998e15a6c2e0e90dc138f2862df26"
+    },
+    "runtime": {
+      "bytes": 3504,
+      "path": "/home/runner/work/ShamaOS-Redstone-PC/ShamaOS-Redstone-PC/build/cache-validation/runtime/prepared.json",
+      "sha256": "522026c2f9fbadbb528214b91150e5dedd027c5c032f4a40fee51325c79db6b9"
+    },
+    "transactions": {
+      "bytes": 99024,
+      "path": "/home/runner/work/ShamaOS-Redstone-PC/ShamaOS-Redstone-PC/build/cache-validation/transactions/transaction-report.json",
+      "sha256": "566b5276f19f024b708e0c40f1d73ff3796d39493640c70031dd585f3e6c829c"
+    },
+    "world": {
+      "bytes": 140559,
+      "path": "/home/runner/work/ShamaOS-Redstone-PC/ShamaOS-Redstone-PC/build/cache-validation/connected/connected-build-report.json",
+      "sha256": "663a4d98b93f353732d98bd431b4253f49b8cd47a2f944d5ef3e6dac80d24742"
+    }
+  },
+  "stored_bit_assertions": 1605632,
+  "workflow_conclusion": "success",
+  "workflow_job": 138298404607,
+  "workflow_run": 45351382058,
+  "workflow_url": "https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/45351382058"
+}

@@ -59,8 +59,8 @@ slots and overlapping extent owners fail before any target write. Protected
 images can finish committed recovery but reject new history saves.
 
 That test image allocated 162,304 bytes. The current installed image allocates
-146,688 bytes of its 204,800-byte flash. The journal stores its 128-byte payload
-and 24-byte descriptor in existing metadata. [Current flash allocation](evidence/software-usage-cache4-2026-11-14.json)
+148,224 bytes of its 204,800-byte flash. The journal stores its 128-byte payload
+and 24-byte descriptor in existing metadata. [Current flash allocation](evidence/software-usage-2026-11-25.json)
 
 [FILESYSTEM.md](FILESYSTEM.md) documents the order and [MINER.md](MINER.md) links the reproducible matched
 controller benchmark. Additional comparison/control logic still needs the exact

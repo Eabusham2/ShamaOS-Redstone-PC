@@ -259,3 +259,27 @@ The production path still needs complete physical routing and isolation,
 route-derived clock/data timing, an exact saved-world resource measurement,
 globally connected loaded/ticking behavior, and the OS/lifecycle acceptance
 tests described in [VALIDATION.md](VALIDATION.md#full-world-acceptance-still-required).
+
+## Fitting physical parent prefixes
+
+The production bounded backend checks the actual number of escape prefixes
+before starting physical placement. Every signal branch contributes a terminal
+at each participating parent. Each exterior I/O bit adds two terminals at every
+ancestor it crosses. If the original affinity-ordered hierarchy exceeds the
+4,096-terminal allocator budget, the planner recursively partitions the mapped
+connectivity graph. Native cells and original ports can occupy the same leaf.
+The planner checks each leaf's cell and boundary limits, recomputes every parent
+load and reconstructs all directed links from the original graph. It tries a
+binary cut if the requested arity still exceeds the parent budget.
+
+For the 55,107-cell services partition, the maximum combined parent load fell
+from 13,644 to 3,927. All six previously overloaded parents fit. Signal-tree
+links fell from 128,744 to 73,563. The audited graph retains 1,043 original
+port bits, 105,185 sink uses, 36 constant terminals and 1,259 clock sinks.
+These counts measure routing work required. A native two-register fixture
+also drove the mixed I/O and logic leaves through saved exterior pins. Full
+services geometry and clock arrival times require their own measurements.
+[Services graph and fixture measurements](evidence/services-graph-cut.json)
+
+To reproduce the services plan from its exact mapped JSON, run
+`python -m shamaos.hardware.partition_planner services.json --top shama_services --output services-plan.json --domain-budget 128 --shared-prefix-budget 4096 --facade`.

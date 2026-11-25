@@ -12,6 +12,7 @@ import json
 from pathlib import Path
 from typing import Mapping
 
+from .hardware.local_router import DEFAULT_SHARED_TERMINALS
 from .hardware.bounded_facade import EgressCluster, audit_egress
 from .hardware.bounded_interfaces import facade_port_vectors, facade_routing_interfaces
 from .literal_union import literal_union
@@ -552,7 +553,8 @@ def prepare_from_artifacts(partition_artifacts, shell_mapped, *, shell_top="sham
                                                maximum_y=settings["maximum_partition_y"])
         else:
             plan = build_plan(graph, cell_budget=settings["cell_budget"], boundary_budget=settings["boundary_budget"],
-                              domain_budget=settings["domain_budget"], arity=settings["arity"])
+                              domain_budget=settings["domain_budget"], arity=settings["arity"],
+                              shared_prefix_budget=DEFAULT_SHARED_TERMINALS, facade=True)
             placed = place_with_egress(graph, plan, surface_y=minimum_build_y-1,
                 maximum_y=settings["maximum_partition_y"], local_data_tracks=bool(settings["local_data_tracks"]))
         offset = Vec3(right-placed.bounds.max.x, minimum_build_y-placed.bounds.min.y, front-placed.bounds.max.z)

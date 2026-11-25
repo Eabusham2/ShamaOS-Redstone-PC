@@ -76,6 +76,41 @@ def _climb_headroom(points: list[Vec3]) -> set[Vec3]:
     return heads
 
 
+class _WireColumns:
+    """Keep occupied Y levels in one integer per horizontal wire coordinate."""
+
+    def __init__(self, points):
+        self.columns = {}
+        for point in points:
+            self.add(point)
+
+    @staticmethod
+    def _entry(point):
+        # A fixed-size Y section keeps arbitrary integer coordinates exact.
+        return (point.x, point.z, point.y // 64), 1 << (point.y % 64)
+
+    def add(self, point):
+        key, mask = self._entry(point)
+        self.columns[key] = self.columns.get(key, 0) | mask
+
+    def discard(self, point):
+        key, mask = self._entry(point)
+        self.columns[key] = self.columns.get(key, 0) & ~mask
+
+    def nearby(self, point):
+        x, z, section = point.x, point.z, point.y // 64
+        index = point.y % 64
+        mask = (7 << index) >> 1
+        for cx, cz in ((x, z), (x-1, z), (x+1, z), (x, z-1), (x, z+1)):
+            if self.columns.get((cx, cz, section), 0) & mask:
+                return True
+            if index == 0 and self.columns.get((cx, cz, section-1), 0) & (1 << 63):
+                return True
+            if index == 63 and self.columns.get((cx, cz, section+1), 0) & 1:
+                return True
+        return False
+
+
 class _VolumeIndex:
     """Compact X/Z index for component envelopes, never literal storage bits."""
 
@@ -125,6 +160,7 @@ def _plan_escapes(
     terminals=set(points)
     placed={p.pos:p.block for p in obstacles}
     active={pos for pos,block in placed.items() if block != SUPPORT}
+    blocked_wires = _WireColumns(terminals | active)
     reserved:set[Vec3]=set()
     reserved_heads:set[Vec3]=set()
     # Bounded sibling domains can share the same routing planes while retaining
@@ -159,6 +195,9 @@ def _plan_escapes(
     # shorten a guaranteed long branch or cross behind its target track.
     south_lane_limit=max(128,len(points))
     for p in points:
+        # This terminal is the one contact its own new prefix may approach.
+        # All other terminals were reserved before the first allocation.
+        blocked_wires.discard(p)
         if p.y-1 < minimum_y or p.y > maximum_y:
             raise ValueError(f"endpoint {p} support would violate build height {minimum_y}..{maximum_y}")
         modes=(access or {}).get(p,("south","north","west"))
@@ -199,6 +238,9 @@ def _plan_escapes(
             if lane<(south_lane_limit if mode in ("south","wall-south")
                      else north_lane_limit if mode in ("north","wall-north") else 128)
         )
+        fixed_face = len(modes) == 1 and modes[0] in ("north", "south")
+        failure = (f"cannot isolate physical endpoint {p}; dense endpoint placement "
+                   "needs a wider access corridor or a different placement")
         for escape_z,escape_x,wall_lead_z in alternatives:
             branch_direction=-1
             if track_targets is not None:
@@ -225,31 +267,32 @@ def _plan_escapes(
             for q in geometry:
                 if q == p:
                     continue
-                if q.y-1 < minimum_y or q.y > maximum_y:
+                below = placed.get(q.offset(dy=-1))
+                if (q.y-1 < minimum_y or q.y > maximum_y
+                        or volumes.blocking(q, own=own, endpoint=p, flat_leg_z=wall_lead_z)
+                        or q in placed or (below is not None and below != SUPPORT)
+                        or blocked_wires.nearby(q)):
+                    # Each later lane of a single N/S face contains this same
+                    # flat leg. A fixed obstruction on it rules them all out.
+                    if (fixed_face and q.x == p.x and q.y == p.y
+                            and min(p.z, escape_z) <= q.z <= max(p.z, escape_z)):
+                        raise ValueError(failure)
                     conflict=True
                     break
-                if volumes.blocking(q,own=own,endpoint=p,flat_leg_z=wall_lead_z):
+                # Headroom depends on where this candidate starts climbing;
+                # a longer flat approach may clear the block above it.
+                if q.offset(dy=2) in heads and q.offset(dy=1) in placed:
                     conflict=True
-                    break
-                if q in placed or (q.offset(dy=-1) in placed and placed[q.offset(dy=-1)] != SUPPORT) or (q.offset(dy=2) in heads and q.offset(dy=1) in placed):
-                    conflict=True
-                    break
-                for near in _nearby_wire_points(q):
-                    if near in reserved or (near in terminals and near != p) or (near in active and near != p):
-                        conflict=True
-                        break
-                if conflict:
                     break
             if not conflict:
                 result[p]=_Escape(p,escape_z,candidate,escape_x,wall_lead_z,branch_direction)
                 reserved.update(geometry)
+                for wire in geometry:
+                    blocked_wires.add(wire)
                 reserved_heads.update(heads)
                 break
         else:
-            raise ValueError(
-                f"cannot isolate physical endpoint {p}; dense endpoint placement "
-                "needs a wider access corridor or a different placement"
-            )
+            raise ValueError(failure)
     return result
 
 

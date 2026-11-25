@@ -27,7 +27,7 @@ needs a partial bank. Capacity does not change when banks are stacked vertically
 ## Compact bit cell
 
 Each cell stores one binary bit in a locked repeater. The default bit pitch is
-five blocks; word pitch is six. Three separated vertical planes carry data,
+four blocks. Word pitch is six. Three separated vertical planes carry data,
 storage/read gates, and the read-return bus.
 
 A target block makes the straight data column connect into its two-torch riser
@@ -47,24 +47,21 @@ Counts below include support blocks and internal bank buses, using the real
 emitter. They exclude binary row decoders, bank-selection backbones, synthesized controllers, display,
 CPU/GPU logic and external routes.
 
-| Metric, one 4 KiB bank | Corrected eight-block-pitch baseline | Compact five-block-pitch cell |
-|---|---:|---:|
-| Placed blocks | 2,511,744 | 1,991,552 |
-| Placed blocks per stored bit | 76.65 | 60.78 |
-| X/Z chunks touched at an aligned origin | 6,560 | 4,630 |
-| Capacity | 4,096 bytes | 4,096 bytes |
+| Metric, one 4 KiB bank | Eight-block pitch | Five-block pitch | Current four-block pitch |
+|---|---:|---:|---:|
+| Placed blocks | 2,511,744 | 1,991,552 | 1,864,576 |
+| Placed blocks per stored bit | 76.65 | 60.78 | 56.90 |
+| X/Z chunks touched at an aligned origin | 6,560 | 4,630 | 3,858 |
+| Capacity | 4,096 bytes | 4,096 bytes | 4,096 bytes |
 
-The cell change removes **520,192 blocks per full 4 KiB bank**, about **20.7%**
-of the corrected same-capacity baseline. At 1,991,552 placements per full
-bank, the 79 installed banks account for **157,332,608 storage-cell and
-internal-bus placements**. The [emitter preflight](evidence/cache4-preflight-2026-11-14.json)
-records the sampled 1,024 × 32-bit bank and the separate decoder and backbone counts. Generic 2 KiB banks remain
-supported and emit 996,224 placements for 16,384 stored bits; the default 200 KiB
-flash contains no half bank. With the compact cell held fixed, the authorized
-capacity reductions remove 2,415,752,576 placements from the original 1 MiB RAM / 4 MiB flash design's
-2,573,085,184 compact-cell placements, including its original fast memory and
-VRAM. Capacity reduction and cell efficiency are distinct savings; fewer stored
-bits do not make an individual bit cheaper.
+Each shorter horizontal lock and mask line saves 31 conductors and 31 supports
+per row. Across 1,024 rows this removes **126,976 blocks per bank**. Across the
+79 installed banks it removes **10,031,104 operations** and brings storage and
+internal bus emission to **147,301,504**. A 2 KiB bank emits 932,736 blocks.
+The input tower now drives south along its own data column. An eastward
+three-block tap on the tighter pitch also drove its neighbor during a write.
+The [native results](evidence/four-block-memory-runtime.json) cover full and
+half banks, all 32 data bits, stacked write broadcasts and shared read returns.
 
 These counts are measured design costs, not physical lower bounds or full-machine
 counts. Wider spaces/extra duplicated buses in the previous layout were not an
@@ -128,34 +125,34 @@ wall-clock measurements.
 
 | Fabric | Bank modules | Logical tiles | Storage-only chunks | With local controls and decoder |
 |---|---:|---:|---:|---:|
-| Cache | 1 | 1 | 4,246 | 8,100 |
-| Main RAM | 24 | 1 | 4,246 | 7,330 |
-| Flash | 50 | 2 | 8,492 | 15,045 |
-| VRAM | 4 | 1 | 4,246 | 7,715 |
-| **Occupied union, sharing cache/RAM/VRAM X/Z** | **79** | **3 horizontal columns** | **12,738** | **23,147** |
+| Cache | 1 | 1 | 3,474 | 7,328 |
+| Main RAM | 24 | 1 | 3,474 | 6,558 |
+| Flash | 50 | 2 | 7,332 | 13,886 |
+| VRAM | 4 | 1 | 3,474 | 6,943 |
+| **Occupied union, sharing cache/RAM/VRAM X/Z** | **79** | **3 horizontal columns** | **10,806** | **21,216** |
 
 The three non-flash fabrics share horizontal chunks at different heights.
-Their occupied union is **8,102 chunks** with local wiring; adding their separate
-counts would overcount **15,043 chunks**. Storage alone occupies 42 region files
-and has a **52,518,912-byte** minimum Anvil sector/header cost. That is a lower
+Their occupied union is **7,330 chunks** with local wiring; adding their separate
+counts would overcount **13,499 chunks**. Storage alone occupies 42 region files
+and has a **44,605,440-byte** minimum Anvil sector/header cost. That is a lower
 bound, not a forecast of the compressed world file size.
 
-Storage cells/internal bank buses emit **157,332,608 placement operations**.
+Storage cells/internal bank buses emit **147,301,504 placement operations**.
 Local selectors/returns add **36,680,118**, binary decoders **3,662,424** and
-screen/controls/debug/clock **2,391,859**, producing **200,067,009 regular-component
+screen/controls/debug/clock **2,391,859**, producing **190,035,905 regular-component
 placement operations**. These are emission operations, not a claim of that many
 unique blocks in a complete world. Every default bank is full; the smaller
 capacity is implemented by fewer literal banks, without inaccessible padding.
 
 | Measured regular component | Occupied horizontal chunks |
 |---|---:|
-| Cache + RAM + VRAM shared column, including local wiring | 8,102 |
-| Flash, including local wiring | 15,045 |
+| Cache + RAM + VRAM shared column, including local wiring | 7,330 |
+| Flash, including local wiring | 13,886 |
 | Screen | 108 |
 | Keyboard/controller circuitry | 47 |
 | Debug panel | 9 |
 | Clock | 17 |
-| **Regular-component union** | **23,328** |
+| **Regular-component union** | **21,397** |
 
 The full 320×180 panel now stands upright, with three-block column pitch and
 two-block row pitch. Its **2,371,162 placements / 108 occupied chunks** are
@@ -168,11 +165,10 @@ corrects alternating row polarity. Rectangular physical pitch widens the image;
 the standing-view projection and obstruction checks are distinct from actual
 Minecraft-client legibility and complete-world routing.
 
-The regular-component union uses **64 region files** with a **96,075,776-byte**
-minimum Anvil sector/header cost. Its envelope is X=489..3913, Z=-235..6152:
-**3,425×6,388 blocks**, or **215×400 = 86,000 envelope chunks**. The rectangle's
-perimeter is **19,626 blocks**. Only 23,328 chunks in that rectangle contain these
-components. Coloring their existing supports adds zero placements or chunks.
+The 64 occupied region files require at least 88,166,400 bytes for Anvil
+sectors and headers. The regular envelope spans X=489..3819 and Z=-235..6152.
+It measures 3,331×6,388 blocks, or 209×400 chunks, and has a perimeter of
+19,438 blocks.
 
 | Checkpoint | Regular occupied chunks | Envelope chunks | Regular placement operations |
 |---|---:|---:|---:|
@@ -182,15 +178,12 @@ components. Coloring their existing supports adds zero placements or chunks.
 | 96 KiB RAM / 200 KiB flash, upright screen, final console, descending returns | 24,109 | 92,235 | 203,500,256 |
 | 96 KiB RAM / 200 KiB flash, 8 KiB cache and upward returns | 23,328 | 86,000 | 202,522,304 |
 | Same memory/screen layout with 4 KiB cache, before clock interlock | 23,328 | 86,000 | 200,066,290 |
-| **4 KiB cache with the stopped-clock interlock** | **23,328** | **86,000** | **200,067,009** |
+| 4 KiB cache with the stopped-clock interlock | 23,328 | 86,000 | 200,067,009 |
+| **Four-block memory pitch with isolated write taps** | **21,397** | **83,600** | **190,035,905** |
 
-Against the 250 KiB/horizontal-screen checkpoint, the current build removes
-**13,205 occupied chunks (36.15%)**, **30,688 envelope chunks (26.30%)** and
-**35,411,983 placement operations (15.04%)**. Against the 96 KiB RAM / 500 KiB
-flash checkpoint, occupied chunks fall **56.38%** and envelope chunks **36.76%**.
-
-The [updated preflight](evidence/clock-interlock-preflight-2026-11-24.json)
-counts the clock interlock's 719 added blocks inside the existing clock footprint.
+The [four-block-pitch preflight](evidence/four-block-memory-preflight.json)
+records the 1,931 fewer occupied chunks and 2,400 fewer envelope chunks at the
+same capacity as the [previous layout](evidence/clock-interlock-preflight-2026-11-24.json).
 Counts come from the real geometry and exact X/Z chunk union, including overlaps
 between independent fabrics. **Synthesized CPU/GPU/assembler/OS logic and their
 internal/global routes remain additional.** A complete-machine chunk total and
@@ -257,8 +250,7 @@ persistent redstone storage, not a read-only program ROM.
 
 ### Current software usage snapshot
 
-Measured from the assembled default image on November 13, 2026 (America/Chicago), after shared app
-routines, compact instruction encodings and the 4 KiB cache change. Reproduce these figures with:
+Measured from the November 25, 2026 factory image. The [complete per-app ledger](evidence/software-usage-2026-11-25.json) includes the image's filesystem allocation and all nine workspace and heap maps. Reproduce it with
 
 ```bash
 shamaos software-usage --report build/software-usage.json
@@ -274,8 +266,8 @@ prefix; Miner has a 908-byte directly executable tail in its existing RAM backin
 | Foreground app | Code bytes | RAM bytes | Of 96 KiB RAM | Cache bytes | Of 4 KiB cache | Peak RAM without heap |
 |---|---:|---:|---:|---:|---:|---:|
 | Desktop | 184 | 196 | 0.1994% | 184 | 4.4922% | 0.1994% |
-| Editor | 3,476 | 69,604 | 70.8049% | 3,476 | 84.8633% | 87.4715% |
-| File Explorer | 3,584 | 69,712 | 70.9147% | 3,584 | 87.5000% | 70.9147% |
+| Editor | 3,620 | 69,748 | 70.9513% | 3,620 | 88.3789% | 70.9513% |
+| File Explorer | 3,548 | 4,140 | 4.2114% | 3,548 | 86.6211% | 4.2114% |
 | Bitcoin Miner | 5,004 | 6,392 | 6.5023% | 4,096 | 100.0000% | 6.5023% |
 | System Monitor | 40 | 52 | 0.0529% | 40 | 0.9766% | 0.0529% |
 | Terminal | 1,488 | 2,524 | 2.5675% | 1,488 | 36.3281% | 2.5675% |
@@ -283,20 +275,24 @@ prefix; Miner has a 908-byte directly executable tail in its existing RAM backin
 | Paint | 696 | 980 | 0.9969% | 696 | 16.9922% | 0.9969% |
 | Settings | 608 | 892 | 0.9074% | 608 | 14.8438% | 0.9074% |
 
-Editor and Explorer reserve the complete 65,536-byte source buffer, 512-byte
-filename workspace and 68-byte lifecycle context. Explorer launches binaries
-from that source buffer. Editor assembles sources up to 49,152 bytes into its
-aligned unused tail. Larger sources use another 16,384 bytes, producing the
-**85,988-byte / 87.4715%** peak. The full **65,535-byte editing limit** and
-**16,380-byte assembly/save limit** are preserved. Execution still requires a
-binary of at most **8,192 bytes**; larger results invoke visible recovery when
-run. Miner includes all software-SHA scratch, state and complete digests in a
+Editor reserves a 65,536-byte document buffer, 512 bytes for filenames and
+68 bytes of context. A source of up to 49,152 bytes leaves enough space in its
+aligned tail for assembly output. For longer sources the hardware assembler
+reads the committed flash extent and writes into the beginning of the document
+buffer. Editor restores the overwritten prefix before returning to the document,
+including after a failed assembly or BIN save. The **65,535-byte edit limit**
+and **16,380-byte assembly/save limit** still apply. Execution accepts up to
+**8,192 bytes**. Explorer uses only the filename and context areas. It reads
+text from flash and launches a validated BIN directly into the program window.
+
+The largest stock app uses 70.95% of 96 KiB. Even the next smaller whole-bank
+capacity (92 KiB) would put Editor at 74.04%, so the RAM stays at 24 banks. Miner includes all software-SHA scratch, state and complete digests in a
 1,376-byte contiguous workspace. Packing its separately live regions removes
 4,000 unused bytes and frees a 4 KiB heap page; no digest or history fields were
 removed. Redundant register loads/saves and address-only immediates were also
 removed from its executable. Shared rendering/state routines and short
 instruction forms then reduce the restored 6,904-byte Miner to 5,004 bytes.
-Editor falls from 4,696 to 3,476 bytes and Files from 5,320 to 3,584. Every
+Editor falls from 4,696 to 3,620 bytes and Files from 5,320 to 3,548. Every
 complete source and software-SHA constant remains installed. See
 [CACHE_REDUCTION.md](CACHE_REDUCTION.md) for all nine before/after sizes.
 
@@ -307,31 +303,31 @@ VRAM use is a reserved capacity, not a count of lit pixels or a new reservation
 for every app. The screen, double buffering and GPU primitives remain intact.
 
 The four pools total **316 KiB**. With Explorer active, the initial flash image
-and shared VRAM included, counted allocation is **235,664 bytes / 72.8293%**.
-Editor with its largest assembly staging reaches **251,832 bytes / 77.8259%**
+and shared VRAM included, counted allocation is **171,592 bytes / 53.0286%**.
+Editor reaches **237,272 bytes / 73.3262%**
 before optional heap allocations. These physically separate pools cannot lend
 capacity to one another. OS services, filesystem, assembler and GPU also have
 physical logic registers that are not charged to RAM or cache.
 
 ### What occupies flash
 
-The initial image allocates **146,688 bytes (143.25 KiB), or 71.625% of 200 KiB**.
+The initial image allocates **148,224 bytes (144.75 KiB), or 72.375% of 200 KiB**.
 Allocation includes metadata, whole-file block rounding and zero-filled files.
 
 | Category | Allocated bytes | KiB | Of 200 KiB flash |
 |---|---:|---:|---:|
 | Filesystem metadata and journal | 4,608 | 4.50 | 2.250% |
-| Complete editable program sources | 73,472 | 71.75 | 35.875% |
-| Separate program executable files | 17,920 | 17.50 | 8.750% |
-| Packed boot and application loader bundle | 16,640 | 16.25 | 8.125% |
+| Complete editable program sources | 74,496 | 72.75 | 36.375% |
+| Separate program executable files | 18,176 | 17.75 | 8.875% |
+| Packed boot and application loader bundle | 16,896 | 16.50 | 8.250% |
 | Miner history: 256 complete records | 32,768 | 32.00 | 16.000% |
 | Miner saved state | 256 | 0.25 | 0.125% |
 | Welcome documents | 1,024 | 1.00 | 0.500% |
-| **Total** | **146,688** | **143.25** | **71.625%** |
+| **Total** | **148,224** | **144.75** | **72.375%** |
 
 There are **32 of 64 entries used**: 27 files and five real directories.
-**58,112 bytes (56.75 KiB)** remain unallocated. Ordinary writes stop at
-**194,560 bytes (190 KiB / 95%)**, leaving **47,872 bytes (46.75 KiB)** of
+**56,576 bytes (55.25 KiB)** remain unallocated. Ordinary writes stop at
+**194,560 bytes (190 KiB / 95%)**, leaving **46,336 bytes (45.25 KiB)** of
 allocation headroom. Ordinary copy-on-write replacement still needs its second
 extent to fit; the guard refuses an excessive reservation before changing the
 original file. DELETE and zero-length truncation can reclaim space at the limit.
@@ -343,14 +339,14 @@ no longer reserves a second 32 KiB extent. This is below the owner's 8 KiB
 transaction budget. It does not create extra capacity for unrelated files.
 
 The full 65,535-byte source and 16,380-byte assembly/save limits remain, but
-46.75 KiB of initial allocation headroom cannot hold a new 64 KiB-rounded maximum
+45.25 KiB of initial allocation headroom cannot hold a new 64 KiB-rounded maximum
 source beside all shipped data. Reclaim space in Explorer when required. A
 replacement save can need more free space than a new file because its previous
 good copy remains until commit. Failed saves preserve that copy and the live
 app; they do not truncate the document to fit.
 
-The packed loader file contains **16,580 logical bytes**, allocated in 16,640
-bytes of filesystem blocks. Packing removes 147,260 bytes of unused old record
+The packed loader file contains **16,688 logical bytes**, allocated in 16,896
+bytes of filesystem blocks. Packing removes 147,152 bytes of unused old record
 padding while retaining all editable sources and separate executable files.
 Each loader record has a length word and complete word-aligned code. The private
 `boot.bundle` is immutable through normal file APIs; editable files remain usable.
@@ -364,8 +360,8 @@ not create a separate saved file.
 | Boot | 512 | 256 | 0 | 0 | 768 | 0.3750% |
 | Kernel | 256 | 256 | 16 | 0 | 528 | 0.2578% |
 | Desktop | 1,280 | 256 | 188 | 0 | 1,724 | 0.8418% |
-| Editor | 15,104 | 3,584 | 3,480 | 0 | 22,168 | 10.8242% |
-| File Explorer | 16,384 | 3,584 | 3,588 | 0 | 23,556 | 11.5020% |
+| Editor | 16,128 | 3,840 | 3,624 | 0 | 23,592 | 11.5195% |
+| File Explorer | 16,384 | 3,584 | 3,552 | 0 | 23,520 | 11.4844% |
 | Bitcoin Miner | 20,992 | 5,120 | 5,008 | 33,024 | 64,144 | 31.3203% |
 | System Monitor | 512 | 256 | 44 | 0 | 812 | 0.3965% |
 | Terminal | 6,144 | 1,536 | 1,492 | 0 | 9,172 | 4.4785% |
@@ -376,8 +372,8 @@ not create a separate saved file.
 These program shares are attribution, not additional copies on top of the
 category table. They count each source, separate binary, exact loader record and
 installed persistent data once. Shared metadata, welcome documents and final
-loader-file block padding contribute another **5,692 bytes**, reconciling the
-program shares exactly to the 146,688-byte allocated image. New user files,
+loader-file block padding contribute another **5,840 bytes**, reconciling the
+program shares exactly to the 148,224-byte allocated image. New user files,
 saves and copy-on-write reservations change occupancy; regenerate the report
 rather than treating this snapshot as a permanent limit.
 
@@ -390,8 +386,8 @@ rather than treating this snapshot as a permanent limit.
 | Filename workspace | `0x2400..0x25FF` | 512 bytes |
 | Editor lifecycle context | `0x2600..0x2643` | 68 bytes |
 | General page arena, with per-app exclusions below | `0x3000..0x17FFF` | 84 KiB |
-| Editor / Explorer complete source buffer | `0x4000..0x13FFF` | 64 KiB |
-| Assembly / user-program staging | `0x14000..0x17FFF` | 16 KiB |
+| Editor document and assembly output | `0x4000..0x13FFF` | 64 KiB |
+| Optional user-program RAM staging | `0x14000..0x17FFF` | 16 KiB |
 | Miner header / digests / state / history / software SHA, overlays source | `0x4000..0x455F` | 1,376 bytes |
 | Terminal workspace, overlays source | `0x5000..0x53FF` | 1,024 bytes |
 | Settings record and filename, overlays source | `0x4000..0x410F` | 272 bytes |
@@ -407,25 +403,26 @@ kernel's 1 KiB slot limit. The current kernel occupies only 12 bytes.
 The source, Miner, Terminal, Settings and Paint workspaces overlap because their
 apps are mutually exclusive. Replacement completes persistence, releases the
 old allocations, clears outgoing data and initializes the next app before it
-runs. Explorer-to-Editor handoff preserves its transferred document and handle.
+runs. Explorer transfers the filename and open handle. Editor reads the document
+into its own buffer after replacement.
 Staged launch retains source words until the complete RAM copy and cached prefix finish, including
 when the staging region is part of an outstanding heap allocation.
 
 The allocator considers 21 pages of 4 KiB, excludes every page touched by the
-active workspace, and permits up to 16 live allocation records. Editor's four
-staging pages remain excluded even when its current document does not need them.
+active workspace, and permits up to 16 live allocation records. Editor's 16
+document pages stay reserved while it runs. Explorer can allocate the whole arena.
 
 | Foreground app | Available heap | Largest initial contiguous allocation | Peak RAM with all available heap |
 |---|---:|---:|---:|
-| Desktop | 84 KiB | 84 KiB | 87.7482% |
-| Editor | 4 KiB | 4 KiB | 92.8792% |
-| File Explorer | 20 KiB | 16 KiB | 93.5140% |
-| Bitcoin Miner | 80 KiB | 76 KiB | 91.7684% |
-| System Monitor | 84 KiB | 84 KiB | 87.5651% |
-| Terminal | 80 KiB | 72 KiB | 86.3403% |
-| Calculator | 84 KiB | 84 KiB | 89.3677% |
-| Paint | 80 KiB | 76 KiB | 84.5052% |
-| Settings | 80 KiB | 76 KiB | 84.4076% |
+| Desktop | 84 KiB | 84 KiB | 87.6994% |
+| Editor | 20 KiB | 16 KiB | 91.7847% |
+| File Explorer | 84 KiB | 84 KiB | 91.7114% |
+| Bitcoin Miner | 80 KiB | 76 KiB | 89.8356% |
+| System Monitor | 84 KiB | 84 KiB | 87.5529% |
+| Terminal | 80 KiB | 72 KiB | 85.9009% |
+| Calculator | 84 KiB | 84 KiB | 88.9852% |
+| Paint | 80 KiB | 76 KiB | 84.3302% |
+| Settings | 80 KiB | 76 KiB | 84.2407% |
 
 Staged user code, like Desktop/Monitor/Calculator, has 84 KiB available before
 its own allocations. Each allocated page adds **4.1667 percentage points** to

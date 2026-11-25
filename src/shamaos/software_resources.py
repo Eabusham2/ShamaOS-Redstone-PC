@@ -13,13 +13,13 @@ from .os_image import APP_IDS, APP_SLOT_BYTES, BUNDLE_ORDER, FIRMWARE, OSImage, 
 
 
 # The same fixed reservations are owned/cleared by shama_services.sv.
-# Editor owns its complete editable source. Files reads text from mapped flash
-# and reserves one executable-sized buffer to stage binary launches.
+# Editor owns its complete editable source. Files uses only filenames and
+# its lifecycle context while viewing or launching a file from mapped flash.
 # These are additional to resident kernel and foreground code bytes.
 APP_WORKSPACE_BYTES = {
     "desktop": 0,
     "editor": 512 + 68 + 65536,
-    "files": 512 + 68 + APP_BACKING_BYTES,
+    "files": 512 + 68,
     "miner": MINER_WORKSPACE_BYTES,
     "monitor": 0,
     "terminal": 1024,

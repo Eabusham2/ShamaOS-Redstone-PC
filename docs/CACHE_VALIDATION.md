@@ -6,6 +6,26 @@ independent readback, actual redstone execution and save/reopen. It is an
 engineering check for one memory subsystem. It cannot certify the whole PC or
 publish a finished-world release.
 
+## Completed baseline and current compact retry
+
+[Run 45351382058](https://github.com/Eabusham2/ShamaOS-Redstone-PC/actions/runs/45351382058)
+completed successfully on source `6785ca9`. Its final report and independent
+audit both report the complete cache pass. The retrieved stage reports were
+checked against every retained byte count and SHA-256 on November 25, 2026;
+[the review receipt](evidence/cache-ci-6785-result.json) records the artifact
+identities and the scope of that review.
+
+That baseline contains 24,608,768 unique circuit blocks in 122,097 occupied
+chunks. At a 12,000-redstone-tick half-period it delivers the requested clocks
+to all 116 registers, rejects the deliberately excessive clock rate, executes
+601 transaction frames and checks 1,605,632 stored bits across 49 full-storage
+checkpoints. Its saved-state reopening independently checks all 32,768 bits.
+
+This result belongs to the earlier geometry. The shorter cache routes from
+`eea3220` and the four-block memory layout from `1c1d70d` require a new complete
+run; that compact candidate is being generated and validated separately.
+Neither cache result certifies the complete computer.
+
 ## Run it
 
 The first full run on `99ee940` correctly stopped at a clock-route capacity

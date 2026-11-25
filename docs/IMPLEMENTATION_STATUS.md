@@ -7,6 +7,28 @@ feature contract; [VALIDATION.md](VALIDATION.md) defines the evidence required.
 
 ## Current completion work
 
+The November 25 continuation recovered and integrated `eea3220`, repaired
+adjacent-record modal acknowledgments, and retained the complete 96 KiB RAM,
+4 KiB cache, 16 KiB VRAM and 200 KiB flash capacities. Editor's peak is 69,748
+bytes and Files' peak is 4,140 bytes; Files now loads an executable directly
+from its validated flash extent. Its old RAM-source loader ABI remains available.
+The current [software ledger](evidence/software-usage-2026-11-25.json) and
+[memory geometry](evidence/four-block-memory-preflight.json) record those scopes.
+
+The [exact chunk-loading functions](WORLD_LOADING.md) now use the saved
+occupied set and regenerate all coordinates on installation. They preserve
+pre-existing forced tickets; actual server coverage and client rendering are
+still separate gates. Oversized bounded partitions now use a conservative
+graph-cut fallback while retaining the physical router's 4,096-terminal limit.
+Its [services graph audit](evidence/services-graph-cut.json) conserves all
+55,107 cells and 1,259 clock sinks for that recorded source. Complete physical
+services placement and timing remain unfinished.
+
+The older complete-cache workflow has now been collected and confirmed passed;
+[CACHE_VALIDATION.md](CACHE_VALIDATION.md) separates that source-bound result
+from the new compact cache run. New raw STEP/reset candidates remain under
+native testing and have not silently replaced the production clock.
+
 The [held counter source](../experiments/completion_candidates/README.md) is
 retained for recovery without applying it to the production tree. Joined
 physical tests found an old counter midpoint arriving after reset release,
@@ -61,7 +83,8 @@ is bound to `f7f2755`. That CI run passed 19 jobs, then its behavioral job
 reached the 75-minute limit; the run is cancelled, not green. Required CI now
 executes the component and complete-SoC tests in separate jobs, with an
 aggregate that rejects omitted tests, skips and interrupted reports. The
-complete-cache run still requires its own completed electrical results.
+complete-cache run subsequently completed successfully; its retrieved result is
+recorded in [CACHE_VALIDATION.md](CACHE_VALIDATION.md).
 
 The `99ee940` full-cache workflow stopped during physical geometry: one clock
 branch needed 36 ticks more delay than its private route could provide. The
@@ -69,8 +92,8 @@ branch needed 36 ticks more delay than its private route could provide. The
 retains the exact mapped graph and extends only the affected routing group.
 It passes full controller placement and matching for all 116 register clocks,
 with 17,597,778 unique controller blocks. This is not a connected-cache chunk
-total or an electrical result. The fresh complete saved-world run is underway;
-its electrical stages have not passed yet.
+total or an electrical result by itself. The subsequent complete saved-world
+run passed; the newer compact geometry requires its own fresh validation.
 
 The physical clock now includes a start/stop interlock. Once Power and the
 shutdown hold are low, it settles without pending engine events. Actual-engine
@@ -164,8 +187,8 @@ for that non-RTL revision. Neither result is evidence for the new cache changes.
 On November 13, 2026 (America/Chicago), the owner reopened app/cache optimization
 and requested much smaller cache construction. The implementation now uses **4 KiB cache** with the
 original **8 KiB executable RAM window**, and reduces all nine shipped binaries.
-Editor is 3,476 bytes, Files 3,584 and Miner 5,004; Miner uses a 908-byte RAM tail.
-The current installed image uses 143.25 KiB / 71.625% of the unchanged 200 KiB
+Editor is 3,620 bytes, Files 3,548 and Miner 5,004; Miner uses a 908-byte RAM tail.
+The current installed image uses 144.75 KiB / 72.375% of the unchanged 200 KiB
 flash. [CACHE_REDUCTION.md](CACHE_REDUCTION.md) records the measured savings,
 source identities, instruction semantics, tests and remaining physical proof.
 The current CI scopes are recorded above. Completing physical routing,
@@ -184,8 +207,8 @@ complete-world deliverable; it is not a percentage-complete estimate.
 | World ZIP, schematic, installer and simple guide | Packaging/workflow and copied-world installer implemented and tested; README includes acceleration and viewing guidance | Generate and validate the full world before publishing these complete-machine assets |
 | Agents implement, audit, then redistribute | App reductions and ISA/backing reviews complete; physical cache routing, independent conservation audit and native runner restoration active; root independently reviews results | Continue through full routing, loading, runtime and release acceptance |
 
-The current regular-component union remains **23,328 occupied X/Z chunks**; the
-removed cache bank saves vertical storage rather than horizontal chunks. It
+The four-block bit pitch reduces the regular-component union to **21,397 occupied
+X/Z chunks** and preserves all 2,588,672 stored bits. This subtotal
 excludes synthesized CPU/GPU/assembler/OS logic and their connecting routes.
 **No verified complete-computer chunk total or complete-world download exists
 at this checkpoint.**

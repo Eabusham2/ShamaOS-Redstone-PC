@@ -61,6 +61,9 @@ def _parser() -> argparse.ArgumentParser:
     validate = sub.add_parser("validate-world", help="read saved Anvil chunks and verify every generated block state")
     validate.add_argument("--world", required=True)
 
+    loading = sub.add_parser("world-loading", help="verify a saved world and write exact load/stop/unload chunk functions")
+    loading.add_argument("--world", required=True)
+
     fixture = sub.add_parser("fixture-world", help="create and verify a small playable redstone fixture (not the full computer)")
     fixture.add_argument("--world", required=True)
     fixture.add_argument("--runtime-runner", default=os.environ.get("SHAMA_MCHPRS_RUNNER"), help="optional compiled MCHPRS runner to exercise the saved blocks")
@@ -166,6 +169,12 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "validate-world":
         print(json.dumps(validate_native_world(args.world), indent=2, sort_keys=True))
+        return 0
+
+    if args.command == "world-loading":
+        from .world_loading import prepare_world_loading
+        report = prepare_world_loading(Path(args.world))
+        print(json.dumps(report, indent=2, sort_keys=True))
         return 0
 
     if args.command == "fixture-world":

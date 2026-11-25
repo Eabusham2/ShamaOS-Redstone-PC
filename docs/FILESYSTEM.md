@@ -268,12 +268,12 @@ namespace as for other transactions. This guarantees complete old-or-new
 records at the acknowledged DMA-write interruption boundaries exercised by the
 tests; it does not promise recovery from arbitrary flash-bit corruption.
 
-The current 200 KiB image allocates 146,688 bytes (143.25 KiB, 71.625%).
+The current 200 KiB image allocates 148,224 bytes (144.75 KiB, 72.375%).
 The journal updates one history record within that allocation. The earlier
 image allocated 162,304 bytes. Copying its entire 32 KiB history would have
 reached 195,072 bytes, 512 bytes above the 194,560-byte write guard. The
 separate 256-byte Miner state save still uses ordinary copy-on-write.
-[Installed resource ledger](evidence/software-usage-cache4-2026-11-14.json)
+[Installed resource ledger](evidence/software-usage-2026-11-25.json)
 
 ## Source, executables and persistent app data
 

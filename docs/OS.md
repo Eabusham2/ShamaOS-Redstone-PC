@@ -102,7 +102,8 @@ Returning from a diagnostic goes back to the operation that produced it.
 
 Files renders text from the open file's flash extent. Opening a document for
 editing transfers the handle and filename to Editor, which reads the writable
-copy into its own workspace. Files reserves 8 KiB to launch binaries.
+copy into its own workspace. For a BIN, Files rechecks its metadata and the loader
+copies the flash extent directly to executable RAM and the cached prefix.
 
 Explorer navigates real directories. Its selected entry shows the complete path,
 type and exact size in labelled hexadecimal bytes. Up/Down selects another

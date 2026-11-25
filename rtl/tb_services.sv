@@ -62,7 +62,7 @@ module tb_services;
             `SHAMA_EDITOR_FLASH+4:flash_word=32'h33333333;
             `SHAMA_FILES_FLASH+4:flash_word=32'h44444444;
             `SHAMA_MINER_FLASH+4:flash_word=32'h55555555;
-            default:flash_word=32'h66666666;
+            default:flash_word=(addr>=STAGE && addr<STAGE+TEST_EXEC)?(32'hb1000000+addr):32'h66666666;
         endcase
     endfunction
     always @(negedge clk) begin
@@ -80,6 +80,7 @@ module tb_services;
     end
     always @(posedge clk) begin
         time_counter<=time_counter+1;
+        if(time_counter>1200000) $fatal(1,"services suite watchdog: app=%d state=%d",foreground_app,dut.state);
         if(!rst && dma_valid && dma_we && dma_ready) begin
             if(dma_flash) $fatal(1,"services must persist through filesystem");
             for(integer k=0;k<4;k=k+1) if(dma_wstrb[k]) begin
@@ -395,7 +396,7 @@ module tb_services;
         // and future workspaces. Each complete available heap is cleared when
         // replacing its owner, even where the next app uses the same addresses.
         check_foreground_heap(1,1,STAGE,4,EDIT_BUF,65536,0,0);
-        check_foreground_heap(2,1,EDIT_BUF+TEST_EXEC,18,EDIT_BUF,TEST_EXEC,0,0);
+        check_foreground_heap(2,21,0,0,`SHAMA_EDIT_NAME,512,EDIT_CTX,68);
         check_foreground_heap(3,1,32'h5000,19,`SHAMA_MINER_BASE,`SHAMA_MINER_WORKSPACE_BYTES,0,0);
         check_foreground_heap(4,21,0,0,0,0,0,0);
         check_foreground_heap(5,2,32'h6000,18,`SHAMA_TERMINAL_BUF,1024,0,0);
@@ -424,10 +425,36 @@ module tb_services;
             $fatal(1,"cancelled staging protection leaked into explicit free");
         fail_save=0;call2(12'h006,0,0);
 
-        // Files borrows its text buffer for binaries. Editor can assemble in
-        // its unused source tail; both must copy before clearing the64KiB span.
+        // A Files flash launch can use the very last word. Its RAM alias is
+        // ordinary heap space and remains unowned when no allocation exists.
         call2(12'h006,2,0);
-        if(ram_used_bytes!=580+TEST_EXEC+8) $fatal(1,"Files still reserves duplicate run workspace");
+        if(ram_used_bytes!=580+8) $fatal(1,"Files charges a code staging buffer");
+        ram[EDIT_BUF>>2]=32'h12345678;
+        call2(12'h061,32'h01000000+`SHAMA_FLASH_BYTES-4,4);
+        if(!last_jump || foreground_app!=15 || cache_mem[0]!=32'h66666666 ||
+           ram[0]!=32'h66666666 || ram[EDIT_BUF>>2]!=32'h12345678)
+            $fatal(1,"end-of-flash launch wrote unowned RAM or loaded wrong bytes");
+        call2(12'h006,2,0);
+        recovering_call(12'h061,32'h01000000+`SHAMA_FLASH_BYTES-4,8,2);
+
+        // The full execution window crosses cache into RAM. Flash and heap
+        // share these numerical offsets. Only the tagged flash extent supplies
+        // executable words, and cleanup must zero the entire heap allocation.
+        call2(12'h006,2,0);
+        call2(12'h010,`SHAMA_HEAP_PAGES*4096,0);
+        for(i=0;i<TEST_EXEC/4;i=i+1) ram[(STAGE>>2)+i]=32'h12345678;
+        call2(12'h061,32'h01000000+STAGE,TEST_EXEC);
+        if(!last_jump || foreground_app!=15 || ram_used_bytes!=TEST_EXEC+4 ||
+           cache_used_bytes!=TEST_CACHE) $fatal(1,"flash program accounting");
+        for(i=0;i<TEST_EXEC/4;i=i+1) begin
+            if(ram[i]!==flash_word(STAGE+i*4) || ram[(STAGE>>2)+i]!==0)
+                $fatal(1,"wrong flash word or heap leak at %d",i);
+            if(i<TEST_CACHE/4 && cache_mem[i]!==flash_word(STAGE+i*4))
+                $fatal(1,"flash cached prefix mismatch at %d",i);
+        end
+
+        // The existing RAM source ABI also stays available to Files and Editor.
+        call2(12'h006,2,0);
         ram[EDIT_BUF>>2]=32'haaaa1234;ram[(EDIT_BUF+65532)>>2]=32'hdeadbeef;
         call2(12'h061,EDIT_BUF,4);
         if(cache_mem[0]!=32'haaaa1234 || ram[EDIT_BUF>>2]!=0 || ram[(EDIT_BUF+65532)>>2]!=0 || ram_used_bytes!=8)

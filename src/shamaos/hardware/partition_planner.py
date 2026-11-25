@@ -280,17 +280,27 @@ def signal_links(source_leaf, sink_leaves, clusters):
 
 
 def build_plan(graph: Graph, *, cell_budget=64, boundary_budget=128,
-               domain_budget=256, arity=4, retain_signals=True, ports_at_root=False):
+               domain_budget=256, arity=4, retain_signals=True, ports_at_root=False,
+               shared_prefix_budget=None, facade=False):
     if any(type(value) is not int for value in (cell_budget, boundary_budget, domain_budget, arity)):
         raise PlanningError("partition budgets must be finite integers")
     if cell_budget < 1 or boundary_budget < 1 or arity < 2 or domain_budget < arity + 1:
         raise PlanningError("budgets cannot represent a complete bounded routing branch")
+    if type(facade) is not bool:
+        raise PlanningError("facade must be an explicit boolean")
     if type(ports_at_root) is not bool:
         raise PlanningError("ports_at_root must be an explicit boolean")
     groups = bounded_cells(graph, cell_budget, boundary_budget)
     clusters, entity_leaf, root = make_tree(groups, graph.cell_count, len(graph.entities),
                                            arity=arity, port_budget=min(boundary_budget, cell_budget),
                                            ports_at_root=ports_at_root)
+    if shared_prefix_budget is not None:
+        from .partition_cuts import fit_parent_prefixes
+        if type(shared_prefix_budget) is not int or shared_prefix_budget < 1:
+            raise PlanningError("shared prefix budget must be a positive integer")
+        clusters, entity_leaf, root = fit_parent_prefixes(graph, (clusters, entity_leaf, root),
+            cell_budget=cell_budget, boundary_budget=boundary_budget, arity=arity,
+            limit=shared_prefix_budget, facade=facade)
     incoming, outgoing = defaultdict(set), defaultdict(set)
     domains, domain_lists = [], defaultdict(list)
     signal_records, topology_hash, endpoint_hash = [], hashlib.sha256(), hashlib.sha256()
@@ -594,12 +604,15 @@ def main():
     parser.add_argument("--cell-budget", type=int, default=64)
     parser.add_argument("--boundary-budget", type=int, default=128)
     parser.add_argument("--domain-budget", type=int, default=256)
+    parser.add_argument("--shared-prefix-budget", type=int, help="fit every physical parent to this prefix allocation budget")
+    parser.add_argument("--facade", action="store_true", help="include both ends of every original I/O handoff in prefix demand")
     args = parser.parse_args()
     started = time.monotonic()
     graph = Graph.read(args.mapped_json, args.top)
     print(json.dumps({"loaded_cells": graph.cell_count, "signals": len(graph.signals), "seconds": time.monotonic()-started}), flush=True)
     plan = build_plan(graph, cell_budget=args.cell_budget, boundary_budget=args.boundary_budget,
-                      domain_budget=args.domain_budget, retain_signals=not args.summary_only)
+                      domain_budget=args.domain_budget, retain_signals=not args.summary_only,
+                      shared_prefix_budget=args.shared_prefix_budget, facade=args.facade)
     if not args.summary_only:
         plan["independent_structural_audit"] = audit_plan(graph, plan)
     plan["elapsed_seconds"] = time.monotonic() - started

@@ -1,7 +1,8 @@
 # ShamaOS complete requirements and acceptance contract
 
 Reconciled with the planning conversation and owner instructions; latest
-capacity amendment recorded on November 13, 2026 (America/Chicago).
+capacity amendment recorded on November 13, 2026 (America/Chicago); the latest
+conditional RAM and physical-compaction instruction was renewed November 25.
 
 This is the implementation checklist for the complete promised Minecraft computer.
 It supplements `INITIAL_SPEC_AND_TRANSCRIPTS.md`; implementation shortcuts and
@@ -10,6 +11,13 @@ when its behavior is implemented and the relevant acceptance checks pass. A
 successful compile, a manifest capacity, or an opcode name is not behavioral proof.
 
 ## Deliverable and architectural rules
+
+- Finish the physical design, interconnection, timing and assembly at the agreed
+  specifications. Further software RAM optimization should focus on Editor and
+  File Explorer. Reduce installed RAM only if the largest fully supported app
+  workload fits at approximately 30–70% of a clean smaller capacity; retain
+  96 KiB otherwise. A truncated document or removed feature cannot justify a
+  capacity reduction. Commit verified progress as it becomes available.
 
 - The earlier continuation accepted the shipped-program sizes, but the
   November 13 request below reopens application and cache optimization. Complete

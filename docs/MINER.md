@@ -189,7 +189,7 @@ table slot. The 95% flash guard rejects new saves while allowing recovery of a
 previously committed record. See [FILESYSTEM.md](FILESYSTEM.md) for the exact
 journal format, recovery order and full-disk behavior.
 
-The complete installed image occupies **143.25 KiB / 71.625% of 200 KiB flash**.
+The complete installed image occupies **144.75 KiB / 72.375% of 200 KiB flash**.
 A history save does not increase that allocation. State saves temporarily need
 one additional 256-byte data block and reclaim the old block after commit.
 

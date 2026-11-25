@@ -25,9 +25,6 @@ define FILE_NAME_PTR 0x00002400
 define RENAME_PTR 0x00002480
 define DIR_PATH 0x00002540
 define EDIT_CTX 0x00002600
-; Files reads text directly from its validated flash extent. Only a runnable
-; BIN needs RAM here; Editor loads its own writable source after transfer.
-define RUN_BUF 0x00004000
 define EDIT_MAGIC 0x5348414d
 
 define GPU_BASE 0x02000000
@@ -87,14 +84,12 @@ BRS.EQ .idle
 ; event code = (event >> 10) & 0xff
 LEA r13 r0 10
 SHR r12 r1 r13
-LEA r13 r0 0xff
-AND r12 r12 r13
+ANDIS r12 0xff
 
 ; key code = (event >> 18) & 0xff
 LEA r13 r0 18
 SHR r14 r1 r13
-LEA r13 r0 0xff
-AND r14 r14 r13
+ANDIS r14 0xff
 
 ; Mode-specific input.
 LEA r13 r0 1
@@ -148,8 +143,7 @@ BRS.LT .list_upper
 LEA r13 r0 122
 CMP r14 r13
 BRS.GT .list_upper
-LEA r13 r0 32
-SUB r14 r14 r13
+SUBIS r14 32
 .list_upper
 LEA r13 r0 KEY_BACKSPACE
 CMP r14 r13
@@ -194,8 +188,7 @@ BRS.LT .jump_compare
 LEA r2 r0 122
 CMP r1 r2
 BRS.GT .jump_compare
-LEA r2 r0 32
-SUB r1 r1 r2
+SUBIS r1 32
 .jump_compare
 LDIS r13 EDIT_CTX
 LDW r2 r13 44
@@ -510,8 +503,7 @@ JMPS .redraw
 .open_selected
 ; type = metadata & 0xff
 MOV r12 r10
-LEA r13 r0 0xff
-AND r12 r12 r13
+ANDIS r12 0xff
 
 LEA r13 r0 TYPE_TXT
 CMP r12 r13
@@ -529,11 +521,9 @@ JMPS .redraw
 
 .enter_directory
 CALLS .close_selected
-MOV r6 r10
 LEA r13 r0 8
-SHR r6 r6 r13
-LEA r13 r0 255
-AND r6 r6 r13
+SHR r6 r10 r13
+ANDIS r6 255
 MOV r1 r0
 .directory_copy
 CMP r1 r6
@@ -562,15 +552,9 @@ JMPS .redraw
 CALLS .check_edit_length
 CMP r2 r0
 BRS.NE .error
-CALLS .open_selected_handle
+CALLS .open_extent
 CMP r2 r0
 BRS.NE .error
-LEA r2 r0 16
-SHR r1 r10 r2
-LEA r2 r0 8
-SHL r1 r1 r2
-LDI r2 0x01000000
-ADD r1 r1 r2
 LDIS r14 EDIT_CTX
 STW r14 r1 48
 MOV r7 r0
@@ -579,8 +563,7 @@ JMPS .redraw
 
 .edit_selected
 MOV r12 r10
-LEA r13 r0 0xff
-AND r12 r12 r13
+ANDIS r12 0xff
 LEA r13 r0 TYPE_TXT
 CMP r12 r13
 BRS.EQ .open_editor
@@ -603,28 +586,43 @@ SYS SYS_APP_LAUNCH
 HLT
 
 .run_binary
-; Keep the normal run-capacity notice without copying an oversized BIN.
 LDIS r13 0x3ffc
 CMP r11 r13
 BRS.GT .too_large
-LDIS r13 8192
-CMP r11 r13
-BRS.GT .launch_binary
-CALLS .open_selected_handle
+CALLS .open_extent
 CMP r2 r0
 BRS.NE .error
-MOV r1 r15
-LDIS r2 RUN_BUF
-MOV r3 r11
-SYS SYS_FILE_READ
-CMP r2 r0
-BRS.NE .error
-
-.launch_binary
-LDIS r1 RUN_BUF
 MOV r2 r11
 SYS SYS_RUN_BUFFER
-HLT
+; A successful launch replaces Files. Invalid, empty or unaligned images
+; return here with a service error; keep the directory usable.
+MOV r2 r1
+JMPS .error
+
+.open_extent
+; STAT revalidates the open table entry. If type, start or size changed
+; since selection, return to the list before mapping or executing any bytes.
+CALLS .open_selected_handle
+CMP r2 r0
+BRS.NE .extent_done
+MOV r1 r15
+SYS SYS_FILE_STAT
+CMP r1 r10
+BRS.NE .extent_changed
+CMP r2 r11
+BRS.NE .extent_changed
+LEA r2 r0 16
+SHR r1 r1 r2
+LEA r2 r0 8
+SHL r1 r1 r2
+LDI r2 0x01000000
+ADD r1 r1 r2
+MOV r2 r0
+.extent_done
+RET
+.extent_changed
+LEA r2 r0 9
+RET
 
 .check_edit_length
 MOV r2 r0
@@ -676,19 +674,16 @@ LDIS r12 EDIT_CTX
 STW r12 r15 0
 
 MOV r13 r10
-LEA r14 r0 0xff
-AND r13 r13 r14
+ANDIS r13 0xff
 STW r12 r13 4
 
 STW r12 r11 8
 LDI r13 EDIT_MAGIC
 STW r12 r13 12
 
-MOV r13 r10
 LEA r14 r0 8
-SHR r13 r13 r14
-LEA r14 r0 0xff
-AND r13 r13 r14
+SHR r13 r10 r14
+ANDIS r13 0xff
 STW r12 r13 16
 STW r12 r0 20
 STW r12 r0 24
@@ -701,11 +696,9 @@ SYS SYS_FILE_TRANSFER
 RET
 
 .draw_selected_name
-MOV r6 r10
 LEA r13 r0 8
-SHR r6 r6 r13
-LEA r13 r0 0xff
-AND r6 r6 r13
+SHR r6 r10 r13
+ANDIS r6 0xff
 LDIS r3 FILE_NAME_PTR
 JMPS .draw_name
 .draw_rename_name
@@ -795,11 +788,9 @@ LDIS r2 FILE_NAME_PTR
 SYS SYS_FILE_LIST
 MOV r10 r1
 MOV r11 r2
-MOV r12 r10
 LEA r13 r0 8
-SHR r12 r12 r13
-LEA r13 r0 255
-AND r12 r12 r13
+SHR r12 r10 r13
+ANDIS r12 255
 LDIS r13 FILE_NAME_PTR
 ADD r13 r13 r12
 STB r13 r0 0
@@ -997,8 +988,7 @@ RET
 CMP r10 r0
 BRS.EQ .metadata_done
 MOV r1 r10
-LEA r2 r0 255
-AND r1 r1 r2
+ANDIS r1 255
 LDI r3 0x41544144
 LEA r2 r0 1
 CMP r1 r2
@@ -1045,8 +1035,7 @@ LEA r4 r0 28
 LEA r5 r0 9
 .meta_size_loop
 SHR r1 r11 r4
-LEA r2 r0 15
-AND r1 r1 r2
+ANDIS r1 15
 LEA r2 r0 10
 CMP r1 r2
 BRS.LT .meta_digit
@@ -1059,8 +1048,7 @@ ADD r1 r1 r2
 ADD r13 r12 r5
 STB r13 r1 0
 INC r5
-LEA r2 r0 4
-SUB r4 r4 r2
+SUBIS r4 4
 CMP r4 r0
 BRS.GE .meta_size_loop
 LDI r3 0x58454820

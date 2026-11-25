@@ -26,6 +26,7 @@ from .worldio import (
     JAVA_DATA_VERSION, NativeWorldReader, WorldWriteError, _Region, _decode_chunk,
     _flat_surface_from_level, validate_native_world, validate_position,
 )
+from .world_loading import write_loading_bundle
 
 
 def _windows_shared_lock(stream):
@@ -148,7 +149,15 @@ def _check_template_sidecars(template: Path) -> None:
     # them while claiming a relocated machine is equivalent.
     for name in ("entities", "poi", "data", "DIM-1", "DIM1", "dimensions"):
         folder = template / name
-        if folder.exists() and any(path.is_file() for path in folder.rglob("*")):
+        files = [] if not folder.exists() else [path for path in folder.rglob("*") if path.is_file()]
+        if name == "data" and folder / "chunks.dat" in files:
+            # Vanilla ticket coordinates are regenerated from the relocated
+            # ledger. Validate this one understood sidecar before omitting it;
+            # all other absolute-coordinate sidecars remain unsupported.
+            from .world_loading import _existing_forced_chunks
+            _existing_forced_chunks(template)
+            files.remove(folder / "chunks.dat")
+        if files:
             raise WorldWriteError(f"This machine template has {name} data that the installer cannot safely relocate. Use its ready-made save.")
 
 
@@ -268,11 +277,15 @@ def install_world(template: Path, source: Path, output: Path, *, console: dict,
                 level.save(staging / "level.dat")
                 info = staging / "shamaos-install"
                 info.mkdir()
+                loading = write_loading_bundle(staging,
+                    ((cx + dx, cz + dz) for cx, cz in db.execute("SELECT x,z FROM chunks ORDER BY z,x")),
+                    report_directory=info)
                 details = {"format": "shamaos-install-v1", "source_commit": source_commit,
                     "original_save": str(source), "copied_files_verified": len(original),
                     "installed_chunks": extents[-1], "offset_blocks": [dx * 16, 0, dz * 16],
-                    "console": position, "original_unchanged": True,
-                    "setup_steps": [s.format(offset_x=dx * 16, offset_z=dz * 16, **position) for s in setup_steps]}
+                    "console": position, "original_unchanged": True, "loading_plan": loading,
+                    "setup_steps": [f"Load the machine chunks: {loading['load_command']}"] +
+                        [s.format(offset_x=dx * 16, offset_z=dz * 16, **position) for s in setup_steps]}
                 (info / "installation.json").write_text(json.dumps(details, indent=2) + "\n", encoding="utf-8")
                 (staging / "START-HERE.txt").write_text(
                     "Open this new save in Minecraft Java 1.20.4. Your original save is unchanged.\n"

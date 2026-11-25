@@ -12,6 +12,7 @@ license = {text = "MIT"}
 authors = [{name = "Eabusham2"}]
 dependencies = [
   "nbtlib>=2.0,<3",
+  "pymetis==2025.2.2",
 ]
 
 [project.optional-dependencies]
